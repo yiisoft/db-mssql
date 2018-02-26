@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mssql;
+namespace yii\mssql;
 
 /**
  * TableSchema represents the metadata of a database table.

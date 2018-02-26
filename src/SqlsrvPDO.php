@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mssql;
+namespace yii\mssql;
 
 /**
  * This is an extension of the default PDO class of SQLSRV driver.

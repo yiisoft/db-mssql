@@ -5,10 +5,11 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mssql\conditions;
+namespace yii\mssql\conditions;
 
 /**
  * {@inheritdoc}
+ * @since 1.0
  */
 class LikeConditionBuilder extends \yii\db\conditions\LikeConditionBuilder
 {

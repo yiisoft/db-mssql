@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mssql;
+namespace yii\mssql;
 
 use yii\base\InvalidArgumentException;
 use yii\db\Constraint;
@@ -53,8 +53,8 @@ class QueryBuilder extends \yii\db\QueryBuilder
     protected function defaultExpressionBuilders()
     {
         return array_merge(parent::defaultExpressionBuilders(), [
-            'yii\db\conditions\InCondition' => 'yii\db\mssql\conditions\InConditionBuilder',
-            'yii\db\conditions\LikeCondition' => 'yii\db\mssql\conditions\LikeConditionBuilder',
+            \yii\db\conditions\InCondition::class => conditions\InConditionBuilder::class,
+            \yii\db\conditions\LikeCondition::class => conditions\LikeConditionBuilder::class,
         ]);
     }
 

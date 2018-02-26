@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mssql;
+namespace yii\mssql;
 
 /**
  * Database connection class prefilled for MSSQL Server.

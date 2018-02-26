@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db\mssql\conditions;
+namespace yii\mssql\conditions;
 
 use yii\base\NotSupportedException;
 
