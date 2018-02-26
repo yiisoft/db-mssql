@@ -15,7 +15,7 @@ use yii\db\Expression;
  * QueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
  *
  * @author Timur Ruziev <resurtm@gmail.com>
- * @since 2.0
+ * @since 1.0
  */
 class QueryBuilder extends \yii\db\QueryBuilder
 {
@@ -254,7 +254,6 @@ class QueryBuilder extends \yii\db\QueryBuilder
 
     /**
      * {@inheritdoc}
-     * @since 2.0.8
      */
     public function addCommentOnColumn($table, $column, $comment)
     {
@@ -263,7 +262,6 @@ class QueryBuilder extends \yii\db\QueryBuilder
 
     /**
      * {@inheritdoc}
-     * @since 2.0.8
      */
     public function addCommentOnTable($table, $comment)
     {
@@ -272,7 +270,6 @@ class QueryBuilder extends \yii\db\QueryBuilder
 
     /**
      * {@inheritdoc}
-     * @since 2.0.8
      */
     public function dropCommentFromColumn($table, $column)
     {
@@ -281,7 +278,6 @@ class QueryBuilder extends \yii\db\QueryBuilder
 
     /**
      * {@inheritdoc}
-     * @since 2.0.8
      */
     public function dropCommentFromTable($table)
     {
@@ -317,7 +313,6 @@ class QueryBuilder extends \yii\db\QueryBuilder
 
     /**
      * {@inheritdoc}
-     * @since 2.0.8
      */
     public function selectExists($rawSql)
     {

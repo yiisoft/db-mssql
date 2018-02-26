@@ -12,7 +12,7 @@ namespace yii\db\mssql;
  * It provides workarounds for improperly implemented functionalities of the SQLSRV driver.
  *
  * @author Timur Ruziev <resurtm@gmail.com>
- * @since 2.0
+ * @since 1.0
  */
 class SqlsrvPDO extends \PDO
 {

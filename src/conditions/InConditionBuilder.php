@@ -13,7 +13,7 @@ use yii\base\NotSupportedException;
  * {@inheritdoc}
  *
  * @author Dmytro Naumenko <d.naumenko.a@gmail.com>
- * @since 2.0.14
+ * @since 1.0
  */
 class InConditionBuilder extends \yii\db\conditions\InConditionBuilder
 {
