@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
+        <img src="https://avatars0.githubusercontent.com/u/6154722" height="100px">
     </a>
     <h1 align="center">MSSQL Server Extension for Yii 2</h1>
     <br>
