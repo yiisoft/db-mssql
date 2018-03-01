@@ -79,8 +79,8 @@ abstract class DatabaseTestCase extends TestCase
 
     public function prepareDatabase($config, $fixture, $open = true)
     {
-        if (!isset($config['class'])) {
-            $config['class'] = \yii\mssql\Connection::class;
+        if (!isset($config['__class'])) {
+            $config['__class'] = \yii\mssql\Connection::class;
         }
         /* @var $db \yii\db\Connection */
         $db = Yii::createObject($config);
