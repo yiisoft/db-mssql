@@ -1,15 +1,15 @@
 {
-    "name": "yiisoft/yii2-mssql",
+    "name": "yiisoft/yii-mssql",
     "description": "MSSQL Server extension for the Yii framework",
-    "keywords": ["yii2", "mssql", "sql server"],
-    "type": "yii2-extension",
+    "keywords": ["yii", "mssql", "sql server"],
+    "type": "library",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/yiisoft/yii2-mssql/issues",
+        "issues": "https://github.com/yiisoft/yii-mssql/issues",
         "forum": "http://www.yiiframework.com/forum/",
         "wiki": "http://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
-        "source": "https://github.com/yiisoft/yii2-mssql"
+        "source": "https://github.com/yiisoft/yii-mssql"
     },
     "authors": [
         {
@@ -24,7 +24,7 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "3.0.x-dev"
+        "yiisoft/core": "^1.0"
     },
     "autoload": {
         "psr-4": {"yii\\mssql\\": "src"}
