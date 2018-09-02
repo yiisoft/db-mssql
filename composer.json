@@ -1,5 +1,5 @@
 {
-    "name": "yiisoft/yii-mssql",
+    "name": "yiisoft/db-mssql",
     "description": "MSSQL Server extension for the Yii framework",
     "keywords": ["yii", "mssql", "sql server"],
     "type": "library",
