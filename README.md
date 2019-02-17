@@ -12,9 +12,9 @@ For license information check the [LICENSE](LICENSE.md)-file.
 
 Documentation is at [docs/guide/README.md](docs/guide/README.md).
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-mssql/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-mssql)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-mssql/downloads.png)](https://packagist.org/packages/yiisoft/yii2-mssql)
-[![Build Status](https://travis-ci.org/yiisoft/yii2-mssql.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-mssql)
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/db-mssql/v/stable.png)](https://packagist.org/packages/yiisoft/db-mssql)
+[![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads.png)](https://packagist.org/packages/yiisoft/db-mssql)
+[![Build Status](https://travis-ci.org/yiisoft/db-mssql.svg?branch=master)](https://travis-ci.org/yiisoft/db-mssql)
 
 
 Installation
@@ -25,13 +25,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require --prefer-dist yiisoft/yii2-mssql
+php composer.phar require --prefer-dist yiisoft/db-mssql
 ```
 
 or add
 
 ```
-"yiisoft/yii2-mssql": "~1.0.0"
+"yiisoft/db-mssql": "~1.0.0"
 ```
 
 to the require section of your composer.json.
