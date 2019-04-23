@@ -13,7 +13,7 @@ use yii\mssql\QueryBuilder;
 use yii\db\Query;
 use yii\db\Schema;
 use yii\db\SchemaBuilderTrait;
-use yii\helpers\ArrayHelper;
+use Yiisoft\Arrays\ArrayHelper;
 
 class QueryBuilderTest extends DatabaseTestCase
 {

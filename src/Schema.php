@@ -16,7 +16,7 @@ use yii\db\DefaultValueConstraint;
 use yii\db\ForeignKeyConstraint;
 use yii\db\IndexConstraint;
 use yii\db\ViewFinderTrait;
-use yii\helpers\ArrayHelper;
+use Yiisoft\Arrays\ArrayHelper;
 
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
