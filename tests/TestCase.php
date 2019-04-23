@@ -8,8 +8,8 @@
 namespace yiiunit\mssql;
 
 use yii\di\Container;
-use yii\helpers\ArrayHelper;
 use Yii;
+use Yiisoft\Arrays\ArrayHelper;
 
 /**
  * This is the base class for all unit tests.
