@@ -36,10 +36,10 @@
         "yiisoft/cache": "dev-master"
     },
     "autoload": {
-        "psr-4": {"yii\\mssql\\": "src"}
+        "psr-4": {"Yiisoft\\Db\\Mssql\\": "src"}
     },
     "autoload-dev": {
-        "psr-4": {"yiiunit\\mssql\\": "tests"}
+        "psr-4": {"Yiisoft\\Db\\Mssql\\Tests\\": "tests"}
     },
     "extra": {
         "branch-alias": {

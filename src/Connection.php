@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\mssql;
+namespace Yiisoft\Db\Mssql;
 
 /**
  * Database connection class prefilled for MSSQL Server.
@@ -13,7 +13,7 @@ namespace yii\mssql;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 1.0
  */
-class Connection extends \yii\db\Connection
+class Connection extends \Yiisoft\Db\Connection
 {
     /**
      * {@inheritdoc}

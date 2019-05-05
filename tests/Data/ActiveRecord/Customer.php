@@ -5,10 +5,10 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql\data\ar;
+namespace Yiisoft\Db\Mssql\Tests\Data\ActiveRecord;
 
-use yii\db\ActiveQuery;
-use yiiunit\mssql\ActiveRecordTest;
+use Yiisoft\Db\ActiveQuery;
+use Yiisoft\Db\Mssql\Tests\ActiveRecordTest;
 
 /**
  * Class Customer.

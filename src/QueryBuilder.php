@@ -5,11 +5,11 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\mssql;
+namespace Yiisoft\Db\Mssql;
 
 use yii\base\InvalidArgumentException;
-use yii\db\Constraint;
-use yii\db\Expression;
+use Yiisoft\Db\Constraint;
+use Yiisoft\Db\Expression;
 
 /**
  * QueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
@@ -17,7 +17,7 @@ use yii\db\Expression;
  * @author Timur Ruziev <resurtm@gmail.com>
  * @since 1.0
  */
-class QueryBuilder extends \yii\db\QueryBuilder
+class QueryBuilder extends \Yiisoft\Db\QueryBuilder
 {
     /**
      * @var array mapping from abstract column types (keys) to physical column types (values).
@@ -53,8 +53,8 @@ class QueryBuilder extends \yii\db\QueryBuilder
     protected function defaultExpressionBuilders()
     {
         return array_merge(parent::defaultExpressionBuilders(), [
-            \yii\db\conditions\InCondition::class => conditions\InConditionBuilder::class,
-            \yii\db\conditions\LikeCondition::class => conditions\LikeConditionBuilder::class,
+            \Yiisoft\Db\Conditions\InCondition::class => Conditions\InConditionBuilder::class,
+            \Yiisoft\Db\Conditions\LikeCondition::class => Conditions\LikeConditionBuilder::class,
         ]);
     }
 
@@ -78,9 +78,9 @@ class QueryBuilder extends \yii\db\QueryBuilder
     /**
      * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2012 or newer.
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET)
-     * @param array $orderBy the order by columns. See [[\yii\db\Query::orderBy]] for more details on how to specify this parameter.
-     * @param int $limit the limit number. See [[\yii\db\Query::limit]] for more details.
-     * @param int $offset the offset number. See [[\yii\db\Query::offset]] for more details.
+     * @param array $orderBy the order by columns. See [[\Yiisoft\Db\Query::orderBy]] for more details on how to specify this parameter.
+     * @param int $limit the limit number. See [[\Yiisoft\Db\Query::limit]] for more details.
+     * @param int $offset the offset number. See [[\Yiisoft\Db\Query::offset]] for more details.
      * @param array $params the binding parameters to be populated
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any)
      */
@@ -106,9 +106,9 @@ class QueryBuilder extends \yii\db\QueryBuilder
     /**
      * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2005 to 2008.
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET)
-     * @param array $orderBy the order by columns. See [[\yii\db\Query::orderBy]] for more details on how to specify this parameter.
-     * @param int $limit the limit number. See [[\yii\db\Query::limit]] for more details.
-     * @param int $offset the offset number. See [[\yii\db\Query::offset]] for more details.
+     * @param array $orderBy the order by columns. See [[\Yiisoft\Db\Query::orderBy]] for more details on how to specify this parameter.
+     * @param int $limit the limit number. See [[\Yiisoft\Db\Query::limit]] for more details.
+     * @param int $offset the offset number. See [[\Yiisoft\Db\Query::offset]] for more details.
      * @param array $params the binding parameters to be populated
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any)
      */
@@ -295,7 +295,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
         if (!$modelClass) {
             return null;
         }
-        /* @var $modelClass \yii\db\ActiveRecord */
+        /* @var $modelClass \Yiisoft\Db\ActiveRecord */
         $schema = $modelClass::getTableSchema();
         return array_keys($schema->columns);
     }
