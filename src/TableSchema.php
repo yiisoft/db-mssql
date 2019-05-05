@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\mssql;
+namespace Yiisoft\Db\Mssql;
 
 /**
  * TableSchema represents the metadata of a database table.
@@ -13,7 +13,7 @@ namespace yii\mssql;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 1.0
  */
-class TableSchema extends \yii\db\TableSchema
+class TableSchema extends \Yiisoft\Db\TableSchema
 {
     /**
      * @var string name of the catalog (database) that this table belongs to.

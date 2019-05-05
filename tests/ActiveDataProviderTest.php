@@ -5,16 +5,16 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql;
+namespace Yiisoft\Db\Mssql\Tests;
 
 use yii\base\InvalidCallException;
 use yii\data\ActiveDataProvider;
-use yii\db\Query;
-use yiiunit\mssql\data\ar\ActiveRecord;
-use yiiunit\mssql\data\ar\Customer;
-use yiiunit\mssql\data\ar\Item;
-use yiiunit\mssql\data\ar\Order;
-use yiiunit\mssql\data\UnqueryableQueryMock;
+use Yiisoft\Db\Query;
+use Yiisoft\Db\Mssql\Tests\Data\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Mssql\Tests\Data\ActiveRecord\Customer;
+use Yiisoft\Db\Mssql\Tests\Data\ActiveRecord\Item;
+use Yiisoft\Db\Mssql\Tests\Data\ActiveRecord\Order;
+use Yiisoft\Db\Mssql\Tests\Data\UnqueryableQueryMock;
 
 /**
  * @group data

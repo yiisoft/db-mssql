@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql;
+namespace Yiisoft\Db\Mssql\Tests;
 
 use yii\di\Container;
 use Yii;

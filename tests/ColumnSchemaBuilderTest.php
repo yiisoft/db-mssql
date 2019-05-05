@@ -5,11 +5,11 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql;
+namespace Yiisoft\Db\Mssql\Tests;
 
-use yii\db\ColumnSchemaBuilder;
-use yii\db\Expression;
-use yii\db\Schema;
+use Yiisoft\Db\ColumnSchemaBuilder;
+use Yiisoft\Db\Expression;
+use Yiisoft\Db\Schema;
 
 /**
  * ColumnSchemaBuilderTest tests ColumnSchemaBuilder for MSSQL.

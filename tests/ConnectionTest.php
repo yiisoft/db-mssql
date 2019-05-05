@@ -5,11 +5,11 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql;
+namespace Yiisoft\Db\Mssql\Tests;
 
 use Yii;
-use yii\mssql\Connection;
-use yii\db\Transaction;
+use Yiisoft\Db\Mssql\Connection;
+use Yiisoft\Db\Transaction;
 
 class ConnectionTest extends DatabaseTestCase
 {
@@ -40,7 +40,7 @@ class ConnectionTest extends DatabaseTestCase
 
         $connection = new Connection();
         $connection->dsn = 'unknown::memory:';
-        $this->expectException('yii\db\Exception');
+        $this->expectException('Yiisoft\Db\Exception');
         $connection->open();
     }
 
@@ -53,7 +53,7 @@ class ConnectionTest extends DatabaseTestCase
         $this->assertNotNull($connection->pdo);
 
         $unserialized = unserialize($serialized);
-        $this->assertInstanceOf('yii\db\Connection', $unserialized);
+        $this->assertInstanceOf('Yiisoft\Db\Connection', $unserialized);
         $this->assertNull($unserialized->pdo);
 
         $this->assertEquals(123, $unserialized->createCommand('SELECT 123')->queryScalar());
@@ -305,7 +305,7 @@ class ConnectionTest extends DatabaseTestCase
         $thrown = false;
         try {
             $connection->createCommand('INSERT INTO qlog1(a) VALUES(:a);', [':a' => 1])->execute();
-        } catch (\yii\db\Exception $e) {
+        } catch (\Yiisoft\Db\Exception $e) {
             $this->assertContains('INSERT INTO qlog1(a) VALUES(1);', $e->getMessage(), 'Exception message should contain raw SQL query: ' . (string) $e);
             $thrown = true;
         }
@@ -314,7 +314,7 @@ class ConnectionTest extends DatabaseTestCase
         $thrown = false;
         try {
             $connection->createCommand('SELECT * FROM qlog1 WHERE id=:a ORDER BY nonexistingcolumn;', [':a' => 1])->queryAll();
-        } catch (\yii\db\Exception $e) {
+        } catch (\Yiisoft\Db\Exception $e) {
             $this->assertContains('SELECT * FROM qlog1 WHERE id=1 ORDER BY nonexistingcolumn;', $e->getMessage(), 'Exception message should contain raw SQL query: ' . (string) $e);
             $thrown = true;
         }

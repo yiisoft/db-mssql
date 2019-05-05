@@ -5,17 +5,17 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\mssql;
+namespace Yiisoft\Db\Mssql;
 
-use yii\db\CheckConstraint;
-use yii\db\ColumnSchema;
-use yii\db\Constraint;
-use yii\db\ConstraintFinderInterface;
-use yii\db\ConstraintFinderTrait;
-use yii\db\DefaultValueConstraint;
-use yii\db\ForeignKeyConstraint;
-use yii\db\IndexConstraint;
-use yii\db\ViewFinderTrait;
+use Yiisoft\Db\CheckConstraint;
+use Yiisoft\Db\ColumnSchema;
+use Yiisoft\Db\Constraint;
+use Yiisoft\Db\ConstraintFinderInterface;
+use Yiisoft\Db\ConstraintFinderTrait;
+use Yiisoft\Db\DefaultValueConstraint;
+use Yiisoft\Db\ForeignKeyConstraint;
+use Yiisoft\Db\IndexConstraint;
+use Yiisoft\Db\ViewFinderTrait;
 use Yiisoft\Arrays\ArrayHelper;
 
 /**
@@ -24,7 +24,7 @@ use Yiisoft\Arrays\ArrayHelper;
  * @author Timur Ruziev <resurtm@gmail.com>
  * @since 1.0
  */
-class Schema extends \yii\db\Schema implements ConstraintFinderInterface
+class Schema extends \Yiisoft\Db\Schema implements ConstraintFinderInterface
 {
     use ViewFinderTrait;
     use ConstraintFinderTrait;

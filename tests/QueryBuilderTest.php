@@ -5,14 +5,14 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql;
+namespace Yiisoft\Db\Mssql\Tests;
 
-use yii\db\conditions\BetweenColumnsCondition;
-use yii\db\Expression;
-use yii\mssql\QueryBuilder;
-use yii\db\Query;
-use yii\db\Schema;
-use yii\db\SchemaBuilderTrait;
+use Yiisoft\Db\Conditions\BetweenColumnsCondition;
+use Yiisoft\Db\Expression;
+use Yiisoft\Db\Mssql\QueryBuilder;
+use Yiisoft\Db\Query;
+use Yiisoft\Db\Schema;
+use Yiisoft\Db\SchemaBuilderTrait;
 use Yiisoft\Arrays\ArrayHelper;
 
 class QueryBuilderTest extends DatabaseTestCase
@@ -1885,7 +1885,7 @@ class QueryBuilderTest extends DatabaseTestCase
      */
     public function testInitFixtures()
     {
-        $this->assertInstanceOf('yii\db\QueryBuilder', $this->getQueryBuilder(true, true));
+        $this->assertInstanceOf('Yiisoft\Db\QueryBuilder', $this->getQueryBuilder(true, true));
     }
 
     /**

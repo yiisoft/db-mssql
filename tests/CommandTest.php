@@ -5,16 +5,16 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql;
+namespace Yiisoft\Db\Mssql\Tests;
 
 use yii\caching\ArrayCache;
 use yii\caching\Cache;
-use yii\db\Connection;
-use yii\db\DataReader;
-use yii\db\Exception;
-use yii\db\Expression;
-use yii\db\Query;
-use yii\db\Schema;
+use Yiisoft\Db\Connection;
+use Yiisoft\Db\DataReader;
+use Yiisoft\Db\Exception;
+use Yiisoft\Db\Expression;
+use Yiisoft\Db\Query;
+use Yiisoft\Db\Schema;
 
 class CommandTest extends DatabaseTestCase
 {
@@ -60,7 +60,7 @@ class CommandTest extends DatabaseTestCase
         $this->assertEquals(1, $command->queryScalar());
 
         $command = $db->createCommand('bad SQL');
-        $this->expectException('\yii\db\Exception');
+        $this->expectException('\Yiisoft\Db\Exception');
         $command->execute();
     }
 
@@ -121,7 +121,7 @@ class CommandTest extends DatabaseTestCase
         $this->assertFalse($command->queryScalar());
 
         $command = $db->createCommand('bad SQL');
-        $this->expectException('\yii\db\Exception');
+        $this->expectException('\Yiisoft\Db\Exception');
         $command->query();
     }
 
@@ -349,7 +349,7 @@ class CommandTest extends DatabaseTestCase
             ]
         )->execute();
 
-        $query = new \yii\db\Query();
+        $query = new \Yiisoft\Db\Query();
         $query->select([
                 '{{customer}}.[[email]] as name',
                 '[[name]] as email',
@@ -403,7 +403,7 @@ class CommandTest extends DatabaseTestCase
             ]
         )->execute();
 
-        $query = new \yii\db\Query();
+        $query = new \Yiisoft\Db\Query();
         $query->select([
                 'email' => '{{customer}}.[[email]]',
                 'address' => 'name',
@@ -462,7 +462,7 @@ class CommandTest extends DatabaseTestCase
      */
     public function testInsertSelectFailed($invalidSelectColumns)
     {
-        $query = new \yii\db\Query();
+        $query = new \Yiisoft\Db\Query();
         $query->select($invalidSelectColumns)->from('{{customer}}');
 
         $db = $this->getConnection();
@@ -523,7 +523,7 @@ class CommandTest extends DatabaseTestCase
             'total' => 42,
         ])->execute();
 
-        $columnValueQuery = new \yii\db\Query();
+        $columnValueQuery = new \Yiisoft\Db\Query();
         $columnValueQuery->select('created_at')->from('{{order}}')->where(['id' => '42']);
 
         $command = $db->createCommand();
@@ -905,7 +905,7 @@ class CommandTest extends DatabaseTestCase
         $db = $this->getConnection(false);
         $tableName = 'test_pk';
         $name = 'test_pk_constraint';
-        /** @var \yii\db\pgsql\Schema $schema */
+        /** @var \Yiisoft\Db\pgsql\Schema $schema */
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
@@ -932,7 +932,7 @@ class CommandTest extends DatabaseTestCase
         $db = $this->getConnection(false);
         $tableName = 'test_fk';
         $name = 'test_fk_constraint';
-        /** @var \yii\db\pgsql\Schema $schema */
+        /** @var \Yiisoft\Db\pgsql\Schema $schema */
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
@@ -965,7 +965,7 @@ class CommandTest extends DatabaseTestCase
         $db = $this->getConnection(false);
         $tableName = 'test_idx';
         $name = 'test_idx_constraint';
-        /** @var \yii\db\pgsql\Schema $schema */
+        /** @var \Yiisoft\Db\pgsql\Schema $schema */
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
@@ -1009,7 +1009,7 @@ class CommandTest extends DatabaseTestCase
         $db = $this->getConnection(false);
         $tableName = 'test_uq';
         $name = 'test_uq_constraint';
-        /** @var \yii\db\pgsql\Schema $schema */
+        /** @var \Yiisoft\Db\pgsql\Schema $schema */
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
@@ -1036,7 +1036,7 @@ class CommandTest extends DatabaseTestCase
         $db = $this->getConnection(false);
         $tableName = 'test_ck';
         $name = 'test_ck_constraint';
-        /** @var \yii\db\pgsql\Schema $schema */
+        /** @var \Yiisoft\Db\pgsql\Schema $schema */
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
@@ -1056,7 +1056,7 @@ class CommandTest extends DatabaseTestCase
 
     public function testIntegrityViolation()
     {
-        $this->expectException('\yii\db\IntegrityException');
+        $this->expectException('\Yiisoft\Db\IntegrityException');
 
         $db = $this->getConnection();
 
@@ -1280,7 +1280,7 @@ class CommandTest extends DatabaseTestCase
             $command->execute();
         } catch (Exception $e) {
             $hitCatch = true;
-            $this->assertInstanceOf('yii\db\IntegrityException', $e);
+            $this->assertInstanceOf('Yiisoft\Db\IntegrityException', $e);
         }
         $this->assertNull($connection->transaction);
         $this->assertSame(3, $attempts);
@@ -1291,7 +1291,7 @@ class CommandTest extends DatabaseTestCase
     public function testCreateView()
     {
         $db = $this->getConnection();
-        $subquery = (new \yii\db\Query())
+        $subquery = (new \Yiisoft\Db\Query())
             ->select('bar')
             ->from('testCreateViewTable')
             ->where(['>', 'bar', '5']);
@@ -1407,7 +1407,7 @@ class CommandTest extends DatabaseTestCase
         $db = $this->getConnection(false);
         $tableName = 'test_def';
         $name = 'test_def_constraint';
-        /** @var \yii\db\pgsql\Schema $schema */
+        /** @var \Yiisoft\Db\pgsql\Schema $schema */
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {

@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\mssql;
+namespace Yiisoft\Db\Mssql;
 
 /**
  * This is an extension of the default PDO class of MSSQL and DBLIB drivers.

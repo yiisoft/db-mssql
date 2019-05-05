@@ -5,21 +5,21 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql;
+namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
 use yii\caching\ArrayCache;
 use yii\caching\FileCache;
-use yii\db\CheckConstraint;
-use yii\db\ColumnSchema;
-use yii\db\Constraint;
-use yii\db\Expression;
-use yii\db\ForeignKeyConstraint;
-use yii\db\IndexConstraint;
-use yii\db\Schema;
-use yii\db\TableSchema;
-use yii\db\DefaultValueConstraint;
-use yiiunit\mssql\data\AnyValue;
+use Yiisoft\Db\CheckConstraint;
+use Yiisoft\Db\ColumnSchema;
+use Yiisoft\Db\Constraint;
+use Yiisoft\Db\Expression;
+use Yiisoft\Db\ForeignKeyConstraint;
+use Yiisoft\Db\IndexConstraint;
+use Yiisoft\Db\Schema;
+use Yiisoft\Db\TableSchema;
+use Yiisoft\Db\DefaultValueConstraint;
+use Yiisoft\Db\Mssql\Tests\Data\AnyValue;
 
 class SchemaTest extends DatabaseTestCase
 {
@@ -211,7 +211,7 @@ class SchemaTest extends DatabaseTestCase
         $tables = $schema->getTableSchemas();
         $this->assertEquals(\count($schema->getTableNames()), \count($tables));
         foreach ($tables as $table) {
-            $this->assertInstanceOf('yii\db\TableSchema', $table);
+            $this->assertInstanceOf('Yiisoft\Db\TableSchema', $table);
         }
     }
 
@@ -707,7 +707,7 @@ class SchemaTest extends DatabaseTestCase
         $schema = $this->getConnection()->getSchema();
         foreach ($tableNames as $tableName) {
             $tableSchema = $schema->getTableSchema($tableName);
-            $this->assertInstanceOf('yii\db\TableSchema', $tableSchema, $tableName);
+            $this->assertInstanceOf('Yiisoft\Db\TableSchema', $tableSchema, $tableName);
         }
     }
 

@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql\data\ar;
+namespace Yiisoft\Db\Mssql\Tests\Data\ActiveRecord;
 
 /**
  * Class Profile.

@@ -5,11 +5,11 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\mssql;
+namespace Yiisoft\Db\Mssql\Tests;
 
 use Yii;
 use yii\caching\DummyCache;
-use yii\db\Connection;
+use Yiisoft\Db\Connection;
 
 abstract class DatabaseTestCase extends TestCase
 {
@@ -54,7 +54,7 @@ abstract class DatabaseTestCase extends TestCase
     /**
      * @param  bool $reset whether to clean up the test database
      * @param  bool $open  whether to open and populate test database
-     * @return \yii\db\Connection
+     * @return \Yiisoft\Db\Connection
      */
     public function getConnection($reset = true, $open = true)
     {
@@ -80,9 +80,9 @@ abstract class DatabaseTestCase extends TestCase
     public function prepareDatabase($config, $fixture, $open = true)
     {
         if (!isset($config['__class'])) {
-            $config['__class'] = \yii\mssql\Connection::class;
+            $config['__class'] = \Yiisoft\Db\Mssql\Connection::class;
         }
-        /* @var $db \yii\db\Connection */
+        /* @var $db \Yiisoft\Db\Connection */
         $db = Yii::createObject($config);
         if (!$open) {
             return $db;
@@ -124,7 +124,7 @@ abstract class DatabaseTestCase extends TestCase
     }
     
     /**
-     * @return \yii\db\Connection
+     * @return \Yiisoft\Db\Connection
      */
     protected function getConnectionWithInvalidSlave()
     {
