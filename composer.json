@@ -1,7 +1,11 @@
 {
     "name": "yiisoft/db-mssql",
     "description": "MSSQL Server extension for the Yii framework",
-    "keywords": ["yii", "mssql", "sql server"],
+    "keywords": [
+        "yii",
+        "mssql",
+        "sql server"
+    ],
     "type": "library",
     "license": "BSD-3-Clause",
     "support": {
@@ -35,14 +39,21 @@
         "yiisoft/cache": "dev-master"
     },
     "autoload": {
-        "psr-4": {"Yiisoft\\Db\\Mssql\\": "src"}
+        "psr-4": {
+            "Yiisoft\\Db\\Mssql\\": "src"
+        }
     },
     "autoload-dev": {
-        "psr-4": {"Yiisoft\\Db\\Mssql\\Tests\\": "tests"}
+        "psr-4": {
+            "Yiisoft\\Db\\Mssql\\Tests\\": "tests"
+        }
     },
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
