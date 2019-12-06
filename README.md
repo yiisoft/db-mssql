@@ -14,7 +14,7 @@ Documentation is at [docs/guide/README.md](docs/guide/README.md).
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/db-mssql/v/stable.png)](https://packagist.org/packages/yiisoft/db-mssql)
 [![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads.png)](https://packagist.org/packages/yiisoft/db-mssql)
-[![Build Status](https://travis-ci.org/yiisoft/db-mssql.svg?branch=master)](https://travis-ci.org/yiisoft/db-mssql)
+[![Build Status](https://travis-ci.com/yiisoft/db-mssql.svg?branch=master)](https://travis-ci.com/yiisoft/db-mssql)
 
 
 Installation
