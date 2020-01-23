@@ -122,7 +122,7 @@ abstract class DatabaseTestCase extends TestCase
                 return $sql;
         }
     }
-    
+
     /**
      * @return \Yiisoft\Db\Connection
      */
