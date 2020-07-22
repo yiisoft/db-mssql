@@ -350,7 +350,8 @@ class CommandTest extends DatabaseTestCase
         )->execute();
 
         $query = new \Yiisoft\Db\Query();
-        $query->select([
+        $query->select(
+            [
                 '{{customer}}.[[email]] as name',
                 '[[name]] as email',
                 '[[address]]',
@@ -404,7 +405,8 @@ class CommandTest extends DatabaseTestCase
         )->execute();
 
         $query = new \Yiisoft\Db\Query();
-        $query->select([
+        $query->select(
+            [
                 'email' => '{{customer}}.[[email]]',
                 'address' => 'name',
                 'name' => 'address',
