@@ -1,7 +1,7 @@
-REST Extension for Yii 2
+MSSQL Server Extension for Yii 3
 ========================
 
-This extension provides the MSSQL Server support for the [Yii framework 2.1](http://www.yiiframework.com).
+This extension provides the MSSQL Server support for the [Yii framework 3](http://www.yiiframework.com).
 
 Getting Started
 ---------------
