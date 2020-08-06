@@ -2,11 +2,11 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/6154722" height="100px">
     </a>
-    <h1 align="center">MSSQL Server Extension for Yii 2</h1>
+    <h1 align="center">MSSQL Server Extension for Yii 3</h1>
     <br>
 </p>
 
-This extension provides the MSSQL Server support for the [Yii framework 2.1](http://www.yiiframework.com).
+This extension provides the MSSQL Server support for the [Yii framework 3 ](http://www.yiiframework.com) (formerly Yii 2.1).
 
 For license information check the [LICENSE](LICENSE.md)-file.
 
