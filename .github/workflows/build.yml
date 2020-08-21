@@ -26,6 +26,7 @@ jobs:
         mssql:
           - "server:2017-latest"
 
+    services:
       mssql:
           image: mcr.microsoft.com/mssql/${{ matrix.mssql }}
           env:
