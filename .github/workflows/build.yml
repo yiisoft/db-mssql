@@ -9,7 +9,7 @@ jobs:
     name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}
 
     env:
-      extensions: curl, intl, pdo, pdo_mssql
+      extensions: curl, intl, pdo, pdo_sqlsrv
       key: cache
 
     runs-on: ${{ matrix.os }}
