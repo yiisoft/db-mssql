@@ -23,6 +23,7 @@ jobs:
         php:
           - "7.4"
 
+    services:
       mssql:
           image: mcr.microsoft.com/mssql/server:2017-latest
           env:
