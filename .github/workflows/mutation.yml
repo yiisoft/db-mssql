@@ -48,7 +48,7 @@ jobs:
           extensions: ${{ env.extensions }}
           ini-values: memory_limit=-1
           coverage: "pcov"
-          tools: composer:v2
+          tools: composer:v2, pecl
 
       - name: Install php-sqlsrv
         run: |
