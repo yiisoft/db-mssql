@@ -24,6 +24,7 @@ jobs:
 
         mssql:
           - "server:2017-latest"
+          - "server:2019-latest"
 
     services:
       mssql:
