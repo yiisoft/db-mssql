@@ -9,7 +9,7 @@ jobs:
     name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}
 
     env:
-      extensions: curl, intl, pdo
+      extensions: curl, intl, pdo, pdo_sqlsrv
       key: cache
 
     runs-on: ${{ matrix.os }}
@@ -67,21 +67,6 @@ jobs:
           coverage: pcov
           tools: composer:v2, pecl
 
-      - name: Install php-sqlsrv
-        run: |
-            curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - >/dev/null 2>&1
-            curl -sSL https://packages.microsoft.com/config/ubuntu/16.04/mssql-server-2017.list | sudo tee /etc/apt/sources.list.d/mssql-server-2017.list >/dev/null 2>&1
-            printf "\033[32;1m✓ \033[0m\033[90;1madd microsoft keys & repository\n"
-            sudo apt-get -q update >/dev/null 2>&1
-            printf "\033[32;1m✓ \033[0m\033[90;1mapt-get update\n"
-            sudo pecl -q install pdo_sqlsrv > /dev/null 2>&1
-            printf "\033[32;1m✓ \033[0m\033[90;1mpecl install pdo_sqlsrv\n"
-            if (php -m | grep -i -q -w "pdo_sqlsrv"); then
-                printf "\033[32;1mpdo_sqlsrv installed correct\n"
-            else
-                printf "\033[31;1mpdo_sqlsrv not installed :-(\n"
-            fi
-
       - name: Determine composer cache directory on Linux
         if: matrix.os == 'ubuntu-latest'
         run: echo "::set-env name=COMPOSER_CACHE_DIR::$(composer config cache-dir)"
@@ -106,7 +91,7 @@ jobs:
         if: matrix.php == '8.0'
         run: composer update --ignore-platform-reqs --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Run pgsql tests with phpunit
+      - name: Run mssql tests with phpunit
         run: vendor/bin/phpunit --coverage-clover=coverage.clover
 
       - name: Code coverage
