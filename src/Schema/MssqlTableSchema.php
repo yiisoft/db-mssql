@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Schema;
 
-use Yiisoft\Db\Schema\TableSchema as AbstractTableSchema;
+use Yiisoft\Db\Schema\TableSchema;
 
 /**
  * TableSchema represents the metadata of a database table.
  */
-final class MssqlTableSchema extends AbstractTableSchema
+final class MssqlTableSchema extends TableSchema
 {
     private ?string $catalogName = null;
     private array $foreignKeys = [];
