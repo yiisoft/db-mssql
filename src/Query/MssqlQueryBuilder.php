@@ -45,8 +45,8 @@ final class MssqlQueryBuilder extends QueryBuilder
     protected function defaultExpressionBuilders(): array
     {
         return array_merge(parent::defaultExpressionBuilders(), [
-            \Yiisoft\Db\Condition\InCondition::class => \Yiisoft\Db\Mssql\Condition\InConditionBuilder::class,
-            \Yiisoft\Db\Condition\LikeCondition::class => \Yiisoft\Db\Mssql\Condition\LikeConditionBuilder::class,
+            Yiisoft\Db\Query\Conditions\InCondition::class => Yiisoft\Db\Mssql\Condition\InConditionBuilder::class,
+            Yiisoft\Db\Query\Conditions\LikeCondition::class => Yiisoft\Db\Mssql\Condition\LikeConditionBuilder::class,
         ]);
     }
 
