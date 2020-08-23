@@ -1,26 +1,13 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
 
-namespace Yiisoft\Db\Mssql\Conditions;
+declare(strict_types=1);
 
-use yii\base\NotSupportedException;
+namespace Yiisoft\Db\Mssql\Condition;
 
-/**
- * {@inheritdoc}
- *
- * @author Dmytro Naumenko <d.naumenko.a@gmail.com>
- * @since 1.0
- */
-class InConditionBuilder extends \Yiisoft\Db\Conditions\InConditionBuilder
+use Yiisoft\Db\Exception\NotSupportedException;
+
+final class InConditionBuilder extends \Yiisoft\Db\Conditions\InConditionBuilder
 {
-    /**
-     * {@inheritdoc}
-     * @throws NotSupportedException if `$columns` is an array
-     */
     protected function buildSubqueryInCondition($operator, $columns, $values, &$params)
     {
         if (is_array($columns)) {
@@ -30,9 +17,6 @@ class InConditionBuilder extends \Yiisoft\Db\Conditions\InConditionBuilder
         return parent::buildSubqueryInCondition($operator, $columns, $values, $params);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function buildCompositeInCondition($operator, $columns, $values, &$params)
     {
         $quotedColumns = [];

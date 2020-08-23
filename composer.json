@@ -33,12 +33,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Yiisoft\\Db\\Mssql\\": "src/"
+            "Yiisoft\\Db\\Mssql\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Yiisoft\\Db\\Mssql\\Tests\\": "tests/"
+            "Yiisoft\\Db\\Mssql\\Tests\\": "tests"
         }
     },
     "extra": {

@@ -1,20 +1,14 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
 
-namespace Yiisoft\Db\Mssql;
+declare(strict_types=1);
+
+namespace Yiisoft\Db\Mssql\Pdo;
 
 /**
  * This is an extension of the default PDO class of SQLSRV driver.
  * It provides workarounds for improperly implemented functionalities of the SQLSRV driver.
- *
- * @author Timur Ruziev <resurtm@gmail.com>
- * @since 1.0
  */
-class SqlsrvPDO extends \PDO
+final class SqlsrvPDO extends \PDO
 {
     /**
      * Returns value of the last inserted ID.

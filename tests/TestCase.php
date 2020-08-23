@@ -1,119 +1,216 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use yii\di\Container;
-use Yii;
-use Yiisoft\Arrays\ArrayHelper;
+use PHPUnit\Framework\TestCase as AbstractTestCase;
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
+use Psr\Log\NullLogger;
+use Yiisoft\Aliases\Aliases;
+use Yiisoft\Cache\ArrayCache;
+use Yiisoft\Cache\Cache;
+use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Factory\DatabaseFactory;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Mssql\Connection\MssqlConnection;
+use Yiisoft\Db\Mssql\Helper\MssqlDsn;
+use Yiisoft\Di\Container;
+use Yiisoft\Files\FileHelper;
+use Yiisoft\Log\Logger;
+use Yiisoft\Profiler\Profiler;
 
-/**
- * This is the base class for all unit tests.
- */
-abstract class TestCase extends \PHPUnit\Framework\TestCase
+class TestCase extends AbstractTestCase
 {
-    /**
-     * @var array config parameters.
-     */
-    public static $params;
+    protected Aliases $aliases;
+    protected CacheInterface $cache;
+    protected ContainerInterface $container;
+    protected LoggerInterface $logger;
+    protected MssqlConnection $mssqlConnection;
+    protected Profiler $profiler;
+    protected array $dataProvider;
 
-
-    /**
-     * Returns a test configuration param from /data/config.php.
-     * @param  string $name params name
-     * @param  mixed $default default value to use when param is not set.
-     * @return mixed  the value of the configuration param
-     */
-    public static function getParam($name, $default = null)
+    protected function setUp(): void
     {
-        if (static::$params === null) {
-            static::$params = require __DIR__ . '/data/config.php';
-        }
+        parent::setUp();
 
-        return isset(static::$params[$name]) ? static::$params[$name] : $default;
+        $this->configContainer();
     }
 
-    /**
-     * Clean up after test.
-     * By default the application created with [[mockApplication]] will be destroyed.
-     */
-    protected function tearDown()
+    protected function tearDown(): void
     {
+        unset($this->aliases, $this->cache, $this->container, $this->logger, $this->profiler);
+
         parent::tearDown();
-        $this->destroyApplication();
+    }
+
+    protected function configContainer(): void
+    {
+        $this->container = new Container($this->config());
+
+        $this->aliases = $this->container->get(Aliases::class);
+        $this->cache = $this->container->get(CacheInterface::class);
+        $this->logger = $this->container->get(LoggerInterface::class);
+        $this->profiler = $this->container->get(Profiler::class);
+        $this->mssqlConnection = $this->container->get(Connection::class);
+
+        DatabaseFactory::initialize($this->container, []);
     }
 
     /**
-     * Populates Yii::$app with a new application
-     * The application will be destroyed on tearDown() automatically.
-     * @param array $config The application configuration, if needed
-     * @param string $appClass name of the application class to create
-     */
-    protected function mockApplication($config = [], $appClass = \Yiisoft\Yii\Console\Application::class)
-    {
-        new $appClass(ArrayHelper::merge([
-            'id' => 'testapp',
-            'basePath' => __DIR__,
-            'vendorPath' => dirname(__DIR__) . '/vendor',
-        ], $config));
-    }
-
-    protected function mockWebApplication($config = [], $appClass = \yii\web\Application::class)
-    {
-        new $appClass(ArrayHelper::merge([
-            'id' => 'testapp',
-            'basePath' => __DIR__,
-            'vendorPath' => dirname(__DIR__) . '/vendor',
-            'components' => [
-                'request' => [
-                    'cookieValidationKey' => 'wefJDF8sfdsfSDefwqdxj9oq',
-                    'scriptFile' => __DIR__ . '/index.php',
-                    'scriptUrl' => '/index.php',
-                ],
-            ]
-        ], $config));
-    }
-
-    /**
-     * Destroys application in Yii::$app by setting it to null.
-     */
-    protected function destroyApplication()
-    {
-        Yii::$app = null;
-        Yii::$container = new Container();
-    }
-
-    /**
-     * Asserting two strings equality ignoring line endings
-     *
+     * Asserting two strings equality ignoring line endings.
      * @param string $expected
      * @param string $actual
+     * @param string $message
+     *
+     * @return void
      */
-    public function assertEqualsWithoutLE($expected, $actual)
+    protected function assertEqualsWithoutLE(string $expected, string $actual, string $message = ''): void
     {
-        $expected = str_replace(["\r", "\n"], '', $expected);
-        $actual = str_replace(["\r", "\n"], '', $actual);
-        $this->assertEquals($expected, $actual);
+        $expected = str_replace("\r\n", "\n", $expected);
+        $actual = str_replace("\r\n", "\n", $actual);
+
+        $this->assertEquals($expected, $actual, $message);
     }
 
     /**
-     * Invokes object method, even if it is private or protected.
-     * @param object $object object.
-     * @param string $method method name.
-     * @param array $args method arguments
-     * @return mixed method result
+     * Asserts that value is one of expected values.
+     *
+     * @param mixed $actual
+     * @param array $expected
+     * @param string $message
      */
-    protected function invoke($object, $method, array $args = [])
+    protected function assertIsOneOf($actual, array $expected, $message = ''): void
     {
-        $classReflection = new \ReflectionClass(get_class($object));
-        $methodReflection = $classReflection->getMethod($method);
-        $methodReflection->setAccessible(true);
-        $result = $methodReflection->invokeArgs($object, $args);
-        $methodReflection->setAccessible(false);
+        self::assertThat($actual, new IsOneOfAssert($expected), $message);
+    }
+
+    /**
+     * Invokes a inaccessible method.
+     *
+     * @param $object
+     * @param $method
+     * @param array $args
+     * @param bool $revoke whether to make method inaccessible after execution.
+     *
+     * @return mixed
+     */
+    protected function invokeMethod($object, $method, $args = [], $revoke = true)
+    {
+        $reflection = new \ReflectionObject($object);
+        $method = $reflection->getMethod($method);
+        $method->setAccessible(true);
+        $result = $method->invokeArgs($object, $args);
+        if ($revoke) {
+            $method->setAccessible(false);
+        }
         return $result;
+    }
+
+    /**
+     * @param  bool $reset whether to clean up the test database.
+     * @param  bool $open  whether to open and populate test database.
+     *
+     * @return \Yiisoft\Db\Mssql\Connection\MssqlConnection
+     */
+    public function getConnection($reset = false, $open = false): MssqlConnection
+    {
+        if ($reset === false || $open === false) {
+            return $this->mssqlConnection;
+        }
+
+        try {
+            $this->prepareDatabase();
+        } catch (\Exception $e) {
+            $this->markTestSkipped('Something wrong when preparing database: ' . $e->getMessage());
+        }
+
+        return $this->mssqlConnection;
+    }
+
+    public function prepareDatabase(): void
+    {
+        $fixture = $this->params()['yiisoft/db-mssql']['fixture'];
+
+        $this->mssqlConnection->open();
+
+        if ($fixture !== null) {
+            $lines = explode(';', file_get_contents($fixture));
+
+            foreach ($lines as $line) {
+                if (trim($line) !== '') {
+                    $this->mssqlConnection->getPDO()->exec($line);
+                }
+            }
+        }
+    }
+
+
+    private function config(): array
+    {
+        $params = $this->params();
+
+        return [
+            ContainerInterface::class => static function (ContainerInterface $container) {
+                return $container;
+            },
+
+            Aliases::class => [
+                '@root' => dirname(__DIR__, 1),
+                '@data' =>  '@root/tests/data',
+                '@runtime' => '@data/runtime',
+            ],
+
+            CacheInterface::class => static function () {
+                return new Cache(new ArrayCache());
+            },
+
+            LoggerInterface::class => NullLogger::class,
+
+            Profiler::class => static function (ContainerInterface $container) {
+                return new Profiler($container->get(LoggerInterface::class));
+            },
+
+            Connection::class  => static function (ContainerInterface $container) use ($params) {
+                $dsn = new MssqlDsn(
+                    $params['yiisoft/db-mssql']['dsn']['driver'],
+                    $params['yiisoft/db-mssql']['dsn']['server'],
+                    $params['yiisoft/db-mssql']['dsn']['database'],
+                    $params['yiisoft/db-mssql']['dsn']['port'],
+                );
+
+                $connection = new MssqlConnection(
+                    $container->get(CacheInterface::class),
+                    $container->get(LoggerInterface::class),
+                    $container->get(Profiler::class),
+                    $dsn->getDsn()
+                );
+
+                $connection->setUsername($params['yiisoft/db-mssql']['username']);
+                $connection->setPassword($params['yiisoft/db-mssql']['password']);
+
+                return $connection;
+            }
+        ];
+    }
+
+    private function params(): array
+    {
+        return [
+            'yiisoft/db-mssql' => [
+                'dsn' => [
+                    'driver' => 'sqlsrv',
+                    'server' => '127.0.0.1',
+                    'database' => 'yiitest',
+                    'port' => '1433'
+                ],
+                'username' => 'SA',
+                'password' => 'YourStrong!Passw0rd',
+                'fixture' => __DIR__ . '/Data/mssql.sql',
+            ]
+        ];
     }
 }
