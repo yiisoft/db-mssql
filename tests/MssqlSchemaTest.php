@@ -248,11 +248,13 @@ final class MssqlSchemaTest extends TestCase
 
         $table = $schema->getTableSchema('composite_fk');
 
-        $this->assertCount(1, $table->foreignKeys);
-        $this->assertTrue(isset($table->foreignKeys['FK_composite_fk_order_item']));
-        $this->assertEquals('order_item', $table->foreignKeys['FK_composite_fk_order_item'][0]);
-        $this->assertEquals('order_id', $table->foreignKeys['FK_composite_fk_order_item']['order_id']);
-        $this->assertEquals('item_id', $table->foreignKeys['FK_composite_fk_order_item']['item_id']);
+        $fk = $table->getForeignKeys();
+
+        $this->assertCount(1, $fk);
+        $this->assertTrue(isset($fk['FK_composite_fk_order_item']));
+        $this->assertEquals('order_item', $fk['FK_composite_fk_order_item'][0]);
+        $this->assertEquals('order_id', $fk['FK_composite_fk_order_item']['order_id']);
+        $this->assertEquals('item_id', $fk['FK_composite_fk_order_item']['item_id']);
     }
 
     public function testGetPDOType(): void
@@ -976,7 +978,7 @@ final class MssqlSchemaTest extends TestCase
      * @param string $name
      * @param string $expectedName
      */
-    public function testGetTableSchema(string $name, string $expectedName)
+    public function testGetTableSchema(string $name, string $expectedName): void
     {
         $schema = $this->getConnection()->getSchema();
         $tableSchema = $schema->getTableSchema($name);
