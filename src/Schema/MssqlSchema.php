@@ -576,13 +576,15 @@ SQL;
 
         $rows = $this->getDb()->createCommand($sql, [':object' => $object])->queryAll();
 
-        $table->foreignKeys = [];
+        $table->foreignKeys([]);
         foreach ($rows as $row) {
-            if (!isset($table->foreignKeys[$row['fk_name']])) {
-                $table->foreignKeys[$row['fk_name']][] = $row['uq_table_name'];
+            if (!isset($table->getForeignKeys()[$row['fk_name']])) {
+                $fk[$row['fk_name']][] = $row['uq_table_name'];
+                $table->foreignKeys($fk);
             }
 
-            $table->foreignKeys[$row['fk_name']][$row['fk_column_name']] = $row['uq_column_name'];
+            $fk[$row['fk_name']][$row['fk_column_name']] = $row['uq_column_name'];
+            $table->foreignKeys($fk);
         }
     }
 

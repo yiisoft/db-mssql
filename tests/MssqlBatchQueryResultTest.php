@@ -11,7 +11,7 @@ final class MssqlBatchQueryResultTest extends TestCase
 {
     public function testQuery(): void
     {
-        $db = $this->getConnection(true, true);
+        $db = $this->getConnection(true);
 
         // initialize property test
         $query = new Query($db);
@@ -118,7 +118,7 @@ final class MssqlBatchQueryResultTest extends TestCase
 
     public function testBatchWithIndexBy(): void
     {
-        $db = $this->getConnection(true, true, true);
+        $db = $this->getConnection(true);
 
         $query = new Query($db);
 
