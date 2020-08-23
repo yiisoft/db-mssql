@@ -119,7 +119,8 @@ final class MssqlQueryBuilder extends QueryBuilder
         }
 
         $sql = preg_replace(
-            '/^([\s(])*SELECT(\s+DISTINCT)?(?!\s*TOP\s*\()/i', "\\1SELECT\\2 rowNum = ROW_NUMBER() over ($orderBy),",
+            '/^([\s(])*SELECT(\s+DISTINCT)?(?!\s*TOP\s*\()/i',
+            "\\1SELECT\\2 rowNum = ROW_NUMBER() over ($orderBy),",
             $sql
         );
 

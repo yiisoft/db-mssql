@@ -179,7 +179,6 @@ SQL;
         }, $tables);
 
         return $tables;
-
     }
 
     protected function loadTableSchema(string $name): ?MssqlTableSchema
@@ -790,5 +789,4 @@ SQL;
 
         return $result;
     }
-
 }
