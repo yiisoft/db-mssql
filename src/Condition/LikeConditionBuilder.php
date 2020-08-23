@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Condition;
 
-final class LikeConditionBuilder extends Yiisoft\Db\Query\Conditions\LikeConditionBuilder
+use Yiisoft\Db\Query\Conditions\LikeConditionBuilder as AbstractLikeConditionBuilder;
+
+final class LikeConditionBuilder extends AbstractLikeConditionBuilder
 {
     /**
      * {@inheritdoc}

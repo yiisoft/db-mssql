@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Condition;
 
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Query\Conditions\InConditionBuilder as AbstractInConditionBuilder;
 
-final class InConditionBuilder extends Yiisoft\Db\Query\Conditions\InConditionBuilder
+final class InConditionBuilder extends AbstractInConditionBuilder
 {
     protected function buildSubqueryInCondition($operator, $columns, $values, &$params)
     {
