@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase as AbstractTestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Psr\Log\NullLogger;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
@@ -18,6 +17,7 @@ use Yiisoft\Db\Factory\DatabaseFactory;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\Connection\MssqlConnection;
 use Yiisoft\Db\Mssql\Helper\MssqlDsn;
+use Yiisoft\Db\Tests\IsOneOfAssert;
 use Yiisoft\Di\Container;
 use Yiisoft\Files\FileHelper;
 use Yiisoft\Log\Logger;
@@ -28,6 +28,8 @@ class TestCase extends AbstractTestCase
     protected Aliases $aliases;
     protected CacheInterface $cache;
     protected ContainerInterface $container;
+    protected string $dsn = 'sqlsrv:Server=127.0.0.1,1433;Database=yiitest';
+    protected string $driverName = 'sqlsrv';
     protected LoggerInterface $logger;
     protected MssqlConnection $mssqlConnection;
     protected Profiler $profiler;
@@ -116,9 +118,9 @@ class TestCase extends AbstractTestCase
      *
      * @return \Yiisoft\Db\Mssql\Connection\MssqlConnection
      */
-    public function getConnection($reset = false, $open = false): MssqlConnection
+    protected function getConnection($reset = false): MssqlConnection
     {
-        if ($reset === false || $open === false) {
+        if ($reset === false) {
             return $this->mssqlConnection;
         }
 
@@ -131,7 +133,7 @@ class TestCase extends AbstractTestCase
         return $this->mssqlConnection;
     }
 
-    public function prepareDatabase(): void
+    protected function prepareDatabase(): void
     {
         $fixture = $this->params()['yiisoft/db-mssql']['fixture'];
 
@@ -148,6 +150,57 @@ class TestCase extends AbstractTestCase
         }
     }
 
+    /**
+     * Gets an inaccessible object property.
+     *
+     * @param object $object
+     * @param string $propertyName
+     * @param bool $revoke whether to make property inaccessible after getting.
+     *
+     * @return mixed
+     */
+    protected function getInaccessibleProperty(object $object, string $propertyName, bool $revoke = true)
+    {
+        $class = new \ReflectionClass($object);
+
+        while (!$class->hasProperty($propertyName)) {
+            $class = $class->getParentClass();
+        }
+
+        $property = $class->getProperty($propertyName);
+        $property->setAccessible(true);
+        $result = $property->getValue($object);
+
+        if ($revoke) {
+            $property->setAccessible(false);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Sets an inaccessible object property to a designated value.
+     * @param object $object
+     * @param string $propertyName
+     * @param $value
+     * @param bool $revoke whether to make property inaccessible after setting
+     */
+    protected function setInaccessibleProperty(object $object, string $propertyName, $value, bool $revoke = true): void
+    {
+        $class = new \ReflectionClass($object);
+
+        while (!$class->hasProperty($propertyName)) {
+            $class = $class->getParentClass();
+        }
+
+        $property = $class->getProperty($propertyName);
+        $property->setAccessible(true);
+        $property->setValue($object, $value);
+
+        if ($revoke) {
+            $property->setAccessible(false);
+        }
+    }
 
     private function config(): array
     {
@@ -168,7 +221,11 @@ class TestCase extends AbstractTestCase
                 return new Cache(new ArrayCache());
             },
 
-            LoggerInterface::class => NullLogger::class,
+            FileRotatorInterface::class => static function () {
+                return new FileRotator(10);
+            },
+
+            LoggerInterface::class => Logger::class,
 
             Profiler::class => static function (ContainerInterface $container) {
                 return new Profiler($container->get(LoggerInterface::class));
