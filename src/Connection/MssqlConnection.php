@@ -96,7 +96,5 @@ final class MssqlConnection extends Connection
         if (!$this->isSybase && in_array($this->getDriverName(), ['mssql', 'dblib'], true)) {
             $this->getPDO()->exec('SET ANSI_NULL_DFLT_ON ON');
         }
-
-        //$this->trigger(self::EVENT_AFTER_OPEN);
     }
 }

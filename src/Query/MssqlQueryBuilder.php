@@ -321,11 +321,17 @@ final class MssqlQueryBuilder extends QueryBuilder
      */
     private function normalizeTableRowData($table, $columns, &$params)
     {
-        if (($tableSchema = $this->db->getSchema()->getTableSchema($table)) !== null) {
-            $columnSchemas = $tableSchema->columns;
+        $tableSchema = $this->db->getSchema()->getTableSchema($table);
+
+        if ($tableSchema !== null) {
+            $columnSchemas = $tableSchema->getColumns();
             foreach ($columns as $name => $value) {
                 // @see https://github.com/yiisoft/yii2/issues/12599
-                if (isset($columnSchemas[$name]) && $columnSchemas[$name]->type === MssqlSchema::TYPE_BINARY && $columnSchemas[$name]->dbType === 'varbinary' && is_string($value)) {
+                if (
+                    isset($columnSchemas[$name]) &&
+                    $columnSchemas[$name]->getDbtype() === MssqlSchema::TYPE_BINARY &&
+                    $columnSchemas[$name]->getDbType() === 'varbinary' && is_string($value)
+                ) {
                     $exParams = [];
                     $phName = $this->bindParam($value, $exParams);
                     $columns[$name] = new Expression("CONVERT(VARBINARY, $phName)", $exParams);
