@@ -17,7 +17,7 @@ use Yiisoft\Db\Factory\DatabaseFactory;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\Connection\MssqlConnection;
 use Yiisoft\Db\Mssql\Helper\MssqlDsn;
-use Yiisoft\Db\Tests\IsOneOfAssert;
+use Yiisoft\Db\TestUtility\IsOneOfAssert;
 use Yiisoft\Di\Container;
 use Yiisoft\Files\FileHelper;
 use Yiisoft\Log\Logger;
@@ -44,9 +44,9 @@ class TestCase extends AbstractTestCase
 
     protected function tearDown(): void
     {
-        unset($this->aliases, $this->cache, $this->container, $this->logger, $this->profiler);
-
         parent::tearDown();
+
+        unset($this->aliases, $this->cache, $this->container, $this->logger, $this->profiler);
     }
 
     protected function configContainer(): void
@@ -120,7 +120,10 @@ class TestCase extends AbstractTestCase
      */
     protected function getConnection($reset = false): MssqlConnection
     {
-        if ($reset === false) {
+        if ($reset === false && isset($this->mssqlConnection)) {
+            return $this->mssqlConnection;
+        } elseif ($reset === false) {
+            $this->configContainer();
             return $this->mssqlConnection;
         }
 

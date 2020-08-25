@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Tests\Traits\CommandTestTrait;
+use Yiisoft\Db\Mssql\Schema\MssqlSchema;
+use Yiisoft\Db\TestUtility\TestCommandTrait;
 
+/**
+ * @group mssql
+ */
 final class MssqlCommandTest extends TestCase
 {
-    use CommandTestTrait;
+    use TestCommandTrait;
 
     public function testAutoQuoting(): void
     {
@@ -178,5 +182,30 @@ final class MssqlCommandTest extends TestCase
                 'expectedParams' => [':qp1' => 42]
             ]
         ];
+    }
+
+    public function testAlterTable(): void
+    {
+        $db = $this->getConnection();
+
+        if ($db->getSchema()->getTableSchema('testAlterTable') !== null) {
+            $db->createCommand()->dropTable('testAlterTable')->execute();
+        }
+
+        $db->createCommand()->createTable(
+            'testAlterTable',
+            ['id' => MssqlSchema::TYPE_PK, 'bar' => MssqlSchema::TYPE_INTEGER]
+        )->execute();
+
+        $db->createCommand()->insert('testAlterTable', ['bar' => 1])->execute();
+        $db->createCommand()->alterColumn('testAlterTable', 'bar', MssqlSchema::TYPE_STRING)->execute();
+        $db->createCommand()->insert('testAlterTable', ['bar' => 'hello'])->execute();
+
+        $records = $db->createCommand('SELECT [[id]], [[bar]] FROM {{testAlterTable}};')->queryAll();
+
+        $this->assertEquals([
+            ['id' => 1, 'bar' => 1],
+            ['id' => 2, 'bar' => 'hello'],
+        ], $records);
     }
 }

@@ -16,12 +16,15 @@ use Yiisoft\Db\Mssql\Schema\MssqlColumnSchema;
 use Yiisoft\Db\Mssql\Schema\MssqlSchema;
 use Yiisoft\Db\Mssql\Schema\MssqlTableSchema;
 use Yiisoft\Db\Schema\TableSchema;
-use Yiisoft\Db\Tests\AnyValue;
-use Yiisoft\Db\Tests\Traits\SchemaTestTrait;
+use Yiisoft\Db\TestUtility\AnyValue;
+use Yiisoft\Db\TestUtility\TestSchemaTrait;
 
+/**
+ * @group mssql
+ */
 final class MssqlSchemaTest extends TestCase
 {
-    use SchemaTestTrait;
+    use TestSchemaTrait;
 
     protected array $expectedSchemas = [
         'dbo',

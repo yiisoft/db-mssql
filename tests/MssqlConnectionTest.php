@@ -7,11 +7,14 @@ namespace Yiisoft\Db\Mssql\Tests;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\Connection\MssqlConnection;
 use Yiisoft\Db\Mssql\Helper\MssqlDsn;
-use Yiisoft\Db\Tests\Traits\ConnectionTestTrait;
+use Yiisoft\Db\TestUtility\TestConnectionTrait;
 
+/**
+ * @group mssql
+ */
 final class MssqlConnectionTest extends TestCase
 {
-    use ConnectionTestTrait;
+    use TestConnectionTrait;
 
     public function testQuoteValue(): void
     {
