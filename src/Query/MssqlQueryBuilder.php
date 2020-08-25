@@ -69,25 +69,28 @@ final class MssqlQueryBuilder extends QueryBuilder
      * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2012 or newer.
      *
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET)
-     * @param array $orderBy the order by columns. See {@see \Yiisoft\Db\Query::orderBy} for more details on how to
+     * @param array $orderBy the order by columns. See {@see Yiisoft\Db\Query::orderBy} for more details on how to
      * specify this parameter.
-     * @param int $limit the limit number. See {@see \Yiisoft\Db\Query::limit} for more details.
-     * @param int $offset the offset number. See {@see \Yiisoft\Db\Query::offset} for more details.
+     * @param mixed $limit the limit number. See {@see Yiisoft\Db\Query::limit} for more details.
+     * @param mixed $offset the offset number. See {@see Yiisoft\Db\Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any)
      */
-    protected function newBuildOrderByAndLimit($sql, $orderBy, $limit, $offset, &$params)
+    protected function newBuildOrderByAndLimit(string $sql, array $orderBy, $limit, $offset, array &$params = []): string
     {
         $orderBy = $this->buildOrderBy($orderBy, $params);
+
         if ($orderBy === '') {
-            // ORDER BY clause is required when FETCH and OFFSET are in the SQL
+            /* ORDER BY clause is required when FETCH and OFFSET are in the SQL */
             $orderBy = 'ORDER BY (SELECT NULL)';
         }
 
         $sql .= $this->separator . $orderBy;
 
-        // http://technet.microsoft.com/en-us/library/gg699618.aspx
+        /**
+         * {@see http://technet.microsoft.com/en-us/library/gg699618.aspx}
+         */
         $offset = $this->hasOffset($offset) ? $offset : '0';
         $sql .= $this->separator . "OFFSET $offset ROWS";
 
@@ -102,19 +105,20 @@ final class MssqlQueryBuilder extends QueryBuilder
      * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2005 to 2008.
      *
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
-     * @param array $orderBy the order by columns. See {@see \Yiisoft\Db\Query::orderBy} for more details on how to
+     * @param array $orderBy the order by columns. See {@see Yiisoft\Db\Query::orderBy} for more details on how to
      * specify this parameter.
-     * @param int $limit the limit number. See {@see \Yiisoft\Db\Query::limit} for more details.
-     * @param int $offset the offset number. See {@see \Yiisoft\Db\Query::offset} for more details.
+     * @param mixed $limit the limit number. See {@see Yiisoft\Db\Query::limit} for more details.
+     * @param mixed $offset the offset number. See {@see Yiisoft\Db\Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
-    protected function oldBuildOrderByAndLimit($sql, $orderBy, $limit, $offset, &$params)
+    protected function oldBuildOrderByAndLimit(string $sql, array $orderBy, $limit, $offset, array &$params = []): string
     {
         $orderBy = $this->buildOrderBy($orderBy, $params);
+
         if ($orderBy === '') {
-            // ROW_NUMBER() requires an ORDER BY clause
+            /* ROW_NUMBER() requires an ORDER BY clause */
             $orderBy = 'ORDER BY (SELECT NULL)';
         }
 
@@ -270,24 +274,116 @@ final class MssqlQueryBuilder extends QueryBuilder
         return $command;
     }
 
+    /**
+     * Builds a SQL command for adding or updating a comment to a table or a column. The command built will check if a
+     * comment already exists. If so, it will be updated, otherwise, it will be added.
+     *
+     * @param string $comment the text of the comment to be added. The comment will be properly quoted by the method.
+     * @param string $table the table to be commented or whose column is to be commented. The table name will be
+     * properly quoted by the method.
+     * @param string $column optional. The name of the column to be commented. If empty, the command will add the
+     * comment to the table instead. The column name will be properly quoted by the method.
+     *
+     * @return string the SQL statement for adding a comment.
+     *
+     * @throws InvalidArgumentException if the table does not exist.
+     */
+    protected function buildAddCommentSql(string $comment, string $table, string $column = null): string
+    {
+        $tableSchema = $this->getDb()->getSchema()->getTableSchema($table);
+
+        if ($tableSchema === null) {
+            throw new InvalidArgumentException("Table not found: $table");
+        }
+
+        $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
+        $tableName = "N" . $this->getDb()->quoteValue($tableSchema->getName());
+        $columnName = $column ? "N" . $this->getDb()->quoteValue($column) : null;
+        $comment = "N" . $this->getDb()->quoteValue($comment);
+
+        $functionParams = "
+            @name = N'MS_description',
+            @value = $comment,
+            @level0type = N'SCHEMA', @level0name = $schemaName,
+            @level1type = N'TABLE', @level1name = $tableName"
+            . ($column ? ", @level2type = N'COLUMN', @level2name = $columnName" : '') . ';';
+
+        return "
+            IF NOT EXISTS (
+                    SELECT 1
+                    FROM fn_listextendedproperty (
+                        N'MS_description',
+                        'SCHEMA', $schemaName,
+                        'TABLE', $tableName,
+                        " . ($column ? "'COLUMN', $columnName " : ' DEFAULT, DEFAULT ') . "
+                    )
+            )
+                EXEC sys.sp_addextendedproperty $functionParams
+            ELSE
+                EXEC sys.sp_updateextendedproperty $functionParams
+        ";
+    }
+
     public function addCommentOnColumn(string $table, string $column, string $comment): string
     {
-        return "sp_updateextendedproperty @name = N'MS_Description', @value = {$this->db->quoteValue($comment)}, @level1type = N'Table',  @level1name = {$this->db->quoteTableName($table)}, @level2type = N'Column', @level2name = {$this->db->quoteColumnName($column)}";
+        return $this->buildAddCommentSql($comment, $table, $column);
     }
 
     public function addCommentOnTable(string $table, string $comment): string
     {
-        return "sp_updateextendedproperty @name = N'MS_Description', @value = {$this->db->quoteValue($comment)}, @level1type = N'Table',  @level1name = {$this->db->quoteTableName($table)}";
+        return $this->buildAddCommentSql($comment, $table);
+    }
+
+    /**
+     * Builds a SQL command for removing a comment from a table or a column. The command built will check if a comment
+     * already exists before trying to perform the removal.
+     *
+     * @param string $table the table that will have the comment removed or whose column will have the comment removed.
+     * The table name will be properly quoted by the method.
+     * @param string|null $column optional. The name of the column whose comment will be removed. If empty, the command
+     * will remove the comment from the table instead. The column name will be properly quoted by the method.
+     *
+     * @return string the SQL statement for removing the comment.
+     *
+     * @throws InvalidArgumentException if the table does not exist.
+     */
+    protected function buildRemoveCommentSql(string $table, ?string $column = null): string
+    {
+        $tableSchema = $this->getDb()->getSchema()->getTableSchema($table);
+
+        if ($tableSchema === null) {
+            throw new InvalidArgumentException("Table not found: $table");
+        }
+
+        $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
+        $tableName = "N" . $this->db->quoteValue($tableSchema->getName());
+        $columnName = $column ? "N" . $this->getDb()->quoteValue($column) : null;
+
+        return "
+            IF EXISTS (
+                    SELECT 1
+                    FROM fn_listextendedproperty (
+                        N'MS_description',
+                        'SCHEMA', $schemaName,
+                        'TABLE', $tableName,
+                        " . ($column ? "'COLUMN', $columnName " : ' DEFAULT, DEFAULT ') . "
+                    )
+            )
+                EXEC sys.sp_dropextendedproperty
+                    @name = N'MS_description',
+                    @level0type = N'SCHEMA', @level0name = $schemaName,
+                    @level1type = N'TABLE', @level1name = $tableName"
+                    . ($column ? ", @level2type = N'COLUMN', @level2name = $columnName" : '') . ';';
     }
 
     public function dropCommentFromColumn(string $table, string $column): string
     {
-        return "sp_dropextendedproperty @name = N'MS_Description', @level1type = N'Table',  @level1name = {$this->db->quoteTableName($table)}, @level2type = N'Column', @level2name = {$this->db->quoteColumnName($column)}";
+        return $this->buildRemoveCommentSql($table, $column);
     }
 
     public function dropCommentFromTable(string $table): string
     {
-        return "sp_dropextendedproperty @name = N'MS_Description', @level1type = N'Table',  @level1name = {$this->db->quoteTableName($table)}";
+        return $this->buildRemoveCommentSql($table);
     }
 
     /**
@@ -301,8 +397,10 @@ final class MssqlQueryBuilder extends QueryBuilder
         if (!$modelClass) {
             return null;
         }
+
         /* @var $modelClass \Yiisoft\Db\ActiveRecord */
         $schema = $modelClass::getTableSchema();
+
         return array_keys($schema->columns);
     }
 
@@ -326,7 +424,9 @@ final class MssqlQueryBuilder extends QueryBuilder
         if ($tableSchema !== null) {
             $columnSchemas = $tableSchema->getColumns();
             foreach ($columns as $name => $value) {
-                // @see https://github.com/yiisoft/yii2/issues/12599
+                /**
+                 * {@see https://github.com/yiisoft/yii2/issues/12599}
+                 */
                 if (
                     isset($columnSchemas[$name]) &&
                     $columnSchemas[$name]->getDbtype() === MssqlSchema::TYPE_BINARY &&
@@ -341,17 +441,46 @@ final class MssqlQueryBuilder extends QueryBuilder
 
         return $columns;
     }
-
+    /**
+     * Added OUTPUT construction for getting inserted data (for SQL Server 2005 or later) OUTPUT clause - The OUTPUT
+     * clause is new to SQL Server 2005 and has the ability to access the INSERTED and DELETED tables as is the case
+     * with a trigger.
+     */
     public function insert(string $table, $columns, array &$params = []): string
     {
-        return parent::insert($table, $this->normalizeTableRowData($table, $columns, $params), $params);
+        $columns = $this->normalizeTableRowData($table, $columns, $params);
+
+        $version2005orLater = version_compare($this->getDb()->getSchema()->getServerVersion(), '9', '>=');
+
+        [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
+
+        $sql = 'INSERT INTO ' . $this->getDb()->quoteTableName($table)
+            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
+            . ($version2005orLater ? ' OUTPUT INSERTED.* INTO @temporary_inserted' : '')
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : $values);
+
+        if ($version2005orLater) {
+            $schema = $this->getDb()->getTableSchema($table);
+            $cols = [];
+            foreach ($schema->getColumns() as $column) {
+                $cols[] = $this->getDb()->quoteColumnName($column->getName()) . ' '
+                    . $column->getDbType()
+                    . (in_array(
+                        $column->getDbType(),
+                        ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary']
+                    ) ? "(MAX)" : "")
+                    . ' ' . ($column->isAllowNull() ? "NULL" : "");
+            }
+            $sql = "SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (" . implode(", ", $cols) . ");"
+                . $sql . ";SELECT * FROM @temporary_inserted";
+        }
+
+        return $sql;
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @see https://docs.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql
-     * @see http://weblogs.sqlteam.com/dang/archive/2009/01/31/UPSERT-Race-Condition-With-MERGE.aspx
+     * {@see https://docs.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql}
+     * {@see http://weblogs.sqlteam.com/dang/archive/2009/01/31/UPSERT-Race-Condition-With-MERGE.aspx}
      */
     public function upsert(string $table, $insertColumns, $updateColumns, array &$params): string
     {
@@ -375,10 +504,11 @@ final class MssqlQueryBuilder extends QueryBuilder
         foreach ($constraints as $constraint) {
             $constraintCondition = ['and'];
 
-            foreach ($constraint->columnNames as $name) {
+            foreach ($constraint->getColumnNames() as $name) {
                 $quotedName = $this->getDb()->quoteColumnName($name);
                 $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
             }
+
             $onCondition[] = $constraintCondition;
         }
 
@@ -396,6 +526,7 @@ final class MssqlQueryBuilder extends QueryBuilder
             if (strrpos($quotedName, '.') === false) {
                 $quotedName = '[EXCLUDED].' . $quotedName;
             }
+
             $insertValues[] = $quotedName;
         }
 
@@ -417,6 +548,7 @@ final class MssqlQueryBuilder extends QueryBuilder
                 $updateColumns[$name] = new Expression($quotedName);
             }
         }
+
         [$updates, $params] = $this->prepareUpdateSets($table, $updateColumns, $params);
         $updateSql = 'UPDATE SET ' . implode(', ', $updates);
 
@@ -426,5 +558,25 @@ final class MssqlQueryBuilder extends QueryBuilder
     public function update(string $table, array $columns, $condition, array &$params = []): string
     {
         return parent::update($table, $this->normalizeTableRowData($table, $columns, $params), $condition, $params);
+    }
+
+    public function getColumnType($type): string
+    {
+        $columnType = parent::getColumnType($type);
+
+        /* remove unsupported keywords*/
+        $columnType = preg_replace("/\s*comment '.*'/i", '', $columnType);
+        $columnType = preg_replace('/ first$/i', '', $columnType);
+
+        return $columnType;
+    }
+
+    protected function extractAlias($table)
+    {
+        if (preg_match('/^\[.*\]$/', $table)) {
+            return false;
+        }
+
+        return parent::extractAlias($table);
     }
 }
