@@ -16,6 +16,23 @@ final class MssqlConnectionTest extends TestCase
 {
     use TestConnectionTrait;
 
+    public function testConstruct(): void
+    {
+        $connection = $this->getConnection();
+
+        $this->assertEquals($this->cache, $connection->getSchemaCache());
+        $this->assertEquals($this->logger, $connection->getLogger());
+        $this->assertEquals($this->profiler, $connection->getProfiler());
+        $this->assertEquals($this->mssqlDsn->getDsn(), $connection->getDsn());
+    }
+
+    public function testGetDriverName(): void
+    {
+        $connection = $this->getConnection();
+
+        $this->assertEquals($this->mssqlDsn->getDriver(), $connection->getDriverName());
+    }
+
     public function testQuoteValue(): void
     {
         $connection = $this->getConnection();
@@ -98,7 +115,7 @@ final class MssqlConnectionTest extends TestCase
                     $this->cache,
                     $this->logger,
                     $this->profiler,
-                    $this->dsn
+                    $this->mssqlDsn->getDsn()
                 ],
                 'setUsername()' => [$connection->getUsername()],
                 'setPassword()' => [$connection->getPassword()]
@@ -131,7 +148,7 @@ final class MssqlConnectionTest extends TestCase
                     $this->cache,
                     $this->logger,
                     $this->profiler,
-                    $this->dsn
+                    $this->mssqlDsn->getDsn()
                 ],
                 'setUsername()' => [$connection->getUsername()],
                 'setPassword()' => [$connection->getPassword()]
@@ -201,7 +218,7 @@ final class MssqlConnectionTest extends TestCase
                     $this->cache,
                     $this->logger,
                     $this->profiler,
-                    $this->dsn
+                    $this->mssqlDsn->getDsn()
                 ],
                 'setUsername()' => [$connection->getUsername()],
                 'setPassword()' => [$connection->getPassword()]

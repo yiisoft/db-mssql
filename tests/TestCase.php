@@ -28,9 +28,8 @@ class TestCase extends AbstractTestCase
     protected Aliases $aliases;
     protected CacheInterface $cache;
     protected ContainerInterface $container;
-    protected string $dsn = 'sqlsrv:Server=127.0.0.1,1433;Database=yiitest';
-    protected string $driverName = 'sqlsrv';
     protected LoggerInterface $logger;
+    protected MssqlDsn $mssqlDsn;
     protected MssqlConnection $mssqlConnection;
     protected Profiler $profiler;
     protected array $dataProvider;
@@ -46,22 +45,16 @@ class TestCase extends AbstractTestCase
     {
         parent::tearDown();
 
-        unset($this->aliases, $this->cache, $this->container, $this->logger, $this->profiler);
+        unset(
+            $this->aliases,
+            $this->cache,
+            $this->container,
+            $this->logger,
+            $this->mssqlDsn,
+            $this->mssqlConnection,
+            $this->profiler
+        );
     }
-
-    protected function configContainer(): void
-    {
-        $this->container = new Container($this->config());
-
-        $this->aliases = $this->container->get(Aliases::class);
-        $this->cache = $this->container->get(CacheInterface::class);
-        $this->logger = $this->container->get(LoggerInterface::class);
-        $this->profiler = $this->container->get(Profiler::class);
-        $this->mssqlConnection = $this->container->get(Connection::class);
-
-        DatabaseFactory::initialize($this->container, []);
-    }
-
     /**
      * Asserting two strings equality ignoring line endings.
      * @param string $expected
@@ -88,6 +81,25 @@ class TestCase extends AbstractTestCase
     protected function assertIsOneOf($actual, array $expected, $message = ''): void
     {
         self::assertThat($actual, new IsOneOfAssert($expected), $message);
+    }
+
+    protected function configContainer(): void
+    {
+        $this->container = new Container($this->config());
+
+        $this->aliases = $this->container->get(Aliases::class);
+        $this->cache = $this->container->get(CacheInterface::class);
+        $this->logger = $this->container->get(LoggerInterface::class);
+        $this->profiler = $this->container->get(Profiler::class);
+        $this->mssqlDsn = $this->container->get(MssqlDsn::class);
+        $this->mssqlConnection = $this->container->get(Connection::class);
+
+        DatabaseFactory::initialize($this->container, []);
+    }
+
+    protected function createDsn(): string
+    {
+
     }
 
     /**
@@ -182,6 +194,18 @@ class TestCase extends AbstractTestCase
     }
 
     /**
+     * Adjust dbms specific escaping.
+     *
+     * @param string $sql
+     *
+     * @return string
+     */
+    protected function replaceQuotes(string $sql): string
+    {
+        return str_replace(['[[', ']]'], ['[', ']'], $sql);
+    }
+
+    /**
      * Sets an inaccessible object property to a designated value.
      * @param object $object
      * @param string $propertyName
@@ -234,19 +258,21 @@ class TestCase extends AbstractTestCase
                 return new Profiler($container->get(LoggerInterface::class));
             },
 
-            Connection::class  => static function (ContainerInterface $container) use ($params) {
-                $dsn = new MssqlDsn(
+            MssqlDsn::class => static function (ContainerInterface $container) use ($params) {
+                return new MssqlDsn(
                     $params['yiisoft/db-mssql']['dsn']['driver'],
                     $params['yiisoft/db-mssql']['dsn']['server'],
                     $params['yiisoft/db-mssql']['dsn']['database'],
                     $params['yiisoft/db-mssql']['dsn']['port'],
                 );
+            },
 
+            Connection::class  => static function (ContainerInterface $container) use ($params) {
                 $connection = new MssqlConnection(
                     $container->get(CacheInterface::class),
                     $container->get(LoggerInterface::class),
                     $container->get(Profiler::class),
-                    $dsn->getDsn()
+                    $container->get(MssqlDsn::class)->getDsn(),
                 );
 
                 $connection->setUsername($params['yiisoft/db-mssql']['username']);
