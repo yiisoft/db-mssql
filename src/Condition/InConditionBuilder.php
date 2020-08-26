@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Condition;
 
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\Conditions\InConditionBuilder as AbstractInConditionBuilder;
 
 final class InConditionBuilder extends AbstractInConditionBuilder
 {
-    protected function buildSubqueryInCondition($operator, $columns, $values, &$params)
+    protected function buildSubqueryInCondition(string $operator, $columns, Query $values, array &$params = []): string
     {
         if (is_array($columns)) {
             throw new NotSupportedException(__METHOD__ . ' is not supported by MSSQL.');
@@ -18,12 +19,14 @@ final class InConditionBuilder extends AbstractInConditionBuilder
         return parent::buildSubqueryInCondition($operator, $columns, $values, $params);
     }
 
-    protected function buildCompositeInCondition($operator, $columns, $values, &$params)
+    protected function buildCompositeInCondition(?string $operator, $columns, $values, array &$params = []): string
     {
         $quotedColumns = [];
         foreach ($columns as $i => $column) {
-            $quotedColumns[$i] = strpos($column, '(') === false ? $this->queryBuilder->db->quoteColumnName($column) : $column;
+            $quotedColumns[$i] = strpos($column, '(') === false
+                ? $this->queryBuilder->getDb()->quoteColumnName($column) : $column;
         }
+
         $vss = [];
         foreach ($values as $value) {
             $vs = [];

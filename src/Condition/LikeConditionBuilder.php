@@ -8,10 +8,7 @@ use Yiisoft\Db\Query\Conditions\LikeConditionBuilder as AbstractLikeConditionBui
 
 final class LikeConditionBuilder extends AbstractLikeConditionBuilder
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $escapingReplacements = [
+    protected array $escapingReplacements = [
         '%' => '[%]',
         '_' => '[_]',
         '[' => '[[]',

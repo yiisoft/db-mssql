@@ -41,4 +41,9 @@ final class MssqlDsn
 
         return $this->dsn;
     }
+
+    public function getDriver(): string
+    {
+        return $this->driver;
+    }
 }

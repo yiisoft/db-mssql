@@ -45,8 +45,8 @@ final class MssqlQueryBuilder extends QueryBuilder
     protected function defaultExpressionBuilders(): array
     {
         return array_merge(parent::defaultExpressionBuilders(), [
-            Yiisoft\Db\Query\Conditions\InCondition::class => Yiisoft\Db\Mssql\Condition\InConditionBuilder::class,
-            Yiisoft\Db\Query\Conditions\LikeCondition::class => Yiisoft\Db\Mssql\Condition\LikeConditionBuilder::class,
+            \Yiisoft\Db\Query\Conditions\InCondition::class => \Yiisoft\Db\Mssql\Condition\InConditionBuilder::class,
+            \Yiisoft\Db\Query\Conditions\LikeCondition::class => \Yiisoft\Db\Mssql\Condition\LikeConditionBuilder::class,
         ]);
     }
 
@@ -208,7 +208,7 @@ final class MssqlQueryBuilder extends QueryBuilder
     public function dropDefaultValue(string $name, string $table): string
     {
         return 'ALTER TABLE ' .
-            $this->getDb()->quoteTableName($table) . ' DROP CONSTRAINT ' . $this->db->quoteColumnName($name);
+            $this->getDb()->quoteTableName($table) . ' DROP CONSTRAINT ' . $this->getDb()->quoteColumnName($name);
     }
 
     /**
@@ -230,7 +230,7 @@ final class MssqlQueryBuilder extends QueryBuilder
         $table = $this->getDb()->getTableSchema($tableName);
 
         if ($table !== null && $table->getSequenceName() !== null) {
-            $tableName = $this->db->quoteTableName($tableName);
+            $tableName = $this->getDb()->quoteTableName($tableName);
 
             if ($value === null) {
                 $key = $this->getDb()->quoteColumnName(reset($table->getPrimaryKey()));
@@ -356,7 +356,7 @@ final class MssqlQueryBuilder extends QueryBuilder
         }
 
         $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = "N" . $this->db->quoteValue($tableSchema->getName());
+        $tableName = "N" . $this->getDb()->quoteValue($tableSchema->getName());
         $columnName = $column ? "N" . $this->getDb()->quoteValue($column) : null;
 
         return "
@@ -419,7 +419,7 @@ final class MssqlQueryBuilder extends QueryBuilder
      */
     private function normalizeTableRowData($table, $columns, &$params)
     {
-        $tableSchema = $this->db->getSchema()->getTableSchema($table);
+        $tableSchema = $this->getDb()->getSchema()->getTableSchema($table);
 
         if ($tableSchema !== null) {
             $columnSchemas = $tableSchema->getColumns();
@@ -520,8 +520,9 @@ final class MssqlQueryBuilder extends QueryBuilder
             : ltrim($values, ' ')) . ') AS [EXCLUDED] (' . implode(', ', $insertNames) . ') ' . "ON ($on)";
 
         $insertValues = [];
+
         foreach ($insertNames as $name) {
-            $quotedName = $this->db->quoteColumnName($name);
+            $quotedName = $this->getDb()->quoteColumnName($name);
 
             if (strrpos($quotedName, '.') === false) {
                 $quotedName = '[EXCLUDED].' . $quotedName;
@@ -550,6 +551,7 @@ final class MssqlQueryBuilder extends QueryBuilder
         }
 
         [$updates, $params] = $this->prepareUpdateSets($table, $updateColumns, $params);
+
         $updateSql = 'UPDATE SET ' . implode(', ', $updates);
 
         return "$mergeSql WHEN MATCHED THEN $updateSql WHEN NOT MATCHED THEN $insertSql;";
