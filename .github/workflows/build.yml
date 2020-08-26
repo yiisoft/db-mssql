@@ -24,6 +24,7 @@ jobs:
 
         mssql:
           - "server:2017-latest"
+          - "server:2019-latest"
 
     services:
       mssql:
@@ -91,7 +92,7 @@ jobs:
         if: matrix.php == '8.0'
         run: composer update --ignore-platform-reqs --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
-      - name: Run pgsql tests with phpunit
+      - name: Run mssql tests with phpunit
         run: vendor/bin/phpunit --coverage-clover=coverage.clover
 
       - name: Code coverage
