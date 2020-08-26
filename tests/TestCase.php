@@ -97,11 +97,6 @@ class TestCase extends AbstractTestCase
         DatabaseFactory::initialize($this->container, []);
     }
 
-    protected function createDsn(): string
-    {
-
-    }
-
     /**
      * Invokes a inaccessible method.
      *
