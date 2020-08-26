@@ -4,11 +4,33 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Query;
 
-use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Constraint\Constraint;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Query\QueryBuilder;
+use Yiisoft\Db\Mssql\Condition\InConditionBuilder;
+use Yiisoft\Db\Mssql\Condition\LikeConditionBuilder;
+use Yiisoft\Db\Mssql\Schema\MssqlColumnSchema;
 use Yiisoft\Db\Mssql\Schema\MssqlSchema;
+use Yiisoft\Db\Query\Conditions\InCondition;
+use Yiisoft\Db\Query\Conditions\LikeCondition;
+use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Query\QueryBuilder;
+use Yiisoft\Db\Schema\ColumnSchemaBuilder;
+
+use function array_diff;
+use function array_keys;
+use function implode;
+use function in_array;
+use function is_string;
+use function ltrim;
+use function preg_match;
+use function preg_replace;
+use function reset;
+use function strrpos;
+use function version_compare;
 
 /**
  * MssqlQueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
@@ -45,11 +67,30 @@ final class MssqlQueryBuilder extends QueryBuilder
     protected function defaultExpressionBuilders(): array
     {
         return array_merge(parent::defaultExpressionBuilders(), [
-            \Yiisoft\Db\Query\Conditions\InCondition::class => \Yiisoft\Db\Mssql\Condition\InConditionBuilder::class,
-            \Yiisoft\Db\Query\Conditions\LikeCondition::class => \Yiisoft\Db\Mssql\Condition\LikeConditionBuilder::class,
+            InCondition::class => InConditionBuilder::class,
+            LikeCondition::class => LikeConditionBuilder::class,
         ]);
     }
 
+    /**
+     * Builds the ORDER BY and LIMIT/OFFSET clauses and appends them to the given SQL.
+     *
+     * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
+     * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details
+     * on how to specify this
+     * parameter.
+     * @param Query|int|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param Query|int|null $offset the offset number. See {@see Query::offset} for more
+     * details.
+     * @param array $params the binding parameters to be populated.
+     *
+     * @throws InvalidArgumentException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
+     */
     public function buildOrderByAndLimit(string $sql, array $orderBy, $limit, $offset, array &$params = []): string
     {
         if (!$this->hasOffset($offset) && !$this->hasLimit($limit)) {
@@ -68,14 +109,19 @@ final class MssqlQueryBuilder extends QueryBuilder
     /**
      * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2012 or newer.
      *
-     * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET)
-     * @param array $orderBy the order by columns. See {@see Yiisoft\Db\Query::orderBy} for more details on how to
-     * specify this parameter.
-     * @param mixed $limit the limit number. See {@see Yiisoft\Db\Query::limit} for more details.
-     * @param mixed $offset the offset number. See {@see Yiisoft\Db\Query::offset} for more details.
+     * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
+     * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details on how to specify this
+     * parameter.
+     * @param Query|int|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param Query|int|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
-     * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any)
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
     protected function newBuildOrderByAndLimit(string $sql, array $orderBy, $limit, $offset, array &$params = []): string
     {
@@ -105,11 +151,16 @@ final class MssqlQueryBuilder extends QueryBuilder
      * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2005 to 2008.
      *
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
-     * @param array $orderBy the order by columns. See {@see Yiisoft\Db\Query::orderBy} for more details on how to
-     * specify this parameter.
-     * @param mixed $limit the limit number. See {@see Yiisoft\Db\Query::limit} for more details.
-     * @param mixed $offset the offset number. See {@see Yiisoft\Db\Query::offset} for more details.
+     * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details on how to specify this
+     * parameter.
+     * @param Query|int|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param Query|int|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
@@ -147,6 +198,10 @@ final class MssqlQueryBuilder extends QueryBuilder
      * @param string $oldName the table to be renamed. The name will be properly quoted by the method.
      * @param string $newName the new table name. The name will be properly quoted by the method.
      *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
      * @return string the SQL statement for renaming a DB table.
      */
     public function renameTable(string $oldName, string $newName): string
@@ -161,6 +216,10 @@ final class MssqlQueryBuilder extends QueryBuilder
      * @param string $table the table whose column is to be renamed. The name will be properly quoted by the method.
      * @param string $oldName the old name of the column. The name will be properly quoted by the method.
      * @param string $newName the new name of the column. The name will be properly quoted by the method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      *
      * @return string the SQL statement for renaming a DB column.
      */
@@ -186,6 +245,10 @@ final class MssqlQueryBuilder extends QueryBuilder
      * For example, 'string' will be turned into 'varchar(255)', while 'string not null' will become
      * 'varchar(255) not null'.
      *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
      * @return string the SQL statement for changing the definition of a column.
      */
     public function alterColumn(string $table, string $column, string $type): string
@@ -198,6 +261,22 @@ final class MssqlQueryBuilder extends QueryBuilder
         return $sql;
     }
 
+    /**
+     * Creates a SQL command for adding a default value constraint to an existing table.
+     *
+     * @param string $name the name of the default value constraint. The name will be properly quoted by the method.
+     * @param string $table the table that the default value constraint will be added to. The name will be properly
+     * quoted by the method.
+     * @param string $column the name of the column to that the constraint will be added on. The name will be properly
+     * quoted by the method.
+     * @param mixed $value default value.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException if this is not supported by the underlying DBMS.
+     *
+     * @return string the SQL statement for adding a default value constraint to an existing table.
+     */
     public function addDefaultValue(string $name, string $table, string $column, $value): string
     {
         return 'ALTER TABLE ' . $this->getDb()->quoteTableName($table) . ' ADD CONSTRAINT '
@@ -205,6 +284,20 @@ final class MssqlQueryBuilder extends QueryBuilder
             . $this->getDb()->quoteColumnName($column);
     }
 
+    /**
+     * Creates a SQL command for dropping a default value constraint.
+     *
+     * @param string $name the name of the default value constraint to be dropped. The name will be properly quoted by
+     * the method.
+     * @param string $table the table whose default value constraint is to be dropped. The name will be properly quoted
+     * by the method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException if this is not supported by the underlying DBMS.
+     *
+     * @return string the SQL statement for dropping a default value constraint.
+     */
     public function dropDefaultValue(string $name, string $table): string
     {
         return 'ALTER TABLE ' .
@@ -221,9 +314,12 @@ final class MssqlQueryBuilder extends QueryBuilder
      * @param mixed $value the value for the primary key of the next new row inserted. If this is not set, the next new
      * row's primary key will have a value 1.
      *
-     * @return string the SQL statement for resetting sequence.
-     *
+     * @throws Exception
      * @throws InvalidArgumentException if the table does not exist or there is no sequence associated with the table.
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL statement for resetting sequence.
      */
     public function resetSequence(string $tableName, $value = null): string
     {
@@ -236,12 +332,10 @@ final class MssqlQueryBuilder extends QueryBuilder
                 $key = $this->getDb()->quoteColumnName(reset($table->getPrimaryKey()));
                 $value = "(SELECT COALESCE(MAX({$key}),0) FROM {$tableName})+1";
             } else {
-                $value = (int) $value;
+                $value = (int)$value;
             }
 
             return "DBCC CHECKIDENT ('{$tableName}', RESEED, {$value})";
-        } elseif ($table === null) {
-            throw new InvalidArgumentException("Table not found: $tableName");
         }
 
         throw new InvalidArgumentException("There is not sequence associated with table '$tableName'.");
@@ -250,16 +344,20 @@ final class MssqlQueryBuilder extends QueryBuilder
     /**
      * Builds a SQL statement for enabling or disabling integrity check.
      *
-     * @param bool $check whether to turn on or off the integrity check.
      * @param string $schema the schema of the tables.
      * @param string $table the table name.
+     * @param bool $check whether to turn on or off the integrity check.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      *
      * @return string the SQL statement for checking integrity.
      */
     public function checkIntegrity(string $schema = '', string $table = '', bool $check = true): string
     {
         $enable = $check ? 'CHECK' : 'NOCHECK';
-        $schema = $schema ?: $this->getDb()->getSchema()->defaultSchema;
+        $schema = $schema ?: $this->getDb()->getSchema()->getDefaultSchema();
         $tableNames = $this->getDb()->getTableSchema($table)
             ? [$table] : $this->getDb()->getSchema()->getTableNames($schema);
         $viewNames = $this->getDb()->getSchema()->getViewNames($schema);
@@ -284,9 +382,12 @@ final class MssqlQueryBuilder extends QueryBuilder
      * @param string $column optional. The name of the column to be commented. If empty, the command will add the
      * comment to the table instead. The column name will be properly quoted by the method.
      *
-     * @return string the SQL statement for adding a comment.
-     *
+     * @throws Exception
      * @throws InvalidArgumentException if the table does not exist.
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL statement for adding a comment.
      */
     protected function buildAddCommentSql(string $comment, string $table, string $column = null): string
     {
@@ -324,11 +425,39 @@ final class MssqlQueryBuilder extends QueryBuilder
         ";
     }
 
+    /**
+     * Builds a SQL command for adding comment to column.
+     *
+     * @param string $table the table whose column is to be commented. The table name will be properly quoted by the
+     * method.
+     * @param string $column the name of the column to be commented. The column name will be properly quoted by the
+     * method.
+     * @param string $comment the text of the comment to be added. The comment will be properly quoted by the method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL statement for adding comment on column.
+     */
     public function addCommentOnColumn(string $table, string $column, string $comment): string
     {
         return $this->buildAddCommentSql($comment, $table, $column);
     }
 
+    /**
+     * Builds a SQL command for adding comment to table.
+     *
+     * @param string $table the table whose column is to be commented. The table name will be properly quoted by the
+     * method.
+     * @param string $comment the text of the comment to be added. The comment will be properly quoted by the method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL statement for adding comment on table.
+     */
     public function addCommentOnTable(string $table, string $comment): string
     {
         return $this->buildAddCommentSql($comment, $table);
@@ -343,9 +472,12 @@ final class MssqlQueryBuilder extends QueryBuilder
      * @param string|null $column optional. The name of the column whose comment will be removed. If empty, the command
      * will remove the comment from the table instead. The column name will be properly quoted by the method.
      *
-     * @return string the SQL statement for removing the comment.
-     *
+     * @throws Exception
      * @throws InvalidArgumentException if the table does not exist.
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL statement for removing the comment.
      */
     protected function buildRemoveCommentSql(string $table, ?string $column = null): string
     {
@@ -376,11 +508,37 @@ final class MssqlQueryBuilder extends QueryBuilder
                     . ($column ? ", @level2type = N'COLUMN', @level2name = $columnName" : '') . ';';
     }
 
+    /**
+     * Builds a SQL command for adding comment to column.
+     *
+     * @param string $table the table whose column is to be commented. The table name will be properly quoted by the
+     * method.
+     * @param string $column the name of the column to be commented. The column name will be properly quoted by the
+     * method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL statement for adding comment on column.
+     */
     public function dropCommentFromColumn(string $table, string $column): string
     {
         return $this->buildRemoveCommentSql($table, $column);
     }
 
+    /**
+     * Builds a SQL command for adding comment to table.
+     *
+     * @param string $table the table whose column is to be commented. The table name will be properly quoted by the
+     * method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the SQL statement for adding comment on column.
+     */
     public function dropCommentFromTable(string $table): string
     {
         return $this->buildRemoveCommentSql($table);
@@ -389,21 +547,28 @@ final class MssqlQueryBuilder extends QueryBuilder
     /**
      * Returns an array of column names given model name.
      *
-     * @param string $modelClass name of the model class
+     * @param string|null $modelClass name of the model class.
+     *
      * @return array|null array of column names
      */
-    protected function getAllColumnNames($modelClass = null)
+    protected function getAllColumnNames(string $modelClass = null): ?array
     {
         if (!$modelClass) {
             return null;
         }
 
-        /* @var $modelClass \Yiisoft\Db\ActiveRecord */
         $schema = $modelClass::getTableSchema();
 
         return array_keys($schema->columns);
     }
 
+    /**
+     * Creates a SELECT EXISTS() SQL statement.
+     *
+     * @param string $rawSql the subquery in a raw form to select from.
+     *
+     * @return string the SELECT EXISTS() SQL statement.
+     */
     public function selectExists(string $rawSql): string
     {
         return 'SELECT CASE WHEN EXISTS(' . $rawSql . ') THEN 1 ELSE 0 END';
@@ -413,11 +578,16 @@ final class MssqlQueryBuilder extends QueryBuilder
      * Normalizes data to be saved into the table, performing extra preparations and type converting, if necessary.
      *
      * @param string $table the table that data will be saved into.
-     * @param array $columns the column data (name => value) to be saved into the table.
+     * @param MssqlColumnSchema|array $columns the column data (name => value) to be saved into the table.
+     * @param array $params
      *
-     * @return array normalized columns
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return MssqlColumnSchema|array normalized columns.
      */
-    private function normalizeTableRowData($table, $columns, &$params)
+    private function normalizeTableRowData(string $table, $columns, array &$params = [])
     {
         $tableSchema = $this->getDb()->getSchema()->getTableSchema($table);
 
@@ -441,10 +611,33 @@ final class MssqlQueryBuilder extends QueryBuilder
 
         return $columns;
     }
+
     /**
-     * Added OUTPUT construction for getting inserted data (for SQL Server 2005 or later) OUTPUT clause - The OUTPUT
-     * clause is new to SQL Server 2005 and has the ability to access the INSERTED and DELETED tables as is the case
-     * with a trigger.
+     * Creates an INSERT SQL statement.
+     *
+     * For example,
+     *
+     * ```php
+     * $sql = $queryBuilder->insert('user', [
+     *     'name' => 'Sam',
+     *     'age' => 30,
+     * ], $params);
+     * ```
+     *
+     * The method will properly escape the table and column names.
+     *
+     * @param string $table the table that new rows will be inserted into.
+     * @param array|Query $columns the column data (name => value) to be inserted into the table or instance of
+     * {@see Query} to perform INSERT INTO ... SELECT SQL statement. Passing of {@see Query}.
+     * @param array $params the binding parameters that will be generated by this method. They should be bound to the
+     * DB command later.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the INSERT SQL
      */
     public function insert(string $table, $columns, array &$params = []): string
     {
@@ -479,6 +672,38 @@ final class MssqlQueryBuilder extends QueryBuilder
     }
 
     /**
+     * Creates an SQL statement to insert rows into a database table if they do not already exist (matching unique
+     * constraints), or update them if they do.
+     *
+     * For example,
+     *
+     * ```php
+     * $sql = $queryBuilder->upsert('pages', [
+     *     'name' => 'Front page',
+     *     'url' => 'http://example.com/', // url is unique
+     *     'visits' => 0,
+     * ], [
+     *     'visits' => new \Yiisoft\Db\Expression('visits + 1'),
+     * ], $params);
+     * ```
+     *
+     * The method will properly escape the table and column names.
+     *
+     * @param string $table the table that new rows will be inserted into/updated in.
+     * @param array|Query $insertColumns the column data (name => value) to be inserted into the table or instance of
+     * {@see Query} to perform `INSERT INTO ... SELECT` SQL statement.
+     * @param array|bool $updateColumns the column data (name => value) to be updated if they already exist.
+     * If `true` is passed, the column data will be updated to match the insert column data.
+     * If `false` is passed, no update will be performed if the column data already exists.
+     * @param array $params the binding parameters that will be generated by this method.
+     * They should be bound to the DB command later.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException if this is not supported by the underlying DBMS.
+     *
+     * @return string the resulting SQL.
+     *
      * {@see https://docs.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql}
      * {@see http://weblogs.sqlteam.com/dang/archive/2009/01/31/UPSERT-Race-Condition-With-MERGE.aspx}
      */
@@ -557,11 +782,83 @@ final class MssqlQueryBuilder extends QueryBuilder
         return "$mergeSql WHEN MATCHED THEN $updateSql WHEN NOT MATCHED THEN $insertSql;";
     }
 
+    /**
+     * Creates an UPDATE SQL statement.
+     *
+     * For example,
+     *
+     * ```php
+     * $params = [];
+     * $sql = $queryBuilder->update('user', ['status' => 1], 'age > 30', $params);
+     * ```
+     *
+     * The method will properly escape the table and column names.
+     *
+     * @param string $table the table to be updated.
+     * @param array $columns the column data (name => value) to be updated.
+     * @param array|string $condition the condition that will be put in the WHERE part. Please refer to
+     * {@see Query::where()} on how to specify condition.
+     * @param array $params the binding parameters that will be modified by this method so that they can be bound to the
+     * DB command later.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return string the UPDATE SQL.
+     */
     public function update(string $table, array $columns, $condition, array &$params = []): string
     {
         return parent::update($table, $this->normalizeTableRowData($table, $columns, $params), $condition, $params);
     }
 
+    /**
+     * Converts an abstract column type into a physical column type.
+     *
+     * The conversion is done using the type map specified in {@see typeMap}.
+     * The following abstract column types are supported (using MySQL as an example to explain the corresponding
+     * physical types):
+     *
+     * - `pk`: an auto-incremental primary key type, will be converted into "int(11) NOT NULL AUTO_INCREMENT PRIMARY
+     *    KEY".
+     * - `bigpk`: an auto-incremental primary key type, will be converted into "bigint(20) NOT NULL AUTO_INCREMENT
+     *    PRIMARY KEY".
+     * - `upk`: an unsigned auto-incremental primary key type, will be converted into "int(10) UNSIGNED NOT NULL
+     *    AUTO_INCREMENT PRIMARY KEY".
+     * - `char`: char type, will be converted into "char(1)".
+     * - `string`: string type, will be converted into "varchar(255)".
+     * - `text`: a long string type, will be converted into "text".
+     * - `smallint`: a small integer type, will be converted into "smallint(6)".
+     * - `integer`: integer type, will be converted into "int(11)".
+     * - `bigint`: a big integer type, will be converted into "bigint(20)".
+     * - `boolean`: boolean type, will be converted into "tinyint(1)".
+     * - `float``: float number type, will be converted into "float".
+     * - `decimal`: decimal number type, will be converted into "decimal".
+     * - `datetime`: datetime type, will be converted into "datetime".
+     * - `timestamp`: timestamp type, will be converted into "timestamp".
+     * - `time`: time type, will be converted into "time".
+     * - `date`: date type, will be converted into "date".
+     * - `money`: money type, will be converted into "decimal(19,4)".
+     * - `binary`: binary data type, will be converted into "blob".
+     *
+     * If the abstract type contains two or more parts separated by spaces (e.g. "string NOT NULL"), then only the first
+     * part will be converted, and the rest of the parts will be appended to the converted result.
+     *
+     * For example, 'string NOT NULL' is converted to 'varchar(255) NOT NULL'.
+     *
+     * For some of the abstract types you can also specify a length or precision constraint by appending it in round
+     * brackets directly to the type.
+     *
+     * For example `string(32)` will be converted into "varchar(32)" on a MySQL database. If the underlying DBMS does
+     * not support these kind of constraints for a type it will be ignored.
+     *
+     * If a type cannot be found in {@see typeMap}, it will be returned without any change.
+     *
+     * @param string|ColumnSchemaBuilder $type abstract column type
+     *
+     * @return string physical column type.
+     */
     public function getColumnType($type): string
     {
         $columnType = parent::getColumnType($type);
@@ -573,6 +870,13 @@ final class MssqlQueryBuilder extends QueryBuilder
         return $columnType;
     }
 
+    /**
+     * Extracts table alias if there is one or returns false
+     *
+     * @param $table
+     *
+     * @return bool|array
+     */
     protected function extractAlias($table)
     {
         if (preg_match('/^\[.*\]$/', $table)) {

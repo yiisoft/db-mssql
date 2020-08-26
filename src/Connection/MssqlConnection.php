@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Connection;
 
-use Yiisoft\Db\Connection\Connection as Connection;
+use Yiisoft\Db\Connection\Connection;
 use Yiisoft\Db\Mssql\Pdo\PDO;
 use Yiisoft\Db\Mssql\Pdo\SqlsrvPDO;
 use Yiisoft\Db\Mssql\Schema\MssqlSchema;
+
+use function in_array;
 
 /**
  * Database connection class prefilled for MSSQL Server.
@@ -19,17 +21,14 @@ final class MssqlConnection extends Connection
         'mssql' => Schema::class, // older MSSQL driver on MS Windows hosts
         'dblib' => Schema::class, // dblib drivers on GNU/Linux (and maybe other OSes) hosts
     ];
+
     private bool $isSybase = false;
     private ?MssqlSchema $schema = null;
 
     /**
      * Returns the schema information for the database opened by this connection.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException if there is no support for the current driver type
-     *
-     * @return Schema the schema information for the database opened by this connection.
+     * @return MssqlSchema the schema information for the database opened by this connection.
      */
     public function getSchema(): MssqlSchema
     {
@@ -55,24 +54,10 @@ final class MssqlConnection extends Connection
 
     protected function createPdoInstance(): \PDO
     {
-        switch ($this->getDriverName()) {
-            case 'sqlsrv':
-                $pdo = new SqlsrvPDO(
-                    $this->getDsn(),
-                    $this->getUsername(),
-                    $this->getPassword(),
-                    $this->getAttributes()
-                );
-                break;
-
-            default:
-                $pdo = new PDO(
-                    $this->getDsn(),
-                    $this->getUsername(),
-                    $this->getPassword(),
-                    $this->getAttributes()
-                );
-                break;
+        if ($this->getDriverName() === 'sqlsrv') {
+            $pdo = new SqlsrvPDO($this->getDsn(), $this->getUsername(), $this->getPassword(), $this->getAttributes());
+        } else {
+            $pdo = new PDO($this->getDsn(), $this->getUsername(), $this->getPassword(), $this->getAttributes());
         }
 
         return $pdo;

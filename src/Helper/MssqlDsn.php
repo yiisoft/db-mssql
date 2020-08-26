@@ -6,11 +6,11 @@ namespace Yiisoft\Db\Mssql\Helper;
 
 final class MssqlDsn
 {
-    private ?string $database;
+    private string $database;
     private string $driver;
     private string $dsn;
-    private ?string $server;
-    private ?string $port;
+    private string $server;
+    private string $port;
 
     public function __construct(string $driver, string $server, string $database, string $port = '1433')
     {

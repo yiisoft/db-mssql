@@ -12,10 +12,26 @@ use Yiisoft\Db\Constraint\ConstraintFinderTrait;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Query\MssqlQueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchema;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\View\ViewFinderTrait;
+
+use function array_map;
+use function count;
+use function explode;
+use function is_array;
+use function preg_match;
+use function preg_match_all;
+use function str_replace;
+use function strcasecmp;
+use function stripos;
+use function version_compare;
 
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
@@ -33,8 +49,8 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
     /**
      * @var array mapping from physical column types (keys) to abstract column types (values)
      */
-    private $typeMap = [
-        // exact numbers
+    private array $typeMap = [
+        /* exact numbers */
         'bigint' => self::TYPE_BIGINT,
         'numeric' => self::TYPE_DECIMAL,
         'bit' => self::TYPE_SMALLINT,
@@ -44,31 +60,39 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
         'int' => self::TYPE_INTEGER,
         'tinyint' => self::TYPE_TINYINT,
         'money' => self::TYPE_MONEY,
-        // approximate numbers
+
+        /* approximate numbers */
         'float' => self::TYPE_FLOAT,
         'double' => self::TYPE_DOUBLE,
         'real' => self::TYPE_FLOAT,
-        // date and time
+
+        /* date and time */
         'date' => self::TYPE_DATE,
         'datetimeoffset' => self::TYPE_DATETIME,
         'datetime2' => self::TYPE_DATETIME,
         'smalldatetime' => self::TYPE_DATETIME,
         'datetime' => self::TYPE_DATETIME,
         'time' => self::TYPE_TIME,
-        // character strings
+
+        /* character strings */
         'char' => self::TYPE_CHAR,
         'varchar' => self::TYPE_STRING,
         'text' => self::TYPE_TEXT,
-        // unicode character strings
+
+        /* unicode character strings */
         'nchar' => self::TYPE_CHAR,
         'nvarchar' => self::TYPE_STRING,
         'ntext' => self::TYPE_TEXT,
-        // binary strings
+
+        /* binary strings */
         'binary' => self::TYPE_BINARY,
         'varbinary' => self::TYPE_BINARY,
         'image' => self::TYPE_BINARY,
-        // other data types
-        // 'cursor' type cannot be used with tables
+
+        /**
+         * other data types
+         * 'cursor' type cannot be used with tables
+         */
         'timestamp' => self::TYPE_TIMESTAMP,
         'hierarchyid' => self::TYPE_STRING,
         'uniqueidentifier' => self::TYPE_STRING,
@@ -80,11 +104,10 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
     protected $tableQuoteCharacter = ['[', ']'];
     protected $columnQuoteCharacter = ['[', ']'];
 
-
     /**
      * Resolves the table name and schema name (if any).
      *
-     * @param string $name the table name
+     * @param string $name the table name.
      *
      * @return MssqlTableSchema resolved table, schema, etc. names.
      */
@@ -96,7 +119,7 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
         $partCount = count($parts);
 
         if ($partCount === 4) {
-            // server name, catalog name, schema name and table name passed
+            /* server name, catalog name, schema name and table name passed */
             $resolvedName->catalogName($parts[1]);
             $resolvedName->schemaName($parts[2]);
             $resolvedName->name($parts[3]);
@@ -104,7 +127,7 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
                 $resolvedName->getCatalogName() . '.' . $resolvedName->getSchemaName() . '.' . $resolvedName->getName()
             );
         } elseif ($partCount === 3) {
-            // catalog name, schema name and table name passed
+            /* catalog name, schema name and table name passed */
             $resolvedName->catalogName($parts[0]);
             $resolvedName->schemaName($parts[1]);
             $resolvedName->name($parts[2]);
@@ -112,14 +135,14 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
                 $resolvedName->getCatalogName() . '.' . $resolvedName->getSchemaName() . '.' . $resolvedName->getName()
             );
         } elseif ($partCount === 2) {
-            // only schema name and table name passed
+            /* only schema name and table name passed */
             $resolvedName->schemaName($parts[0]);
             $resolvedName->name($parts[1]);
             $resolvedName->fullName(
                 $resolvedName->getSchemaName() !== $this->defaultSchema ? $resolvedName->getSchemaName() . '.' : ''
             ) . $resolvedName->getName();
         } else {
-            // only table name passed
+            /* only table name passed */
             $resolvedName->schemaName($this->defaultSchema);
             $resolvedName->name($parts[0]);
             $resolvedName->fullName($resolvedName->getName());
@@ -128,10 +151,18 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
         return $resolvedName;
     }
 
+    /**
+     * Splits full table name into parts.
+     *
+     * @param string $name
+     *
+     * @return array
+     */
     protected function getTableNameParts(string $name): array
     {
         $parts = [$name];
-        preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)\]/', $name, $matches);
+
+        preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches);
 
         if (isset($matches[0]) && is_array($matches[0]) && !empty($matches[0])) {
             $parts = $matches[0];
@@ -143,10 +174,20 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
     }
 
     /**
-     * {@inheritdoc}
-     * @see https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-principals-transact-sql
+     * Returns all schema names in the database, including the default one but not system schemas.
+     *
+     * This method should be overridden by child classes in order to support this feature because the default
+     * implementation simply throws an exception.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return array all schema names in the database, except system schemas.
+     *
+     * {@see https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-principals-transact-sql}
      */
-    protected function findSchemaNames()
+    protected function findSchemaNames(): array
     {
         static $sql = <<<'SQL'
 SELECT [s].[name]
@@ -159,6 +200,20 @@ SQL;
         return $this->getDb()->createCommand($sql)->queryColumn();
     }
 
+    /**
+     * Returns all table names in the database.
+     *
+     * This method should be overridden by child classes in order to support this feature because the default
+     * implementation simply throws an exception.
+     *
+     * @param string $schema the schema of the tables. Defaults to empty string, meaning the current or default schema.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return array all table names in the database. The names have NO schema name prefix.
+     */
     protected function findTableNames(string $schema = ''): array
     {
         if ($schema === '') {
@@ -181,6 +236,18 @@ SQL;
         return $tables;
     }
 
+    /**
+     * Loads the metadata for the specified table.
+     *
+     * @param string $name table name.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     *
+     * @return MssqlTableSchema|null DBMS-dependent table metadata, `null` if the table does not exist.
+     */
     protected function loadTableSchema(string $name): ?MssqlTableSchema
     {
         $table = new MssqlTableSchema();
@@ -197,17 +264,50 @@ SQL;
         return null;
     }
 
-    protected function loadTablePrimaryKey($tableName)
+    /**
+     * Loads a primary key for the given table.
+     *
+     * @param string $tableName table name.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return Constraint|null primary key for the given table, `null` if the table has no primary key.
+     */
+    protected function loadTablePrimaryKey(string $tableName): ?Constraint
     {
         return $this->loadTableConstraints($tableName, 'primaryKey');
     }
 
-    protected function loadTableForeignKeys($tableName)
+    /**
+     * Loads all foreign keys for the given table.
+     *
+     * @param string $tableName table name.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return ForeignKeyConstraint[] foreign keys for the given table.
+     */
+    protected function loadTableForeignKeys(string $tableName): array
     {
         return $this->loadTableConstraints($tableName, 'foreignKeys');
     }
 
-    protected function loadTableIndexes($tableName)
+    /**
+     * Loads all indexes for the given table.
+     *
+     * @param string $tableName table name.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return IndexConstraint[] indexes for the given table.
+     */
+    protected function loadTableIndexes(string $tableName): array
     {
         static $sql = <<<'SQL'
 SELECT
@@ -241,31 +341,85 @@ SQL;
         return $result;
     }
 
-    protected function loadTableUniques($tableName)
+    /**
+     * Loads all unique constraints for the given table.
+     *
+     * @param string $tableName table name.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return Constraint[] unique constraints for the given table.
+     */
+    protected function loadTableUniques(string $tableName): array
     {
         return $this->loadTableConstraints($tableName, 'uniques');
     }
 
-    protected function loadTableChecks($tableName)
+    /**
+     * Loads all check constraints for the given table.
+     *
+     * @param string $tableName table name.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return CheckConstraint[] check constraints for the given table.
+     */
+    protected function loadTableChecks(string $tableName): array
     {
         return $this->loadTableConstraints($tableName, 'checks');
     }
 
-    protected function loadTableDefaultValues($tableName)
+    /**
+     * Loads all default value constraints for the given table.
+     *
+     * @param string $tableName table name.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return DefaultValueConstraint[] default value constraints for the given table.
+     */
+    protected function loadTableDefaultValues(string $tableName): array
     {
         return $this->loadTableConstraints($tableName, 'defaults');
     }
 
+    /**
+     * Creates a new savepoint.
+     *
+     * @param string $name the savepoint name.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function createSavepoint(string $name): void
     {
         $this->getDb()->createCommand("SAVE TRANSACTION $name")->execute();
     }
 
+    /**
+     * Releases an existing savepoint.
+     *
+     * @param string $name the savepoint name.
+     */
     public function releaseSavepoint(string $name): void
     {
-        // does nothing as MSSQL does not support this
+        /* does nothing as MSSQL does not support this */
     }
 
+    /**
+     * Rolls back to a previously created savepoint.
+     *
+     * @param string $name the savepoint name.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function rollBackSavepoint(string $name): void
     {
         $this->getDb()->createCommand("ROLLBACK TRANSACTION $name")->execute();
@@ -286,9 +440,9 @@ SQL;
     /**
      * Creates a query builder for the MSSQL database.
      *
-     * @return QueryBuilder query builder interface.
+     * @return MssqlQueryBuilder query builder interface.
      */
-    public function createQueryBuilder()
+    public function createQueryBuilder(): MssqlQueryBuilder
     {
         return new MssqlQueryBuilder($this->getDb());
     }
@@ -305,19 +459,19 @@ SQL;
         $partCount = count($parts);
 
         if ($partCount === 4) {
-            // server name, catalog name, schema name and table name passed
+            /* server name, catalog name, schema name and table name passed */
             $table->catalogName($parts[1]);
             $table->schemaName($parts[2]);
             $table->name($parts[3]);
             $table->fullName($table->getCatalogName() . '.' . $table->getSchemaName() . '.' . $table->getName());
         } elseif ($partCount === 3) {
-            // catalog name, schema name and table name passed
+            /* catalog name, schema name and table name passed */
             $table->catalogName($parts[0]);
             $table->schemaName($parts[1]);
             $table->name($parts[2]);
             $table->fullName($table->getCatalogName() . '.' . $table->getSchemaName() . '.' . $table->getName());
         } elseif ($partCount === 2) {
-            // only schema name and table name passed
+            /* only schema name and table name passed */
             $table->schemaName($parts[0]);
             $table->name($parts[1]);
             $table->fullName(
@@ -325,7 +479,7 @@ SQL;
                 ? $table->getSchemaName() . '.' . $table->getName() : $table->getName()
             );
         } else {
-            // only table name passed
+            /* only table name passed */
             $table->schemaName($this->defaultSchema);
             $table->name($parts[0]);
             $table->fullName($table->getName());
@@ -350,7 +504,7 @@ SQL;
         $column->primaryKey(false); // primary key will be determined in findColumns() method
         $column->autoIncrement($info['is_identity'] == 1);
         $column->unsigned(stripos($column->getDbType(), 'unsigned') !== false);
-        $column->comment($info['comment'] === null ? '' : $info['comment']);
+        $column->comment($info['comment'] ?? '');
         $column->type(self::TYPE_STRING);
 
         if (preg_match('/^(\w+)(?:\(([^\)]+)\))?/', $column->getDbType(), $matches)) {
@@ -398,6 +552,10 @@ SQL;
      * Collects the metadata of table columns.
      *
      * @param MssqlTableSchema $table the table metadata.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      *
      * @return bool whether the table exists in the database.
      */
@@ -481,6 +639,10 @@ SQL;
      * @param MssqlTableSchema $table
      * @param string $type either PRIMARY KEY or UNIQUE.
      *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
      * @return array each entry contains index_name and field_name.
      */
     protected function findTableConstraints(MssqlTableSchema $table, string $type): array
@@ -525,8 +687,12 @@ SQL;
      * Collects the primary key column details for the given table.
      *
      * @param MssqlTableSchema $table the table metadata
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
      */
-    protected function findPrimaryKeys(MssqlTableSchema $table)
+    protected function findPrimaryKeys(MssqlTableSchema $table): void
     {
         $result = [];
         foreach ($this->findTableConstraints($table, 'PRIMARY KEY') as $row) {
@@ -538,8 +704,12 @@ SQL;
      * Collects the foreign key column details for the given table.
      *
      * @param MssqlTableSchema $table the table metadata
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
      */
-    protected function findForeignKeys(MssqlTableSchema $table)
+    protected function findForeignKeys(MssqlTableSchema $table): void
     {
         $object = $table->getName();
 
@@ -551,8 +721,10 @@ SQL;
             $object = $table->getCatalogName() . '.' . $object;
         }
 
-        // please refer to the following page for more details:
-        // http://msdn2.microsoft.com/en-us/library/aa175805(SQL.80).aspx
+        /**
+         * Please refer to the following page for more details:
+         * {@see http://msdn2.microsoft.com/en-us/library/aa175805(SQL.80).aspx}
+         */
         $sql = <<<'SQL'
 SELECT
 	[fk].[name] AS [fk_name],
@@ -587,7 +759,18 @@ SQL;
         }
     }
 
-    protected function findViewNames($schema = '')
+    /**
+     * Returns all views names in the database.
+     *
+     * @param string $schema the schema of the views. Defaults to empty string, meaning the current or default schema.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return array all views names in the database. The names have NO schema name prefix.
+     */
+    protected function findViewNames(string $schema = ''): array
     {
         if ($schema === '') {
             $schema = $this->defaultSchema;
@@ -622,9 +805,13 @@ SQL;
      *
      * @param MssqlTableSchema $table the table metadata.
      *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
      * @return array all unique indexes for the given table.
      */
-    public function findUniqueIndexes($table): array
+    public function findUniqueIndexes(MssqlTableSchema $table): array
     {
         $result = [];
 
@@ -645,6 +832,10 @@ SQL;
      * - uniques
      * - checks
      * - defaults
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
      *
      * @return mixed constraints.
      */
@@ -747,9 +938,21 @@ SQL;
         return $result[$returnType];
     }
 
+    /**
+     * Quotes a column name for use in a query.
+     *
+     * If the column name contains prefix, the prefix will also be properly quoted. If the column name is already quoted
+     * or contains '(', '[[' or '{{', then this method will do nothing.
+     *
+     * @param string $name column name.
+     *
+     * @return string the properly quoted column name.
+     *
+     * {@see quoteSimpleColumnName()}
+     */
     public function quoteColumnName(string $name): string
     {
-        if (preg_match('/^\[.*\]$/', $name)) {
+        if (preg_match('/^\[.*]$/', $name)) {
             return $name;
         }
 
@@ -757,9 +960,19 @@ SQL;
     }
 
     /**
-     * Retrieving inserted data from a primary key request of type uniqueidentifier (for SQL Server 2005 or later).
+     * Executes the INSERT command, returning primary key values.
+     *
+     * @param string $table the table that new rows will be inserted into.
+     * @param array $columns the column data (name => value) to be inserted into the table.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws InvalidCallException
+     *
+     * @return array|false primary key values or false if the command fails.
      */
-    public function insert($table, $columns)
+    public function insert(string $table, array $columns)
     {
         $command = $this->getDb()->createCommand()->insert($table, $columns);
         if (!$command->execute()) {
@@ -772,18 +985,20 @@ SQL;
         $tableSchema = $this->getTableSchema($table);
 
         $result = [];
-        foreach ($tableSchema->primaryKey as $name) {
-            if ($tableSchema->columns[$name]->isAutoIncrement()) {
+        foreach ($tableSchema->getPrimaryKey() as $name) {
+            if ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
                 $result[$name] = $this->getLastInsertID($tableSchema->getSequenceName());
                 break;
             }
-            // @see https://github.com/yiisoft/yii2/issues/13828 & https://github.com/yiisoft/yii2/issues/17474
+            /**
+             * {@see https://github.com/yiisoft/yii2/issues/13828 & https://github.com/yiisoft/yii2/issues/17474
+             */
             if (isset($inserted[$name])) {
                 $result[$name] = $inserted[$name];
             } elseif (isset($columns[$name])) {
                 $result[$name] = $columns[$name];
             } else {
-                $result[$name] = $tableSchema->columns[$name]->defaultValue;
+                $result[$name] = $tableSchema->getColumns()[$name]->getDefaultValue();
             }
         }
 

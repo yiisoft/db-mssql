@@ -6,6 +6,8 @@ namespace Yiisoft\Db\Mssql\Schema;
 
 use Yiisoft\Db\Schema\ColumnSchema;
 
+use function substr;
+
 /**
  * Class ColumnSchema for MSSQL database
  */
@@ -25,6 +27,6 @@ final class MssqlColumnSchema extends ColumnSchema
             $value = substr(substr($value, 2), 0, -2);
         }
 
-        return parent::phpTypecast($value);
+        return $this->phpTypecast($value);
     }
 }
