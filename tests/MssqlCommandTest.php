@@ -8,6 +8,8 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Schema\MssqlSchema;
 use Yiisoft\Db\TestUtility\TestCommandTrait;
 
+use function trim;
+
 /**
  * @group mssql
  */
@@ -20,6 +22,7 @@ final class MssqlCommandTest extends TestCase
         $db = $this->getConnection();
 
         $sql = 'SELECT [[id]], [[t.name]] FROM {{customer}} t';
+
         $command = $db->createCommand($sql);
 
         $this->assertEquals('SELECT [id], [t].[name] FROM [customer] t', $command->getSql());
@@ -29,7 +32,7 @@ final class MssqlCommandTest extends TestCase
     {
         $db = $this->getConnection(true);
 
-        /** bindParam */
+        /* bindParam */
         $sql = 'INSERT INTO customer(email, name, address) VALUES (:email, :name, :address)';
 
         $command = $db->createCommand($sql);
@@ -47,6 +50,7 @@ final class MssqlCommandTest extends TestCase
         $sql = 'SELECT name FROM customer WHERE email=:email';
 
         $command = $db->createCommand($sql);
+
         $command->bindParam(':email', $email);
 
         $this->assertEquals($name, $command->queryScalar());
@@ -83,16 +87,19 @@ final class MssqlCommandTest extends TestCase
         $this->assertEquals($blobCol, $row['blob_col']);
         $this->assertEquals($numericCol, $row['numeric_col']);
 
-        /** bindValue */
+        /* bindValue */
         $sql = 'INSERT INTO customer(email, name, address) VALUES (:email, \'user5\', \'address5\')';
 
         $command = $db->createCommand($sql);
+
         $command->bindValue(':email', 'user5@example.com');
+
         $command->execute();
 
         $sql = 'SELECT email FROM customer WHERE name=:name';
 
         $command = $db->createCommand($sql);
+
         $command->bindValue(':name', 'user5');
 
         $this->assertEquals('user5@example.com', $command->queryScalar());
@@ -107,6 +114,33 @@ final class MssqlCommandTest extends TestCase
         ];
     }
 
+    public function testAlterTable(): void
+    {
+        $db = $this->getConnection();
+
+        if ($db->getSchema()->getTableSchema('testAlterTable') !== null) {
+            $db->createCommand()->dropTable('testAlterTable')->execute();
+        }
+
+        $db->createCommand()->createTable(
+            'testAlterTable',
+            ['id' => MssqlSchema::TYPE_PK, 'bar' => MssqlSchema::TYPE_INTEGER]
+        )->execute();
+
+        $db->createCommand()->insert('testAlterTable', ['bar' => 1])->execute();
+
+        $db->createCommand()->alterColumn('testAlterTable', 'bar', MssqlSchema::TYPE_STRING)->execute();
+
+        $db->createCommand()->insert('testAlterTable', ['bar' => 'hello'])->execute();
+
+        $records = $db->createCommand('SELECT [[id]], [[bar]] FROM {{testAlterTable}};')->queryAll();
+
+        $this->assertEquals([
+            ['id' => 1, 'bar' => 1],
+            ['id' => 2, 'bar' => 'hello'],
+        ], $records);
+    }
+
     public function testAddDropDefaultValue(): void
     {
         $db = $this->getConnection();
@@ -114,7 +148,6 @@ final class MssqlCommandTest extends TestCase
         $tableName = 'test_def';
         $name = 'test_def_constraint';
 
-        /** @var \yii\db\pgsql\Schema $schema */
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
@@ -152,7 +185,8 @@ final class MssqlCommandTest extends TestCase
                  *
                  * Make sure curly bracelets (`{{..}}`) in values will not be escaped
                  */
-                'expected' => 'INSERT INTO [type] ([int_col], [float_col], [char_col]) VALUES (NULL, NULL, \'Kyiv {{city}}, Ukraine\')',
+                'expected' => 'INSERT INTO [type] ([int_col], [float_col], [char_col])'
+                    . ' VALUES (NULL, NULL, \'Kyiv {{city}}, Ukraine\')'
             ],
             'wrongBehavior' => [
                 '{{%type}}',
@@ -167,7 +201,8 @@ final class MssqlCommandTest extends TestCase
                  *
                  * TODO: make it work. Impossible without BC breaking for public methods.
                  */
-                'expected' => 'INSERT INTO [type] ([type].[int_col], [float_col], [char_col]) VALUES (\'\', \'\', \'Kyiv {{city}}, Ukraine\')',
+                'expected' => 'INSERT INTO [type] ([type].[int_col], [float_col], [char_col])'
+                    . ' VALUES (\'\', \'\', \'Kyiv {{city}}, Ukraine\')'
             ],
             'batchInsert binds params from expression' => [
                 '{{%type}}',
@@ -182,30 +217,5 @@ final class MssqlCommandTest extends TestCase
                 'expectedParams' => [':qp1' => 42]
             ]
         ];
-    }
-
-    public function testAlterTable(): void
-    {
-        $db = $this->getConnection();
-
-        if ($db->getSchema()->getTableSchema('testAlterTable') !== null) {
-            $db->createCommand()->dropTable('testAlterTable')->execute();
-        }
-
-        $db->createCommand()->createTable(
-            'testAlterTable',
-            ['id' => MssqlSchema::TYPE_PK, 'bar' => MssqlSchema::TYPE_INTEGER]
-        )->execute();
-
-        $db->createCommand()->insert('testAlterTable', ['bar' => 1])->execute();
-        $db->createCommand()->alterColumn('testAlterTable', 'bar', MssqlSchema::TYPE_STRING)->execute();
-        $db->createCommand()->insert('testAlterTable', ['bar' => 'hello'])->execute();
-
-        $records = $db->createCommand('SELECT [[id]], [[bar]] FROM {{testAlterTable}};')->queryAll();
-
-        $this->assertEquals([
-            ['id' => 1, 'bar' => 1],
-            ['id' => 2, 'bar' => 'hello'],
-        ], $records);
     }
 }

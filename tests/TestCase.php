@@ -7,21 +7,27 @@ namespace Yiisoft\Db\Mssql\Tests;
 use PHPUnit\Framework\TestCase as AbstractTestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionObject;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Factory\DatabaseFactory;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\Connection\MssqlConnection;
 use Yiisoft\Db\Mssql\Helper\MssqlDsn;
 use Yiisoft\Db\TestUtility\IsOneOfAssert;
 use Yiisoft\Di\Container;
-use Yiisoft\Files\FileHelper;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
+
+use function explode;
+use function file_get_contents;
+use function str_replace;
+use function trim;
 
 class TestCase extends AbstractTestCase
 {
@@ -100,19 +106,25 @@ class TestCase extends AbstractTestCase
     /**
      * Invokes a inaccessible method.
      *
-     * @param $object
-     * @param $method
+     * @param object $object
+     * @param string $method
      * @param array $args
      * @param bool $revoke whether to make method inaccessible after execution.
      *
+     * @throws ReflectionException
+     *
      * @return mixed
      */
-    protected function invokeMethod($object, $method, $args = [], $revoke = true)
+    protected function invokeMethod(object $object, string $method, array $args = [], bool $revoke = true)
     {
-        $reflection = new \ReflectionObject($object);
+        $reflection = new ReflectionObject($object);
+
         $method = $reflection->getMethod($method);
+
         $method->setAccessible(true);
+
         $result = $method->invokeArgs($object, $args);
+
         if ($revoke) {
             $method->setAccessible(false);
         }
@@ -120,23 +132,24 @@ class TestCase extends AbstractTestCase
     }
 
     /**
-     * @param  bool $reset whether to clean up the test database.
-     * @param  bool $open  whether to open and populate test database.
+     * @param bool $reset whether to clean up the test database.
      *
-     * @return \Yiisoft\Db\Mssql\Connection\MssqlConnection
+     * @return MssqlConnection
      */
     protected function getConnection($reset = false): MssqlConnection
     {
         if ($reset === false && isset($this->mssqlConnection)) {
             return $this->mssqlConnection;
-        } elseif ($reset === false) {
+        }
+
+        if ($reset === false) {
             $this->configContainer();
             return $this->mssqlConnection;
         }
 
         try {
             $this->prepareDatabase();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->markTestSkipped('Something wrong when preparing database: ' . $e->getMessage());
         }
 
@@ -167,18 +180,22 @@ class TestCase extends AbstractTestCase
      * @param string $propertyName
      * @param bool $revoke whether to make property inaccessible after getting.
      *
+     * @throws ReflectionException
+     *
      * @return mixed
      */
     protected function getInaccessibleProperty(object $object, string $propertyName, bool $revoke = true)
     {
-        $class = new \ReflectionClass($object);
+        $class = new ReflectionClass($object);
 
         while (!$class->hasProperty($propertyName)) {
             $class = $class->getParentClass();
         }
 
         $property = $class->getProperty($propertyName);
+
         $property->setAccessible(true);
+
         $result = $property->getValue($object);
 
         if ($revoke) {
@@ -202,21 +219,26 @@ class TestCase extends AbstractTestCase
 
     /**
      * Sets an inaccessible object property to a designated value.
+     *
      * @param object $object
      * @param string $propertyName
      * @param $value
      * @param bool $revoke whether to make property inaccessible after setting
+     *
+     * @throws ReflectionException
      */
     protected function setInaccessibleProperty(object $object, string $propertyName, $value, bool $revoke = true): void
     {
-        $class = new \ReflectionClass($object);
+        $class = new ReflectionClass($object);
 
         while (!$class->hasProperty($propertyName)) {
             $class = $class->getParentClass();
         }
 
         $property = $class->getProperty($propertyName);
+
         $property->setAccessible(true);
+
         $property->setValue($object, $value);
 
         if ($revoke) {
@@ -243,17 +265,13 @@ class TestCase extends AbstractTestCase
                 return new Cache(new ArrayCache());
             },
 
-            FileRotatorInterface::class => static function () {
-                return new FileRotator(10);
-            },
-
             LoggerInterface::class => Logger::class,
 
             Profiler::class => static function (ContainerInterface $container) {
                 return new Profiler($container->get(LoggerInterface::class));
             },
 
-            MssqlDsn::class => static function (ContainerInterface $container) use ($params) {
+            MssqlDsn::class => static function () use ($params) {
                 return new MssqlDsn(
                     $params['yiisoft/db-mssql']['dsn']['driver'],
                     $params['yiisoft/db-mssql']['dsn']['server'],

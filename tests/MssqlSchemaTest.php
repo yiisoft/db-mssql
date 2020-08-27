@@ -4,20 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Db\Constraint\CheckConstraint;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
-use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Pdo\PDO;
-use Yiisoft\Db\Mssql\Schema\MssqlColumnSchema;
-use Yiisoft\Db\Mssql\Schema\MssqlSchema;
-use Yiisoft\Db\Mssql\Schema\MssqlTableSchema;
-use Yiisoft\Db\Schema\TableSchema;
 use Yiisoft\Db\TestUtility\AnyValue;
 use Yiisoft\Db\TestUtility\TestSchemaTrait;
+
+use function strpos;
 
 /**
  * @group mssql
@@ -343,10 +338,8 @@ final class MssqlSchemaTest extends TestCase
 
     public function testGetStringFieldsSize(): void
     {
-        /* @var $db Connection */
         $db = $this->getConnection();
 
-        /* @var $schema Schema */
         $schema = $db->getSchema();
 
         $columns = $schema->getTableSchema('type', false)->getColumns();
@@ -402,7 +395,7 @@ final class MssqlSchemaTest extends TestCase
      * @param string $name
      * @param string $expectedName
      */
-    public function testQuoteTableName(string $name, string $expectedName)
+    public function testQuoteTableName(string $name, string $expectedName): void
     {
         $schema = $this->getConnection()->getSchema();
         $quotedName = $schema->quoteTableName($name);
