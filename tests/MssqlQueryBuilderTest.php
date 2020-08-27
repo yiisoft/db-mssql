@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Mssql\Query\MssqlQueryBuilder;
 use Yiisoft\Db\TestUtility\TraversableObject;
 use Yiisoft\Db\TestUtility\TestQueryBuilderTrait;
+
+use function array_replace;
 
 /**
  * @group mssql
@@ -26,7 +27,7 @@ final class MssqlQueryBuilderTest extends TestCase
     /**
      * @var array map of values to their replacements in LIKE query params.
      */
-    protected $likeParameterReplacements = [
+    protected array $likeParameterReplacements = [
         '\%' => '[%]',
         '\_' => '[_]',
         '[' => '[[]',
@@ -42,259 +43,39 @@ final class MssqlQueryBuilderTest extends TestCase
         return new MssqlQueryBuilder($this->getConnection());
     }
 
-    protected function getCommmentsFromTable(string $table): array
+    public function conditionProvider(): array
     {
-        $db = $this->getConnection();
+        $data = $this->conditionProviderTrait();
 
-        $sql = "SELECT *
-            FROM fn_listextendedproperty (
-                N'MS_description',
-                'SCHEMA', N'dbo',
-                'TABLE', N" . $db->quoteValue($table) . ",
-                DEFAULT, DEFAULT
-        )";
+        $data['composite in'] = [
+            ['in', ['id', 'name'], [['id' => 1, 'name' => 'oy']]],
+            '(([id] = :qp0 AND [name] = :qp1))',
+            [':qp0' => 1, ':qp1' => 'oy'],
+        ];
+        $data['composite in using array objects'] = [
+            ['in', new TraversableObject(['id', 'name']), new TraversableObject([
+                ['id' => 1, 'name' => 'oy'],
+                ['id' => 2, 'name' => 'yo'],
+            ])],
+            '(([id] = :qp0 AND [name] = :qp1) OR ([id] = :qp2 AND [name] = :qp3))',
+            [':qp0' => 1, ':qp1' => 'oy', ':qp2' => 2, ':qp3' => 'yo'],
+        ];
 
-        return $db->createCommand($sql)->queryAll();
+        return $data;
     }
 
-    protected function getCommentsFromColumn(string $table, string $column): array
+    public function buildFromDataProvider(): array
     {
-        $db = $this->getConnection(false, false);
-
-        $sql = "SELECT *
-            FROM fn_listextendedproperty (
-                N'MS_description',
-                'SCHEMA', N'dbo',
-                'TABLE', N" . $db->quoteValue($table) . ",
-                'COLUMN', N" . $db->quoteValue($column) . "
-        )";
-
-        return $db->createCommand($sql)->queryAll();
-    }
-
-    protected function runAddCommentOnTable(string $comment, string $table)
-    {
-        $qb = $this->getQueryBuilder();
-
-        $db = $this->getConnection();
-
-        $sql = $qb->addCommentOnTable($table, $comment);
-
-        return $db->createCommand($sql)->execute();
-    }
-
-    protected function runAddCommentOnColumn(string $comment, string $table, string $column)
-    {
-        $qb = $this->getQueryBuilder();
-
-        $db = $this->getConnection();
-
-        $sql = $qb->addCommentOnColumn($table, $column, $comment);
-
-        return $db->createCommand($sql)->execute();
-    }
-
-    protected function runDropCommentFromTable(string $table)
-    {
-        $qb = $this->getQueryBuilder();
-
-        $db = $this->getConnection();
-
-        $sql = $qb->dropCommentFromTable($table);
-
-        return $db->createCommand($sql)->execute();
-    }
-
-    protected function runDropCommentFromColumn(string $table, string $column)
-    {
-        $qb = $this->getQueryBuilder();
-
-        $db = $this->getConnection();
-
-        $sql = $qb->dropCommentFromColumn($table, $column);
-
-        return $db->createCommand($sql)->execute();
-    }
-
-    public function testOffsetLimit(): void
-    {
-        $expectedQuerySql = 'SELECT [id] FROM [example] ORDER BY (SELECT NULL) OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY';
-        $expectedQueryParams = [];
-
-        $query = new Query($this->getConnection());
-
-        $query->select('id')->from('example')->limit(10)->offset(5);
-
-        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
-
-        $this->assertEquals($expectedQuerySql, $actualQuerySql);
-        $this->assertEquals($expectedQueryParams, $actualQueryParams);
-    }
-
-    public function testLimit(): void
-    {
-        $expectedQuerySql = 'SELECT [id] FROM [example] ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
-        $expectedQueryParams = [];
-
-        $query = new Query($this->getConnection());
-
-        $query->select('id')->from('example')->limit(10);
-
-        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
-
-        $this->assertEquals($expectedQuerySql, $actualQuerySql);
-        $this->assertEquals($expectedQueryParams, $actualQueryParams);
-    }
-
-    public function testOffset(): void
-    {
-        $expectedQuerySql = 'SELECT [id] FROM [example] ORDER BY (SELECT NULL) OFFSET 10 ROWS';
-        $expectedQueryParams = [];
-
-        $query = new Query($this->getConnection());
-
-        $query->select('id')->from('example')->offset(10);
-
-        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
-
-        $this->assertEquals($expectedQuerySql, $actualQuerySql);
-        $this->assertEquals($expectedQueryParams, $actualQueryParams);
-    }
-
-    public function testCommentAdditionOnTableAndOnColumn(): void
-    {
-        $table = 'profile';
-        $tableComment = 'A comment for profile table.';
-
-        $this->runAddCommentOnTable($tableComment, $table);
-
-        $resultTable = $this->getCommmentsFromTable($table);
-
-        $this->assertEquals([
-            'objtype' => 'TABLE',
-            'objname' => $table,
-            'name' => 'MS_description',
-            'value' => $tableComment,
-        ], $resultTable[0]);
-
-        $column = 'description';
-        $columnComment = 'A comment for description column in profile table.';
-
-        $this->runAddCommentOnColumn($columnComment, $table, $column);
-
-        $resultColumn = $this->getCommentsFromColumn($table, $column);
-
-        $this->assertEquals([
-            'objtype' => 'COLUMN',
-            'objname' => $column,
-            'name' => 'MS_description',
-            'value' => $columnComment,
-        ], $resultColumn[0]);
-
-        /* Add another comment to the same table to test update */
-        $tableComment2 = 'Another comment for profile table.';
-
-        $this->runAddCommentOnTable($tableComment2, $table);
-
-        $result = $this->getCommmentsFromTable($table);
-
-        $this->assertEquals([
-            'objtype' => 'TABLE',
-            'objname' => $table,
-            'name' => 'MS_description',
-            'value' => $tableComment2,
-        ], $result[0]);
-
-        /* Add another comment to the same column to test update */
-        $columnComment2 = 'Another comment for description column in profile table.';
-
-        $this->runAddCommentOnColumn($columnComment2, $table, $column);
-
-        $result = $this->getCommentsFromColumn($table, $column);
-
-        $this->assertEquals([
-            'objtype' => 'COLUMN',
-            'objname' => $column,
-            'name' => 'MS_description',
-            'value' => $columnComment2,
-        ], $result[0]);
-    }
-
-    public function testCommentAdditionOnQuotedTableOrColumn(): void
-    {
-        $table = 'stranger \'table';
-        $tableComment = 'A comment for stranger \'table.';
-
-        $this->runAddCommentOnTable($tableComment, $table);
-
-        $resultTable = $this->getCommmentsFromTable($table);
-
-        $this->assertEquals([
-            'objtype' => 'TABLE',
-            'objname' => $table,
-            'name' => 'MS_description',
-            'value' => $tableComment,
-        ], $resultTable[0]);
-
-        $column = 'stranger \'field';
-        $columnComment = 'A comment for stranger \'field column in stranger \'table.';
-
-        $this->runAddCommentOnColumn($columnComment, $table, $column);
-
-        $resultColumn = $this->getCommentsFromColumn($table, $column);
-
-        $this->assertEquals([
-            'objtype' => 'COLUMN',
-            'objname' => $column,
-            'name' => 'MS_description',
-            'value' => $columnComment,
-        ], $resultColumn[0]);
-    }
-
-    public function testCommentRemovalFromTableAndFromColumn(): void
-    {
-        $table = 'profile';
-        $tableComment = 'A comment for profile table.';
-
-        $this->runAddCommentOnTable($tableComment, $table);
-        $this->runDropCommentFromTable($table);
-
-        $result = $this->getCommmentsFromTable($table);
-
-        $this->assertEquals([], $result);
-
-        $column = 'description';
-        $columnComment = 'A comment for description column in profile table.';
-
-        $this->runAddCommentOnColumn($columnComment, $table, $column);
-        $this->runDropCommentFromColumn($table, $column);
-
-        $result = $this->getCommentsFromColumn($table, $column);
-
-        $this->assertEquals([], $result);
-    }
-
-    public function testCommentRemovalFromQuotedTableOrColumn(): void
-    {
-        $table = 'stranger \'table';
-        $tableComment = 'A comment for stranger \'table.';
-
-        $this->runAddCommentOnTable($tableComment, $table);
-        $this->runDropCommentFromTable($table);
-
-        $result = $this->getCommmentsFromTable($table);
-
-        $this->assertEquals([], $result);
-
-        $column = 'stranger \'field';
-        $columnComment = 'A comment for stranger \'field in stranger \'table.';
-
-        $this->runAddCommentOnColumn($columnComment, $table, $column);
-        $this->runDropCommentFromColumn($table, $column);
-
-        $result = $this->getCommentsFromColumn($table, $column);
-
-        $this->assertEquals([], $result);
+        $data = $this->buildFromDataProviderTrait();
+
+        $data[] = ['[test]', '[[test]]'];
+        $data[] = ['[test] [t1]', '[[test]] [[t1]]'];
+        $data[] = ['[table.name]', '[[table.name]]'];
+        $data[] = ['[table.name.with.dots]', '[[table.name.with.dots]]'];
+        $data[] = ['[table name]', '[[table name]]'];
+        $data[] = ['[table name with spaces]', '[[table name with spaces]]'];
+
+        return $data;
     }
 
     public function insertProvider(): array
@@ -533,38 +314,264 @@ final class MssqlQueryBuilderTest extends TestCase
         return $data;
     }
 
-    public function conditionProvider(): array
+    protected function getCommmentsFromTable(string $table): array
     {
-        $data = $this->conditionProviderTrait();
+        $db = $this->getConnection();
 
-        $data['composite in'] = [
-            ['in', ['id', 'name'], [['id' => 1, 'name' => 'oy']]],
-            '(([id] = :qp0 AND [name] = :qp1))',
-            [':qp0' => 1, ':qp1' => 'oy'],
-        ];
-        $data['composite in using array objects'] = [
-            ['in', new TraversableObject(['id', 'name']), new TraversableObject([
-                ['id' => 1, 'name' => 'oy'],
-                ['id' => 2, 'name' => 'yo'],
-            ])],
-            '(([id] = :qp0 AND [name] = :qp1) OR ([id] = :qp2 AND [name] = :qp3))',
-            [':qp0' => 1, ':qp1' => 'oy', ':qp2' => 2, ':qp3' => 'yo'],
-        ];
+        $sql = "SELECT *
+            FROM fn_listextendedproperty (
+                N'MS_description',
+                'SCHEMA', N'dbo',
+                'TABLE', N" . $db->quoteValue($table) . ",
+                DEFAULT, DEFAULT
+        )";
 
-        return $data;
+        return $db->createCommand($sql)->queryAll();
     }
 
-    public function buildFromDataProvider(): array
+    protected function getCommentsFromColumn(string $table, string $column): array
     {
-        $data = $this->buildFromDataProviderTrait();
+        $db = $this->getConnection();
 
-        $data[] = ['[test]', '[[test]]'];
-        $data[] = ['[test] [t1]', '[[test]] [[t1]]'];
-        $data[] = ['[table.name]', '[[table.name]]'];
-        $data[] = ['[table.name.with.dots]', '[[table.name.with.dots]]'];
-        $data[] = ['[table name]', '[[table name]]'];
-        $data[] = ['[table name with spaces]', '[[table name with spaces]]'];
+        $sql = "SELECT *
+            FROM fn_listextendedproperty (
+                N'MS_description',
+                'SCHEMA', N'dbo',
+                'TABLE', N" . $db->quoteValue($table) . ",
+                'COLUMN', N" . $db->quoteValue($column) . "
+        )";
 
-        return $data;
+        return $db->createCommand($sql)->queryAll();
+    }
+
+    protected function runAddCommentOnTable(string $comment, string $table): int
+    {
+        $qb = $this->getQueryBuilder();
+
+        $db = $this->getConnection();
+
+        $sql = $qb->addCommentOnTable($table, $comment);
+
+        return $db->createCommand($sql)->execute();
+    }
+
+    protected function runAddCommentOnColumn(string $comment, string $table, string $column): int
+    {
+        $qb = $this->getQueryBuilder();
+
+        $db = $this->getConnection();
+
+        $sql = $qb->addCommentOnColumn($table, $column, $comment);
+
+        return $db->createCommand($sql)->execute();
+    }
+
+    protected function runDropCommentFromTable(string $table): int
+    {
+        $qb = $this->getQueryBuilder();
+
+        $db = $this->getConnection();
+
+        $sql = $qb->dropCommentFromTable($table);
+
+        return $db->createCommand($sql)->execute();
+    }
+
+    protected function runDropCommentFromColumn(string $table, string $column): int
+    {
+        $qb = $this->getQueryBuilder();
+
+        $db = $this->getConnection();
+
+        $sql = $qb->dropCommentFromColumn($table, $column);
+
+        return $db->createCommand($sql)->execute();
+    }
+
+    public function testOffsetLimit(): void
+    {
+        $db = $this->getConnection();
+
+        $expectedQuerySql = 'SELECT [id] FROM [example] ORDER BY (SELECT NULL) OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY';
+        $expectedQueryParams = [];
+
+        $query = new Query($db);
+
+        $query->select('id')->from('example')->limit(10)->offset(5);
+
+        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
+
+        $this->assertEquals($expectedQuerySql, $actualQuerySql);
+        $this->assertEquals($expectedQueryParams, $actualQueryParams);
+    }
+
+    public function testLimit(): void
+    {
+        $db = $this->getConnection();
+
+        $expectedQuerySql = 'SELECT [id] FROM [example] ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY';
+        $expectedQueryParams = [];
+
+        $query = new Query($db);
+
+        $query->select('id')->from('example')->limit(10);
+
+        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
+
+        $this->assertEquals($expectedQuerySql, $actualQuerySql);
+        $this->assertEquals($expectedQueryParams, $actualQueryParams);
+    }
+
+    public function testOffset(): void
+    {
+        $db = $this->getConnection();
+
+        $expectedQuerySql = 'SELECT [id] FROM [example] ORDER BY (SELECT NULL) OFFSET 10 ROWS';
+        $expectedQueryParams = [];
+
+        $query = new Query($db);
+
+        $query->select('id')->from('example')->offset(10);
+
+        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
+
+        $this->assertEquals($expectedQuerySql, $actualQuerySql);
+        $this->assertEquals($expectedQueryParams, $actualQueryParams);
+    }
+
+    public function testCommentAdditionOnTableAndOnColumn(): void
+    {
+        $table = 'profile';
+        $tableComment = 'A comment for profile table.';
+
+        $this->runAddCommentOnTable($tableComment, $table);
+
+        $resultTable = $this->getCommmentsFromTable($table);
+
+        $this->assertEquals([
+            'objtype' => 'TABLE',
+            'objname' => $table,
+            'name' => 'MS_description',
+            'value' => $tableComment,
+        ], $resultTable[0]);
+
+        $column = 'description';
+        $columnComment = 'A comment for description column in profile table.';
+
+        $this->runAddCommentOnColumn($columnComment, $table, $column);
+
+        $resultColumn = $this->getCommentsFromColumn($table, $column);
+
+        $this->assertEquals([
+            'objtype' => 'COLUMN',
+            'objname' => $column,
+            'name' => 'MS_description',
+            'value' => $columnComment,
+        ], $resultColumn[0]);
+
+        /* Add another comment to the same table to test update */
+        $tableComment2 = 'Another comment for profile table.';
+
+        $this->runAddCommentOnTable($tableComment2, $table);
+
+        $result = $this->getCommmentsFromTable($table);
+
+        $this->assertEquals([
+            'objtype' => 'TABLE',
+            'objname' => $table,
+            'name' => 'MS_description',
+            'value' => $tableComment2,
+        ], $result[0]);
+
+        /* Add another comment to the same column to test update */
+        $columnComment2 = 'Another comment for description column in profile table.';
+
+        $this->runAddCommentOnColumn($columnComment2, $table, $column);
+
+        $result = $this->getCommentsFromColumn($table, $column);
+
+        $this->assertEquals([
+            'objtype' => 'COLUMN',
+            'objname' => $column,
+            'name' => 'MS_description',
+            'value' => $columnComment2,
+        ], $result[0]);
+    }
+
+    public function testCommentAdditionOnQuotedTableOrColumn(): void
+    {
+        $table = 'stranger \'table';
+        $tableComment = 'A comment for stranger \'table.';
+
+        $this->runAddCommentOnTable($tableComment, $table);
+
+        $resultTable = $this->getCommmentsFromTable($table);
+
+        $this->assertEquals([
+            'objtype' => 'TABLE',
+            'objname' => $table,
+            'name' => 'MS_description',
+            'value' => $tableComment,
+        ], $resultTable[0]);
+
+        $column = 'stranger \'field';
+        $columnComment = 'A comment for stranger \'field column in stranger \'table.';
+
+        $this->runAddCommentOnColumn($columnComment, $table, $column);
+
+        $resultColumn = $this->getCommentsFromColumn($table, $column);
+
+        $this->assertEquals([
+            'objtype' => 'COLUMN',
+            'objname' => $column,
+            'name' => 'MS_description',
+            'value' => $columnComment,
+        ], $resultColumn[0]);
+    }
+
+    public function testCommentRemovalFromTableAndFromColumn(): void
+    {
+        $table = 'profile';
+        $tableComment = 'A comment for profile table.';
+
+        $this->runAddCommentOnTable($tableComment, $table);
+        $this->runDropCommentFromTable($table);
+
+        $result = $this->getCommmentsFromTable($table);
+
+        $this->assertEquals([], $result);
+
+        $column = 'description';
+        $columnComment = 'A comment for description column in profile table.';
+
+        $this->runAddCommentOnColumn($columnComment, $table, $column);
+        $this->runDropCommentFromColumn($table, $column);
+
+        $result = $this->getCommentsFromColumn($table, $column);
+
+        $this->assertEquals([], $result);
+    }
+
+    public function testCommentRemovalFromQuotedTableOrColumn(): void
+    {
+        $table = 'stranger \'table';
+        $tableComment = 'A comment for stranger \'table.';
+
+        $this->runAddCommentOnTable($tableComment, $table);
+        $this->runDropCommentFromTable($table);
+
+        $result = $this->getCommmentsFromTable($table);
+
+        $this->assertEquals([], $result);
+
+        $column = 'stranger \'field';
+        $columnComment = 'A comment for stranger \'field in stranger \'table.';
+
+        $this->runAddCommentOnColumn($columnComment, $table, $column);
+        $this->runDropCommentFromColumn($table, $column);
+
+        $result = $this->getCommentsFromColumn($table, $column);
+
+        $this->assertEquals([], $result);
     }
 }

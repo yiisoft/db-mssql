@@ -16,22 +16,22 @@ final class MssqlQueryTest extends TestCase
 
     public function testUnion(): void
     {
-        $connection = $this->getConnection();
+        $db = $this->getConnection();
 
         /* MSSQL supports limit only in sub queries with UNION */
-        $query = (new Query($connection))
+        $query = (new Query($db))
             ->select(['id', 'name'])
             ->from(
-                (new Query($connection))
+                (new Query($db))
                     ->select(['id', 'name'])
                     ->from('item')
                     ->limit(2)
             )
             ->union(
-                (new Query($connection))
+                (new Query($db))
                     ->select(['id', 'name'])
                     ->from(
-                        (new Query($connection))
+                        (new Query($db))
                             ->select(['id', 'name'])
                             ->from(['category'])
                             ->limit(2)
