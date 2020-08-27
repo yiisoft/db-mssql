@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Connection;
 
 use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Command\Command;
 use Yiisoft\Db\Mssql\Pdo\PDO;
 use Yiisoft\Db\Mssql\Pdo\SqlsrvPDO;
 use Yiisoft\Db\Mssql\Schema\MssqlSchema;
@@ -16,14 +17,19 @@ use function in_array;
  */
 final class MssqlConnection extends Connection
 {
-    protected array $schemaMap = [
-        'sqlsrv' => Schema::class, // newer MSSQL driver on MS Windows hosts
-        'mssql' => Schema::class, // older MSSQL driver on MS Windows hosts
-        'dblib' => Schema::class, // dblib drivers on GNU/Linux (and maybe other OSes) hosts
-    ];
-
     private bool $isSybase = false;
     private ?MssqlSchema $schema = null;
+
+    public function createCommand($sql = null, $params = []): Command
+    {
+        if ($sql !== null) {
+            $sql = $this->quoteSql($sql);
+        }
+
+        $command = new Command($this->getProfiler(), $this->getLogger(), $this, $sql);
+
+        return $command->bindValues($params);
+    }
 
     /**
      * Returns the schema information for the database opened by this connection.
@@ -63,17 +69,6 @@ final class MssqlConnection extends Connection
         return $pdo;
     }
 
-    /**
-     * Initializes the DB connection.
-     *
-     * This method is invoked right after the DB connection is established.
-     *
-     * The default implementation turns on `PDO::ATTR_EMULATE_PREPARES`.
-     *
-     * if {@see emulatePrepare} is true, and sets the database {@see charset} if it is not empty.
-     *
-     * It then triggers an {@see EVENT_AFTER_OPEN} event.
-     */
     protected function initConnection(): void
     {
         $this->getPDO()->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
