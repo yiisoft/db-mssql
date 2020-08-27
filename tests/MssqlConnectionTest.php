@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PDO;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\Connection\MssqlConnection;
 use Yiisoft\Db\TestUtility\TestConnectionTrait;
@@ -30,6 +32,31 @@ final class MssqlConnectionTest extends TestCase
         $db = $this->getConnection();
 
         $this->assertEquals($this->mssqlDsn->getDriver(), $db->getDriverName());
+    }
+
+    public function testOpenClose(): void
+    {
+        $db = $this->getConnection();
+
+        $this->assertFalse($db->isActive());
+        $this->assertNull($db->getPDO());
+
+        $db->open();
+
+        $this->assertTrue($db->isActive());
+        $this->assertInstanceOf(PDO::class, $db->getPDO());
+
+        $db->close();
+
+        $this->assertFalse($db->isActive());
+        $this->assertNull($db->getPDO());
+
+        $db = new MssqlConnection($this->cache, $this->logger, $this->profiler, 'unknown::memory:');
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('could not find driver');
+
+        $db->open();
     }
 
     public function testQuoteValue(): void
