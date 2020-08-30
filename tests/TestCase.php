@@ -51,6 +51,8 @@ class TestCase extends AbstractTestCase
     {
         parent::tearDown();
 
+        $this->getConnection()->close();
+
         unset(
             $this->aliases,
             $this->cache,
