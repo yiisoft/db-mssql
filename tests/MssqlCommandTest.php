@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Schema\MssqlSchema;
+use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestUtility\TestCommandTrait;
 
 use function trim;
@@ -105,15 +107,6 @@ final class MssqlCommandTest extends TestCase
         $this->assertEquals('user5@example.com', $command->queryScalar());
     }
 
-    public function paramsNonWhereProvider(): array
-    {
-        return[
-            ['SELECT SUBSTRING(name, :len, 6) AS name FROM {{customer}} WHERE [[email]] = :email GROUP BY name'],
-            ['SELECT SUBSTRING(name, :len, 6) as name FROM {{customer}} WHERE [[email]] = :email ORDER BY name'],
-            ['SELECT SUBSTRING(name, :len, 6) FROM {{customer}} WHERE [[email]] = :email'],
-        ];
-    }
-
     public function testAlterTable(): void
     {
         $db = $this->getConnection();
@@ -172,50 +165,158 @@ final class MssqlCommandTest extends TestCase
         $this->assertEmpty($schema->getTableDefaultValues($tableName, true));
     }
 
-    public function batchInsertSqlProvider(): array
+    public function batchInsertSqlProvider()
     {
-        return [
-            'issue11242' => [
-                'type',
-                ['int_col', 'float_col', 'char_col'],
-                [['', '', 'Kyiv {{city}}, Ukraine']],
+        $data = $this->batchInsertSqlProviderTrait();
 
-                /**
-                 * {@see https://github.com/yiisoft/yii2/issues/11242}
-                 *
-                 * Make sure curly bracelets (`{{..}}`) in values will not be escaped
-                 */
-                'expected' => 'INSERT INTO [type] ([int_col], [float_col], [char_col])'
-                    . ' VALUES (NULL, NULL, \'Kyiv {{city}}, Ukraine\')'
-            ],
-            'wrongBehavior' => [
-                '{{%type}}',
-                ['{{%type}}.[[int_col]]', '[[float_col]]', 'char_col'],
-                [['', '', 'Kyiv {{city}}, Ukraine']],
+        $data['issue11242']['expected'] = 'INSERT INTO [type] ([int_col], [float_col], [char_col])'
+            . ' VALUES (NULL, NULL, \'Kyiv {{city}}, Ukraine\')';
 
-                /**
-                 * Test covers potentially wrong behavior and marks it as expected!.
-                 *
-                 * In case table name or table column is passed with curly or square bracelets, QueryBuilder can not
-                 * determine the table schema and typecast values properly.
-                 *
-                 * TODO: make it work. Impossible without BC breaking for public methods.
-                 */
-                'expected' => 'INSERT INTO [type] ([type].[int_col], [float_col], [char_col])'
-                    . ' VALUES (\'\', \'\', \'Kyiv {{city}}, Ukraine\')'
-            ],
-            'batchInsert binds params from expression' => [
-                '{{%type}}',
-                ['int_col'],
+        $data['wrongBehavior']['expected'] = 'INSERT INTO [type] ([type].[int_col], [float_col], [char_col])'
+            . ' VALUES (\'\', \'\', \'Kyiv {{city}}, Ukraine\')';
 
-                /**
-                 * This example is completely useless. This feature of batchInsert is intended to be used with complex
-                 * expression objects, such as JsonExpression.
-                 */
-                [[new Expression(':qp1', [':qp1' => 42])]],
-                'expected'       => 'INSERT INTO [type] ([int_col]) VALUES (:qp1)',
-                'expectedParams' => [':qp1' => 42]
-            ]
+        $data['batchInsert binds params from expression']['expected'] = 'INSERT INTO [type] ([int_col]) VALUES (:qp1)';
+
+        unset($data['batchIsert empty rows represented by ArrayObject']);
+
+        return $data;
+    }
+
+    /**
+     * Make sure that `{{something}}` in values will not be encoded.
+     *
+     * @dataProvider batchInsertSqlProvider
+     *
+     * @param string $table
+     * @param array $columns
+     * @param array $values
+     * @param string $expected
+     * @param array $expectedParams
+     *
+     * {@see https://github.com/yiisoft/yii2/issues/11242}
+     */
+    public function testBatchInsertSQL(
+        string $table,
+        array $columns,
+        array $values,
+        string $expected,
+        array $expectedParams = []
+    ): void {
+        $db = $this->getConnection(true);
+
+        $command = $db->createCommand();
+
+        $command->batchInsert($table, $columns, $values);
+
+        $command->prepare(false);
+
+        $this->assertSame($expected, $command->getSql());
+        $this->assertSame($expectedParams, $command->getParams());
+    }
+
+    public function bindParamsNonWhereProvider(): array
+    {
+        return[
+            ['SELECT SUBSTRING(name, :len, 6) AS name FROM {{customer}} WHERE [[email]] = :email GROUP BY name'],
+            ['SELECT SUBSTRING(name, :len, 6) as name FROM {{customer}} WHERE [[email]] = :email ORDER BY name'],
+            ['SELECT SUBSTRING(name, :len, 6) FROM {{customer}} WHERE [[email]] = :email'],
         ];
+    }
+
+    /**
+     * Test whether param binding works in other places than WHERE.
+     *
+     * @dataProvider bindParamsNonWhereProvider
+     *
+     * @param string $sql
+     */
+    public function testBindParamsNonWhere(string $sql): void
+    {
+        $db = $this->getConnection();
+
+        $db->createCommand()->insert(
+            'customer',
+            [
+                'name' => 'testParams',
+                'email' => 'testParams@example.com',
+                'address' => '1'
+            ]
+        )->execute();
+
+        $params = [
+            ':email' => 'testParams@example.com',
+            ':len'   => 5,
+        ];
+
+        $command = $db->createCommand($sql, $params);
+
+        $this->assertEquals('Params', $command->queryScalar());
+    }
+
+    /**
+     * Test command getRawSql.
+     *
+     * @dataProvider getRawSqlProviderTrait
+     *
+     * @param string $sql
+     * @param array  $params
+     * @param string $expectedRawSql
+     *
+     * {@see https://github.com/yiisoft/yii2/issues/8592}
+     */
+    public function testGetRawSql(string $sql, array $params, string $expectedRawSql): void
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand($sql, $params);
+
+        $this->assertEquals($expectedRawSql, $command->getRawSql());
+    }
+
+    /**
+     * Test INSERT INTO ... SELECT SQL statement with wrong query object.
+     *
+     * @dataProvider invalidSelectColumnsProviderTrait
+     *
+     * @param mixed $invalidSelectColumns
+     */
+    public function testInsertSelectFailed($invalidSelectColumns): void
+    {
+        $db = $this->getConnection();
+
+        $query = new Query($db);
+
+        $query->select($invalidSelectColumns)->from('{{customer}}');
+
+        $command = $db->createCommand();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Expected select query object with enumerated (named) parameters');
+
+        $command->insert(
+            '{{customer}}',
+            $query
+        )->execute();
+    }
+
+    /**
+     * Test command upsert.
+     *
+     * @dataProvider upsertProviderTrait
+     *
+     * @param array $firstData
+     * @param array $secondData
+     */
+    public function testUpsert(array $firstData, array $secondData): void
+    {
+        $db = $this->getConnection(true);
+
+        $this->assertEquals(0, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
+
+        $this->performAndCompareUpsertResult($db, $firstData);
+
+        $this->assertEquals(1, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
+
+        $this->performAndCompareUpsertResult($db, $secondData);
     }
 }
