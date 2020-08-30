@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PDO;
 use Yiisoft\Db\Constraint\CheckConstraint;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
+use Yiisoft\Db\Mssql\Schema\MssqlTableSchema;
 use Yiisoft\Db\TestUtility\AnyValue;
 use Yiisoft\Db\TestUtility\TestSchemaTrait;
 
@@ -199,143 +201,6 @@ final class MssqlSchemaTest extends TestCase
         ];
     }
 
-    public function constraintsProvider(): array
-    {
-        return [
-            '1: primary key' => [
-                'T_constraints_1',
-                'primaryKey',
-                (new Constraint())
-                    ->name(AnyValue::getInstance())
-                    ->columnNames(['C_id'])
-            ],
-            '1: check' => [
-                'T_constraints_1',
-                'checks',
-                [
-                    (new CheckConstraint())
-                        ->name(AnyValue::getInstance())
-                        ->columnNames(['C_check'])
-                        ->expression('([C_check]<>\'\')')
-                ]
-            ],
-            '1: unique' => [
-                'T_constraints_1',
-                'uniques',
-                [
-                    (new Constraint())
-                        ->name('CN_unique')
-                        ->columnNames(['C_unique'])
-                ]
-            ],
-            '1: index' => [
-                'T_constraints_1',
-                'indexes',
-                [
-                    (new IndexConstraint())
-                        ->name(AnyValue::getInstance())
-                        ->columnNames(['C_id'])
-                        ->unique(true)
-                        ->primary(true),
-                    (new IndexConstraint())
-                        ->name('CN_unique')
-                        ->columnNames(['C_unique'])
-                        ->primary(false)
-                        ->unique(true)
-                ]
-            ],
-            '1: default' => [
-                'T_constraints_1',
-                'defaultValues',
-                [
-                    (new DefaultValueConstraint())
-                        ->name(AnyValue::getInstance())
-                        ->columnNames(['C_default'])
-                        ->value('((0))')
-                ]
-            ],
-
-            '2: primary key' => [
-                'T_constraints_2',
-                'primaryKey',
-                (new Constraint())
-                ->name('CN_pk')
-                ->columnNames(['C_id_1', 'C_id_2'])
-            ],
-            '2: unique' => [
-                'T_constraints_2',
-                'uniques',
-                [
-                    (new Constraint())
-                        ->name('CN_constraints_2_multi')
-                        ->columnNames(['C_index_2_1', 'C_index_2_2'])
-                ]
-            ],
-            '2: index' => [
-                'T_constraints_2',
-                'indexes',
-                [
-                    (new IndexConstraint())
-                        ->name(AnyValue::getInstance())
-                        ->columnNames(['C_id_1', 'C_id_2'])
-                        ->unique(true)
-                        ->primary(true),
-                    (new IndexConstraint())
-                        ->name('CN_constraints_2_single')
-                        ->columnNames(['C_index_1'])
-                        ->primary(false)
-                        ->unique(false),
-                    (new IndexConstraint())
-                        ->name('CN_constraints_2_multi')
-                        ->columnNames(['C_index_2_1', 'C_index_2_2'])
-                        ->primary(false)
-                        ->unique(true)
-                ]
-            ],
-            '2: check' => ['T_constraints_2', 'checks', []],
-            '2: default' => ['T_constraints_2', 'defaultValues', []],
-
-            '3: primary key' => ['T_constraints_3', 'primaryKey', null],
-            '3: foreign key' => [
-                'T_constraints_3',
-                'foreignKeys',
-                [
-                    (new ForeignKeyConstraint())
-                        ->name('CN_constraints_3')
-                        ->columnNames(['C_fk_id_1', 'C_fk_id_2'])
-                        ->foreignSchemaName('dbo')
-                        ->foreignTableName('T_constraints_2')
-                        ->foreignColumnNames(['C_id_1', 'C_id_2'])
-                        ->onDelete('CASCADE')
-                        ->onUpdate('CASCADE')
-                ]
-            ],
-            '3: unique' => ['T_constraints_3', 'uniques', []],
-            '3: index' => ['T_constraints_3', 'indexes', []],
-            '3: check' => ['T_constraints_3', 'checks', []],
-            '3: default' => ['T_constraints_3', 'defaultValues', []],
-
-            '4: primary key' => [
-                'T_constraints_4',
-                'primaryKey',
-                (new Constraint())
-                ->name(AnyValue::getInstance())
-                ->columnNames(['C_id'])
-            ],
-            '4: unique' => [
-                'T_constraints_4',
-                'uniques',
-                [
-                    (new Constraint())
-                    ->name('CN_constraints_4')
-                    ->columnNames(['C_col_1', 'C_col_2'])
-                ]
-            ],
-            '4: check' => ['T_constraints_4', 'checks', []],
-            '4: default' => ['T_constraints_4', 'defaultValues', []],
-        ];
-    }
-
     public function testGetStringFieldsSize(): void
     {
         $db = $this->getConnection();
@@ -375,6 +240,93 @@ final class MssqlSchemaTest extends TestCase
         }
     }
 
+    public function getTableSchemaDataProvider(): array
+    {
+        return [
+            ['[dbo].[profile]', 'profile'],
+            ['dbo.profile', 'profile'],
+            ['profile', 'profile'],
+            ['dbo.[table.with.special.characters]', 'table.with.special.characters'],
+        ];
+    }
+
+    /**
+     * @dataProvider pdoAttributesProviderTrait
+     *
+     * @param array $pdoAttributes
+     */
+    public function testGetTableNames(array $pdoAttributes): void
+    {
+        $db = $this->getConnection(true);
+
+        foreach ($pdoAttributes as $name => $value) {
+            if ($name === PDO::ATTR_EMULATE_PREPARES) {
+                continue;
+            }
+
+            $db->getPDO()->setAttribute($name, $value);
+        }
+
+        $schema = $db->getSchema();
+
+        $tables = $schema->getTableNames();
+
+        $tables = array_map(static function ($item) {
+            return trim($item, '[]');
+        }, $tables);
+
+        $this->assertContains('customer', $tables);
+        $this->assertContains('category', $tables);
+        $this->assertContains('item', $tables);
+        $this->assertContains('order', $tables);
+        $this->assertContains('order_item', $tables);
+        $this->assertContains('type', $tables);
+        $this->assertContains('animal', $tables);
+        $this->assertContains('animal_view', $tables);
+    }
+
+    /**
+     * @dataProvider pdoAttributesProviderTrait
+     *
+     * @param array $pdoAttributes
+     */
+    public function testGetTableSchemas(array $pdoAttributes): void
+    {
+        $db = $this->getConnection(true);
+
+        foreach ($pdoAttributes as $name => $value) {
+            if ($name === PDO::ATTR_EMULATE_PREPARES) {
+                continue;
+            }
+
+            $db->getPDO()->setAttribute($name, $value);
+        }
+
+        $schema = $db->getSchema();
+
+        $tables = $schema->getTableSchemas();
+
+        $this->assertCount(count($schema->getTableNames()), $tables);
+
+        foreach ($tables as $table) {
+            $this->assertInstanceOf(MssqlTableSchema::class, $table);
+        }
+    }
+
+    /**
+     * @dataProvider getTableSchemaDataProvider
+     *
+     * @param string $name
+     * @param string $expectedName
+     */
+    public function testGetTableSchema(string $name, string $expectedName): void
+    {
+        $schema = $this->getConnection()->getSchema();
+        $tableSchema = $schema->getTableSchema($name);
+
+        $this->assertEquals($expectedName, $tableSchema->getName());
+    }
+
     public function quoteTableNameDataProvider(): array
     {
         return [
@@ -403,27 +355,145 @@ final class MssqlSchemaTest extends TestCase
         $this->assertEquals($expectedName, $quotedName);
     }
 
-    public function getTableSchemaDataProvider(): array
+    public function constraintsProvider()
     {
-        return [
-            ['[dbo].[profile]', 'profile'],
-            ['dbo.profile', 'profile'],
-            ['profile', 'profile'],
-            ['dbo.[table.with.special.characters]', 'table.with.special.characters'],
-        ];
+        $result = $this->constraintsProviderTrait();
+
+        $result['1: check'][2][0]->expression('([C_check]<>\'\')');
+
+        $result['1: default'][2] = [];
+
+        $result['1: default'][2][] = (new DefaultValueConstraint())
+            ->name(AnyValue::getInstance())
+            ->columnNames(['C_default'])
+            ->value('((0))');
+
+        $result['2: default'][2] = [];
+
+        $result['3: foreign key'][2][0]->foreignSchemaName('dbo');
+        $result['3: index'][2] = [];
+        $result['3: default'][2] = [];
+
+        $result['4: default'][2] = [];
+
+        return $result;
     }
 
     /**
-     * @dataProvider getTableSchemaDataProvider
+     * @dataProvider constraintsProvider
      *
-     * @param string $name
-     * @param string $expectedName
+     * @param string $tableName
+     * @param string $type
+     * @param mixed $expected
      */
-    public function testGetTableSchema(string $name, string $expectedName): void
+    public function testTableSchemaConstraints(string $tableName, string $type, $expected): void
     {
-        $schema = $this->getConnection()->getSchema();
-        $tableSchema = $schema->getTableSchema($name);
+        if ($expected === false) {
+            $this->expectException(NotSupportedException::class);
+        }
 
-        $this->assertEquals($expectedName, $tableSchema->getName());
+        $constraints = $this->getConnection()->getSchema()->{'getTable' . ucfirst($type)}($tableName);
+
+        $this->assertMetadataEquals($expected, $constraints);
+    }
+
+    /**
+     * @dataProvider lowercaseConstraintsProviderTrait
+     *
+     * @param string $tableName
+     * @param string $type
+     * @param mixed $expected
+     */
+    public function testTableSchemaConstraintsWithPdoLowercase(string $tableName, string $type, $expected): void
+    {
+        if ($expected === false) {
+            $this->expectException(NotSupportedException::class);
+        }
+
+        $connection = $this->getConnection();
+
+        $connection->getSlavePdo()->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+
+        $constraints = $connection->getSchema()->{'getTable' . ucfirst($type)}($tableName, true);
+
+        $this->assertMetadataEquals($expected, $constraints);
+    }
+
+    /**
+     * @dataProvider uppercaseConstraintsProviderTrait
+     *
+     * @param string $tableName
+     * @param string $type
+     * @param mixed $expected
+     */
+    public function testTableSchemaConstraintsWithPdoUppercase(string $tableName, string $type, $expected): void
+    {
+        if ($expected === false) {
+            $this->expectException(NotSupportedException::class);
+        }
+
+        $connection = $this->getConnection();
+
+        $connection->getSlavePdo()->setAttribute(PDO::ATTR_CASE, PDO::CASE_UPPER);
+
+        $constraints = $connection->getSchema()->{'getTable' . ucfirst($type)}($tableName, true);
+
+        $this->assertMetadataEquals($expected, $constraints);
+    }
+
+    /**
+     * @depends testSchemaCache
+     *
+     * @dataProvider tableSchemaCachePrefixesProviderTrait
+     *
+     * @param string $tablePrefix
+     * @param string $tableName
+     * @param string $testTablePrefix
+     * @param string $testTableName
+     */
+    public function testTableSchemaCacheWithTablePrefixes(
+        string $tablePrefix,
+        string $tableName,
+        string $testTablePrefix,
+        string $testTableName
+    ): void {
+        $schema = $this->getConnection()->getSchema();
+
+        $schema->getDb()->setEnableSchemaCache(true);
+
+        $schema->getDb()->setSchemaCache($this->cache);
+
+        $schema->getDb()->setTablePrefix($tablePrefix);
+
+        $noCacheTable = $schema->getTableSchema($tableName, true);
+
+        $this->assertInstanceOf(MssqlTableSchema::class, $noCacheTable);
+
+        /* Compare */
+        $schema->getDb()->setTablePrefix($testTablePrefix);
+
+        $testNoCacheTable = $schema->getTableSchema($testTableName);
+
+        $this->assertSame($noCacheTable, $testNoCacheTable);
+
+        $schema->getDb()->setTablePrefix($tablePrefix);
+
+        $schema->refreshTableSchema($tableName);
+
+        $refreshedTable = $schema->getTableSchema($tableName, false);
+
+        $this->assertInstanceOf(MssqlTableSchema::class, $refreshedTable);
+        $this->assertNotSame($noCacheTable, $refreshedTable);
+
+        /* Compare */
+        $schema->getDb()->setTablePrefix($testTablePrefix);
+
+        $schema->refreshTableSchema($testTablePrefix);
+
+        $testRefreshedTable = $schema->getTableSchema($testTableName, false);
+
+        $this->assertInstanceOf(MssqlTableSchema::class, $testRefreshedTable);
+        $this->assertEquals($refreshedTable, $testRefreshedTable);
+        $this->assertNotSame($testNoCacheTable, $testRefreshedTable);
     }
 }
