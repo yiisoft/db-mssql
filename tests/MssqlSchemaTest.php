@@ -201,6 +201,19 @@ final class MssqlSchemaTest extends TestCase
         ];
     }
 
+    public function testGetSchemaNames(): void
+    {
+        $schema = $this->getConnection()->getSchema();
+
+        $schemas = $schema->getSchemaNames();
+
+        $this->assertNotEmpty($schemas);
+
+        foreach ($this->expectedSchemas as $schema) {
+            $this->assertContains($schema, $schemas);
+        }
+    }
+
     public function testGetStringFieldsSize(): void
     {
         $db = $this->getConnection();
