@@ -318,7 +318,7 @@ final class MssqlQueryBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider addDropForeignKeysTrait
+     * @dataProvider addDropForeignKeysProviderTrait
      *
      * @param string $sql
      * @param Closure $builder
@@ -329,7 +329,7 @@ final class MssqlQueryBuilderTest extends TestCase
     }
 
     /**
-     * @dataProvider addDropPrimaryKeysTrait
+     * @dataProvider addDropPrimaryKeysProviderTrait
      *
      * @param string $sql
      * @param Closure $builder
