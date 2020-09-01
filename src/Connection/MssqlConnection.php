@@ -20,7 +20,7 @@ final class MssqlConnection extends Connection
     private bool $isSybase = false;
     private ?MssqlSchema $schema = null;
 
-    public function createCommand($sql = null, $params = []): Command
+    public function createCommand(?string $sql = null, array $params = []): Command
     {
         if ($sql !== null) {
             $sql = $this->quoteSql($sql);
