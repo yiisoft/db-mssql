@@ -18,7 +18,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Query\MssqlQueryBuilder;
-use Yiisoft\Db\Schema\ColumnSchema;
+use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\View\ViewFinderTrait;
 
@@ -487,13 +487,13 @@ SQL;
     }
 
     /**
-     * Loads the column information into a {@see ColumnSchema} object.
+     * Loads the column information into a {@see MssqlColumnSchema} object.
      *
      * @param array $info column information.
      *
-     * @return ColumnSchema the column schema object.
+     * @return MssqlColumnSchema the column schema object.
      */
-    protected function loadColumnSchema(array $info): ColumnSchema
+    protected function loadColumnSchema(array $info): MssqlColumnSchema
     {
         $column = $this->createColumnSchema();
 
@@ -1003,5 +1003,20 @@ SQL;
         }
 
         return $result;
+    }
+
+    /**
+     * Create a column schema builder instance giving the type and value precision.
+     *
+     * This method may be overridden by child classes to create a DBMS-specific column schema builder.
+     *
+     * @param string $type type of the column. See {@see ColumnSchemaBuilder::$type}.
+     * @param int|string|array $length length or precision of the column. See {@see ColumnSchemaBuilder::$length}.
+     *
+     * @return ColumnSchemaBuilder column schema builder instance
+     */
+    public function createColumnSchemaBuilder(string $type, $length = null): ColumnSchemaBuilder
+    {
+        return new ColumnSchemaBuilder($type, $length, $this->getDb());
     }
 }
