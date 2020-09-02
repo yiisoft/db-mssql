@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\Connection;
+namespace Yiisoft\Db\Mssql;
 
-use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Connection\Connection as AbstractConnection;
 use Yiisoft\Db\Command\Command;
-use Yiisoft\Db\Mssql\Pdo\PDO;
-use Yiisoft\Db\Mssql\Pdo\SqlsrvPDO;
-use Yiisoft\Db\Mssql\Schema\MssqlSchema;
+use Yiisoft\Db\Mssql\PDO;
+use Yiisoft\Db\Mssql\SqlsrvPDO;
+use Yiisoft\Db\Mssql\Schema;
 
 use function in_array;
 
 /**
  * Database connection class prefilled for MSSQL Server.
  */
-final class MssqlConnection extends Connection
+final class Connection extends AbstractConnection
 {
     private bool $isSybase = false;
-    private ?MssqlSchema $schema = null;
+    private ?Schema $schema = null;
 
     public function createCommand(?string $sql = null, array $params = []): Command
     {
@@ -34,15 +34,15 @@ final class MssqlConnection extends Connection
     /**
      * Returns the schema information for the database opened by this connection.
      *
-     * @return MssqlSchema the schema information for the database opened by this connection.
+     * @return Schema the schema information for the database opened by this connection.
      */
-    public function getSchema(): MssqlSchema
+    public function getSchema(): Schema
     {
         if ($this->schema !== null) {
             return $this->schema;
         }
 
-        return $this->schema = new MssqlSchema($this);
+        return $this->schema = new Schema($this);
     }
 
     public function isSybase(): bool

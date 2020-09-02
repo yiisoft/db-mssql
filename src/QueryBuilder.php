@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\Query;
+namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Exception\Exception;
@@ -12,12 +12,12 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Condition\InConditionBuilder;
 use Yiisoft\Db\Mssql\Condition\LikeConditionBuilder;
-use Yiisoft\Db\Mssql\Schema\MssqlColumnSchema;
-use Yiisoft\Db\Mssql\Schema\MssqlSchema;
+use Yiisoft\Db\Mssql\ColumnSchema;
+use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Query\Conditions\InCondition;
 use Yiisoft\Db\Query\Conditions\LikeCondition;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Query\QueryBuilder;
+use Yiisoft\Db\Query\QueryBuilder as AbstractQueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 
 use function array_diff;
@@ -33,35 +33,35 @@ use function strrpos;
 use function version_compare;
 
 /**
- * MssqlQueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
+ * QueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
  */
-final class MssqlQueryBuilder extends QueryBuilder
+final class QueryBuilder extends AbstractQueryBuilder
 {
     /**
      * @var array mapping from abstract column types (keys) to physical column types (values).
      */
     protected array $typeMap = [
-        MssqlSchema::TYPE_PK => 'int IDENTITY PRIMARY KEY',
-        MssqlSchema::TYPE_UPK => 'int IDENTITY PRIMARY KEY',
-        MssqlSchema::TYPE_BIGPK => 'bigint IDENTITY PRIMARY KEY',
-        MssqlSchema::TYPE_UBIGPK => 'bigint IDENTITY PRIMARY KEY',
-        MssqlSchema::TYPE_CHAR => 'nchar(1)',
-        MssqlSchema::TYPE_STRING => 'nvarchar(255)',
-        MssqlSchema::TYPE_TEXT => 'nvarchar(max)',
-        MssqlSchema::TYPE_TINYINT => 'tinyint',
-        MssqlSchema::TYPE_SMALLINT => 'smallint',
-        MssqlSchema::TYPE_INTEGER => 'int',
-        MssqlSchema::TYPE_BIGINT => 'bigint',
-        MssqlSchema::TYPE_FLOAT => 'float',
-        MssqlSchema::TYPE_DOUBLE => 'float',
-        MssqlSchema::TYPE_DECIMAL => 'decimal(18,0)',
-        MssqlSchema::TYPE_DATETIME => 'datetime',
-        MssqlSchema::TYPE_TIMESTAMP => 'datetime',
-        MssqlSchema::TYPE_TIME => 'time',
-        MssqlSchema::TYPE_DATE => 'date',
-        MssqlSchema::TYPE_BINARY => 'varbinary(max)',
-        MssqlSchema::TYPE_BOOLEAN => 'bit',
-        MssqlSchema::TYPE_MONEY => 'decimal(19,4)',
+        Schema::TYPE_PK => 'int IDENTITY PRIMARY KEY',
+        Schema::TYPE_UPK => 'int IDENTITY PRIMARY KEY',
+        Schema::TYPE_BIGPK => 'bigint IDENTITY PRIMARY KEY',
+        Schema::TYPE_UBIGPK => 'bigint IDENTITY PRIMARY KEY',
+        Schema::TYPE_CHAR => 'nchar(1)',
+        Schema::TYPE_STRING => 'nvarchar(255)',
+        Schema::TYPE_TEXT => 'nvarchar(max)',
+        Schema::TYPE_TINYINT => 'tinyint',
+        Schema::TYPE_SMALLINT => 'smallint',
+        Schema::TYPE_INTEGER => 'int',
+        Schema::TYPE_BIGINT => 'bigint',
+        Schema::TYPE_FLOAT => 'float',
+        Schema::TYPE_DOUBLE => 'float',
+        Schema::TYPE_DECIMAL => 'decimal(18,0)',
+        Schema::TYPE_DATETIME => 'datetime',
+        Schema::TYPE_TIMESTAMP => 'datetime',
+        Schema::TYPE_TIME => 'time',
+        Schema::TYPE_DATE => 'date',
+        Schema::TYPE_BINARY => 'varbinary(max)',
+        Schema::TYPE_BOOLEAN => 'bit',
+        Schema::TYPE_MONEY => 'decimal(19,4)',
     ];
 
     protected function defaultExpressionBuilders(): array
@@ -123,8 +123,13 @@ final class MssqlQueryBuilder extends QueryBuilder
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
-    protected function newBuildOrderByAndLimit(string $sql, array $orderBy, $limit, $offset, array &$params = []): string
-    {
+    protected function newBuildOrderByAndLimit(
+        string $sql,
+        array $orderBy,
+        $limit,
+        $offset,
+        array &$params = []
+    ): string {
         $orderBy = $this->buildOrderBy($orderBy, $params);
 
         if ($orderBy === '') {
@@ -164,8 +169,13 @@ final class MssqlQueryBuilder extends QueryBuilder
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
-    protected function oldBuildOrderByAndLimit(string $sql, array $orderBy, $limit, $offset, array &$params = []): string
-    {
+    protected function oldBuildOrderByAndLimit(
+        string $sql,
+        array $orderBy,
+        $limit,
+        $offset,
+        array &$params = []
+    ): string {
         $orderBy = $this->buildOrderBy($orderBy, $params);
 
         if ($orderBy === '') {
@@ -578,14 +588,14 @@ final class MssqlQueryBuilder extends QueryBuilder
      * Normalizes data to be saved into the table, performing extra preparations and type converting, if necessary.
      *
      * @param string $table the table that data will be saved into.
-     * @param MssqlColumnSchema|array $columns the column data (name => value) to be saved into the table.
+     * @param ColumnSchema|array $columns the column data (name => value) to be saved into the table.
      * @param array $params
      *
      * @throws Exception
      * @throws InvalidConfigException
      * @throws NotSupportedException
      *
-     * @return MssqlColumnSchema|array normalized columns.
+     * @return ColumnSchema|array normalized columns.
      */
     private function normalizeTableRowData(string $table, $columns, array &$params = [])
     {
@@ -599,7 +609,7 @@ final class MssqlQueryBuilder extends QueryBuilder
                  */
                 if (
                     isset($columnSchemas[$name]) &&
-                    $columnSchemas[$name]->getDbtype() === MssqlSchema::TYPE_BINARY &&
+                    $columnSchemas[$name]->getDbtype() === Schema::TYPE_BINARY &&
                     $columnSchemas[$name]->getDbType() === 'varbinary' && is_string($value)
                 ) {
                     $exParams = [];
@@ -654,6 +664,7 @@ final class MssqlQueryBuilder extends QueryBuilder
 
         if ($version2005orLater) {
             $schema = $this->getDb()->getTableSchema($table);
+
             $cols = [];
             foreach ($schema->getColumns() as $column) {
                 $cols[] = $this->getDb()->quoteColumnName($column->getName()) . ' '
@@ -664,6 +675,7 @@ final class MssqlQueryBuilder extends QueryBuilder
                     ) ? "(MAX)" : "")
                     . ' ' . ($column->isAllowNull() ? "NULL" : "");
             }
+
             $sql = "SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (" . implode(", ", $cols) . ");"
                 . $sql . ";SELECT * FROM @temporary_inserted";
         }
@@ -738,7 +750,9 @@ final class MssqlQueryBuilder extends QueryBuilder
         }
 
         $on = $this->buildCondition($onCondition, $params);
+
         [, $placeholders, $values, $params] = $this->prepareInsertValues($table, $insertColumns, $params);
+
         $mergeSql = 'MERGE ' . $this->getDb()->quoteTableName($table) . ' WITH (HOLDLOCK) '
             . 'USING (' . (!empty($placeholders)
             ? 'VALUES (' . implode(', ', $placeholders) . ')'

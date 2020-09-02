@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\Pdo;
+namespace Yiisoft\Db\Mssql;
 
 /**
  * This is an extension of the default PDO class of SQLSRV driver. It provides workarounds for improperly implemented

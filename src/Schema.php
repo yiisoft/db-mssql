@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\Schema;
+namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Constraint\CheckConstraint;
@@ -17,9 +17,9 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Query\MssqlQueryBuilder;
+use Yiisoft\Db\Mssql\QueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
-use Yiisoft\Db\Schema\Schema;
+use Yiisoft\Db\Schema\Schema as AbstractSchema;
 use Yiisoft\Db\View\ViewFinderTrait;
 
 use function array_map;
@@ -36,7 +36,7 @@ use function version_compare;
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
  */
-final class MssqlSchema extends Schema implements ConstraintFinderInterface
+final class Schema extends AbstractSchema implements ConstraintFinderInterface
 {
     use ViewFinderTrait;
     use ConstraintFinderTrait;
@@ -90,8 +90,7 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
         'image' => self::TYPE_BINARY,
 
         /**
-         * other data types
-         * 'cursor' type cannot be used with tables
+         * other data types 'cursor' type cannot be used with tables
          */
         'timestamp' => self::TYPE_TIMESTAMP,
         'hierarchyid' => self::TYPE_STRING,
@@ -109,13 +108,14 @@ final class MssqlSchema extends Schema implements ConstraintFinderInterface
      *
      * @param string $name the table name.
      *
-     * @return MssqlTableSchema resolved table, schema, etc. names.
+     * @return TableSchema resolved table, schema, etc. names.
      */
-    protected function resolveTableName(string $name): MssqlTableSchema
+    protected function resolveTableName(string $name): TableSchema
     {
-        $resolvedName = new MssqlTableSchema();
+        $resolvedName = new TableSchema();
 
         $parts = $this->getTableNameParts($name);
+
         $partCount = count($parts);
 
         if ($partCount === 4) {
@@ -246,11 +246,11 @@ SQL;
      * @throws InvalidConfigException
      * @throws NotSupportedException
      *
-     * @return MssqlTableSchema|null DBMS-dependent table metadata, `null` if the table does not exist.
+     * @return TableSchema|null DBMS-dependent table metadata, `null` if the table does not exist.
      */
-    protected function loadTableSchema(string $name): ?MssqlTableSchema
+    protected function loadTableSchema(string $name): ?TableSchema
     {
-        $table = new MssqlTableSchema();
+        $table = new TableSchema();
 
         $this->resolveTableNames($table, $name);
         $this->findPrimaryKeys($table);
@@ -330,6 +330,7 @@ SQL;
         $indexes = ArrayHelper::index($indexes, null, 'name');
 
         $result = [];
+
         foreach ($indexes as $name => $index) {
             $result[] = (new IndexConstraint())
                 ->primary((bool) $index[0]['index_is_primary'])
@@ -430,32 +431,33 @@ SQL;
      *
      * This method may be overridden by child classes to create a DBMS-specific column schema.
      *
-     * @return MssqlColumnSchema column schema instance.
+     * @return ColumnSchema column schema instance.
      */
-    protected function createColumnSchema(): MssqlColumnSchema
+    protected function createColumnSchema(): ColumnSchema
     {
-        return new MssqlColumnSchema();
+        return new ColumnSchema();
     }
 
     /**
      * Creates a query builder for the MSSQL database.
      *
-     * @return MssqlQueryBuilder query builder interface.
+     * @return QueryBuilder query builder interface.
      */
-    public function createQueryBuilder(): MssqlQueryBuilder
+    public function createQueryBuilder(): QueryBuilder
     {
-        return new MssqlQueryBuilder($this->getDb());
+        return new QueryBuilder($this->getDb());
     }
 
     /**
      * Resolves the table name and schema name (if any).
      *
-     * @param MssqlTableSchema $table the table metadata object.
+     * @param TableSchema $table the table metadata object.
      * @param string $name the table name
      */
-    protected function resolveTableNames(MssqlTableSchema $table, string $name)
+    protected function resolveTableNames(TableSchema $table, string $name)
     {
         $parts = $this->getTableNameParts($name);
+
         $partCount = count($parts);
 
         if ($partCount === 4) {
@@ -487,13 +489,13 @@ SQL;
     }
 
     /**
-     * Loads the column information into a {@see MssqlColumnSchema} object.
+     * Loads the column information into a {@see ColumnSchema} object.
      *
      * @param array $info column information.
      *
-     * @return MssqlColumnSchema the column schema object.
+     * @return ColumnSchema the column schema object.
      */
-    protected function loadColumnSchema(array $info): MssqlColumnSchema
+    protected function loadColumnSchema(array $info): ColumnSchema
     {
         $column = $this->createColumnSchema();
 
@@ -551,7 +553,7 @@ SQL;
     /**
      * Collects the metadata of table columns.
      *
-     * @param MssqlTableSchema $table the table metadata.
+     * @param TableSchema $table the table metadata.
      *
      * @throws Exception
      * @throws InvalidConfigException
@@ -559,7 +561,7 @@ SQL;
      *
      * @return bool whether the table exists in the database.
      */
-    protected function findColumns(MssqlTableSchema $table): bool
+    protected function findColumns(TableSchema $table): bool
     {
         $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
         $whereSql = "[t1].[table_name] = " . $this->getDb()->quoteValue($table->getName());
@@ -610,7 +612,7 @@ SQL;
             if (empty($columns)) {
                 return false;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -636,7 +638,7 @@ SQL;
     /**
      * Collects the constraint details for the given table and constraint type.
      *
-     * @param MssqlTableSchema $table
+     * @param TableSchema $table
      * @param string $type either PRIMARY KEY or UNIQUE.
      *
      * @throws Exception
@@ -645,7 +647,7 @@ SQL;
      *
      * @return array each entry contains index_name and field_name.
      */
-    protected function findTableConstraints(MssqlTableSchema $table, string $type): array
+    protected function findTableConstraints(TableSchema $table, string $type): array
     {
         $keyColumnUsageTableName = 'INFORMATION_SCHEMA.KEY_COLUMN_USAGE';
         $tableConstraintsTableName = 'INFORMATION_SCHEMA.TABLE_CONSTRAINTS';
@@ -686,15 +688,16 @@ SQL;
     /**
      * Collects the primary key column details for the given table.
      *
-     * @param MssqlTableSchema $table the table metadata
+     * @param TableSchema $table the table metadata
      *
      * @throws Exception
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
-    protected function findPrimaryKeys(MssqlTableSchema $table): void
+    protected function findPrimaryKeys(TableSchema $table): void
     {
         $result = [];
+
         foreach ($this->findTableConstraints($table, 'PRIMARY KEY') as $row) {
             $table->primaryKey($row['field_name']);
         }
@@ -703,13 +706,13 @@ SQL;
     /**
      * Collects the foreign key column details for the given table.
      *
-     * @param MssqlTableSchema $table the table metadata
+     * @param TableSchema $table the table metadata
      *
      * @throws Exception
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      */
-    protected function findForeignKeys(MssqlTableSchema $table): void
+    protected function findForeignKeys(TableSchema $table): void
     {
         $object = $table->getName();
 
@@ -748,6 +751,7 @@ SQL;
         $rows = $this->getDb()->createCommand($sql, [':object' => $object])->queryAll();
 
         $table->foreignKeys([]);
+
         foreach ($rows as $row) {
             if (!isset($table->getForeignKeys()[$row['fk_name']])) {
                 $fk[$row['fk_name']][] = $row['uq_table_name'];
@@ -803,7 +807,7 @@ SQL;
      * ]
      * ```
      *
-     * @param MssqlTableSchema $table the table metadata.
+     * @param TableSchema $table the table metadata.
      *
      * @throws Exception
      * @throws InvalidArgumentException
@@ -811,7 +815,7 @@ SQL;
      *
      * @return array all unique indexes for the given table.
      */
-    public function findUniqueIndexes(MssqlTableSchema $table): array
+    public function findUniqueIndexes(TableSchema $table): array
     {
         $result = [];
 

@@ -10,7 +10,7 @@ use Yiisoft\Db\TestUtility\TestQueryTrait;
 /**
  * @group mssql
  */
-final class MssqlQueryTest extends TestCase
+final class QueryTest extends TestCase
 {
     use TestQueryTrait;
 
