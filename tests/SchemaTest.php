@@ -10,7 +10,7 @@ use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
-use Yiisoft\Db\Mssql\Schema\MssqlTableSchema;
+use Yiisoft\Db\Mssql\TableSchema;
 use Yiisoft\Db\TestUtility\AnyValue;
 use Yiisoft\Db\TestUtility\TestSchemaTrait;
 
@@ -19,7 +19,7 @@ use function strpos;
 /**
  * @group mssql
  */
-final class MssqlSchemaTest extends TestCase
+final class SchemaTest extends TestCase
 {
     use TestSchemaTrait;
 
@@ -322,7 +322,7 @@ final class MssqlSchemaTest extends TestCase
         $this->assertCount(count($schema->getTableNames()), $tables);
 
         foreach ($tables as $table) {
-            $this->assertInstanceOf(MssqlTableSchema::class, $table);
+            $this->assertInstanceOf(TableSchema::class, $table);
         }
     }
 
@@ -480,7 +480,7 @@ final class MssqlSchemaTest extends TestCase
 
         $noCacheTable = $schema->getTableSchema($tableName, true);
 
-        $this->assertInstanceOf(MssqlTableSchema::class, $noCacheTable);
+        $this->assertInstanceOf(TableSchema::class, $noCacheTable);
 
         /* Compare */
         $schema->getDb()->setTablePrefix($testTablePrefix);
@@ -495,7 +495,7 @@ final class MssqlSchemaTest extends TestCase
 
         $refreshedTable = $schema->getTableSchema($tableName, false);
 
-        $this->assertInstanceOf(MssqlTableSchema::class, $refreshedTable);
+        $this->assertInstanceOf(TableSchema::class, $refreshedTable);
         $this->assertNotSame($noCacheTable, $refreshedTable);
 
         /* Compare */
@@ -505,7 +505,7 @@ final class MssqlSchemaTest extends TestCase
 
         $testRefreshedTable = $schema->getTableSchema($testTableName, false);
 
-        $this->assertInstanceOf(MssqlTableSchema::class, $testRefreshedTable);
+        $this->assertInstanceOf(TableSchema::class, $testRefreshedTable);
         $this->assertEquals($refreshedTable, $testRefreshedTable);
         $this->assertNotSame($testNoCacheTable, $testRefreshedTable);
     }

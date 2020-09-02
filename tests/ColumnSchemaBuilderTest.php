@@ -9,7 +9,7 @@ use Yiisoft\Db\TestUtility\TestColumnSchemaBuilderTrait;
 /**
  * @group mssql
  */
-final class MssqlColumnSchemaBuilderTest extends TestCase
+final class ColumnSchemaBuilderTest extends TestCase
 {
     use TestColumnSchemaBuilderTrait;
 

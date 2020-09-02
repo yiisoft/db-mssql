@@ -8,7 +8,7 @@ use Closure;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Mssql\Query\MssqlQueryBuilder;
+use Yiisoft\Db\Mssql\QueryBuilder;
 use Yiisoft\Db\TestUtility\TraversableObject;
 use Yiisoft\Db\TestUtility\TestQueryBuilderTrait;
 
@@ -17,7 +17,7 @@ use function array_replace;
 /**
  * @group mssql
  */
-final class MssqlQueryBuilderTest extends TestCase
+final class QueryBuilderTest extends TestCase
 {
     use TestQueryBuilderTrait;
 
@@ -38,11 +38,11 @@ final class MssqlQueryBuilderTest extends TestCase
     ];
 
     /**
-     * @return MssqlQueryBuilder
+     * @return QueryBuilder
      */
-    protected function getQueryBuilder(bool $reset = false): MssqlQueryBuilder
+    protected function getQueryBuilder(bool $reset = false): QueryBuilder
     {
-        return new MssqlQueryBuilder($this->getConnection($reset));
+        return new QueryBuilder($this->getConnection($reset));
     }
 
     protected function getCommmentsFromTable(string $table): array
