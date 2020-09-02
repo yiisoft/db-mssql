@@ -144,7 +144,6 @@ class TestCase extends AbstractTestCase
     protected function getConnection($reset = false): Connection
     {
         if ($reset === false && isset($this->connection)) {
-
             return $this->connection;
         }
 
