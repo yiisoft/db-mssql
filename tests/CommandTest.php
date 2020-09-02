@@ -6,7 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Schema\MssqlSchema;
+use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestUtility\TestCommandTrait;
 
@@ -15,7 +15,7 @@ use function trim;
 /**
  * @group mssql
  */
-final class MssqlCommandTest extends TestCase
+final class CommandTest extends TestCase
 {
     use TestCommandTrait;
 
@@ -150,12 +150,12 @@ final class MssqlCommandTest extends TestCase
 
         $db->createCommand()->createTable(
             'testAlterTable',
-            ['id' => MssqlSchema::TYPE_PK, 'bar' => MssqlSchema::TYPE_INTEGER]
+            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
         )->execute();
 
         $db->createCommand()->insert('testAlterTable', ['bar' => 1])->execute();
 
-        $db->createCommand()->alterColumn('testAlterTable', 'bar', MssqlSchema::TYPE_STRING)->execute();
+        $db->createCommand()->alterColumn('testAlterTable', 'bar', Schema::TYPE_STRING)->execute();
 
         $db->createCommand()->insert('testAlterTable', ['bar' => 'hello'])->execute();
 

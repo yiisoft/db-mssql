@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\Helper;
+namespace Yiisoft\Db\Mssql;
 
-final class MssqlDsn
+final class Dsn
 {
     private string $database;
     private string $driver;
-    private string $dsn;
     private string $server;
     private string $port;
 
@@ -37,9 +36,7 @@ final class MssqlDsn
 
     public function getDsn(): string
     {
-        $this->dsn = "$this->driver:" . "Server=$this->server," . "$this->port;" . "Database=$this->database";
-
-        return $this->dsn;
+        return "$this->driver:" . "Server=$this->server," . "$this->port;" . "Database=$this->database";
     }
 
     public function getDriver(): string

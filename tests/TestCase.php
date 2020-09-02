@@ -17,8 +17,8 @@ use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Factory\DatabaseFactory;
-use Yiisoft\Db\Mssql\Connection\MssqlConnection;
-use Yiisoft\Db\Mssql\Helper\MssqlDsn;
+use Yiisoft\Db\Mssql\Connection;
+use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\TestUtility\IsOneOfAssert;
 use Yiisoft\Di\Container;
 use Yiisoft\Log\Logger;
@@ -33,12 +33,12 @@ class TestCase extends AbstractTestCase
 {
     protected Aliases $aliases;
     protected CacheInterface $cache;
+    protected Connection $connection;
     protected ContainerInterface $container;
-    protected LoggerInterface $logger;
-    protected MssqlDsn $mssqlDsn;
-    protected MssqlConnection $mssqlConnection;
-    protected Profiler $profiler;
     protected array $dataProvider;
+    protected Dsn $dsn;
+    protected LoggerInterface $logger;
+    protected Profiler $profiler;
 
     protected function setUp(): void
     {
@@ -56,15 +56,17 @@ class TestCase extends AbstractTestCase
         unset(
             $this->aliases,
             $this->cache,
+            $this->connection,
             $this->container,
+            $this->dsn,
             $this->logger,
-            $this->mssqlDsn,
-            $this->mssqlConnection,
             $this->profiler
         );
     }
+
     /**
      * Asserting two strings equality ignoring line endings.
+     *
      * @param string $expected
      * @param string $actual
      * @param string $message
@@ -99,8 +101,8 @@ class TestCase extends AbstractTestCase
         $this->cache = $this->container->get(CacheInterface::class);
         $this->logger = $this->container->get(LoggerInterface::class);
         $this->profiler = $this->container->get(Profiler::class);
-        $this->mssqlDsn = $this->container->get(MssqlDsn::class);
-        $this->mssqlConnection = $this->container->get(ConnectionInterface::class);
+        $this->dsn = $this->container->get(Dsn::class);
+        $this->connection = $this->container->get(ConnectionInterface::class);
 
         DatabaseFactory::initialize($this->container, []);
     }
@@ -130,23 +132,26 @@ class TestCase extends AbstractTestCase
         if ($revoke) {
             $method->setAccessible(false);
         }
+
         return $result;
     }
 
     /**
      * @param bool $reset whether to clean up the test database.
      *
-     * @return MssqlConnection
+     * @return Connection
      */
-    protected function getConnection($reset = false): MssqlConnection
+    protected function getConnection($reset = false): Connection
     {
-        if ($reset === false && isset($this->mssqlConnection)) {
-            return $this->mssqlConnection;
+        if ($reset === false && isset($this->connection)) {
+
+            return $this->connection;
         }
 
         if ($reset === false) {
             $this->configContainer();
-            return $this->mssqlConnection;
+
+            return $this->connection;
         }
 
         try {
@@ -155,21 +160,21 @@ class TestCase extends AbstractTestCase
             $this->markTestSkipped('Something wrong when preparing database: ' . $e->getMessage());
         }
 
-        return $this->mssqlConnection;
+        return $this->connection;
     }
 
     protected function prepareDatabase(): void
     {
         $fixture = $this->params()['yiisoft/db-mssql']['fixture'];
 
-        $this->mssqlConnection->open();
+        $this->connection->open();
 
         if ($fixture !== null) {
             $lines = explode(';', file_get_contents($fixture));
 
             foreach ($lines as $line) {
                 if (trim($line) !== '') {
-                    $this->mssqlConnection->getPDO()->exec($line);
+                    $this->connection->getPDO()->exec($line);
                 }
             }
         }
@@ -273,8 +278,8 @@ class TestCase extends AbstractTestCase
                 return new Profiler($container->get(LoggerInterface::class));
             },
 
-            MssqlDsn::class => static function () use ($params) {
-                return new MssqlDsn(
+            Dsn::class => static function () use ($params) {
+                return new Dsn(
                     $params['yiisoft/db-mssql']['dsn']['driver'],
                     $params['yiisoft/db-mssql']['dsn']['server'],
                     $params['yiisoft/db-mssql']['dsn']['database'],
@@ -283,11 +288,11 @@ class TestCase extends AbstractTestCase
             },
 
             ConnectionInterface::class  => static function (ContainerInterface $container) use ($params) {
-                $connection = new MssqlConnection(
+                $connection = new Connection(
                     $container->get(CacheInterface::class),
                     $container->get(LoggerInterface::class),
                     $container->get(Profiler::class),
-                    $container->get(MssqlDsn::class)->getDsn(),
+                    $container->get(Dsn::class)->getDsn(),
                 );
 
                 $connection->setUsername($params['yiisoft/db-mssql']['username']);

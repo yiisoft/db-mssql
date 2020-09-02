@@ -7,13 +7,13 @@ namespace Yiisoft\Db\Mssql\Tests;
 use PDO;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Mssql\Connection\MssqlConnection;
+use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\TestUtility\TestConnectionTrait;
 
 /**
  * @group mssql
  */
-final class MssqlConnectionTest extends TestCase
+final class ConnectionTest extends TestCase
 {
     use TestConnectionTrait;
 
@@ -24,14 +24,14 @@ final class MssqlConnectionTest extends TestCase
         $this->assertEquals($this->cache, $db->getSchemaCache());
         $this->assertEquals($this->logger, $db->getLogger());
         $this->assertEquals($this->profiler, $db->getProfiler());
-        $this->assertEquals($this->mssqlDsn->getDsn(), $db->getDsn());
+        $this->assertEquals($this->dsn->getDsn(), $db->getDsn());
     }
 
     public function testGetDriverName(): void
     {
         $db = $this->getConnection();
 
-        $this->assertEquals($this->mssqlDsn->getDriver(), $db->getDriverName());
+        $this->assertEquals($this->dsn->getDriver(), $db->getDriverName());
     }
 
     public function testOpenClose(): void
@@ -51,7 +51,7 @@ final class MssqlConnectionTest extends TestCase
         $this->assertFalse($db->isActive());
         $this->assertNull($db->getPDO());
 
-        $db = new MssqlConnection($this->cache, $this->logger, $this->profiler, 'unknown::memory:');
+        $db = new Connection($this->cache, $this->logger, $this->profiler, 'unknown::memory:');
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('could not find driver');
@@ -136,12 +136,12 @@ final class MssqlConnectionTest extends TestCase
         $db->setSlaves(
             '1',
             [
-                '__class' => MssqlConnection::class,
+                '__class' => Connection::class,
                 '__construct()' => [
                     $this->cache,
                     $this->logger,
                     $this->profiler,
-                    $this->mssqlDsn->getDsn()
+                    $this->dsn->getDsn()
                 ],
                 'setUsername()' => [$db->getUsername()],
                 'setPassword()' => [$db->getPassword()]
@@ -171,12 +171,12 @@ final class MssqlConnectionTest extends TestCase
         $db->setMasters(
             '1',
             [
-                '__class' => MssqlConnection::class,
+                '__class' => Connection::class,
                 '__construct()' => [
                     $this->cache,
                     $this->logger,
                     $this->profiler,
-                    $this->mssqlDsn->getDsn()
+                    $this->dsn->getDsn()
                 ],
                 'setUsername()' => [$db->getUsername()],
                 'setPassword()' => [$db->getPassword()]
@@ -205,7 +205,7 @@ final class MssqlConnectionTest extends TestCase
         $db->setMasters(
             '1',
             [
-                '__class' => MssqlConnection::class,
+                '__class' => Connection::class,
                 '__construct()' => [
                     $this->cache,
                     $this->logger,
@@ -241,12 +241,12 @@ final class MssqlConnectionTest extends TestCase
         $db->setMasters(
             '1',
             [
-                '__class' => MssqlConnection::class,
+                '__class' => Connection::class,
                 '__construct()' => [
                     $this->cache,
                     $this->logger,
                     $this->profiler,
-                    $this->mssqlDsn->getDsn()
+                    $this->dsn->getDsn()
                 ],
                 'setUsername()' => [$db->getUsername()],
                 'setPassword()' => [$db->getPassword()]
@@ -272,7 +272,7 @@ final class MssqlConnectionTest extends TestCase
         $db->setMasters(
             '1',
             [
-                '__class' => MssqlConnection::class,
+                '__class' => Connection::class,
                 '__construct()' => [
                     $this->cache,
                     $this->logger,

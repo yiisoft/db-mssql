@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\Pdo;
+namespace Yiisoft\Db\Mssql;
+
+use PDOException;
 
 /**
  * This is an extension of the default PDO class of MSSQL and DBLIB drivers. It provides workarounds for improperly
@@ -76,7 +78,7 @@ final class PDO extends \PDO
     {
         try {
             return parent::getAttribute($attribute);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             switch ($attribute) {
                 case self::ATTR_SERVER_VERSION:
                     return $this->query("SELECT CAST(SERVERPROPERTY('productversion') AS VARCHAR)")->fetchColumn();

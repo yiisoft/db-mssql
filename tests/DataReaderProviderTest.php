@@ -9,7 +9,7 @@ use Yiisoft\Db\TestUtility\TestDataReaderProviderTrait;
 /**
  * @group mssql
  */
-final class MssqlDataReaderProviderTest extends TestCase
+final class DataReaderProviderTest extends TestCase
 {
     use TestDataReaderProviderTrait;
 }
