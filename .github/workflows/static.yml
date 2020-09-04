@@ -6,10 +6,7 @@ on:
 
 jobs:
   mutation:
-    name: PHP ${{ matrix.php }}-${{ matrix.os }}
-    env:
-      COMPOSER_ROOT_VERSION: "dev-master"
-      extensions: ast
+    name: PHP ${{ matrix.php-version }}-${{ matrix.os }}
 
     runs-on: ${{ matrix.os }}
 
@@ -18,7 +15,7 @@ jobs:
         os:
           - ubuntu-latest
 
-        php:
+        php-version:
           - "7.4"
 
     steps:
@@ -28,8 +25,7 @@ jobs:
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
-          php-version: "${{ matrix.php }}"
-          extensions: ${{ env.extensions }}
+          php-version: "${{ matrix.php-version }}"
           tools: composer:v2, cs2pr
           coverage: none
 
@@ -37,15 +33,15 @@ jobs:
         run: echo "::set-env name=COMPOSER_CACHE_DIR::$(composer config cache-dir)"
 
       - name: Cache dependencies installed with composer
-        uses: actions/cache@v2.1.1
+        uses: actions/cache@v1
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
+          key: php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            php${{ matrix.php }}-composer-
+            php${{ matrix.php-version }}-composer-
 
       - name: Install dependencies with composer
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader
 
       - name: Static analysis with phan
-        run: vendor/bin/phan --no-progress-bar --output-mode checkstyle | cs2pr --graceful-warnings --colorize
+        run: vendor/bin/psalm --shepherd --stats --output-format=checkstyle | cs2pr --graceful-warnings --colorize

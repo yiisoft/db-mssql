@@ -2,9 +2,10 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" colors="true" verbose="true" bootstrap="vendor/autoload.php" executionOrder="default" failOnRisky="true" failOnWarning="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
   <coverage>
     <include>
-      <directory>./</directory>
+      <directory>./src</directory>
     </include>
     <exclude>
+      <directory>./phan</directory>
       <directory>./tests</directory>
       <directory>./vendor</directory>
     </exclude>
