@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" colors="true" verbose="true" bootstrap="vendor/autoload.php" executionOrder="default" failOnRisky="true" failOnWarning="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+
+<phpunit bootstrap="vendor/autoload.php"
+         backupGlobals="false"
+         colors="true"
+         verbose="true"
+         executionOrder="default"
+         failOnRisky="true"
+         failOnWarning="true">
+
   <coverage>
     <include>
       <directory>./src</directory>
     </include>
     <exclude>
-      <directory>./phan</directory>
       <directory>./tests</directory>
       <directory>./vendor</directory>
     </exclude>
   </coverage>
+
   <php>
     <ini name="error_reporting" value="-1"/>
   </php>
+
   <testsuites>
     <testsuite name="Yiisoft Db MSSQL Tests">
       <directory>./tests</directory>
