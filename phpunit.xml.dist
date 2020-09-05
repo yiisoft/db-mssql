@@ -27,7 +27,7 @@
   </php>
 
   <testsuites>
-    <testsuite name="Yiisoft Db MSSQL Tests">
+    <testsuite name="Mssql">
       <directory>./tests</directory>
     </testsuite>
   </testsuites>
