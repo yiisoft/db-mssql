@@ -77,4 +77,14 @@ final class Connection extends AbstractConnection
             $this->getPDO()->exec('SET ANSI_NULL_DFLT_ON ON');
         }
     }
+
+    /**
+     * Returns the name of the DB driver.
+     *
+     * @return string name of the DB driver
+     */
+    public function getDriverName(): string
+    {
+        return 'sqlsrv';
+    }
 }
