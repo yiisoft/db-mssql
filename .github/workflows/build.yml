@@ -9,7 +9,7 @@ jobs:
     name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}
 
     env:
-      extensions: curl, intl, pdo
+      extensions: curl, intl, pdo, pdo_sqlsrv
       key: cache
 
     runs-on: ${{ matrix.os }}
@@ -74,6 +74,7 @@ jobs:
           tools: composer:v2, pecl
 
       - name: install pecl pdo_sqlsrv support PHP 8.0
+        if: matrix.php-version == '8.0'
         run: sudo pecl install pdo_sqlsrv-5.9.0preview1
 
       - name: Determine composer cache directory on Linux
