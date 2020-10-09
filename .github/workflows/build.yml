@@ -27,6 +27,10 @@ jobs:
           - "server:2017-latest"
           - "server:2019-latest"
 
+        exclude:
+           - php: "8.0"
+             mssql: "server:2017-latest"
+
     services:
       mssql:
           image: mcr.microsoft.com/mssql/${{ matrix.mssql }}
@@ -101,7 +105,7 @@ jobs:
         run: vendor/bin/phpunit --coverage-clover=coverage.clover --colors=always
 
       - name: Run tests with phpunit Linux php 8.0
-        if: matrix.php-version == '8.0' && matrix.mssql == 'server:2019-latest'
+        if: matrix.php-version == '8.0'
         run: vendor/bin/phpunit --colors=always
 
       - name: Code coverage
