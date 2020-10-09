@@ -50,3 +50,4 @@ jobs:
 
       - name: Static analysis with phan
         run: vendor/bin/psalm --shepherd --stats --output-format=checkstyle | cs2pr --graceful-warnings --colorize
+
