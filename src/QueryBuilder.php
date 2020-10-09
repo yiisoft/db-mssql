@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use JsonException;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -62,6 +63,8 @@ final class QueryBuilder extends AbstractQueryBuilder
         Schema::TYPE_BOOLEAN => 'bit',
         Schema::TYPE_MONEY => 'decimal(19,4)',
     ];
+    /** @var Connection $db */
+    protected ?ConnectionInterface $db;
 
     protected function defaultExpressionBuilders(): array
     {
@@ -202,11 +205,8 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function renameTable(string $oldName, string $newName): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         return 'sp_rename ' .
-            $db->quoteTableName($oldName) . ', ' . $db->quoteTableName($newName);
+            $this->db->quoteTableName($oldName) . ', ' . $this->db->quoteTableName($newName);
     }
 
     /**
@@ -220,12 +220,9 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function renameColumn(string $table, string $oldName, string $newName): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
-        $table = $db->quoteTableName($table);
-        $oldName = $db->quoteColumnName($oldName);
-        $newName = $db->quoteColumnName($newName);
+        $table = $this->db->quoteTableName($table);
+        $oldName = $this->db->quoteColumnName($oldName);
+        $newName = $this->db->quoteColumnName($newName);
 
         return "sp_rename '{$table}.{$oldName}', {$newName}, 'COLUMN'";
     }
@@ -247,13 +244,10 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function alterColumn(string $table, string $column, string $type): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         $type = $this->getColumnType($type);
 
-        return 'ALTER TABLE ' . $db->quoteTableName($table) . ' ALTER COLUMN '
-            . $db->quoteColumnName($column) . ' '
+        return 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' ALTER COLUMN '
+            . $this->db->quoteColumnName($column) . ' '
             . $this->getColumnType($type);
     }
 
@@ -271,12 +265,9 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function addDefaultValue(string $name, string $table, string $column, $value): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
-        return 'ALTER TABLE ' . $db->quoteTableName($table) . ' ADD CONSTRAINT '
-            . $db->quoteColumnName($name) . ' DEFAULT ' . $db->quoteValue($value) . ' FOR '
-            . $db->quoteColumnName($column);
+        return 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' ADD CONSTRAINT '
+            . $this->db->quoteColumnName($name) . ' DEFAULT ' . $this->db->quoteValue($value) . ' FOR '
+            . $this->db->quoteColumnName($column);
     }
 
     /**
@@ -291,11 +282,8 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function dropDefaultValue(string $name, string $table): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         return 'ALTER TABLE ' .
-            $db->quoteTableName($table) . ' DROP CONSTRAINT ' . $db->quoteColumnName($name);
+            $this->db->quoteTableName($table) . ' DROP CONSTRAINT ' . $this->db->quoteColumnName($name);
     }
 
     /**
@@ -315,17 +303,14 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function resetSequence(string $tableName, $value = null): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
-        $table = $db->getTableSchema($tableName);
+        $table = $this->db->getTableSchema($tableName);
 
         if ($table !== null && $table->getSequenceName() !== null) {
-            $tableName = $db->quoteTableName($tableName);
+            $tableName = $this->db->quoteTableName($tableName);
 
             if ($value === null) {
                 $pk = $table->getPrimaryKey();
-                $key = $db->quoteColumnName(reset($pk));
+                $key = $this->db->quoteColumnName(reset($pk));
                 $value = "(SELECT COALESCE(MAX({$key}),0) FROM {$tableName})+1";
             } else {
                 $value = (int)$value;
@@ -348,19 +333,16 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function checkIntegrity(string $schema = '', string $table = '', bool $check = true): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         $enable = $check ? 'CHECK' : 'NOCHECK';
-        $schema = $schema ?: $db->getSchema()->getDefaultSchema();
-        $tableNames = $db->getTableSchema($table)
-            ? [$table] : $db->getSchema()->getTableNames($schema);
-        $viewNames = $db->getSchema()->getViewNames($schema);
+        $schema = $schema ?: $this->db->getSchema()->getDefaultSchema();
+        $tableNames = $this->db->getTableSchema($table)
+            ? [$table] : $this->db->getSchema()->getTableNames($schema);
+        $viewNames = $this->db->getSchema()->getViewNames($schema);
         $tableNames = array_diff($tableNames, $viewNames);
         $command = '';
 
         foreach ($tableNames as $tableName) {
-            $tableName = $db->quoteTableName("{$schema}.{$tableName}");
+            $tableName = $this->db->quoteTableName("{$schema}.{$tableName}");
             $command .= "ALTER TABLE $tableName $enable CONSTRAINT ALL; ";
         }
 
@@ -383,19 +365,16 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     protected function buildAddCommentSql(string $comment, string $table, ?string $column = null): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
-        $tableSchema = $db->getSchema()->getTableSchema($table);
+        $tableSchema = $this->db->getSchema()->getTableSchema($table);
 
         if ($tableSchema === null) {
             throw new InvalidArgumentException("Table not found: $table");
         }
 
         $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = "N" . $db->quoteValue($tableSchema->getName());
-        $columnName = $column ? "N" . $db->quoteValue($column) : null;
-        $comment = "N" . $db->quoteValue($comment);
+        $tableName = "N" . $this->db->quoteValue($tableSchema->getName());
+        $columnName = $column ? "N" . $this->db->quoteValue($column) : null;
+        $comment = "N" . $this->db->quoteValue($comment);
 
         $functionParams = "
             @name = N'MS_description',
@@ -469,18 +448,15 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     protected function buildRemoveCommentSql(string $table, ?string $column = null): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
-        $tableSchema = $db->getSchema()->getTableSchema($table);
+        $tableSchema = $this->db->getSchema()->getTableSchema($table);
 
         if ($tableSchema === null) {
             throw new InvalidArgumentException("Table not found: $table");
         }
 
         $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = "N" . $db->quoteValue($tableSchema->getName());
-        $columnName = $column ? "N" . $db->quoteValue($column) : null;
+        $tableName = "N" . $this->db->quoteValue($tableSchema->getName());
+        $columnName = $column ? "N" . $this->db->quoteValue($column) : null;
 
         return "
             IF EXISTS (
@@ -572,10 +548,7 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     private function normalizeTableRowData(string $table, $columns, array &$params = [])
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
-        $tableSchema = $db->getSchema()->getTableSchema($table);
+        $tableSchema = $this->db->getSchema()->getTableSchema($table);
 
         if ($tableSchema !== null) {
             $columnSchemas = $tableSchema->getColumns();
@@ -625,26 +598,23 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function insert(string $table, $columns, array &$params = []): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         $columns = $this->normalizeTableRowData($table, $columns, $params);
 
-        $version2005orLater = version_compare($db->getSchema()->getServerVersion(), '9', '>=');
+        $version2005orLater = version_compare($this->db->getSchema()->getServerVersion(), '9', '>=');
 
         [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
 
-        $sql = 'INSERT INTO ' . $db->quoteTableName($table)
+        $sql = 'INSERT INTO ' . $this->db->quoteTableName($table)
             . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
             . ($version2005orLater ? ' OUTPUT INSERTED.* INTO @temporary_inserted' : '')
             . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : $values);
 
         if ($version2005orLater) {
-            $schema = $db->getTableSchema($table);
+            $schema = $this->db->getTableSchema($table);
 
             $cols = [];
             foreach ($schema->getColumns() as $column) {
-                $cols[] = $db->quoteColumnName($column->getName()) . ' '
+                $cols[] = $this->db->quoteColumnName($column->getName()) . ' '
                     . $column->getDbType()
                     . (in_array(
                         $column->getDbType(),
@@ -697,9 +667,6 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function upsert(string $table, $insertColumns, $updateColumns, array &$params): string
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         /** @var Constraint[] $constraints */
         $constraints = [];
 
@@ -715,13 +682,13 @@ final class QueryBuilder extends AbstractQueryBuilder
         }
 
         $onCondition = ['or'];
-        $quotedTableName = $db->quoteTableName($table);
+        $quotedTableName = $this->db->quoteTableName($table);
 
         foreach ($constraints as $constraint) {
             $constraintCondition = ['and'];
 
             foreach ($constraint->getColumnNames() as $name) {
-                $quotedName = $db->quoteColumnName($name);
+                $quotedName = $this->db->quoteColumnName($name);
                 $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
             }
 
@@ -732,7 +699,7 @@ final class QueryBuilder extends AbstractQueryBuilder
 
         [, $placeholders, $values, $params] = $this->prepareInsertValues($table, $insertColumns, $params);
 
-        $mergeSql = 'MERGE ' . $db->quoteTableName($table) . ' WITH (HOLDLOCK) '
+        $mergeSql = 'MERGE ' . $this->db->quoteTableName($table) . ' WITH (HOLDLOCK) '
             . 'USING (' . (!empty($placeholders)
             ? 'VALUES (' . implode(', ', $placeholders) . ')'
             : ltrim($values, ' ')) . ') AS [EXCLUDED] (' . implode(', ', $insertNames) . ') ' . "ON ($on)";
@@ -740,7 +707,7 @@ final class QueryBuilder extends AbstractQueryBuilder
         $insertValues = [];
 
         foreach ($insertNames as $name) {
-            $quotedName = $db->quoteColumnName($name);
+            $quotedName = $this->db->quoteColumnName($name);
 
             if (strrpos($quotedName, '.') === false) {
                 $quotedName = '[EXCLUDED].' . $quotedName;
@@ -759,7 +726,7 @@ final class QueryBuilder extends AbstractQueryBuilder
             $updateColumns = [];
 
             foreach ($updateNames as $name) {
-                $quotedName = $db->quoteColumnName($name);
+                $quotedName = $this->db->quoteColumnName($name);
                 if (strrpos($quotedName, '.') === false) {
                     $quotedName = '[EXCLUDED].' . $quotedName;
                 }
