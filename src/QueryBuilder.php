@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use JsonException;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -12,8 +13,6 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Condition\InConditionBuilder;
 use Yiisoft\Db\Mssql\Condition\LikeConditionBuilder;
-use Yiisoft\Db\Mssql\ColumnSchema;
-use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Query\Conditions\InCondition;
 use Yiisoft\Db\Query\Conditions\LikeCondition;
 use Yiisoft\Db\Query\Query;
@@ -79,15 +78,12 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details
      * on how to specify this
      * parameter.
-     * @param Query|int|null $limit the limit number. See {@see Query::limit} for more details.
-     * @param Query|int|null $offset the offset number. See {@see Query::offset} for more
+     * @param object|int|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param object|int|null $offset the offset number. See {@see Query::offset} for more
      * details.
      * @param array $params the binding parameters to be populated.
      *
-     * @throws InvalidArgumentException
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
@@ -116,10 +112,7 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param Query|int|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
@@ -133,7 +126,7 @@ final class QueryBuilder extends AbstractQueryBuilder
         $orderBy = $this->buildOrderBy($orderBy, $params);
 
         if ($orderBy === '') {
-            /* ORDER BY clause is required when FETCH and OFFSET are in the SQL */
+            /** ORDER BY clause is required when FETCH and OFFSET are in the SQL */
             $orderBy = 'ORDER BY (SELECT NULL)';
         }
 
@@ -162,10 +155,7 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param Query|int|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
@@ -179,7 +169,7 @@ final class QueryBuilder extends AbstractQueryBuilder
         $orderBy = $this->buildOrderBy($orderBy, $params);
 
         if ($orderBy === '') {
-            /* ROW_NUMBER() requires an ORDER BY clause */
+            /** ROW_NUMBER() requires an ORDER BY clause */
             $orderBy = 'ORDER BY (SELECT NULL)';
         }
 
@@ -208,16 +198,15 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $oldName the table to be renamed. The name will be properly quoted by the method.
      * @param string $newName the new table name. The name will be properly quoted by the method.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     *
      * @return string the SQL statement for renaming a DB table.
      */
     public function renameTable(string $oldName, string $newName): string
     {
+        /** @var Connection $db */
+        $db = $this->getDb();
+
         return 'sp_rename ' .
-            $this->getDb()->quoteTableName($oldName) . ', ' . $this->getDb()->quoteTableName($newName);
+            $db->quoteTableName($oldName) . ', ' . $db->quoteTableName($newName);
     }
 
     /**
@@ -227,17 +216,16 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $oldName the old name of the column. The name will be properly quoted by the method.
      * @param string $newName the new name of the column. The name will be properly quoted by the method.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     *
      * @return string the SQL statement for renaming a DB column.
      */
     public function renameColumn(string $table, string $oldName, string $newName): string
     {
-        $table = $this->getDb()->quoteTableName($table);
-        $oldName = $this->getDb()->quoteColumnName($oldName);
-        $newName = $this->getDb()->quoteColumnName($newName);
+        /** @var Connection $db */
+        $db = $this->getDb();
+
+        $table = $db->quoteTableName($table);
+        $oldName = $db->quoteColumnName($oldName);
+        $newName = $db->quoteColumnName($newName);
 
         return "sp_rename '{$table}.{$oldName}', {$newName}, 'COLUMN'";
     }
@@ -255,20 +243,18 @@ final class QueryBuilder extends AbstractQueryBuilder
      * For example, 'string' will be turned into 'varchar(255)', while 'string not null' will become
      * 'varchar(255) not null'.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     *
      * @return string the SQL statement for changing the definition of a column.
      */
     public function alterColumn(string $table, string $column, string $type): string
     {
-        $type = $this->getColumnType($type);
-        $sql = 'ALTER TABLE ' . $this->getDb()->quoteTableName($table) . ' ALTER COLUMN '
-            . $this->getDb()->quoteColumnName($column) . ' '
-            . $this->getColumnType($type);
+        /** @var Connection $db */
+        $db = $this->getDb();
 
-        return $sql;
+        $type = $this->getColumnType($type);
+
+        return 'ALTER TABLE ' . $db->quoteTableName($table) . ' ALTER COLUMN '
+            . $db->quoteColumnName($column) . ' '
+            . $this->getColumnType($type);
     }
 
     /**
@@ -281,17 +267,16 @@ final class QueryBuilder extends AbstractQueryBuilder
      * quoted by the method.
      * @param mixed $value default value.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException if this is not supported by the underlying DBMS.
-     *
      * @return string the SQL statement for adding a default value constraint to an existing table.
      */
     public function addDefaultValue(string $name, string $table, string $column, $value): string
     {
-        return 'ALTER TABLE ' . $this->getDb()->quoteTableName($table) . ' ADD CONSTRAINT '
-            . $this->getDb()->quoteColumnName($name) . ' DEFAULT ' . $this->getDb()->quoteValue($value) . ' FOR '
-            . $this->getDb()->quoteColumnName($column);
+        /** @var Connection $db */
+        $db = $this->getDb();
+
+        return 'ALTER TABLE ' . $db->quoteTableName($table) . ' ADD CONSTRAINT '
+            . $db->quoteColumnName($name) . ' DEFAULT ' . $db->quoteValue($value) . ' FOR '
+            . $db->quoteColumnName($column);
     }
 
     /**
@@ -302,16 +287,15 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $table the table whose default value constraint is to be dropped. The name will be properly quoted
      * by the method.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException if this is not supported by the underlying DBMS.
-     *
      * @return string the SQL statement for dropping a default value constraint.
      */
     public function dropDefaultValue(string $name, string $table): string
     {
+        /** @var Connection $db */
+        $db = $this->getDb();
+
         return 'ALTER TABLE ' .
-            $this->getDb()->quoteTableName($table) . ' DROP CONSTRAINT ' . $this->getDb()->quoteColumnName($name);
+            $db->quoteTableName($table) . ' DROP CONSTRAINT ' . $db->quoteColumnName($name);
     }
 
     /**
@@ -324,22 +308,24 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param mixed $value the value for the primary key of the next new row inserted. If this is not set, the next new
      * row's primary key will have a value 1.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException if the table does not exist or there is no sequence associated with the table.
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException if the table does not exist or there is no sequence associated with
+     * the table.
      *
      * @return string the SQL statement for resetting sequence.
      */
     public function resetSequence(string $tableName, $value = null): string
     {
-        $table = $this->getDb()->getTableSchema($tableName);
+        /** @var Connection $db */
+        $db = $this->getDb();
+
+        $table = $db->getTableSchema($tableName);
 
         if ($table !== null && $table->getSequenceName() !== null) {
-            $tableName = $this->getDb()->quoteTableName($tableName);
+            $tableName = $db->quoteTableName($tableName);
 
             if ($value === null) {
-                $key = $this->getDb()->quoteColumnName(reset($table->getPrimaryKey()));
+                $pk = $table->getPrimaryKey();
+                $key = $db->quoteColumnName(reset($pk));
                 $value = "(SELECT COALESCE(MAX({$key}),0) FROM {$tableName})+1";
             } else {
                 $value = (int)$value;
@@ -358,24 +344,23 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $table the table name.
      * @param bool $check whether to turn on or off the integrity check.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     *
      * @return string the SQL statement for checking integrity.
      */
     public function checkIntegrity(string $schema = '', string $table = '', bool $check = true): string
     {
+        /** @var Connection $db */
+        $db = $this->getDb();
+
         $enable = $check ? 'CHECK' : 'NOCHECK';
-        $schema = $schema ?: $this->getDb()->getSchema()->getDefaultSchema();
-        $tableNames = $this->getDb()->getTableSchema($table)
-            ? [$table] : $this->getDb()->getSchema()->getTableNames($schema);
-        $viewNames = $this->getDb()->getSchema()->getViewNames($schema);
+        $schema = $schema ?: $db->getSchema()->getDefaultSchema();
+        $tableNames = $db->getTableSchema($table)
+            ? [$table] : $db->getSchema()->getTableNames($schema);
+        $viewNames = $db->getSchema()->getViewNames($schema);
         $tableNames = array_diff($tableNames, $viewNames);
         $command = '';
 
         foreach ($tableNames as $tableName) {
-            $tableName = $this->getDb()->quoteTableName("{$schema}.{$tableName}");
+            $tableName = $db->quoteTableName("{$schema}.{$tableName}");
             $command .= "ALTER TABLE $tableName $enable CONSTRAINT ALL; ";
         }
 
@@ -389,28 +374,28 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $comment the text of the comment to be added. The comment will be properly quoted by the method.
      * @param string $table the table to be commented or whose column is to be commented. The table name will be
      * properly quoted by the method.
-     * @param string $column optional. The name of the column to be commented. If empty, the command will add the
+     * @param string|null $column optional. The name of the column to be commented. If empty, the command will add the
      * comment to the table instead. The column name will be properly quoted by the method.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException if the table does not exist.
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException if the table does not exist.
      *
      * @return string the SQL statement for adding a comment.
      */
-    protected function buildAddCommentSql(string $comment, string $table, string $column = null): string
+    protected function buildAddCommentSql(string $comment, string $table, ?string $column = null): string
     {
-        $tableSchema = $this->getDb()->getSchema()->getTableSchema($table);
+        /** @var Connection $db */
+        $db = $this->getDb();
+
+        $tableSchema = $db->getSchema()->getTableSchema($table);
 
         if ($tableSchema === null) {
             throw new InvalidArgumentException("Table not found: $table");
         }
 
         $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = "N" . $this->getDb()->quoteValue($tableSchema->getName());
-        $columnName = $column ? "N" . $this->getDb()->quoteValue($column) : null;
-        $comment = "N" . $this->getDb()->quoteValue($comment);
+        $tableName = "N" . $db->quoteValue($tableSchema->getName());
+        $columnName = $column ? "N" . $db->quoteValue($column) : null;
+        $comment = "N" . $db->quoteValue($comment);
 
         $functionParams = "
             @name = N'MS_description',
@@ -445,8 +430,6 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $comment the text of the comment to be added. The comment will be properly quoted by the method.
      *
      * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      *
      * @return string the SQL statement for adding comment on column.
      */
@@ -463,8 +446,6 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $comment the text of the comment to be added. The comment will be properly quoted by the method.
      *
      * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      *
      * @return string the SQL statement for adding comment on table.
      */
@@ -482,24 +463,24 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string|null $column optional. The name of the column whose comment will be removed. If empty, the command
      * will remove the comment from the table instead. The column name will be properly quoted by the method.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException if the table does not exist.
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException if the table does not exist.
      *
      * @return string the SQL statement for removing the comment.
      */
     protected function buildRemoveCommentSql(string $table, ?string $column = null): string
     {
-        $tableSchema = $this->getDb()->getSchema()->getTableSchema($table);
+        /** @var Connection $db */
+        $db = $this->getDb();
+
+        $tableSchema = $db->getSchema()->getTableSchema($table);
 
         if ($tableSchema === null) {
             throw new InvalidArgumentException("Table not found: $table");
         }
 
         $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = "N" . $this->getDb()->quoteValue($tableSchema->getName());
-        $columnName = $column ? "N" . $this->getDb()->quoteValue($column) : null;
+        $tableName = "N" . $db->quoteValue($tableSchema->getName());
+        $columnName = $column ? "N" . $db->quoteValue($column) : null;
 
         return "
             IF EXISTS (
@@ -527,8 +508,6 @@ final class QueryBuilder extends AbstractQueryBuilder
      * method.
      *
      * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      *
      * @return string the SQL statement for adding comment on column.
      */
@@ -544,8 +523,6 @@ final class QueryBuilder extends AbstractQueryBuilder
      * method.
      *
      * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
      *
      * @return string the SQL statement for adding comment on column.
      */
@@ -591,15 +568,14 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param ColumnSchema|array $columns the column data (name => value) to be saved into the table.
      * @param array $params
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     *
      * @return ColumnSchema|array normalized columns.
      */
     private function normalizeTableRowData(string $table, $columns, array &$params = [])
     {
-        $tableSchema = $this->getDb()->getSchema()->getTableSchema($table);
+        /** @var Connection $db */
+        $db = $this->getDb();
+
+        $tableSchema = $db->getSchema()->getTableSchema($table);
 
         if ($tableSchema !== null) {
             $columnSchemas = $tableSchema->getColumns();
@@ -614,6 +590,7 @@ final class QueryBuilder extends AbstractQueryBuilder
                 ) {
                     $exParams = [];
                     $phName = $this->bindParam($value, $exParams);
+                    /** @psalm-suppress UndefinedMethod */
                     $columns[$name] = new Expression("CONVERT(VARBINARY, $phName)", $exParams);
                 }
             }
@@ -642,32 +619,32 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param array $params the binding parameters that will be generated by this method. They should be bound to the
      * DB command later.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException
      *
      * @return string the INSERT SQL
      */
     public function insert(string $table, $columns, array &$params = []): string
     {
+        /** @var Connection $db */
+        $db = $this->getDb();
+
         $columns = $this->normalizeTableRowData($table, $columns, $params);
 
-        $version2005orLater = version_compare($this->getDb()->getSchema()->getServerVersion(), '9', '>=');
+        $version2005orLater = version_compare($db->getSchema()->getServerVersion(), '9', '>=');
 
         [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
 
-        $sql = 'INSERT INTO ' . $this->getDb()->quoteTableName($table)
+        $sql = 'INSERT INTO ' . $db->quoteTableName($table)
             . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
             . ($version2005orLater ? ' OUTPUT INSERTED.* INTO @temporary_inserted' : '')
             . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : $values);
 
         if ($version2005orLater) {
-            $schema = $this->getDb()->getTableSchema($table);
+            $schema = $db->getTableSchema($table);
 
             $cols = [];
             foreach ($schema->getColumns() as $column) {
-                $cols[] = $this->getDb()->quoteColumnName($column->getName()) . ' '
+                $cols[] = $db->quoteColumnName($column->getName()) . ' '
                     . $column->getDbType()
                     . (in_array(
                         $column->getDbType(),
@@ -710,9 +687,8 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param array $params the binding parameters that will be generated by this method.
      * They should be bound to the DB command later.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException if this is not supported by the underlying DBMS.
+     * @throws Exception|InvalidConfigException|JsonException|NotSupportedException if this is not supported by the
+     * underlying DBMS.
      *
      * @return string the resulting SQL.
      *
@@ -721,6 +697,9 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function upsert(string $table, $insertColumns, $updateColumns, array &$params): string
     {
+        /** @var Connection $db */
+        $db = $this->getDb();
+
         /** @var Constraint[] $constraints */
         $constraints = [];
 
@@ -736,13 +715,13 @@ final class QueryBuilder extends AbstractQueryBuilder
         }
 
         $onCondition = ['or'];
-        $quotedTableName = $this->getDb()->quoteTableName($table);
+        $quotedTableName = $db->quoteTableName($table);
 
         foreach ($constraints as $constraint) {
             $constraintCondition = ['and'];
 
             foreach ($constraint->getColumnNames() as $name) {
-                $quotedName = $this->getDb()->quoteColumnName($name);
+                $quotedName = $db->quoteColumnName($name);
                 $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
             }
 
@@ -753,7 +732,7 @@ final class QueryBuilder extends AbstractQueryBuilder
 
         [, $placeholders, $values, $params] = $this->prepareInsertValues($table, $insertColumns, $params);
 
-        $mergeSql = 'MERGE ' . $this->getDb()->quoteTableName($table) . ' WITH (HOLDLOCK) '
+        $mergeSql = 'MERGE ' . $db->quoteTableName($table) . ' WITH (HOLDLOCK) '
             . 'USING (' . (!empty($placeholders)
             ? 'VALUES (' . implode(', ', $placeholders) . ')'
             : ltrim($values, ' ')) . ') AS [EXCLUDED] (' . implode(', ', $insertNames) . ') ' . "ON ($on)";
@@ -761,7 +740,7 @@ final class QueryBuilder extends AbstractQueryBuilder
         $insertValues = [];
 
         foreach ($insertNames as $name) {
-            $quotedName = $this->getDb()->quoteColumnName($name);
+            $quotedName = $db->quoteColumnName($name);
 
             if (strrpos($quotedName, '.') === false) {
                 $quotedName = '[EXCLUDED].' . $quotedName;
@@ -780,7 +759,7 @@ final class QueryBuilder extends AbstractQueryBuilder
             $updateColumns = [];
 
             foreach ($updateNames as $name) {
-                $quotedName = $this->getDb()->quoteColumnName($name);
+                $quotedName = $db->quoteColumnName($name);
                 if (strrpos($quotedName, '.') === false) {
                     $quotedName = '[EXCLUDED].' . $quotedName;
                 }
@@ -815,10 +794,7 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param array $params the binding parameters that will be modified by this method so that they can be bound to the
      * DB command later.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException
      *
      * @return string the UPDATE SQL.
      */
@@ -877,7 +853,7 @@ final class QueryBuilder extends AbstractQueryBuilder
     {
         $columnType = parent::getColumnType($type);
 
-        /* remove unsupported keywords*/
+        /** remove unsupported keywords*/
         $columnType = preg_replace("/\s*comment '.*'/i", '', $columnType);
         $columnType = preg_replace('/ first$/i', '', $columnType);
 
@@ -893,7 +869,7 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     protected function extractAlias($table)
     {
-        if (preg_match('/^\[.*\]$/', $table)) {
+        if (preg_match('/^\[.*]$/', $table)) {
             return false;
         }
 

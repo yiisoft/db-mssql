@@ -6,8 +6,10 @@ namespace Yiisoft\Db\Mssql\Condition;
 
 use Traversable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Query\Conditions\InConditionBuilder as AbstractInConditionBuilder;
 use Yiisoft\Db\Query\Query;
 
@@ -25,9 +27,9 @@ final class InConditionBuilder extends AbstractInConditionBuilder
      * @param Query $values
      * @param array $params
      *
-     * @return string SQL
+     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException
      *
-     * @throws NotSupportedException
+     * @return string SQL
      */
     protected function buildSubqueryInCondition(string $operator, $columns, Query $values, array &$params = []): string
     {
@@ -41,23 +43,22 @@ final class InConditionBuilder extends AbstractInConditionBuilder
     /**
      * Builds SQL for IN condition.
      *
-     * @param string $operator
+     * @param string|null $operator
      * @param array|Traversable $columns
-     * @param array $values
+     * @param array|iterable $values
      * @param array $params
      *
      * @return string SQL
-     *
-     * @throws NotSupportedException
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     protected function buildCompositeInCondition(?string $operator, $columns, $values, array &$params = []): string
     {
+        /** @var Connection $db */
+        $db = $this->queryBuilder->getDb();
+
         $quotedColumns = [];
         foreach ($columns as $i => $column) {
             $quotedColumns[$i] = strpos($column, '(') === false
-                ? $this->queryBuilder->getDb()->quoteColumnName($column) : $column;
+                ? $db->quoteColumnName($column) : $column;
         }
 
         $vss = [];

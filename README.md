@@ -31,100 +31,40 @@ composer require yiisoft/db-mssql
 
 ## Configuration
 
+Using yiisoft/composer-config-plugin automatically get the settings of `CacheInterface::class`, `LoggerInterface::class`, and `Profiler::class`.
+
 Di-Container:
 
 ```php
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
-use Yiisoft\Aliases\Aliases;
-use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\CacheInterface;
-use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Mssql\Connection;
-use Yiisoft\Db\Mssql\Dsn;
-use Yiisoft\Log\Logger;
-use Yiisoft\Log\Target\File\FileRotator;
-use Yiisoft\Log\Target\File\FileRotatorInterface;
-use Yiisoft\Log\Target\File\FileTarget;
+use Yiisoft\Db\Mssql\Connection as MssqlConnection;
+use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Profiler\Profiler;
 
 return [
-    Aliases::class => [
-        '@root' => dirname(__DIR__, 1), // directory / packages.
-        '@runtime' => '@root/runtime'
-    ],
-
-    CacheInterface::class => static function () {
-        return new Cache(new ArrayCache());
-    },
-
-    FileRotatorInterface::class => static function () {
-        return new FileRotator(10);
-    },
-
-    LoggerInterface::class => static function (ContainerInterface $container) {
-        $aliases = $container->get(Aliases::class);
-        $fileRotator = $container->get(FileRotatorInterface::class);
-
-        $fileTarget = new FileTarget(
-            $aliases->get('@runtime/logs/app.log'),
-            $fileRotator
-        );
-
-        $fileTarget->setLevels(
-            [
-                LogLevel::EMERGENCY,
-                LogLevel::ERROR,
-                LogLevel::WARNING,
-                LogLevel::INFO,
-                LogLevel::DEBUG
-            ]
-        );
-
-        return new Logger(['file' => $fileTarget]);
-    },
-
-    Profiler::class => static function (ContainerInterface $container) {
-        return new Profiler($container->get(LoggerInterface::class));
-    },
-
-    Dsn::class => static function () use ($params) {
-        return new Dsn(
-            $params['yiisoft/db-mssql']['dsn']['driver'],
-            $params['yiisoft/db-mssql']['dsn']['server'],
-            $params['yiisoft/db-mssql']['dsn']['database'],
-            $params['yiisoft/db-mssql']['dsn']['port'],
-        );
-    },
-
-    ConnectionInterface::class  => static function (ContainerInterface $container) use ($params) {
-        $connection = new Connection(
-            $container->get(CacheInterface::class),
-            $container->get(LoggerInterface::class),
-            $container->get(Profiler::class),
-            $container->get(Dsn::class)->getDsn(),
-        );
-
-        $connection->setUsername($params['yiisoft/db-mssql']['username']);
-        $connection->setPassword($params['yiisoft/db-mssql']['password']);
-
-        return $connection;
-    }
+    MssqlConnection::class => [
+        '__class' => MssqlConnection::class,
+        '__construct()' => [
+            Reference::to(CacheInterface::class),
+            Reference::to(LoggerInterface::class),
+            Reference::to(Profiler::class),
+            $params['yiisoft/db-mssql']['dsn']
+        ],
+        'setUsername()' => [$params['yiisoft/db-mssql']['username']],
+        'setPassword()' => [$params['yiisoft/db-mssql']['password']]
+    ]
 ];
 ```
 
 Params.php
 
 ```php
+use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
+
 return [
     'yiisoft/db-mssql' => [
-        'dsn' => [
-            'driver' => 'sqlsrv',
-            'server' => '127.0.0.1',
-            'database' => 'yiitest',
-            'port' => '1433'
-        ],
+        'dsn' => (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->getDsn(),
         'username' => 'SA',
         'password' => 'YourStrong!Passw0rd'
     ]

@@ -9,7 +9,7 @@ jobs:
     name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}
 
     env:
-      extensions: curl, intl, pdo, pdo_sqlsrv
+      extensions: curl, intl, pdo
       key: cache
 
     runs-on: ${{ matrix.os }}
@@ -21,6 +21,7 @@ jobs:
 
         php:
           - "7.4"
+          - "8.0"
 
         mssql:
           - "server:2017-latest"
@@ -68,6 +69,9 @@ jobs:
           coverage: pcov
           tools: composer:v2, pecl
 
+      - name: install pecl pdo_sqlsrv support PHP 8.0
+        run: sudo pecl install pdo_sqlsrv-5.9.0preview1
+
       - name: Determine composer cache directory on Linux
         if: matrix.os == 'ubuntu-latest'
         run: echo "::set-env name=COMPOSER_CACHE_DIR::$(composer config cache-dir)"
@@ -86,14 +90,19 @@ jobs:
 
       - name: Install dependencies with composer php 7.4
         if: matrix.php == '7.4'
-        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader
+        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
       - name: Install dependencies with composer php 8.0
         if: matrix.php == '8.0'
-        run: composer update --ignore-platform-reqs --prefer-dist --no-interaction --no-progress --optimize-autoloader
+        run: composer update --ignore-platform-reqs --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
-      - name: Run mssql tests with phpunit
-        run: vendor/bin/phpunit --coverage-clover=coverage.clover
+      - name: Run tests with phpunit and coverage on Linux php 7.4
+        if: matrix.php-version == '7.4'
+        run: vendor/bin/phpunit --coverage-clover=coverage.clover --colors=always
+
+      - name: Run tests with phpunit Linux php 8.0
+        if: matrix.php-version == '8.0' && matrix.mssql = 'server:2019-latest'
+        run: vendor/bin/phpunit --colors=always
 
       - name: Code coverage
         if: matrix.php == '7.4'
