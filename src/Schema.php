@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constraint\CheckConstraint;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Constraint\ConstraintFinderInterface;
@@ -101,6 +102,15 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
     protected $tableQuoteCharacter = ['[', ']'];
     /** @var array|string */
     protected $columnQuoteCharacter = ['[', ']'];
+    /** @var Connection $db */
+    private ConnectionInterface $db;
+
+    public function __construct(ConnectionInterface $db)
+    {
+        $this->db = $db;
+
+        parent::__construct($db);
+    }
 
     /**
      * Resolves the table name and schema name (if any).
@@ -189,9 +199,6 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
      */
     protected function findSchemaNames(): array
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         static $sql = <<<'SQL'
 SELECT [s].[name]
 FROM [sys].[schemas] AS [s]
@@ -200,7 +207,7 @@ WHERE [p].[is_fixed_role] = 0 AND [p].[sid] IS NOT NULL
 ORDER BY [s].[name] ASC
 SQL;
 
-        return $db->createCommand($sql)->queryColumn();
+        return $this->db->createCommand($sql)->queryColumn();
     }
 
     /**
@@ -217,9 +224,6 @@ SQL;
      */
     protected function findTableNames(string $schema = ''): array
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         if ($schema === '') {
             $schema = $this->defaultSchema;
         }
@@ -231,7 +235,7 @@ WHERE [t].[table_schema] = :schema AND [t].[table_type] IN ('BASE TABLE', 'VIEW'
 ORDER BY [t].[table_name]
 SQL;
 
-        $tables = $db->createCommand($sql, [':schema' => $schema])->queryColumn();
+        $tables = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
 
         $tables = array_map(static function ($item) {
             return '[' . $item . ']';
@@ -319,11 +323,8 @@ WHERE [i].[object_id] = OBJECT_ID(:fullName)
 ORDER BY [ic].[key_ordinal] ASC
 SQL;
 
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         $resolvedName = $this->resolveTableName($tableName);
-        $indexes = $db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
+        $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
         $indexes = $this->normalizePdoRowKeyCase($indexes, true);
         $indexes = ArrayHelper::index($indexes, null, 'name');
 
@@ -391,7 +392,7 @@ SQL;
      */
     public function createSavepoint(string $name): void
     {
-        $this->getDb()->createCommand("SAVE TRANSACTION $name")->execute();
+        $this->$this->db->createCommand("SAVE TRANSACTION $name")->execute();
     }
 
     /**
@@ -413,7 +414,7 @@ SQL;
      */
     public function rollBackSavepoint(string $name): void
     {
-        $this->getDb()->createCommand("ROLLBACK TRANSACTION $name")->execute();
+        $this->$this->db->createCommand("ROLLBACK TRANSACTION $name")->execute();
     }
 
     /**
@@ -435,7 +436,7 @@ SQL;
      */
     public function createQueryBuilder(): QueryBuilder
     {
-        return new QueryBuilder($this->getDb());
+        return new QueryBuilder($this->$this->db);
     }
 
     /**
@@ -551,11 +552,8 @@ SQL;
      */
     protected function findColumns(TableSchema $table): bool
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
-        $whereSql = "[t1].[table_name] = " . $db->quoteValue($table->getName());
+        $whereSql = "[t1].[table_name] = " . $this->db->quoteValue($table->getName());
 
         if ($table->getCatalogName() !== null) {
             $columnsTableName = "{$table->getCatalogName()}.{$columnsTableName}";
@@ -598,7 +596,7 @@ WHERE {$whereSql}
 SQL;
 
         try {
-            $columns = $db->createCommand($sql)->queryAll();
+            $columns = $this->db->createCommand($sql)->queryAll();
 
             if (empty($columns)) {
                 return false;
@@ -638,9 +636,6 @@ SQL;
      */
     protected function findTableConstraints(TableSchema $table, string $type): array
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         $keyColumnUsageTableName = 'INFORMATION_SCHEMA.KEY_COLUMN_USAGE';
         $tableConstraintsTableName = 'INFORMATION_SCHEMA.TABLE_CONSTRAINTS';
 
@@ -667,7 +662,7 @@ WHERE
     [kcu].[table_schema] = :schemaName
 SQL;
 
-        return $db->createCommand(
+        return $this->db->createCommand(
             $sql,
             [
                 ':tableName' => $table->getName(),
@@ -700,9 +695,6 @@ SQL;
      */
     protected function findForeignKeys(TableSchema $table): void
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         $object = $table->getName();
 
         if ($table->getSchemaName() !== null) {
@@ -737,7 +729,7 @@ WHERE
 	[fk].[parent_object_id] = OBJECT_ID(:object)
 SQL;
 
-        $rows = $db->createCommand($sql, [':object' => $object])->queryAll();
+        $rows = $this->db->createCommand($sql, [':object' => $object])->queryAll();
 
         $table->foreignKeys([]);
 
@@ -763,7 +755,6 @@ SQL;
      */
     protected function findViewNames(string $schema = ''): array
     {
-        /** @var Connection $db */
         if ($schema === '') {
             $schema = $this->defaultSchema;
         }
@@ -775,7 +766,7 @@ WHERE [t].[table_schema] = :schema AND [t].[table_type] = 'VIEW'
 ORDER BY [t].[table_name]
 SQL;
 
-        $views = $db->createCommand($sql, [':schema' => $schema])->queryColumn();
+        $views = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
         $views = array_map(static function ($item) {
             return '[' . $item . ']';
         }, $views);
@@ -869,11 +860,8 @@ LEFT JOIN [sys].[columns] AS [ffccol]
 ORDER BY [kic].[key_ordinal] ASC, [fc].[constraint_column_id] ASC
 SQL;
 
-        /** @var Connection $db */
-        $db = $this->getDb();
-
         $resolvedName = $this->resolveTableName($tableName);
-        $constraints = $db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
+        $constraints = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
         $constraints = $this->normalizePdoRowKeyCase($constraints, true);
         $constraints = ArrayHelper::index($constraints, null, ['type', 'name']);
         $result = [
@@ -963,15 +951,12 @@ SQL;
      */
     public function insert(string $table, array $columns)
     {
-        /** @var Connection $db */
-        $db = $this->getDb();
-
-        $command = $db->createCommand()->insert($table, $columns);
+        $command = $this->db->createCommand()->insert($table, $columns);
         if (!$command->execute()) {
             return false;
         }
 
-        $isVersion2005orLater = version_compare($db->getSchema()->getServerVersion(), '9', '>=');
+        $isVersion2005orLater = version_compare($this->db->getSchema()->getServerVersion(), '9', '>=');
         $inserted = $isVersion2005orLater ? $command->getPdoStatement()->fetch() : [];
 
         $tableSchema = $this->getTableSchema($table);
@@ -1009,6 +994,6 @@ SQL;
      */
     public function createColumnSchemaBuilder(string $type, $length = null): ColumnSchemaBuilder
     {
-        return new ColumnSchemaBuilder($type, $length, $this->getDb());
+        return new ColumnSchemaBuilder($type, $length, $this->$this->db);
     }
 }

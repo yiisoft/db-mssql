@@ -63,8 +63,16 @@ final class QueryBuilder extends AbstractQueryBuilder
         Schema::TYPE_BOOLEAN => 'bit',
         Schema::TYPE_MONEY => 'decimal(19,4)',
     ];
+
     /** @var Connection $db */
-    protected ?ConnectionInterface $db;
+    private ConnectionInterface $db;
+
+    public function __construct(ConnectionInterface $db)
+    {
+        $this->db = $db;
+
+        parent::__construct($db);
+    }
 
     protected function defaultExpressionBuilders(): array
     {
@@ -98,7 +106,7 @@ final class QueryBuilder extends AbstractQueryBuilder
             return $orderBy === '' ? $sql : $sql . $this->separator . $orderBy;
         }
 
-        if (version_compare($this->getDb()->getSchema()->getServerVersion(), '11', '<')) {
+        if (version_compare($this->db->getSchema()->getServerVersion(), '11', '<')) {
             return $this->oldBuildOrderByAndLimit($sql, $orderBy, $limit, $offset, $params);
         }
 
