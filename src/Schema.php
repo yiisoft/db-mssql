@@ -392,7 +392,7 @@ SQL;
      */
     public function createSavepoint(string $name): void
     {
-        $this->$this->db->createCommand("SAVE TRANSACTION $name")->execute();
+        $this->db->createCommand("SAVE TRANSACTION $name")->execute();
     }
 
     /**
@@ -414,7 +414,7 @@ SQL;
      */
     public function rollBackSavepoint(string $name): void
     {
-        $this->$this->db->createCommand("ROLLBACK TRANSACTION $name")->execute();
+        $this->db->createCommand("ROLLBACK TRANSACTION $name")->execute();
     }
 
     /**
@@ -436,7 +436,7 @@ SQL;
      */
     public function createQueryBuilder(): QueryBuilder
     {
-        return new QueryBuilder($this->$this->db);
+        return new QueryBuilder($this->db);
     }
 
     /**
@@ -994,6 +994,6 @@ SQL;
      */
     public function createColumnSchemaBuilder(string $type, $length = null): ColumnSchemaBuilder
     {
-        return new ColumnSchemaBuilder($type, $length, $this->$this->db);
+        return new ColumnSchemaBuilder($type, $length, $this->db);
     }
 }
