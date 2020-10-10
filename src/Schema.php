@@ -118,8 +118,6 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
      * @param string $name the table name.
      *
      * @return TableSchema resolved table, schema, etc. names.
-     *
-     * @psalm-suppress ImplementedReturnTypeMismatch
      */
     protected function resolveTableName(string $name): TableSchema
     {
