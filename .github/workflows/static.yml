@@ -9,7 +9,7 @@ jobs:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     env:
-      extensions: curl, intl, pdo, pdo_sqlsrv
+      extensions:  dom, json, libxml, mbstring, pdo, pdo_sqlsrv, tokenizer
 
     runs-on: ${{ matrix.os }}
 
