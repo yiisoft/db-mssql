@@ -64,7 +64,7 @@ final class QueryBuilder extends AbstractQueryBuilder
         Schema::TYPE_MONEY => 'decimal(19,4)',
     ];
 
-    /** @var Connection $db */
+    /** @psalm-var Connection $db */
     private ConnectionInterface $db;
 
     public function __construct(ConnectionInterface $db)

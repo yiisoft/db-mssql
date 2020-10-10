@@ -100,9 +100,11 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
 
     /** @var array|string */
     protected $tableQuoteCharacter = ['[', ']'];
+
     /** @var array|string */
     protected $columnQuoteCharacter = ['[', ']'];
-    /** @var Connection $db */
+
+    /** @psalm-var Connection $db */
     private ConnectionInterface $db;
 
     public function __construct(ConnectionInterface $db)
