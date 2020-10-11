@@ -6,9 +6,6 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Connection\Connection as AbstractConnection;
 use Yiisoft\Db\Command\Command;
-use Yiisoft\Db\Mssql\PDO;
-use Yiisoft\Db\Mssql\SqlsrvPDO;
-use Yiisoft\Db\Mssql\Schema;
 
 use function in_array;
 
@@ -38,11 +35,7 @@ final class Connection extends AbstractConnection
      */
     public function getSchema(): Schema
     {
-        if ($this->schema !== null) {
-            return $this->schema;
-        }
-
-        return $this->schema = new Schema($this);
+        return $this->schema ?? ($this->schema = new Schema($this));
     }
 
     public function isSybase(): bool

@@ -23,7 +23,7 @@ final class ColumnSchema extends AbstractColumnSchema
     public function defaultPhpTypecast($value)
     {
         if ($value !== null) {
-            /* convert from MSSQL column_default format, e.g. ('1') -> 1, ('string') -> string */
+            /** convert from MSSQL column_default format, e.g. ('1') -> 1, ('string') -> string */
             $value = substr(substr($value, 2), 0, -2);
         }
 
