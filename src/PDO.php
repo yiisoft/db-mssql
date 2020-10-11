@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use PDO as AbstractPDO;
 use PDOException;
 
 /**
  * This is an extension of the default PDO class of MSSQL and DBLIB drivers. It provides workarounds for improperly
  * implemented functionalities of the MSSQL and DBLIB drivers.
  */
-final class PDO extends \PDO
+final class PDO extends AbstractPDO
 {
     /**
      * Returns value of the last inserted ID.
      *
      * @param string|null $sequence the sequence name. Defaults to null.
      *
-     * @return int last inserted ID value.
+     * @return string last inserted ID value.
      */
-    public function lastInsertId($sequence = null): int
+    public function lastInsertId($sequence = null): string
     {
-        return $this->query('SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS bigint)')->fetchColumn();
+        return (string) $this->query('SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS bigint)')->fetchColumn();
     }
 
     /**

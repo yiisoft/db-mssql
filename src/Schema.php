@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constraint\CheckConstraint;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Constraint\ConstraintFinderInterface;
@@ -13,11 +15,8 @@ use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\QueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
 use Yiisoft\Db\View\ViewFinderTrait;
@@ -25,7 +24,6 @@ use Yiisoft\Db\View\ViewFinderTrait;
 use function array_map;
 use function count;
 use function explode;
-use function is_array;
 use function preg_match;
 use function preg_match_all;
 use function str_replace;
@@ -42,7 +40,7 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
     use ConstraintFinderTrait;
 
     /**
-     * @var string the default schema used for the current session.
+     * @var string|null the default schema used for the current session.
      */
     protected ?string $defaultSchema = 'dbo';
 
@@ -50,7 +48,7 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
      * @var array mapping from physical column types (keys) to abstract column types (values)
      */
     private array $typeMap = [
-        /* exact numbers */
+        /** exact numbers */
         'bigint' => self::TYPE_BIGINT,
         'numeric' => self::TYPE_DECIMAL,
         'bit' => self::TYPE_SMALLINT,
@@ -61,12 +59,12 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
         'tinyint' => self::TYPE_TINYINT,
         'money' => self::TYPE_MONEY,
 
-        /* approximate numbers */
+        /** approximate numbers */
         'float' => self::TYPE_FLOAT,
         'double' => self::TYPE_DOUBLE,
         'real' => self::TYPE_FLOAT,
 
-        /* date and time */
+        /** date and time */
         'date' => self::TYPE_DATE,
         'datetimeoffset' => self::TYPE_DATETIME,
         'datetime2' => self::TYPE_DATETIME,
@@ -74,17 +72,17 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
         'datetime' => self::TYPE_DATETIME,
         'time' => self::TYPE_TIME,
 
-        /* character strings */
+        /** character strings */
         'char' => self::TYPE_CHAR,
         'varchar' => self::TYPE_STRING,
         'text' => self::TYPE_TEXT,
 
-        /* unicode character strings */
+        /** unicode character strings */
         'nchar' => self::TYPE_CHAR,
         'nvarchar' => self::TYPE_STRING,
         'ntext' => self::TYPE_TEXT,
 
-        /* binary strings */
+        /** binary strings */
         'binary' => self::TYPE_BINARY,
         'varbinary' => self::TYPE_BINARY,
         'image' => self::TYPE_BINARY,
@@ -100,7 +98,10 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
         'table' => self::TYPE_STRING,
     ];
 
+    /** @var array|string */
     protected $tableQuoteCharacter = ['[', ']'];
+
+    /** @var array|string */
     protected $columnQuoteCharacter = ['[', ']'];
 
     /**
@@ -119,7 +120,7 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
         $partCount = count($parts);
 
         if ($partCount === 4) {
-            /* server name, catalog name, schema name and table name passed */
+            /** server name, catalog name, schema name and table name passed */
             $resolvedName->catalogName($parts[1]);
             $resolvedName->schemaName($parts[2]);
             $resolvedName->name($parts[3]);
@@ -127,7 +128,7 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
                 $resolvedName->getCatalogName() . '.' . $resolvedName->getSchemaName() . '.' . $resolvedName->getName()
             );
         } elseif ($partCount === 3) {
-            /* catalog name, schema name and table name passed */
+            /** catalog name, schema name and table name passed */
             $resolvedName->catalogName($parts[0]);
             $resolvedName->schemaName($parts[1]);
             $resolvedName->name($parts[2]);
@@ -135,14 +136,15 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
                 $resolvedName->getCatalogName() . '.' . $resolvedName->getSchemaName() . '.' . $resolvedName->getName()
             );
         } elseif ($partCount === 2) {
-            /* only schema name and table name passed */
+            /** only schema name and table name passed */
             $resolvedName->schemaName($parts[0]);
             $resolvedName->name($parts[1]);
             $resolvedName->fullName(
-                $resolvedName->getSchemaName() !== $this->defaultSchema ? $resolvedName->getSchemaName() . '.' : ''
-            ) . $resolvedName->getName();
+                ($resolvedName->getSchemaName() !== $this->defaultSchema
+                    ? $resolvedName->getSchemaName() . '.' : '') . $resolvedName->getName()
+            );
         } else {
-            /* only table name passed */
+            /** only table name passed */
             $resolvedName->schemaName($this->defaultSchema);
             $resolvedName->name($parts[0]);
             $resolvedName->fullName($resolvedName->getName());
@@ -164,7 +166,7 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
 
         preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches);
 
-        if (isset($matches[0]) && is_array($matches[0]) && !empty($matches[0])) {
+        if (isset($matches[0]) && !empty($matches[0])) {
             $parts = $matches[0];
         }
 
@@ -179,9 +181,7 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
      * This method should be overridden by child classes in order to support this feature because the default
      * implementation simply throws an exception.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array all schema names in the database, except system schemas.
      *
@@ -208,9 +208,7 @@ SQL;
      *
      * @param string $schema the schema of the tables. Defaults to empty string, meaning the current or default schema.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array all table names in the database. The names have NO schema name prefix.
      */
@@ -241,10 +239,7 @@ SQL;
      *
      * @param string $name table name.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return TableSchema|null DBMS-dependent table metadata, `null` if the table does not exist.
      */
@@ -269,9 +264,7 @@ SQL;
      *
      * @param string $tableName table name.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return Constraint|null primary key for the given table, `null` if the table has no primary key.
      */
@@ -285,9 +278,7 @@ SQL;
      *
      * @param string $tableName table name.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return ForeignKeyConstraint[] foreign keys for the given table.
      */
@@ -301,11 +292,9 @@ SQL;
      *
      * @param string $tableName table name.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return IndexConstraint[] indexes for the given table.
+     * @return array indexes for the given table.
      */
     protected function loadTableIndexes(string $tableName): array
     {
@@ -335,8 +324,8 @@ SQL;
             $result[] = (new IndexConstraint())
                 ->primary((bool) $index[0]['index_is_primary'])
                 ->unique((bool) $index[0]['index_is_unique'])
-                ->name($name)
-                ->columnNames(ArrayHelper::getColumn($index, 'column_name'));
+                ->columnNames(ArrayHelper::getColumn($index, 'column_name'))
+                ->name($name);
         }
 
         return $result;
@@ -347,9 +336,7 @@ SQL;
      *
      * @param string $tableName table name.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return Constraint[] unique constraints for the given table.
      */
@@ -363,9 +350,7 @@ SQL;
      *
      * @param string $tableName table name.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return CheckConstraint[] check constraints for the given table.
      */
@@ -379,9 +364,7 @@ SQL;
      *
      * @param string $tableName table name.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return DefaultValueConstraint[] default value constraints for the given table.
      */
@@ -395,8 +378,7 @@ SQL;
      *
      * @param string $name the savepoint name.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      */
     public function createSavepoint(string $name): void
     {
@@ -410,7 +392,7 @@ SQL;
      */
     public function releaseSavepoint(string $name): void
     {
-        /* does nothing as MSSQL does not support this */
+        /** does nothing as MSSQL does not support this */
     }
 
     /**
@@ -418,8 +400,7 @@ SQL;
      *
      * @param string $name the savepoint name.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      */
     public function rollBackSavepoint(string $name): void
     {
@@ -454,26 +435,26 @@ SQL;
      * @param TableSchema $table the table metadata object.
      * @param string $name the table name
      */
-    protected function resolveTableNames(TableSchema $table, string $name)
+    protected function resolveTableNames(TableSchema $table, string $name): void
     {
         $parts = $this->getTableNameParts($name);
 
         $partCount = count($parts);
 
         if ($partCount === 4) {
-            /* server name, catalog name, schema name and table name passed */
+            /** server name, catalog name, schema name and table name passed */
             $table->catalogName($parts[1]);
             $table->schemaName($parts[2]);
             $table->name($parts[3]);
             $table->fullName($table->getCatalogName() . '.' . $table->getSchemaName() . '.' . $table->getName());
         } elseif ($partCount === 3) {
-            /* catalog name, schema name and table name passed */
+            /** catalog name, schema name and table name passed */
             $table->catalogName($parts[0]);
             $table->schemaName($parts[1]);
             $table->name($parts[2]);
             $table->fullName($table->getCatalogName() . '.' . $table->getSchemaName() . '.' . $table->getName());
         } elseif ($partCount === 2) {
-            /* only schema name and table name passed */
+            /** only schema name and table name passed */
             $table->schemaName($parts[0]);
             $table->name($parts[1]);
             $table->fullName(
@@ -481,7 +462,7 @@ SQL;
                 ? $table->getSchemaName() . '.' . $table->getName() : $table->getName()
             );
         } else {
-            /* only table name passed */
+            /** only table name passed */
             $table->schemaName($this->defaultSchema);
             $table->name($parts[0]);
             $table->fullName($table->getName());
@@ -504,12 +485,12 @@ SQL;
         $column->dbType($info['data_type']);
         $column->enumValues([]); // mssql has only vague equivalents to enum
         $column->primaryKey(false); // primary key will be determined in findColumns() method
-        $column->autoIncrement($info['is_identity'] == 1);
+        $column->autoIncrement($info['is_identity'] === 1);
         $column->unsigned(stripos($column->getDbType(), 'unsigned') !== false);
         $column->comment($info['comment'] ?? '');
         $column->type(self::TYPE_STRING);
 
-        if (preg_match('/^(\w+)(?:\(([^\)]+)\))?/', $column->getDbType(), $matches)) {
+        if (preg_match('/^(\w+)(?:\(([^)]+)\))?/', $column->getDbType(), $matches)) {
             $type = $matches[1];
 
             if (isset($this->typeMap[$type])) {
@@ -555,9 +536,7 @@ SQL;
      *
      * @param TableSchema $table the table metadata.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Throwable
      *
      * @return bool whether the table exists in the database.
      */
@@ -641,9 +620,7 @@ SQL;
      * @param TableSchema $table
      * @param string $type either PRIMARY KEY or UNIQUE.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array each entry contains index_name and field_name.
      */
@@ -690,14 +667,10 @@ SQL;
      *
      * @param TableSchema $table the table metadata
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      */
     protected function findPrimaryKeys(TableSchema $table): void
     {
-        $result = [];
-
         foreach ($this->findTableConstraints($table, 'PRIMARY KEY') as $row) {
             $table->primaryKey($row['field_name']);
         }
@@ -708,9 +681,7 @@ SQL;
      *
      * @param TableSchema $table the table metadata
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      */
     protected function findForeignKeys(TableSchema $table): void
     {
@@ -768,9 +739,7 @@ SQL;
      *
      * @param string $schema the schema of the views. Defaults to empty string, meaning the current or default schema.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array all views names in the database. The names have NO schema name prefix.
      */
@@ -809,9 +778,7 @@ SQL;
      *
      * @param TableSchema $table the table metadata.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array all unique indexes for the given table.
      */
@@ -837,9 +804,7 @@ SQL;
      * - checks
      * - defaults
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return mixed constraints.
      */
@@ -901,36 +866,37 @@ SQL;
             foreach ($names as $name => $constraint) {
                 switch ($type) {
                     case 'PK':
+                        /** @var Constraint */
                         $result['primaryKey'] = (new Constraint())
-                            ->name($name)
-                            ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'));
+                            ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
+                            ->name($name);
                         break;
                     case 'F':
                         $result['foreignKeys'][] = (new ForeignKeyConstraint())
-                            ->name($name)
-                            ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
                             ->foreignSchemaName($constraint[0]['foreign_table_schema'])
                             ->foreignTableName($constraint[0]['foreign_table_name'])
                             ->foreignColumnNames(ArrayHelper::getColumn($constraint, 'foreign_column_name'))
                             ->onDelete(str_replace('_', '', $constraint[0]['on_delete']))
-                            ->onUpdate(str_replace('_', '', $constraint[0]['on_update']));
+                            ->onUpdate(str_replace('_', '', $constraint[0]['on_update']))
+                            ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
+                            ->name($name);
                         break;
                     case 'UQ':
                         $result['uniques'][] = (new Constraint())
-                            ->name($name)
-                            ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'));
+                            ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
+                            ->name($name);
                         break;
                     case 'C':
                         $result['checks'][] = (new CheckConstraint())
-                            ->name($name)
+                            ->expression($constraint[0]['check_expr'])
                             ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
-                            ->expression($constraint[0]['check_expr']);
+                            ->name($name);
                         break;
                     case 'D':
                         $result['defaults'][] = (new DefaultValueConstraint())
-                            ->name($name)
+                            ->value($constraint[0]['default_expr'])
                             ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
-                            ->value($constraint[0]['default_expr']);
+                            ->name($name);
                         break;
                 }
             }
@@ -969,10 +935,7 @@ SQL;
      * @param string $table the table that new rows will be inserted into.
      * @param array $columns the column data (name => value) to be inserted into the table.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws InvalidCallException
+     * @throws Exception|InvalidCallException|InvalidConfigException|Throwable
      *
      * @return array|false primary key values or false if the command fails.
      */
@@ -1015,7 +978,7 @@ SQL;
      * This method may be overridden by child classes to create a DBMS-specific column schema builder.
      *
      * @param string $type type of the column. See {@see ColumnSchemaBuilder::$type}.
-     * @param int|string|array $length length or precision of the column. See {@see ColumnSchemaBuilder::$length}.
+     * @param int|string|array|null $length length or precision of the column. See {@see ColumnSchemaBuilder::$length}.
      *
      * @return ColumnSchemaBuilder column schema builder instance
      */
