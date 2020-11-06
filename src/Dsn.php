@@ -35,13 +35,7 @@ final class Dsn
      */
     public function asString(): string
     {
-        $dsn = "$this->driver:" . "Server=$this->server" . ";Database=$this->databaseName";
-
-        if ($this->port !== null) {
-            $dsn = "$this->driver:" . "Server=$this->server," . "$this->port" . ";Database=$this->databaseName";
-        }
-
-        return $dsn;
+        return "$this->driver:" . "Server=$this->server," . "$this->port" . ";Database=$this->databaseName";
     }
 
     public function __toString(): string
