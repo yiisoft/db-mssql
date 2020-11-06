@@ -36,20 +36,14 @@ Using yiisoft/composer-config-plugin automatically get the settings of `CacheInt
 Di-Container:
 
 ```php
-use Psr\Log\LoggerInterface;
-use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Mssql\Connection as MssqlConnection;
 use Yiisoft\Factory\Definitions\Reference;
-use Yiisoft\Profiler\Profiler;
 
 return [
     MssqlConnection::class => [
         '__class' => MssqlConnection::class,
         '__construct()' => [
-            Reference::to(CacheInterface::class),
-            Reference::to(LoggerInterface::class),
-            Reference::to(Profiler::class),
-            $params['yiisoft/db-mssql']['dsn']
+            'dsn' => $params['yiisoft/db-mssql']['dsn']
         ],
         'setUsername()' => [$params['yiisoft/db-mssql']['username']],
         'setPassword()' => [$params['yiisoft/db-mssql']['password']]
@@ -60,11 +54,11 @@ return [
 Params.php
 
 ```php
-use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
+use Yiisoft\Db\Mssql\Dsn;
 
 return [
     'yiisoft/db-mssql' => [
-        'dsn' => (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->getDsn(),
+        'dsn' => (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
         'username' => 'SA',
         'password' => 'YourStrong!Passw0rd'
     ]
