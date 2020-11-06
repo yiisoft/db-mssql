@@ -36,7 +36,6 @@ class TestCase extends AbstractTestCase
     protected Connection $connection;
     protected ContainerInterface $container;
     protected array $dataProvider;
-    protected Dsn $dsn;
     protected LoggerInterface $logger;
     protected Profiler $profiler;
 
@@ -58,7 +57,6 @@ class TestCase extends AbstractTestCase
             $this->cache,
             $this->connection,
             $this->container,
-            $this->dsn,
             $this->logger,
             $this->profiler
         );
@@ -108,7 +106,6 @@ class TestCase extends AbstractTestCase
         $this->cache = $this->container->get(CacheInterface::class);
         $this->logger = $this->container->get(LoggerInterface::class);
         $this->profiler = $this->container->get(Profiler::class);
-        $this->dsn = $this->container->get(Dsn::class);
         $this->connection = $this->container->get(ConnectionInterface::class);
 
         DatabaseFactory::initialize($this->container, []);
@@ -259,6 +256,18 @@ class TestCase extends AbstractTestCase
         }
     }
 
+    protected function params(): array
+    {
+        return [
+            'yiisoft/db-mssql' => [
+                'dsn' => (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
+                'username' => 'SA',
+                'password' => 'YourStrong!Passw0rd',
+                'fixture' => __DIR__ . '/Data/mssql.sql',
+            ]
+        ];
+    }
+
     private function config(): array
     {
         $params = $this->params();
@@ -276,48 +285,13 @@ class TestCase extends AbstractTestCase
 
             LoggerInterface::class => Logger::class,
 
-            Profiler::class => static function (ContainerInterface $container) {
-                return new Profiler($container->get(LoggerInterface::class));
-            },
-
-            Dsn::class => static function () use ($params) {
-                return new Dsn(
-                    $params['yiisoft/db-mssql']['dsn']['driver'],
-                    $params['yiisoft/db-mssql']['dsn']['server'],
-                    $params['yiisoft/db-mssql']['dsn']['database'],
-                    $params['yiisoft/db-mssql']['dsn']['port'],
-                );
-            },
-
-            ConnectionInterface::class  => static function (ContainerInterface $container) use ($params) {
-                $connection = new Connection(
-                    $container->get(CacheInterface::class),
-                    $container->get(LoggerInterface::class),
-                    $container->get(Profiler::class),
-                    $container->get(Dsn::class)->getDsn(),
-                );
-
-                $connection->setUsername($params['yiisoft/db-mssql']['username']);
-                $connection->setPassword($params['yiisoft/db-mssql']['password']);
-
-                return $connection;
-            }
-        ];
-    }
-
-    private function params(): array
-    {
-        return [
-            'yiisoft/db-mssql' => [
-                'dsn' => [
-                    'driver' => 'sqlsrv',
-                    'server' => '127.0.0.1',
-                    'database' => 'yiitest',
-                    'port' => '1433'
+            ConnectionInterface::class  => [
+                '__class' => Connection::class,
+                '__construct()' => [
+                    'dsn' => $params['yiisoft/db-mssql']['dsn'],
                 ],
-                'username' => 'SA',
-                'password' => 'YourStrong!Passw0rd',
-                'fixture' => __DIR__ . '/Data/mssql.sql',
+                'setUsername()' => [$params['yiisoft/db-mssql']['username']],
+                'setPassword()' => [$params['yiisoft/db-mssql']['password']]
             ]
         ];
     }

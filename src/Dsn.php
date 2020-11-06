@@ -6,16 +6,16 @@ namespace Yiisoft\Db\Mssql;
 
 final class Dsn
 {
-    private string $database;
+    private string $databaseName;
     private string $driver;
     private string $server;
     private string $port;
 
-    public function __construct(string $driver, string $server, string $database, string $port = '1433')
+    public function __construct(string $driver, string $server, string $databaseName, string $port = '1433')
     {
         $this->driver = $driver;
         $this->server = $server;
-        $this->database = $database;
+        $this->databaseName = $databaseName;
         $this->port = $port;
     }
 
@@ -28,15 +28,19 @@ final class Dsn
      *
      * ```php
      * $dsn = new MssqlDsn('sqlsrv', 'localhost', 'yiitest', '1433');
-     * $connection = new MssqlConnection($this->cache, $this->logger, $this->profiler, $dsn->getDsn());
+     * $connection = new MssqlConnection($this->cache, $this->logger, $this->profiler, $dsn->asString());
      * ```
      *
      * Will result in the DSN string `sqlsrv:Server=localhost,1433;Database=yiitest`.
      */
-
-    public function getDsn(): string
+    public function asString(): string
     {
-        return "$this->driver:" . "Server=$this->server," . "$this->port;" . "Database=$this->database";
+        return "$this->driver:" . "Server=$this->server," . "$this->port" . ";Database=$this->databaseName";
+    }
+
+    public function __toString(): string
+    {
+        return $this->asString();
     }
 
     public function getDriver(): string
