@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 use PHPUnit\Framework\TestCase as AbstractTestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface as SimpleCacheInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
@@ -14,6 +15,7 @@ use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
+use Yiisoft\Db\Cache\ConnectionCache;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Factory\DatabaseFactory;
@@ -21,6 +23,7 @@ use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\TestUtility\IsOneOfAssert;
 use Yiisoft\Di\Container;
+use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
 
@@ -34,6 +37,7 @@ class TestCase extends AbstractTestCase
     protected Aliases $aliases;
     protected CacheInterface $cache;
     protected Connection $connection;
+    protected ConnectionCache $connectionCache;
     protected ContainerInterface $container;
     protected array $dataProvider;
     protected LoggerInterface $logger;
@@ -56,6 +60,7 @@ class TestCase extends AbstractTestCase
             $this->aliases,
             $this->cache,
             $this->connection,
+            $this->connectionCache,
             $this->container,
             $this->logger,
             $this->profiler
@@ -103,9 +108,10 @@ class TestCase extends AbstractTestCase
         $this->container = new Container($this->config());
 
         $this->aliases = $this->container->get(Aliases::class);
-        $this->cache = $this->container->get(CacheInterface::class);
+        $this->cache = $this->container->get(SimpleCacheInterface::class);
         $this->logger = $this->container->get(LoggerInterface::class);
         $this->profiler = $this->container->get(Profiler::class);
+        $this->connectionCache = $this->container->get(ConnectionCache::class);
         $this->connection = $this->container->get(ConnectionInterface::class);
 
         DatabaseFactory::initialize($this->container, []);
@@ -279,9 +285,14 @@ class TestCase extends AbstractTestCase
                 '@runtime' => '@data/runtime',
             ],
 
-            CacheInterface::class => static function () {
-                return new Cache(new ArrayCache());
-            },
+            CacheInterface::class => [
+                '__class' => Cache::class,
+                '__construct()' => [
+                    Reference::to(ArrayCache::class)
+                ]
+            ],
+
+            SimpleCacheInterface::class => CacheInterface::class,
 
             LoggerInterface::class => Logger::class,
 
