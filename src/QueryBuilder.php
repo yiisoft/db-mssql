@@ -4,10 +4,21 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use function array_diff;
+use function array_keys;
+use function implode;
+use function in_array;
+use function is_string;
 use JsonException;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use function ltrim;
+use function preg_match;
+use function preg_replace;
+use function reset;
+use function strrpos;
+use function version_compare;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Exception\Exception;
+
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
@@ -19,18 +30,6 @@ use Yiisoft\Db\Query\Conditions\LikeCondition;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder as AbstractQueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
-
-use function array_diff;
-use function array_keys;
-use function implode;
-use function in_array;
-use function is_string;
-use function ltrim;
-use function preg_match;
-use function preg_replace;
-use function reset;
-use function strrpos;
-use function version_compare;
 
 /**
  * QueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
@@ -79,8 +78,8 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details
      * on how to specify this
      * parameter.
-     * @param object|int|null $limit the limit number. See {@see Query::limit} for more details.
-     * @param object|int|null $offset the offset number. See {@see Query::offset} for more
+     * @param int|object|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param int|object|null $offset the offset number. See {@see Query::offset} for more
      * details.
      * @param array $params the binding parameters to be populated.
      *
@@ -109,8 +108,8 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
      * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details on how to specify this
      * parameter.
-     * @param Query|int|null $limit the limit number. See {@see Query::limit} for more details.
-     * @param Query|int|null $offset the offset number. See {@see Query::offset} for more details.
+     * @param int|Query|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param int|Query|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
      * @throws Exception|InvalidArgumentException
@@ -152,8 +151,8 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
      * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details on how to specify this
      * parameter.
-     * @param Query|int|null $limit the limit number. See {@see Query::limit} for more details.
-     * @param Query|int|null $offset the offset number. See {@see Query::offset} for more details.
+     * @param int|Query|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param int|Query|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
      * @throws Exception|InvalidArgumentException
@@ -373,9 +372,9 @@ final class QueryBuilder extends AbstractQueryBuilder
         }
 
         $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = "N" . $this->getDb()->quoteValue($tableSchema->getName());
-        $columnName = $column ? "N" . $this->getDb()->quoteValue($column) : null;
-        $comment = "N" . $this->getDb()->quoteValue($comment);
+        $tableName = 'N' . $this->getDb()->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . $this->getDb()->quoteValue($column) : null;
+        $comment = 'N' . $this->getDb()->quoteValue($comment);
 
         $functionParams = "
             @name = N'MS_description',
@@ -456,8 +455,8 @@ final class QueryBuilder extends AbstractQueryBuilder
         }
 
         $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = "N" . $this->getDb()->quoteValue($tableSchema->getName());
-        $columnName = $column ? "N" . $this->getDb()->quoteValue($column) : null;
+        $tableName = 'N' . $this->getDb()->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . $this->getDb()->quoteValue($column) : null;
 
         return "
             IF EXISTS (
@@ -542,10 +541,10 @@ final class QueryBuilder extends AbstractQueryBuilder
      * Normalizes data to be saved into the table, performing extra preparations and type converting, if necessary.
      *
      * @param string $table the table that data will be saved into.
-     * @param ColumnSchema|array $columns the column data (name => value) to be saved into the table.
+     * @param array|ColumnSchema $columns the column data (name => value) to be saved into the table.
      * @param array $params
      *
-     * @return ColumnSchema|array normalized columns.
+     * @return array|ColumnSchema normalized columns.
      */
     private function normalizeTableRowData(string $table, $columns, array &$params = [])
     {
@@ -620,12 +619,12 @@ final class QueryBuilder extends AbstractQueryBuilder
                     . (in_array(
                         $column->getDbType(),
                         ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary']
-                    ) ? "(MAX)" : "")
-                    . ' ' . ($column->isAllowNull() ? "NULL" : "");
+                    ) ? '(MAX)' : '')
+                    . ' ' . ($column->isAllowNull() ? 'NULL' : '');
             }
 
-            $sql = "SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (" . implode(", ", $cols) . ");"
-                . $sql . ";SELECT * FROM @temporary_inserted";
+            $sql = 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $cols) . ');'
+                . $sql . ';SELECT * FROM @temporary_inserted';
         }
 
         return $sql;
@@ -813,7 +812,7 @@ final class QueryBuilder extends AbstractQueryBuilder
      *
      * If a type cannot be found in {@see typeMap}, it will be returned without any change.
      *
-     * @param string|ColumnSchemaBuilder $type abstract column type
+     * @param ColumnSchemaBuilder|string $type abstract column type
      *
      * @return string physical column type.
      */
@@ -823,9 +822,7 @@ final class QueryBuilder extends AbstractQueryBuilder
 
         /** remove unsupported keywords*/
         $columnType = preg_replace("/\s*comment '.*'/i", '', $columnType);
-        $columnType = preg_replace('/ first$/i', '', $columnType);
-
-        return $columnType;
+        return preg_replace('/ first$/i', '', $columnType);
     }
 
     /**
@@ -833,7 +830,7 @@ final class QueryBuilder extends AbstractQueryBuilder
      *
      * @param $table
      *
-     * @return bool|array
+     * @return array|bool
      */
     protected function extractAlias($table)
     {
