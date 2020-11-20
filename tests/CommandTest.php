@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use function trim;
 use yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\TestUtility\TestCommandTrait;
 
-use function trim;
+use Yiisoft\Db\TestUtility\TestCommandTrait;
 
 /**
  * @group mssql
@@ -272,13 +271,13 @@ final class CommandTest extends TestCase
             [
                 'name' => 'testParams',
                 'email' => 'testParams@example.com',
-                'address' => '1'
+                'address' => '1',
             ]
         )->execute();
 
         $params = [
             ':email' => 'testParams@example.com',
-            ':len'   => 5,
+            ':len' => 5,
         ];
 
         $command = $db->createCommand($sql, $params);
