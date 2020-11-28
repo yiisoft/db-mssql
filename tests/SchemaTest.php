@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
-use Yiisoft\Db\Constraint\CheckConstraint;
-use Yiisoft\Db\Constraint\Constraint;
+use function strpos;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
-use Yiisoft\Db\Constraint\ForeignKeyConstraint;
-use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Mssql\TableSchema;
 use Yiisoft\Db\TestUtility\AnyValue;
-use Yiisoft\Db\TestUtility\TestSchemaTrait;
 
-use function strpos;
+use Yiisoft\Db\TestUtility\TestSchemaTrait;
 
 /**
  * @group mssql
@@ -237,7 +233,7 @@ final class SchemaTest extends TestCase
                     case 'char_col2':
                         $expectedType = 'string';
                         $expectedSize = 100;
-                        $expectedDbType = "varchar(100)";
+                        $expectedDbType = 'varchar(100)';
                         break;
                     case 'char_col3':
                         $expectedType = 'text';

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use function explode;
+use function file_get_contents;
 use PHPUnit\Framework\TestCase as AbstractTestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -11,6 +13,8 @@ use Psr\SimpleCache\CacheInterface as SimpleCacheInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
+use function str_replace;
+use function trim;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
@@ -22,16 +26,12 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Factory\DatabaseFactory;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
+
 use Yiisoft\Db\TestUtility\IsOneOfAssert;
 use Yiisoft\Di\Container;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
-
-use function explode;
-use function file_get_contents;
-use function str_replace;
-use function trim;
 
 class TestCase extends AbstractTestCase
 {
@@ -74,8 +74,6 @@ class TestCase extends AbstractTestCase
      * @param string $expected
      * @param string $actual
      * @param string $message
-     *
-     * @return void
      */
     protected function assertEqualsWithoutLE(string $expected, string $actual, string $message = ''): void
     {
@@ -265,7 +263,7 @@ class TestCase extends AbstractTestCase
                 'username' => 'SA',
                 'password' => 'YourStrong!Passw0rd',
                 'fixture' => __DIR__ . '/Data/mssql.sql',
-            ]
+            ],
         ];
     }
 
@@ -276,7 +274,7 @@ class TestCase extends AbstractTestCase
         return [
             Aliases::class => [
                 '@root' => dirname(__DIR__, 1),
-                '@data' =>  '@root/tests/data',
+                '@data' => '@root/tests/data',
                 '@runtime' => '@data/runtime',
             ],
 
@@ -291,14 +289,14 @@ class TestCase extends AbstractTestCase
 
             LoggerInterface::class => Logger::class,
 
-            ConnectionInterface::class  => [
+            ConnectionInterface::class => [
                 '__class' => Connection::class,
                 '__construct()' => [
                     'dsn' => $params['yiisoft/db-mssql']['dsn'],
                 ],
                 'setUsername()' => [$params['yiisoft/db-mssql']['username']],
-                'setPassword()' => [$params['yiisoft/db-mssql']['password']]
-            ]
+                'setPassword()' => [$params['yiisoft/db-mssql']['password']],
+            ],
         ];
     }
 }

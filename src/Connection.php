@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use Yiisoft\Db\Connection\Connection as AbstractConnection;
+use function in_array;
 use Yiisoft\Db\Command\Command;
 
-use function in_array;
+use Yiisoft\Db\Connection\Connection as AbstractConnection;
 
 /**
  * Database connection class prefilled for MSSQL Server.

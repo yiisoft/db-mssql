@@ -4,13 +4,22 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use function array_map;
+use function count;
+use function explode;
+use function preg_match;
+use function preg_match_all;
+use function str_replace;
+use function strcasecmp;
+use function stripos;
 use Throwable;
+use function version_compare;
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constraint\CheckConstraint;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Constraint\ConstraintFinderInterface;
 use Yiisoft\Db\Constraint\ConstraintFinderTrait;
+
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
@@ -21,23 +30,13 @@ use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
 use Yiisoft\Db\View\ViewFinderTrait;
 
-use function array_map;
-use function count;
-use function explode;
-use function preg_match;
-use function preg_match_all;
-use function str_replace;
-use function strcasecmp;
-use function stripos;
-use function version_compare;
-
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
  */
 final class Schema extends AbstractSchema implements ConstraintFinderInterface
 {
-    use ViewFinderTrait;
     use ConstraintFinderTrait;
+    use ViewFinderTrait;
 
     /**
      * @var string|null the default schema used for the current session.
@@ -170,9 +169,7 @@ final class Schema extends AbstractSchema implements ConstraintFinderInterface
             $parts = $matches[0];
         }
 
-        $parts = str_replace(['[', ']'], '', $parts);
-
-        return $parts;
+        return str_replace(['[', ']'], '', $parts);
     }
 
     /**
@@ -543,7 +540,7 @@ SQL;
     protected function findColumns(TableSchema $table): bool
     {
         $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
-        $whereSql = "[t1].[table_name] = " . $this->getDb()->quoteValue($table->getName());
+        $whereSql = '[t1].[table_name] = ' . $this->getDb()->quoteValue($table->getName());
 
         if ($table->getCatalogName() !== null) {
             $columnsTableName = "{$table->getCatalogName()}.{$columnsTableName}";
@@ -978,7 +975,7 @@ SQL;
      * This method may be overridden by child classes to create a DBMS-specific column schema builder.
      *
      * @param string $type type of the column. See {@see ColumnSchemaBuilder::$type}.
-     * @param int|string|array|null $length length or precision of the column. See {@see ColumnSchemaBuilder::$length}.
+     * @param array|int|string|null $length length or precision of the column. See {@see ColumnSchemaBuilder::$length}.
      *
      * @return ColumnSchemaBuilder column schema builder instance
      */

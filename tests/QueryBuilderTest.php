@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use function array_replace;
 use Closure;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Mssql\QueryBuilder;
-use Yiisoft\Db\TestUtility\TraversableObject;
+use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestUtility\TestQueryBuilderTrait;
 
-use function array_replace;
+use Yiisoft\Db\TestUtility\TraversableObject;
 
 /**
  * @group mssql
@@ -53,9 +53,9 @@ final class QueryBuilderTest extends TestCase
             FROM fn_listextendedproperty (
                 N'MS_description',
                 'SCHEMA', N'dbo',
-                'TABLE', N" . $db->quoteValue($table) . ",
+                'TABLE', N" . $db->quoteValue($table) . ',
                 DEFAULT, DEFAULT
-        )";
+        )';
 
         return $db->createCommand($sql)->queryAll();
     }
@@ -69,8 +69,8 @@ final class QueryBuilderTest extends TestCase
                 N'MS_description',
                 'SCHEMA', N'dbo',
                 'TABLE', N" . $db->quoteValue($table) . ",
-                'COLUMN', N" . $db->quoteValue($column) . "
-        )";
+                'COLUMN', N" . $db->quoteValue($column) . '
+        )';
 
         return $db->createCommand($sql)->queryAll();
     }
@@ -354,7 +354,7 @@ final class QueryBuilderTest extends TestCase
     {
         $data = $this->batchInsertProviderTrait();
 
-        $data['escape-danger-chars']['expected'] = "INSERT INTO [customer] ([address])"
+        $data['escape-danger-chars']['expected'] = 'INSERT INTO [customer] ([address])'
             . " VALUES ('SQL-danger chars are escaped: ''); --')";
 
         $data['bool-false, bool2-null']['expected'] = 'INSERT INTO [type] ([bool_col], [bool_col2]) VALUES (0, NULL)';
@@ -406,7 +406,7 @@ final class QueryBuilderTest extends TestCase
     /**
      * @dataProvider buildConditionsProvider
      *
-     * @param ExpressionInterface|array $condition
+     * @param array|ExpressionInterface $condition
      * @param string $expected
      * @param array $expectedParams
      */
@@ -478,7 +478,7 @@ final class QueryBuilderTest extends TestCase
     /**
      * @dataProvider buildLikeConditionsProviderTrait
      *
-     * @param object|array $condition
+     * @param array|object $condition
      * @param string $expected
      * @param array $expectedParams
      */
@@ -652,7 +652,7 @@ final class QueryBuilderTest extends TestCase
      * @dataProvider insertProvider
      *
      * @param string $table
-     * @param ColumnSchema|array $columns
+     * @param array|ColumnSchema $columns
      * @param array $params
      * @param string $expectedSQL
      * @param array $expectedParams
@@ -699,7 +699,7 @@ final class QueryBuilderTest extends TestCase
                 . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
                 . ' UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status], [profile_id]'
                 . '=[EXCLUDED].[profile_id] WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id])'
-                . ' VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);'
+                . ' VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
             ],
 
             'regular values with update part' => [
@@ -707,14 +707,14 @@ final class QueryBuilderTest extends TestCase
                 . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
                 . ' UPDATE SET [address]=:qp4, [status]=:qp5, [orders]=T_upsert.orders + 1 WHEN NOT MATCHED THEN'
                 . ' INSERT ([email], [address], [status], [profile_id]) VALUES ([EXCLUDED].[email],'
-                . ' [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);'
+                . ' [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
             ],
 
             'regular values without update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ([email],'
                 . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN NOT MATCHED THEN'
                 . ' INSERT ([email], [address], [status], [profile_id]) VALUES ([EXCLUDED].[email],'
-                . ' [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);'
+                . ' [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
             ],
 
             'query' => [
@@ -722,7 +722,7 @@ final class QueryBuilderTest extends TestCase
                 . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
                 . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN UPDATE SET'
                 . ' [status]=[EXCLUDED].[status] WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES'
-                . ' ([EXCLUDED].[email], [EXCLUDED].[status]);'
+                . ' ([EXCLUDED].[email], [EXCLUDED].[status]);',
             ],
 
             'query with update part' => [
@@ -730,14 +730,14 @@ final class QueryBuilderTest extends TestCase
                 . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
                 . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN UPDATE SET'
                 . ' [address]=:qp1, [status]=:qp2, [orders]=T_upsert.orders + 1 WHEN NOT MATCHED THEN'
-                . ' INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);'
+                . ' INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
             ],
 
             'query without update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] WHERE'
                 . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
                 . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN NOT MATCHED THEN INSERT ([email],'
-                . ' [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);'
+                . ' [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
             ],
 
             'values and expressions' => [
@@ -746,7 +746,7 @@ final class QueryBuilderTest extends TestCase
                 . ' [profile_id] int NULL);'
                 . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
                 . ' INTO @temporary_inserted VALUES (:qp0, now());'
-                . 'SELECT * FROM @temporary_inserted'
+                . 'SELECT * FROM @temporary_inserted',
             ],
 
             'values and expressions with update part' => [
@@ -755,7 +755,7 @@ final class QueryBuilderTest extends TestCase
                 . ' [profile_id] int NULL);'
                 . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
                 . ' INTO @temporary_inserted VALUES (:qp0, now());'
-                . 'SELECT * FROM @temporary_inserted'
+                . 'SELECT * FROM @temporary_inserted',
             ],
 
             'values and expressions without update part' => [
@@ -764,25 +764,25 @@ final class QueryBuilderTest extends TestCase
                 . ' [profile_id] int NULL);'
                 . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
                 . ' INTO @temporary_inserted VALUES (:qp0, now());'
-                . 'SELECT * FROM @temporary_inserted'
+                . 'SELECT * FROM @temporary_inserted',
             ],
 
             'query, values and expressions with update part' => [
                 3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], now() AS [[time]]) AS'
                 . ' [EXCLUDED] ([email], [[time]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
                 . ' UPDATE SET [ts]=:qp1, [[orders]]=T_upsert.orders + 1 WHEN NOT MATCHED THEN INSERT ([email],'
-                . ' [[time]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[time]]);'
+                . ' [[time]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[time]]);',
             ],
 
             'query, values and expressions without update part' => [
                 3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], now() AS [[time]])'
                 . ' AS [EXCLUDED] ([email], [[time]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
                 . ' UPDATE SET [ts]=:qp1, [[orders]]=T_upsert.orders + 1 WHEN NOT MATCHED THEN INSERT ([email],'
-                . ' [[time]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[time]]);'
+                . ' [[time]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[time]]);',
             ],
             'no columns to update' => [
                 3 => 'MERGE [T_upsert_1] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED] ([a]) ON'
-                . ' ([T_upsert_1].[a]=[EXCLUDED].[a]) WHEN NOT MATCHED THEN INSERT ([a]) VALUES ([EXCLUDED].[a]);'
+                . ' ([T_upsert_1].[a]=[EXCLUDED].[a]) WHEN NOT MATCHED THEN INSERT ([a]) VALUES ([EXCLUDED].[a]);',
             ],
         ];
 
@@ -801,7 +801,7 @@ final class QueryBuilderTest extends TestCase
      * @dataProvider upsertProvider
      *
      * @param string $table
-     * @param ColumnSchema|array $insertColumns
+     * @param array|ColumnSchema $insertColumns
      * @param array|bool|null $updateColumns
      * @param string|string[] $expectedSQL
      * @param array $expectedParams
