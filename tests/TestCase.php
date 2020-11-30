@@ -281,8 +281,8 @@ class TestCase extends AbstractTestCase
             CacheInterface::class => [
                 '__class' => Cache::class,
                 '__construct()' => [
-                    Reference::to(ArrayCache::class)
-                ]
+                    Reference::to(ArrayCache::class),
+                ],
             ],
 
             SimpleCacheInterface::class => CacheInterface::class,
