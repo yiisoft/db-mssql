@@ -31,13 +31,12 @@ composer require yiisoft/db-mssql
 
 ## Configuration
 
-Using yiisoft/composer-config-plugin automatically get the settings of `CacheInterface::class`, `LoggerInterface::class`, and `Profiler::class`.
+Using yiisoft/composer-config-plugin automatically get the settings of `Yiisoft\Cache\CacheInterface::class`, `LoggerInterface::class`, and `Profiler::class`.
 
 Di-Container:
 
 ```php
 use Yiisoft\Db\Mssql\Connection as MssqlConnection;
-use Yiisoft\Factory\Definitions\Reference;
 
 return [
     MssqlConnection::class => [
