@@ -39,16 +39,17 @@ Using yiisoft/composer-config-plugin automatically get the settings of `Yiisoft\
 Di-Container:
 
 ```php
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Mssql\Connection as MssqlConnection;
 
 return [
-    MssqlConnection::class => [
+    ConnectionInterface::class => [
         '__class' => MssqlConnection::class,
         '__construct()' => [
             'dsn' => $params['yiisoft/db-mssql']['dsn']
         ],
         'setUsername()' => [$params['yiisoft/db-mssql']['username']],
-        'setPassword()' => [$params['yiisoft/db-mssql']['password']]
+        'setPassword()' => [$params['yiisoft/db-mssql']['password']],
     ]
 ];
 ```
@@ -62,7 +63,7 @@ return [
     'yiisoft/db-mssql' => [
         'dsn' => (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
         'username' => 'SA',
-        'password' => 'YourStrong!Passw0rd'
+        'password' => 'YourStrong!Passw0rd',
     ]
 ];
 ```
