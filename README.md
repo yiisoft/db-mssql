@@ -63,7 +63,7 @@ return [
     'yiisoft/db-mssql' => [
         'dsn' => (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
         'username' => 'SA',
-        'password' => 'YourStrong!Passw0rd'
+        'password' => 'YourStrong!Passw0rd',
     ]
 ];
 ```
