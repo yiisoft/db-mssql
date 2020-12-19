@@ -1,5 +1,8 @@
 <p align="center">
-    <a href="https://github.com/yiisoft" target="_blank">
+        <a href="https://github.com/yiisoft" target="_blank">
+        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px">
+    </a>
+    <a href="https://www.microsoft.com/sql-server" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/6154722" height="100px">
     </a>
     <h1 align="center">MSSQL Server Extension for Yii 3</h1>
