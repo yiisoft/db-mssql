@@ -26,6 +26,7 @@ use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
 use Yiisoft\Db\View\ViewFinderTrait;
@@ -222,13 +223,7 @@ WHERE [t].[table_schema] = :schema AND [t].[table_type] IN ('BASE TABLE', 'VIEW'
 ORDER BY [t].[table_name]
 SQL;
 
-        $tables = $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
-
-        $tables = array_map(static function ($item) {
-            return '[' . $item . ']';
-        }, $tables);
-
-        return $tables;
+        return $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
     }
 
     /**
@@ -254,6 +249,46 @@ SQL;
         }
 
         return null;
+    }
+
+    /**
+     * Returns the metadata of the given type for all tables in the given schema.
+     *
+     * This method will call a `'getTable' . ucfirst($type)` named method with the table name and the refresh flag to
+     * obtain the metadata.
+     *
+     * @param string $schema the schema of the metadata. Defaults to empty string, meaning the current or default schema
+     * name.
+     * @param string $type metadata type.
+     * @param bool $refresh whether to fetch the latest available table metadata. If this is `false`, cached data may be
+     * returned if available.
+     *
+     * @throws NotSupportedException
+     *
+     * @return array array of metadata.
+     */
+    protected function getSchemaMetadata(string $schema, string $type, bool $refresh): array
+    {
+        $metadata = [];
+        $methodName = 'getTable' . ucfirst($type);
+
+        $tableNames = array_map(function ($table) {
+            return $this->quoteSimpleTableName($table);
+        }, $this->getTableNames($schema, $refresh));
+
+        foreach ($tableNames as $name) {
+            if ($schema !== '') {
+                $name = $schema . '.' . $name;
+            }
+
+            $tableMetadata = $this->$methodName($name, $refresh);
+
+            if ($tableMetadata !== null) {
+                $metadata[] = $tableMetadata;
+            }
+        }
+
+        return $metadata;
     }
 
     /**
@@ -753,12 +788,7 @@ WHERE [t].[table_schema] = :schema AND [t].[table_type] = 'VIEW'
 ORDER BY [t].[table_name]
 SQL;
 
-        $views = $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
-        $views = array_map(static function ($item) {
-            return '[' . $item . ']';
-        }, $views);
-
-        return $views;
+        return $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
     }
 
     /**
