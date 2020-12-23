@@ -955,6 +955,9 @@ SQL;
              */
             if (isset($inserted[$name])) {
                 $result[$name] = $inserted[$name];
+            } elseif ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
+                // for a version earlier than 2005
+                $result[$name] = $this->getLastInsertID($tableSchema->getSequenceName());
             } elseif (isset($columns[$name])) {
                 $result[$name] = $columns[$name];
             } else {
