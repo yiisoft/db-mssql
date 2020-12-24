@@ -950,15 +950,14 @@ SQL;
 
         $result = [];
         foreach ($tableSchema->getPrimaryKey() as $name) {
-            if ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
-                $result[$name] = $this->getLastInsertID($tableSchema->getSequenceName());
-                break;
-            }
             /**
              * {@see https://github.com/yiisoft/yii2/issues/13828 & https://github.com/yiisoft/yii2/issues/17474
              */
             if (isset($inserted[$name])) {
                 $result[$name] = $inserted[$name];
+            } elseif ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
+                // for a version earlier than 2005
+                $result[$name] = $this->getLastInsertID($tableSchema->getSequenceName());
             } elseif (isset($columns[$name])) {
                 $result[$name] = $columns[$name];
             } else {

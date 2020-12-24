@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
+use Yiisoft\Db\Mssql\Schema;
 use function strpos;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Mssql\TableSchema;
@@ -502,5 +503,24 @@ final class SchemaTest extends TestCase
         $this->assertInstanceOf(TableSchema::class, $testRefreshedTable);
         $this->assertEquals($refreshedTable, $testRefreshedTable);
         $this->assertNotSame($testNoCacheTable, $testRefreshedTable);
+    }
+
+    public function testGetPrimaryKey(): void
+    {
+        $db = $this->getConnection();
+
+        if ($db->getSchema()->getTableSchema('testPKTable') !== null) {
+            $db->createCommand()->dropTable('testPKTable')->execute();
+        }
+
+        $db->createCommand()->createTable(
+            'testPKTable',
+            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
+        )->execute();
+
+        $insertResult = $db->getSchema()->insert('testPKTable', ['bar' => 1]);
+        $selectResult = $db->createCommand('select [id] from [testPKTable] where [bar]=1')->queryOne();
+
+        $this->assertEquals($selectResult['id'], $insertResult['id']);
     }
 }
