@@ -80,12 +80,11 @@ final class PDO extends AbstractPDO
         try {
             return parent::getAttribute($attribute);
         } catch (PDOException $e) {
-            switch ($attribute) {
-                case self::ATTR_SERVER_VERSION:
-                    return $this->query("SELECT CAST(SERVERPROPERTY('productversion') AS VARCHAR)")->fetchColumn();
-                default:
-                    throw $e;
+            if ($attribute === self::ATTR_SERVER_VERSION) {
+                return $this->query("SELECT CAST(SERVERPROPERTY('productversion') AS VARCHAR)")->fetchColumn();
             }
+
+            throw $e;
         }
     }
 }
