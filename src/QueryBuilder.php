@@ -604,27 +604,33 @@ final class QueryBuilder extends AbstractQueryBuilder
 
         [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
 
-        $sql = 'INSERT INTO ' . $this->getDb()->quoteTableName($table)
-            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
-            . ($version2005orLater ? ' OUTPUT INSERTED.* INTO @temporary_inserted' : '')
-            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : $values);
-
         if ($version2005orLater) {
             $schema = $this->getDb()->getTableSchema($table);
 
             $cols = [];
+            $columns = [];
             foreach ($schema->getColumns() as $column) {
-                $cols[] = $this->getDb()->quoteColumnName($column->getName()) . ' '
+                $quoteColumnName = $this->getDb()->quoteColumnName($column->getName());
+                $cols[] = $quoteColumnName . ' '
                     . $column->getDbType()
                     . (in_array(
                         $column->getDbType(),
                         ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary']
                     ) ? '(MAX)' : '')
                     . ' ' . ($column->isAllowNull() ? 'NULL' : '');
+                $columns[] = 'INSERTED.' . $quoteColumnName;
             }
+        }
+        $countColumns = count($columns);
 
-            $sql = 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $cols) . ');'
-                . $sql . ';SELECT * FROM @temporary_inserted';
+        $sql = 'INSERT INTO ' . $this->getDb()->quoteTableName($table)
+            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
+            . (($version2005orLater && $countColumns) ? ' OUTPUT ' . implode(',', $columns) . ' INTO @temporary_inserted' : '')
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : $values);
+
+        if ($version2005orLater && $countColumns) {
+            $sql = 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $cols) . ');' . $sql .
+                ';SELECT * FROM @temporary_inserted';
         }
 
         return $sql;
