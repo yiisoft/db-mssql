@@ -4,6 +4,22 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use Throwable;
+use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Db\Constraint\CheckConstraint;
+use Yiisoft\Db\Constraint\Constraint;
+use Yiisoft\Db\Constraint\ConstraintFinderInterface;
+use Yiisoft\Db\Constraint\ConstraintFinderTrait;
+use Yiisoft\Db\Constraint\DefaultValueConstraint;
+use Yiisoft\Db\Constraint\ForeignKeyConstraint;
+use Yiisoft\Db\Constraint\IndexConstraint;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Schema\ColumnSchemaBuilder;
+use Yiisoft\Db\Schema\Schema as AbstractSchema;
+use Yiisoft\Db\View\ViewFinderTrait;
+
 use function array_map;
 use function count;
 use function explode;
@@ -12,24 +28,7 @@ use function preg_match_all;
 use function str_replace;
 use function strcasecmp;
 use function stripos;
-use Throwable;
 use function version_compare;
-use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\Constraint\CheckConstraint;
-use Yiisoft\Db\Constraint\Constraint;
-use Yiisoft\Db\Constraint\ConstraintFinderInterface;
-use Yiisoft\Db\Constraint\ConstraintFinderTrait;
-
-use Yiisoft\Db\Constraint\DefaultValueConstraint;
-use Yiisoft\Db\Constraint\ForeignKeyConstraint;
-use Yiisoft\Db\Constraint\IndexConstraint;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidCallException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Schema\ColumnSchemaBuilder;
-use Yiisoft\Db\Schema\Schema as AbstractSchema;
-use Yiisoft\Db\View\ViewFinderTrait;
 
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
@@ -223,7 +222,13 @@ WHERE [t].[table_schema] = :schema AND [t].[table_type] IN ('BASE TABLE', 'VIEW'
 ORDER BY [t].[table_name]
 SQL;
 
-        return $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
+        $tables = $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
+
+        $tables = array_map(static function ($item) {
+            return '[' . $item . ']';
+        }, $tables);
+
+        return $tables;
     }
 
     /**
@@ -249,46 +254,6 @@ SQL;
         }
 
         return null;
-    }
-
-    /**
-     * Returns the metadata of the given type for all tables in the given schema.
-     *
-     * This method will call a `'getTable' . ucfirst($type)` named method with the table name and the refresh flag to
-     * obtain the metadata.
-     *
-     * @param string $schema the schema of the metadata. Defaults to empty string, meaning the current or default schema
-     * name.
-     * @param string $type metadata type.
-     * @param bool $refresh whether to fetch the latest available table metadata. If this is `false`, cached data may be
-     * returned if available.
-     *
-     * @throws NotSupportedException
-     *
-     * @return array array of metadata.
-     */
-    protected function getSchemaMetadata(string $schema, string $type, bool $refresh): array
-    {
-        $metadata = [];
-        $methodName = 'getTable' . ucfirst($type);
-
-        $tableNames = array_map(function ($table) {
-            return $this->quoteSimpleTableName($table);
-        }, $this->getTableNames($schema, $refresh));
-
-        foreach ($tableNames as $name) {
-            if ($schema !== '') {
-                $name = $schema . '.' . $name;
-            }
-
-            $tableMetadata = $this->$methodName($name, $refresh);
-
-            if ($tableMetadata !== null) {
-                $metadata[] = $tableMetadata;
-            }
-        }
-
-        return $metadata;
     }
 
     /**
@@ -788,7 +753,12 @@ WHERE [t].[table_schema] = :schema AND [t].[table_type] = 'VIEW'
 ORDER BY [t].[table_name]
 SQL;
 
-        return $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
+        $views = $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
+        $views = array_map(static function ($item) {
+            return '[' . $item . ']';
+        }, $views);
+
+        return $views;
     }
 
     /**
@@ -1010,6 +980,6 @@ SQL;
      */
     public function createColumnSchemaBuilder(string $type, $length = null): ColumnSchemaBuilder
     {
-        return new ColumnSchemaBuilder($type, $length, $this->getDb());
+        return new ColumnSchemaBuilder($type, $length);
     }
 }

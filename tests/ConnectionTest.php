@@ -22,10 +22,6 @@ final class ConnectionTest extends TestCase
     {
         $db = $this->getConnection();
 
-        $this->assertEquals($this->logger, $db->getLogger());
-        $this->assertEquals($this->profiler, $db->getProfiler());
-        $this->assertEquals($this->queryCache, $db->getQueryCache());
-        $this->assertEquals($this->schemaCache, $db->getSchemaCache());
         $this->assertEquals($this->params()['yiisoft/db-mssql']['dsn'], $db->getDsn());
     }
 
@@ -53,13 +49,7 @@ final class ConnectionTest extends TestCase
         $this->assertFalse($db->isActive());
         $this->assertNull($db->getPDO());
 
-        $db = new Connection(
-            $this->logger,
-            $this->profiler,
-            $this->queryCache,
-            $this->schemaCache,
-            'unknown::memory:'
-        );
+        $db = new Connection('unknown::memory:', $this->dependencies);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('could not find driver');
@@ -172,7 +162,7 @@ final class ConnectionTest extends TestCase
     public function testServerStatusCacheWorks(): void
     {
         $cacheKeyNormalizer = new CacheKeyNormalizer();
-        $db = $this->getConnection(true);
+        $db = $this->getConnection();
 
         $db->setMasters(
             '1',
@@ -239,10 +229,8 @@ final class ConnectionTest extends TestCase
     public function testServerStatusCacheCanBeDisabled(): void
     {
         $cacheKeyNormalizer = new CacheKeyNormalizer();
-        $this->cache->psr()->clear();
 
         $db = $this->getConnection();
-        $cache = $db->getSchemaCache();
 
         $db->setMasters(
             '1',
@@ -256,7 +244,7 @@ final class ConnectionTest extends TestCase
             ]
         );
 
-        $db->getSchemaCache()->setEnable(false);
+        $this->schemaCache->setEnable(false);
 
         $db->setShuffleMasters(false);
 

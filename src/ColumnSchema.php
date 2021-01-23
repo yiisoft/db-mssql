@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use function substr;
-
 use Yiisoft\Db\Schema\ColumnSchema as AbstractColumnSchema;
+
+use function substr;
 
 /**
  * Class ColumnSchema for MSSQL database

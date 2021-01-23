@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use function in_array;
 use Yiisoft\Db\Command\Command;
-
 use Yiisoft\Db\Connection\Connection as AbstractConnection;
+
+use function in_array;
 
 /**
  * Database connection class prefilled for MSSQL Server.
@@ -15,7 +15,6 @@ use Yiisoft\Db\Connection\Connection as AbstractConnection;
 final class Connection extends AbstractConnection
 {
     private bool $isSybase = false;
-    private ?Schema $schema = null;
 
     public function createCommand(?string $sql = null, array $params = []): Command
     {
@@ -23,7 +22,7 @@ final class Connection extends AbstractConnection
             $sql = $this->quoteSql($sql);
         }
 
-        $command = new Command($this->getProfiler(), $this->getLogger(), $this, $this->getQueryCache(), $sql);
+        $command = new Command($this, $sql);
 
         return $command->bindValues($params);
     }
@@ -35,7 +34,7 @@ final class Connection extends AbstractConnection
      */
     public function getSchema(): Schema
     {
-        return $this->schema ?? ($this->schema = new Schema($this, $this->getSchemaCache()));
+        return new Schema($this);
     }
 
     public function isSybase(): bool
@@ -64,10 +63,14 @@ final class Connection extends AbstractConnection
 
     protected function initConnection(): void
     {
-        $this->getPDO()->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo = $this->getPDO();
 
-        if (!$this->isSybase && in_array($this->getDriverName(), ['mssql', 'dblib'], true)) {
-            $this->getPDO()->exec('SET ANSI_NULL_DFLT_ON ON');
+        if ($pdo !== null) {
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            if (!$this->isSybase && in_array($this->getDriverName(), ['mssql', 'dblib'], true)) {
+                $pdo->exec('SET ANSI_NULL_DFLT_ON ON');
+            }
         }
     }
 
