@@ -20,7 +20,7 @@
     "require": {
         "php": "^7.4|^8.0",
         "ext-pdo": "*",
-        "yiisoft/arrays": "^3.0@dev",
+        "yiisoft/arrays": "^1.0",
         "yiisoft/db": "^3.0@dev"
     },
     "require-dev": {
