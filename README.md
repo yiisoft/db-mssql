@@ -44,7 +44,7 @@ use Yiisoft\Db\Mssql\Connection as MssqlConnection;
 
 return [
     ConnectionInterface::class => [
-        '__class' => MssqlConnection::class,
+        'class' => MssqlConnection::class,
         '__construct()' => [
             'dsn' => $params['yiisoft/db-mssql']['dsn']
         ],
