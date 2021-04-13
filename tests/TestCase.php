@@ -24,7 +24,7 @@ use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\TestUtility\IsOneOfAssert;
 use Yiisoft\Di\Container;
-use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Factory\Definition\Reference;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
 use Yiisoft\Profiler\ProfilerInterface;
@@ -281,7 +281,7 @@ class TestCase extends AbstractTestCase
             ],
 
             CacheInterface::class => [
-                '__class' => Cache::class,
+                'class' => Cache::class,
                 '__construct()' => [
                     Reference::to(ArrayCache::class),
                 ],
@@ -291,7 +291,7 @@ class TestCase extends AbstractTestCase
             ProfilerInterface::class => Profiler::class,
 
             ConnectionInterface::class => [
-                '__class' => Connection::class,
+                'class' => Connection::class,
                 '__construct()' => [
                     'dsn' => $params['yiisoft/db-mssql']['dsn'],
                 ],
