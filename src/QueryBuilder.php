@@ -835,6 +835,7 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @param $table
      *
      * @return array|bool
+     * @psalm-return array<array-key, string>|bool
      */
     protected function extractAlias($table)
     {
