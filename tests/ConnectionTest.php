@@ -22,7 +22,7 @@ final class ConnectionTest extends TestCase
     {
         $db = $this->getConnection();
 
-        $this->assertEquals($this->params()['yiisoft/db-mssql']['dsn'], $db->getDsn());
+        $this->assertEquals(self::DB_DSN, $db->getDsn());
     }
 
     public function testGetDriverName(): void
@@ -49,7 +49,7 @@ final class ConnectionTest extends TestCase
         $this->assertFalse($db->isActive());
         $this->assertNull($db->getPDO());
 
-        $db = new Connection('unknown::memory:', $this->dependencies);
+        $db = $this->createConnection('unknown::memory:');
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('could not find driver');
@@ -131,17 +131,7 @@ final class ConnectionTest extends TestCase
     {
         $db = $this->getConnection();
 
-        $db->setSlaves(
-            '1',
-            [
-                'class' => Connection::class,
-                '__construct()' => [
-                    'dsn' => $this->params()['yiisoft/db-mssql']['dsn'],
-                ],
-                'setUsername()' => [$db->getUsername()],
-                'setPassword()' => [$db->getPassword()],
-            ]
-        );
+        $db->setSlave('1', $this->createConnection(self::DB_DSN));
 
         $this->assertNotNull($db->getSlavePdo(false));
 
@@ -164,17 +154,7 @@ final class ConnectionTest extends TestCase
         $cacheKeyNormalizer = new CacheKeyNormalizer();
         $db = $this->getConnection();
 
-        $db->setMasters(
-            '1',
-            [
-                'class' => Connection::class,
-                '__construct()' => [
-                    'dsn' => $this->params()['yiisoft/db-mssql']['dsn'],
-                ],
-                'setUsername()' => [$db->getUsername()],
-                'setPassword()' => [$db->getPassword()],
-            ]
-        );
+        $db->setMaster('1', $this->createConnection(self::DB_DSN));
 
         $db->setShuffleMasters(false);
 
@@ -199,17 +179,7 @@ final class ConnectionTest extends TestCase
             ['Yiisoft\Db\Connection\Connection::openFromPoolSequentially', 'host:invalid']
         );
 
-        $db->setMasters(
-            '1',
-            [
-                'class' => Connection::class,
-                '__construct()' => [
-                    'dsn' => 'host:invalid',
-                ],
-                'setUsername()' => [$db->getUsername()],
-                'setPassword()' => [$db->getPassword()],
-            ]
-        );
+        $db->setMaster('1', $this->createConnection('host:invalid'));
 
         $db->setShuffleMasters(true);
 
@@ -232,17 +202,7 @@ final class ConnectionTest extends TestCase
 
         $db = $this->getConnection();
 
-        $db->setMasters(
-            '1',
-            [
-                'class' => Connection::class,
-                '__construct()' => [
-                    'dsn' => $this->params()['yiisoft/db-mssql']['dsn'],
-                ],
-                'setUsername()' => [$db->getUsername()],
-                'setPassword()' => [$db->getPassword()],
-            ]
-        );
+        $db->setMaster('1', $this->createConnection(self::DB_DSN));
 
         $this->schemaCache->setEnable(false);
 
@@ -264,17 +224,7 @@ final class ConnectionTest extends TestCase
             ['Yiisoft\Db\Connection\Connection::openFromPoolSequentially', 'host:invalid']
         );
 
-        $db->setMasters(
-            '1',
-            [
-                'class' => Connection::class,
-                '__construct()' => [
-                    'dsn' => 'host:invalid',
-                ],
-                'setUsername()' => [$db->getUsername()],
-                'setPassword()' => [$db->getPassword()],
-            ]
-        );
+        $db->setMaster('1', $this->createConnection('host:invalid'));
 
         try {
             $db->open();
