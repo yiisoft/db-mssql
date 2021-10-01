@@ -13,8 +13,13 @@ class TestCase extends AbstractTestCase
 {
     use TestTrait;
 
+    protected const DB_CONNECTION_CLASS = \Yiisoft\Db\Mssql\Connection::class;
+    protected const DB_DRIVERNAME = 'mssql';
     protected const DB_DSN = 'sqlsrv:Server=127.0.0.1,1433;Database=yiitest';
     protected const DB_FIXTURES_PATH = __DIR__ . '/Fixture/mssql.sql';
+    protected const DB_USERNAME = 'SA';
+    protected const DB_PASSWORD = 'YourStrong!Passw0rd';
+    protected const DB_CHARSET = 'UTF8';
     protected array $dataProvider;
     protected string $likeEscapeCharSql = '';
     protected array $likeParameterReplacements = [];
@@ -38,33 +43,5 @@ class TestCase extends AbstractTestCase
             $this->schemaCache,
             $this->profiler
         );
-    }
-
-    protected function createConnection(string $dsn = null): ?ConnectionInterface
-    {
-        $db = null;
-
-        if ($dsn !== null) {
-            $db = new Connection($dsn, $this->createQueryCache(), $this->createSchemaCache());
-            $db->setLogger($this->createLogger());
-            $db->setProfiler($this->createProfiler());
-            $db->setUsername('SA');
-            $db->setPassword('YourStrong!Passw0rd');
-            $db->setCharset('UTF8');
-        }
-
-        return $db;
-    }
-
-    /**
-     * Adjust dbms specific escaping.
-     *
-     * @param string $sql
-     *
-     * @return string
-     */
-    protected function replaceQuotes(string $sql): string
-    {
-        return str_replace(['[[', ']]'], ['[', ']'], $sql);
     }
 }
