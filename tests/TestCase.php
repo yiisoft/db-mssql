@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PHPUnit\Framework\TestCase as AbstractTestCase;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\TestUtility\TestTrait;
 
