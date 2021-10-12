@@ -360,7 +360,7 @@ final class CommandTest extends TestCase
         $params = [];
 
         $qb = $db->getQueryBuilder();
-        $sql = $qb->upsert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData] , ['blob_col' => $testData], $params);
+        $sql = $qb->upsert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData], ['blob_col' => $testData], $params);
 
         $result = $db->createCommand($sql, $params)->execute();
 
