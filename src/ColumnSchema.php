@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\ColumnSchema as AbstractColumnSchema;
 
 use function substr;
@@ -28,5 +29,18 @@ final class ColumnSchema extends AbstractColumnSchema
         }
 
         return $this->phpTypecast($value);
+    }
+
+    public function dbTypecast($value)
+    {
+        if (
+            $this->getType() === Schema::TYPE_BINARY &&
+            $this->getDbType() === 'varbinary' &&
+            is_string($value)
+        ) {
+            return new Expression('CONVERT(VARBINARY(MAX), '. ('0x' . bin2hex($value)) .')');
+        }
+
+        return parent::dbTypecast($value);
     }
 }

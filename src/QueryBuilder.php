@@ -11,6 +11,7 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Condition\InConditionBuilder;
 use Yiisoft\Db\Mssql\Condition\LikeConditionBuilder;
 use Yiisoft\Db\Query\Conditions\InCondition;
@@ -542,41 +543,6 @@ final class QueryBuilder extends AbstractQueryBuilder
     }
 
     /**
-     * Normalizes data to be saved into the table, performing extra preparations and type converting, if necessary.
-     *
-     * @param string $table the table that data will be saved into.
-     * @param array|ColumnSchema $columns the column data (name => value) to be saved into the table.
-     * @param array $params
-     *
-     * @return array|ColumnSchema normalized columns.
-     */
-    private function normalizeTableRowData(string $table, $columns, array &$params = [])
-    {
-        $tableSchema = $this->getDb()->getSchema()->getTableSchema($table);
-
-        if ($tableSchema !== null) {
-            $columnSchemas = $tableSchema->getColumns();
-            foreach ($columns as $name => $value) {
-                /**
-                 * {@see https://github.com/yiisoft/yii2/issues/12599}
-                 */
-                if (
-                    isset($columnSchemas[$name]) &&
-                    $columnSchemas[$name]->getDbtype() === Schema::TYPE_BINARY &&
-                    $columnSchemas[$name]->getDbType() === 'varbinary' && is_string($value)
-                ) {
-                    $exParams = [];
-                    $phName = $this->bindParam($value, $exParams);
-                    /** @psalm-suppress UndefinedMethod */
-                    $columns[$name] = new Expression("CONVERT(VARBINARY, $phName)", $exParams);
-                }
-            }
-        }
-
-        return $columns;
-    }
-
-    /**
      * Creates an INSERT SQL statement.
      *
      * For example,
@@ -602,8 +568,6 @@ final class QueryBuilder extends AbstractQueryBuilder
      */
     public function insert(string $table, $columns, array &$params = []): string
     {
-        $columns = $this->normalizeTableRowData($table, $columns, $params);
-
         $version2005orLater = version_compare($this->getDb()->getSchema()->getServerVersion(), '9', '>=');
 
         [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
@@ -632,6 +596,58 @@ final class QueryBuilder extends AbstractQueryBuilder
         }
 
         return $sql;
+    }
+
+    public function batchInsert(string $table, array $columns, $rows, array &$params = []): string
+    {
+        if (empty($rows)) {
+            return '';
+        }
+
+        $schema = $this->getDb()->getSchema();
+
+
+        if (($tableSchema = $schema->getTableSchema($table)) !== null) {
+            $columnSchemas = $tableSchema->getColumns();
+        } else {
+            $columnSchemas = [];
+        }
+
+        $values = [];
+
+        foreach ($rows as $row) {
+            $vs = [];
+            foreach ($row as $i => $value) {
+                if (isset($columns[$i], $columnSchemas[$columns[$i]])) {
+                    $value = $columnSchemas[$columns[$i]]->dbTypecast($value);
+                }
+                if (is_string($value)) {
+                    $value = $schema->quoteValue($value);
+                } elseif (is_float($value)) {
+                    /* ensure type cast always has . as decimal separator in all locales */
+                    $value = NumericHelper::normalize((string) $value);
+                } elseif ($value === false) {
+                    $value = 0;
+                } elseif ($value === null) {
+                    $value = 'NULL';
+                } elseif ($value instanceof ExpressionInterface) {
+                    $value = $this->buildExpression($value, $params);
+                }
+                $vs[] = $value;
+            }
+            $values[] = '(' . implode(', ', $vs) . ')';
+        }
+
+        if (empty($values)) {
+            return '';
+        }
+
+        foreach ($columns as $i => $name) {
+            $columns[$i] = $schema->quoteColumnName($name);
+        }
+
+        return 'INSERT INTO ' . $schema->quoteTableName($table)
+            . ' (' . implode(', ', $columns) . ') VALUES ' . implode(', ', $values);
     }
 
     /**
@@ -744,34 +760,6 @@ final class QueryBuilder extends AbstractQueryBuilder
         $updateSql = 'UPDATE SET ' . implode(', ', $updates);
 
         return "$mergeSql WHEN MATCHED THEN $updateSql WHEN NOT MATCHED THEN $insertSql;";
-    }
-
-    /**
-     * Creates an UPDATE SQL statement.
-     *
-     * For example,
-     *
-     * ```php
-     * $params = [];
-     * $sql = $queryBuilder->update('user', ['status' => 1], 'age > 30', $params);
-     * ```
-     *
-     * The method will properly escape the table and column names.
-     *
-     * @param string $table the table to be updated.
-     * @param array $columns the column data (name => value) to be updated.
-     * @param array|string $condition the condition that will be put in the WHERE part. Please refer to
-     * {@see Query::where()} on how to specify condition.
-     * @param array $params the binding parameters that will be modified by this method so that they can be bound to the
-     * DB command later.
-     *
-     * @throws Exception|InvalidArgumentException|JsonException
-     *
-     * @return string the UPDATE SQL.
-     */
-    public function update(string $table, array $columns, $condition, array &$params = []): string
-    {
-        return parent::update($table, $this->normalizeTableRowData($table, $columns, $params), $condition, $params);
     }
 
     /**
