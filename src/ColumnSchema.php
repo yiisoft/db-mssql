@@ -38,7 +38,7 @@ final class ColumnSchema extends AbstractColumnSchema
             $this->getDbType() === 'varbinary' &&
             is_string($value)
         ) {
-            return new Expression('CONVERT(VARBINARY(MAX), '. ('0x' . bin2hex($value)) .')');
+            return new Expression('CONVERT(VARBINARY(MAX), ' . ('0x' . bin2hex($value)) . ')');
         }
 
         return parent::dbTypecast($value);
