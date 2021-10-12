@@ -20,6 +20,7 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder as AbstractQueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 
+use Yiisoft\Strings\NumericHelper;
 use function array_diff;
 use function array_keys;
 use function implode;
