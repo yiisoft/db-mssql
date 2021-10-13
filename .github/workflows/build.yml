@@ -11,8 +11,7 @@ jobs:
     name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}
 
     env:
-      extensions: pdo, pdo_sqlsrv, pdo_sqlsrv
-      key: cache
+      extensions: pdo, pdo_sqlsrv, pdo_sqlsrv-5.10.0-beta1
 
     runs-on: ${{ matrix.os }}
 
@@ -22,16 +21,20 @@ jobs:
           - ubuntu-latest
 
         php:
-          - "7.4"
-          - "8.0"
+          - 7.4
+          - 8.0
+          - 8.1
 
         mssql:
-          - "server:2017-latest"
-          - "server:2019-latest"
+          - server:2017-latest
+          - server:2019-latest
 
         exclude:
-           - php: "8.0"
+           - php: 8.0
+             mssql: server:2017-latest
+           - php: 8.1
              mssql: "server:2017-latest"
+
 
     services:
       mssql:
@@ -50,21 +53,6 @@ jobs:
 
       - name: Create MS SQL Database
         run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
-
-      - name: Setup cache environment
-        id: cache
-        uses: shivammathur/cache-extensions@v1
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: ${{ env.extensions }}
-          key: ${{ env.key }}
-
-      - name: Cache extensions
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.cache.outputs.dir }}
-          key: ${{ steps.cache.outputs.key }}
-          restore-keys: ${{ steps.cache.outputs.key }}
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
@@ -94,24 +82,19 @@ jobs:
       - name: Update composer
         run: composer self-update
 
-      - name: Install dependencies with composer php 7.4
-        if: matrix.php == '7.4'
+      - name: Install dependencies with composer
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
-      - name: Install dependencies with composer php 8.0
-        if: matrix.php == '8.0'
-        run: composer update --ignore-platform-reqs --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
-
-      - name: Run tests with phpunit and coverage on Linux php 7.4
+      - name: Run tests with phpunit
         if: matrix.os == 'ubuntu-latest' && matrix.php == '7.4'
-        run: vendor/bin/phpunit --coverage-clover=coverage.clover --colors=always
-
-      - name: Run tests with phpunit without coverage
-        if: matrix.os != 'ubuntu-latest' || matrix.php != '7.4'
         run: vendor/bin/phpunit --colors=always
 
+      - name: Run tests with phpunit with coverage
+        if: matrix.os != 'ubuntu-latest' || matrix.php != '8.0'
+        run: vendor/bin/phpunit --coverage-clover=coverage.clover --colors=always
+
       - name: Code coverage
-        if: matrix.php == '7.4'
+        if: matrix.php == '8.0'
         run: |
           wget https://scrutinizer-ci.com/ocular.phar
           php ocular.phar code-coverage:upload --format=php-clover coverage.clover
