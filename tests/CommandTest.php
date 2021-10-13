@@ -340,10 +340,12 @@ final class CommandTest extends TestCase
 
         $testData = json_encode(['string' => 'string', 'integer' => 1234]);
 
+        $db->createCommand()->delete('T_upsert_varbinary')->execute();
+
         $db->createCommand()->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData])->execute();
 
         $query = (new Query($db))
-            ->select(['convert(varchar(max),blob_col) as blob_col'])
+            ->select(['blob_col'])
             ->from('T_upsert_varbinary')
             ->where(['id' => 1]);
 
@@ -355,13 +357,15 @@ final class CommandTest extends TestCase
     {
         $db = $this->getConnection();
 
-        $testData = serialize(['string' => 'string', 'integer' => 1234]);
+        $testData = serialize(['string' => 'string строка', 'integer' => 1234]);
         $value = new PdoValue($testData, PDO::PARAM_LOB);
+
+        $db->createCommand()->delete('T_upsert_varbinary')->execute();
 
         $db->createCommand()->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $value])->execute();
 
         $query = (new Query($db))
-            ->select(['convert(varchar(max),blob_col) as blob_col'])
+            ->select(['blob_col'])
             ->from('T_upsert_varbinary')
             ->where(['id' => 1]);
 
@@ -406,7 +410,7 @@ final class CommandTest extends TestCase
         $this->assertEquals(1, $result);
 
         $query = (new Query($db))
-            ->select(['convert(varchar(max),blob_col) as blob_col'])
+            ->select(['blob_col as blob_col'])
             ->from('T_upsert_varbinary')
             ->where(['id' => 1]);
 
