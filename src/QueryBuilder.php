@@ -599,58 +599,6 @@ final class QueryBuilder extends AbstractQueryBuilder
         return $sql;
     }
 
-    public function batchInsert(string $table, array $columns, $rows, array &$params = []): string
-    {
-        if (empty($rows)) {
-            return '';
-        }
-
-        $schema = $this->getDb()->getSchema();
-
-
-        if (($tableSchema = $schema->getTableSchema($table)) !== null) {
-            $columnSchemas = $tableSchema->getColumns();
-        } else {
-            $columnSchemas = [];
-        }
-
-        $values = [];
-
-        foreach ($rows as $row) {
-            $vs = [];
-            foreach ($row as $i => $value) {
-                if (isset($columns[$i], $columnSchemas[$columns[$i]])) {
-                    $value = $columnSchemas[$columns[$i]]->dbTypecast($value);
-                }
-                if (is_string($value)) {
-                    $value = $schema->quoteValue($value);
-                } elseif (is_float($value)) {
-                    /* ensure type cast always has . as decimal separator in all locales */
-                    $value = NumericHelper::normalize((string) $value);
-                } elseif ($value === false) {
-                    $value = 0;
-                } elseif ($value === null) {
-                    $value = 'NULL';
-                } elseif ($value instanceof ExpressionInterface) {
-                    $value = $this->buildExpression($value, $params);
-                }
-                $vs[] = $value;
-            }
-            $values[] = '(' . implode(', ', $vs) . ')';
-        }
-
-        if (empty($values)) {
-            return '';
-        }
-
-        foreach ($columns as $i => $name) {
-            $columns[$i] = $schema->quoteColumnName($name);
-        }
-
-        return 'INSERT INTO ' . $schema->quoteTableName($table)
-            . ' (' . implode(', ', $columns) . ') VALUES ' . implode(', ', $values);
-    }
-
     /**
      * Creates an SQL statement to insert rows into a database table if they do not already exist (matching unique
      * constraints), or update them if they do.

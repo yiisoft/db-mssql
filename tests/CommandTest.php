@@ -331,6 +331,25 @@ final class CommandTest extends TestCase
         )->execute();
     }
 
+    public function testInsertVarbinary()
+    {
+        $db = $this->getConnection();
+
+        $testData = json_encode(['string' => 'string строка', 'integer' => 1234]);
+
+        $command = $db->createCommand();
+
+        $command->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData])->execute();
+
+        $query = (new Query($db))
+            ->select(['convert(varchar(max),blob_col) as blob_col'])
+            ->from('T_upsert_varbinary')
+            ->where(['id' => 1]);
+
+        $resultData = $query->createCommand()->queryOne();
+        $this->assertEquals($testData, $resultData['blob_col']);
+    }
+
     /**
      * Test command upsert.
      *
