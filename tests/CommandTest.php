@@ -331,6 +331,25 @@ final class CommandTest extends TestCase
         )->execute();
     }
 
+    public function testInsertVarbinary()
+    {
+        $db = $this->getConnection();
+
+        $testData = json_encode(['string' => 'string строка', 'integer' => 1234]);
+
+        $command = $db->createCommand();
+
+        $command->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData])->execute();
+
+        $query = (new Query($db))
+            ->select(['convert(varchar(max),blob_col) as blob_col'])
+            ->from('T_upsert_varbinary')
+            ->where(['id' => 1]);
+
+        $resultData = $query->createCommand()->queryOne();
+        $this->assertEquals($testData, $resultData['blob_col']);
+    }
+
     /**
      * Test command upsert.
      *
@@ -350,5 +369,28 @@ final class CommandTest extends TestCase
         $this->assertEquals(1, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
 
         $this->performAndCompareUpsertResult($db, $secondData);
+    }
+
+    public function testUpsertVarbinary()
+    {
+        $db = $this->getConnection();
+
+        $testData = json_encode(['test' => 'string', 'test2' => 'integer']);
+        $params = [];
+
+        $qb = $db->getQueryBuilder();
+        $sql = $qb->upsert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData], ['blob_col' => $testData], $params);
+
+        $result = $db->createCommand($sql, $params)->execute();
+
+        $this->assertEquals(1, $result);
+
+        $query = (new Query($db))
+            ->select(['convert(varchar(max),blob_col) as blob_col'])
+            ->from('T_upsert_varbinary')
+            ->where(['id' => 1]);
+
+        $resultData = $query->createCommand()->queryOne();
+        $this->assertEquals($testData, $resultData['blob_col']);
     }
 }
