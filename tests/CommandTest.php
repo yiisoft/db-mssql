@@ -334,11 +334,15 @@ final class CommandTest extends TestCase
         )->execute();
     }
 
-    public function testInsertVarbinary()
+    /**
+     * @dataProvider dataInsertVarbinary
+     * @throws \Throwable
+     * @throws \Yiisoft\Db\Exception\Exception
+     * @throws \Yiisoft\Db\Exception\InvalidConfigException
+     */
+    public function testInsertVarbinary($expectedData, $testData)
     {
         $db = $this->getConnection();
-
-        $testData = json_encode(['string' => 'string', 'integer' => 1234]);
 
         $db->createCommand()->delete('T_upsert_varbinary')->execute();
 
@@ -350,28 +354,26 @@ final class CommandTest extends TestCase
             ->where(['id' => 1]);
 
         $resultData = $query->createCommand()->queryOne();
-        $this->assertEquals($testData, $resultData['blob_col']);
+
+        $this->assertEquals($expectedData, $resultData['blob_col']);
     }
 
-    public function testInsertPdoLobToVarbinary()
+    public function dataInsertVarbinary()
     {
-        $db = $this->getConnection();
-
-        $testData = serialize(['string' => 'string строка', 'integer' => 1234]);
-        $value = new PdoValue($testData, PDO::PARAM_LOB);
-
-        $db->createCommand()->delete('T_upsert_varbinary')->execute();
-
-        $db->createCommand()->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $value])->execute();
-
-        $query = (new Query($db))
-            ->select(['blob_col'])
-            ->from('T_upsert_varbinary')
-            ->where(['id' => 1]);
-
-        $resultData = $query->createCommand()->queryOne();
-
-        $this->assertEquals($testData, $resultData['blob_col']);
+        return [
+            [
+                json_encode(['string' => 'string', 'integer' => 1234]),
+                json_encode(['string' => 'string', 'integer' => 1234]),
+            ],
+            [
+                serialize(['string' => 'string', 'integer' => 1234]),
+                new PdoValue(serialize(['string' => 'string', 'integer' => 1234]), PDO::PARAM_LOB),
+            ],
+            [
+                'simple string',
+                'simple string',
+            ],
+        ];
     }
 
     /**
