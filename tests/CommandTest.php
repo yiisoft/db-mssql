@@ -336,6 +336,7 @@ final class CommandTest extends TestCase
 
     /**
      * @dataProvider dataInsertVarbinary
+     *
      * @throws \Throwable
      * @throws \Yiisoft\Db\Exception\Exception
      * @throws \Yiisoft\Db\Exception\InvalidConfigException
