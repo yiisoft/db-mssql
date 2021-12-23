@@ -70,30 +70,6 @@ final class Connection extends AbstractConnection
         $this->isSybase = $value;
     }
 
-    protected function createPdoInstance(): \PDO
-    {
-        if ($this->getDriverName() === 'sqlsrv') {
-            $pdo = new SqlsrvPDO($this->getDsn(), $this->getUsername(), $this->getPassword(), $this->getAttributes());
-        } else {
-            $pdo = new PDO($this->getDsn(), $this->getUsername(), $this->getPassword(), $this->getAttributes());
-        }
-
-        return $pdo;
-    }
-
-    protected function initConnection(): void
-    {
-        $pdo = $this->getPDO();
-
-        if ($pdo !== null) {
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            if (!$this->isSybase && in_array($this->getDriverName(), ['mssql', 'dblib'], true)) {
-                $pdo->exec('SET ANSI_NULL_DFLT_ON ON');
-            }
-        }
-    }
-
     /**
      * Returns the name of the DB driver.
      *
@@ -102,5 +78,22 @@ final class Connection extends AbstractConnection
     public function getDriverName(): string
     {
         return 'sqlsrv';
+    }
+
+    protected function initConnection(): void
+    {
+        $pdo = $this->getPDO() ?? $this->createPdoInstance();
+        $pdo->setAttribute(SqlsrvPDO::ATTR_ERRMODE, SqlsrvPDO::ERRMODE_EXCEPTION);
+
+        if (!$this->isSybase && in_array($this->getDriverName(), ['mssql', 'dblib'], true)) {
+            $pdo->exec('SET ANSI_NULL_DFLT_ON ON');
+        }
+
+        $this->setPdo($pdo);
+    }
+
+    private function createPdoInstance(): SqlsrvPDO
+    {
+        return new SqlsrvPDO($this->getDsn(), $this->getUsername(), $this->getPassword(), $this->getAttributes());
     }
 }
