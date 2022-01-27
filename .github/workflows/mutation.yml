@@ -24,7 +24,7 @@ jobs:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     env:
-      extensions:  pdo, pdo_sqlsrv
+      extensions:  pdo, pdo_sqlsrv, pdo_sqlsrv-5.10.0-beta1
 
     runs-on: ${{ matrix.os }}
 
@@ -38,7 +38,7 @@ jobs:
 
     services:
       mssql:
-          image: mcr.microsoft.com/mssql/server:2017-latest
+          image: mcr.microsoft.com/mssql/server:2019-latest
           env:
               SA_PASSWORD: YourStrong!Passw0rd
               ACCEPT_EULA: Y
