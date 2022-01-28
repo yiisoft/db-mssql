@@ -9,7 +9,7 @@
     "type": "library",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "httpss://github.com/yiisoft/db-mssql/issues",
+        "issues": "https://github.com/yiisoft/db-mssql/issues",
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
