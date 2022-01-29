@@ -8,8 +8,6 @@ use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Constraint\CheckConstraint;
 use Yiisoft\Db\Constraint\Constraint;
-use Yiisoft\Db\Constraint\ConstraintFinderInterface;
-use Yiisoft\Db\Constraint\ConstraintFinderTrait;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
@@ -33,9 +31,8 @@ use function version_compare;
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
  */
-final class Schema extends AbstractSchema implements ConstraintFinderInterface
+final class Schema extends AbstractSchema
 {
-    use ConstraintFinderTrait;
     use ViewFinderTrait;
 
     /**
