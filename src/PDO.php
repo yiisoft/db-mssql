@@ -75,7 +75,6 @@ final class PDO extends AbstractPDO
      * @return mixed A successful call returns the value of the requested PDO attribute.
      * An unsuccessful call returns null.
      */
-    #[\ReturnTypeWillChange]
     public function getAttribute($attribute)
     {
         try {

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
-use Yiisoft\Db\Pdo\PdoValue;
-use function trim;
 use yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Mssql\Schema;
+use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
+use Yiisoft\Db\Pdo\PdoValue;
 use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\TestSupport\TestCommandTrait;
 
-use Yiisoft\Db\TestUtility\TestCommandTrait;
+use function trim;
 
 /**
  * @group mssql
@@ -26,31 +26,25 @@ final class CommandTest extends TestCase
     public function testAddDropCheck(): void
     {
         $db = $this->getConnection();
+        $schema = $db->getSchema();
 
         $tableName = 'test_ck';
         $name = 'test_ck_constraint';
-
-        $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
             $db->createCommand()->dropTable($tableName)->execute();
         }
 
-        $db->createCommand()->createTable($tableName, [
-            'int1' => 'integer',
-        ])->execute();
-
+        $db->createCommand()->createTable($tableName, ['int1' => 'integer'])->execute();
         $this->assertEmpty($schema->getTableChecks($tableName, true));
 
         $db->createCommand()->addCheck($name, $tableName, '[[int1]] > 1')->execute();
-
         $this->assertMatchesRegularExpression(
             '/^.*int1.*>.*1.*$/',
             $schema->getTableChecks($tableName, true)[0]->getExpression()
         );
 
         $db->createCommand()->dropCheck($name, $tableName)->execute();
-
         $this->assertEmpty($schema->getTableChecks($tableName, true));
     }
 
@@ -152,12 +146,12 @@ final class CommandTest extends TestCase
 
         $db->createCommand()->createTable(
             'testAlterTable',
-            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
+            ['id' => SchemaPDOMssql::TYPE_PK, 'bar' => SchemaPDOMssql::TYPE_INTEGER]
         )->execute();
 
         $db->createCommand()->insert('testAlterTable', ['bar' => 1])->execute();
 
-        $db->createCommand()->alterColumn('testAlterTable', 'bar', Schema::TYPE_STRING)->execute();
+        $db->createCommand()->alterColumn('testAlterTable', 'bar', SchemaPDOMssql::TYPE_STRING)->execute();
 
         $db->createCommand()->insert('testAlterTable', ['bar' => 'hello'])->execute();
 
@@ -167,37 +161,6 @@ final class CommandTest extends TestCase
             ['id' => 1, 'bar' => 1],
             ['id' => 2, 'bar' => 'hello'],
         ], $records);
-    }
-
-    public function testAddDropDefaultValue(): void
-    {
-        $db = $this->getConnection();
-
-        $tableName = 'test_def';
-        $name = 'test_def_constraint';
-
-        $schema = $db->getSchema();
-
-        if ($schema->getTableSchema($tableName) !== null) {
-            $db->createCommand()->dropTable($tableName)->execute();
-        }
-
-        $db->createCommand()->createTable($tableName, [
-            'int1' => 'integer',
-        ])->execute();
-
-        $this->assertEmpty($schema->getTableDefaultValues($tableName, true));
-
-        $db->createCommand()->addDefaultValue($name, $tableName, 'int1', 41)->execute();
-
-        $this-> assertMatchesRegularExpression(
-            '/^.*41.*$/',
-            $schema->getTableDefaultValues($tableName, true)[0]->getValue()
-        );
-
-        $db->createCommand()->dropDefaultValue($name, $tableName)->execute();
-
-        $this->assertEmpty($schema->getTableDefaultValues($tableName, true));
     }
 
     public function batchInsertSqlProvider()
@@ -343,19 +306,11 @@ final class CommandTest extends TestCase
      */
     public function testInsertVarbinary($expectedData, $testData)
     {
-        $db = $this->getConnection();
-
+        $db = $this->getConnection(true);
         $db->createCommand()->delete('T_upsert_varbinary')->execute();
-
         $db->createCommand()->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData])->execute();
-
-        $query = (new Query($db))
-            ->select(['blob_col'])
-            ->from('T_upsert_varbinary')
-            ->where(['id' => 1]);
-
+        $query = (new Query($db))->select(['blob_col'])->from('T_upsert_varbinary')->where(['id' => 1]);
         $resultData = $query->createCommand()->queryOne();
-
         $this->assertEquals($expectedData, $resultData['blob_col']);
     }
 
@@ -390,34 +345,8 @@ final class CommandTest extends TestCase
         $db = $this->getConnection(true);
 
         $this->assertEquals(0, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
-
         $this->performAndCompareUpsertResult($db, $firstData);
-
         $this->assertEquals(1, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
-
         $this->performAndCompareUpsertResult($db, $secondData);
-    }
-
-    public function testUpsertVarbinary()
-    {
-        $db = $this->getConnection();
-
-        $testData = json_encode(['test' => 'string', 'test2' => 'integer']);
-        $params = [];
-
-        $qb = $db->getQueryBuilder();
-        $sql = $qb->upsert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData], ['blob_col' => $testData], $params);
-
-        $result = $db->createCommand($sql, $params)->execute();
-
-        $this->assertEquals(1, $result);
-
-        $query = (new Query($db))
-            ->select(['blob_col as blob_col'])
-            ->from('T_upsert_varbinary')
-            ->where(['id' => 1]);
-
-        $resultData = $query->createCommand()->queryOne();
-        $this->assertEquals($testData, $resultData['blob_col']);
     }
 }
