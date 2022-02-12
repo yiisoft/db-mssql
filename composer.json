@@ -22,7 +22,7 @@
         "php": "^8.0",
         "ext-pdo": "*",
         "yiisoft/arrays": "^2.0",
-        "yiisoft/db": "^3.0@dev"
+        "yiisoft/db": "dev-dev"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.4",
