@@ -36,7 +36,6 @@ jobs:
           - ubuntu-latest
 
         php:
-          - 7.4
           - 8.0
           - 8.1
 
@@ -48,7 +47,7 @@ jobs:
            - php: 8.0
              mssql: server:2017-latest
            - php: 8.1
-             mssql: "server:2017-latest"
+             mssql: server:2017-latest
 
 
     services:
@@ -64,7 +63,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2
 
       - name: Create MS SQL Database
         run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
@@ -96,5 +95,11 @@ jobs:
       - name: Install dependencies with composer
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
-      - name: Run tests with phpunit
-        run: vendor/bin/phpunit --colors=always
+      - name: Run sqlite tests with phpunit
+        run: vendor/bin/phpunit --testsuite Sqlite --coverage-clover=coverage.xml --colors=always
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
