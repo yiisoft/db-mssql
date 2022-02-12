@@ -6,15 +6,8 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use Closure;
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\PDO\QueryBuilderPDOMssql;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Query\QueryBuilderInterface;
 use Yiisoft\Db\TestSupport\TestQueryBuilderTrait;
-use Yiisoft\Db\TestSupport\TraversableObject;
-
-use function array_replace;
 
 /**
  * @group mssql

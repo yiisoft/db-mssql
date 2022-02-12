@@ -23,7 +23,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     }
 
     /**
-     * @throws Exception|\Yiisoft\Db\Exception\InvalidArgumentException|InvalidConfigException|NotSupportedException
+     * @throws Exception|InvalidConfigException|NotSupportedException|\Yiisoft\Db\Exception\InvalidArgumentException
      */
     public function insert(string $table, Query|array $columns, array &$params = []): string
     {
@@ -74,7 +74,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     }
 
     /**
-     * @throws Exception|JsonException|\Yiisoft\Db\Exception\InvalidArgumentException|InvalidConfigException|NotSupportedException
+     * @throws Exception|InvalidConfigException|JsonException|NotSupportedException|\Yiisoft\Db\Exception\InvalidArgumentException
      */
     public function upsert(
         string $table,

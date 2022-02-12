@@ -67,7 +67,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         /** @var SchemaPDOMssql */
         $schemaInstance = $this->queryBuilder->schema();
         $defaultSchema = $schema ?: $schemaInstance->getDefaultSchema();
-        $tableNames =  $schemaInstance->getTableSchema($table)
+        $tableNames = $schemaInstance->getTableSchema($table)
              ? [$table] : $schemaInstance->getTableNames($defaultSchema);
         $viewNames = $schemaInstance->getViewNames($defaultSchema);
         $tableNames = array_diff($tableNames, $viewNames);

@@ -265,7 +265,7 @@ SQL;
 
         if ($this->findColumns($table)) {
             $this->findForeignKeys($table);
-                return $table;
+            return $table;
         }
 
         return null;

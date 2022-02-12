@@ -167,8 +167,8 @@ final class QueryBuilderPDOMssql extends QueryBuilder
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
      * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details on how to specify this
      * parameter.
-     * @param Expression|Query|int|null $limit the limit number. See {@see Query::limit} for more details.
-     * @param Expression|Query|int|null $offset the offset number. See {@see Query::offset} for more details.
+     * @param Expression|int|Query|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param Expression|int|Query|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
      * @throws Exception|InvalidArgumentException
