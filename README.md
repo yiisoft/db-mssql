@@ -13,8 +13,7 @@ This extension provides the MSSQL Server support for the [Yii framework 3 ](http
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/db-mssql/v/stable.png)](https://packagist.org/packages/yiisoft/db-mssql)
 [![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads.png)](https://packagist.org/packages/yiisoft/db-mssql)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/db-mssql/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/db-mssql/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/db-mssql/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/db-mssql/?branch=master)
+[![codecov](https://codecov.io/gh/yiisoft/db-mssql/branch/master/graph/badge.svg?token=UF9VERNMYU)](https://codecov.io/gh/yiisoft/db-mssql)
 
 
 ## Support version

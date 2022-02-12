@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
-use Yiisoft\Db\Mssql\Schema;
-use function strpos;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
+use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
 use Yiisoft\Db\Mssql\TableSchema;
-use Yiisoft\Db\TestUtility\AnyValue;
+use Yiisoft\Db\TestSupport\AnyValue;
+use Yiisoft\Db\TestSupport\TestSchemaTrait;
 
-use Yiisoft\Db\TestUtility\TestSchemaTrait;
+use function strpos;
 
 /**
  * @group mssql
@@ -359,9 +359,8 @@ final class SchemaTest extends TestCase
      */
     public function testQuoteTableName(string $name, string $expectedName): void
     {
-        $schema = $this->getConnection()->getSchema();
-        $quotedName = $schema->quoteTableName($name);
-
+        $db = $this->getConnection();
+        $quotedName = $db->getQuoter()->quoteTableName($name);
         $this->assertEquals($expectedName, $quotedName);
     }
 
@@ -468,39 +467,29 @@ final class SchemaTest extends TestCase
         string $testTableName
     ): void {
         $db = $this->getConnection();
-        $schema = $this->getConnection()->getSchema();
+        $schema = $db->getSchema();
 
         $this->schemaCache->setEnable(true);
 
         $db->setTablePrefix($tablePrefix);
-
         $noCacheTable = $schema->getTableSchema($tableName, true);
-
         $this->assertInstanceOf(TableSchema::class, $noCacheTable);
 
         /* Compare */
         $db->setTablePrefix($testTablePrefix);
-
         $testNoCacheTable = $schema->getTableSchema($testTableName);
-
         $this->assertSame($noCacheTable, $testNoCacheTable);
 
         $db->setTablePrefix($tablePrefix);
-
         $schema->refreshTableSchema($tableName);
-
         $refreshedTable = $schema->getTableSchema($tableName, false);
-
         $this->assertInstanceOf(TableSchema::class, $refreshedTable);
         $this->assertNotSame($noCacheTable, $refreshedTable);
 
         /* Compare */
         $db->setTablePrefix($testTablePrefix);
-
         $schema->refreshTableSchema($testTablePrefix);
-
         $testRefreshedTable = $schema->getTableSchema($testTableName, false);
-
         $this->assertInstanceOf(TableSchema::class, $testRefreshedTable);
         $this->assertEquals($refreshedTable, $testRefreshedTable);
         $this->assertNotSame($testNoCacheTable, $testRefreshedTable);
@@ -516,12 +505,10 @@ final class SchemaTest extends TestCase
 
         $db->createCommand()->createTable(
             'testPKTable',
-            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
+            ['id' => SchemaPDOMssql::TYPE_PK, 'bar' => SchemaPDOMssql::TYPE_INTEGER]
         )->execute();
-
         $insertResult = $db->getSchema()->insert('testPKTable', ['bar' => 1]);
         $selectResult = $db->createCommand('select [id] from [testPKTable] where [bar]=1')->queryOne();
-
         $this->assertEquals($selectResult['id'], $insertResult['id']);
     }
 }

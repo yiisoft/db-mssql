@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
 use Yiisoft\Db\Pdo\PdoValue;
 use Yiisoft\Db\Schema\ColumnSchema as AbstractColumnSchema;
 
@@ -34,7 +35,7 @@ final class ColumnSchema extends AbstractColumnSchema
 
     public function dbTypecast($value)
     {
-        if ($this->getType() === Schema::TYPE_BINARY && $this->getDbType() === 'varbinary') {
+        if ($this->getType() === SchemaPDOMssql::TYPE_BINARY && $this->getDbType() === 'varbinary') {
             if ($value instanceof PdoValue && is_string($value->getValue())) {
                 $value = $value->getValue();
             }
