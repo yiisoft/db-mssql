@@ -8,7 +8,6 @@ use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Condition\InConditionBuilder;
 use Yiisoft\Db\Mssql\Condition\LikeConditionBuilder;
 use Yiisoft\Db\Mssql\DDLQueryBuilder;
@@ -17,13 +16,11 @@ use Yiisoft\Db\Query\Conditions\InCondition;
 use Yiisoft\Db\Query\Conditions\LikeCondition;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
-use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\Schema\SchemaInterface;
 
-use function array_keys;
 use function preg_match;
 use function preg_replace;
 
