@@ -21,17 +21,13 @@ use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\Schema\SchemaInterface;
 
-use function array_keys;
 use function preg_match;
 use function preg_replace;
 
-/**
- * QueryBuilder is the query builder for MS SQL Server databases (version 2008 and above).
- */
 final class QueryBuilderPDOMssql extends QueryBuilder
 {
     /**
-     * @var array mapping from abstract column types (keys) to physical column types (values).
+     * @psalm-var string[] $typeMap Mapping from abstract column types (keys) to physical column types (values).
      */
     protected array $typeMap = [
         Schema::TYPE_PK => 'int IDENTITY PRIMARY KEY',
@@ -165,10 +161,10 @@ final class QueryBuilderPDOMssql extends QueryBuilder
      * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2012 or newer.
      *
      * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
-     * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details on how to specify this
-     * parameter.
-     * @param Expression|int|Query|null $limit the limit number. See {@see Query::limit} for more details.
-     * @param Expression|int|Query|null $offset the offset number. See {@see Query::offset} for more details.
+     * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details on how to specify
+     * this parameter.
+     * @param Expression|int|null $limit the limit number. See {@see Query::limit} for more details.
+     * @param Expression|int|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
      * @throws Exception|InvalidArgumentException
@@ -178,8 +174,8 @@ final class QueryBuilderPDOMssql extends QueryBuilder
     protected function newBuildOrderByAndLimit(
         string $sql,
         array $orderBy,
-        Expression|Query|int|null $limit,
-        Expression|Query|int|null $offset,
+        Expression|int|null $limit,
+        Expression|int|null $offset,
         array &$params = []
     ): string {
         $orderBy = $this->buildOrderBy($orderBy, $params);
@@ -195,31 +191,13 @@ final class QueryBuilderPDOMssql extends QueryBuilder
          * {@see http://technet.microsoft.com/en-us/library/gg699618.aspx}
          */
         $offset = $this->hasOffset($offset) ? $offset : '0';
-        $sql .= $this->separator . "OFFSET $offset ROWS";
+        $sql .= $this->separator . 'OFFSET ' . $offset . ' ROWS';
 
         if ($this->hasLimit($limit)) {
-            $sql .= $this->separator . "FETCH NEXT $limit ROWS ONLY";
+            $sql .= $this->separator . 'FETCH NEXT ' . $limit . ' ROWS ONLY';
         }
 
         return $sql;
-    }
-
-    /**
-     * Returns an array of column names given model name.
-     *
-     * @param string|null $modelClass name of the model class.
-     *
-     * @return array|null array of column names
-     */
-    protected function getAllColumnNames(string $modelClass = null): ?array
-    {
-        if (!$modelClass) {
-            return null;
-        }
-
-        $schema = $modelClass::getTableSchema();
-
-        return array_keys($schema->columns);
     }
 
     /**

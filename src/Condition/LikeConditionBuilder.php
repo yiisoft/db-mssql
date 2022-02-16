@@ -10,8 +10,8 @@ use Yiisoft\Db\Query\QueryBuilderInterface;
 final class LikeConditionBuilder extends AbstractLikeConditionBuilder
 {
     /**
-     * @var array map of chars to their replacements in LIKE conditions. By default it's configured to escape `%`, `_`,
-     * `[` with `]`, `\\`.
+     * @var array map of chars to their replacements in LIKE conditions.
+     * By default it's configured to escape `%`, `_`, `[` with `]`, `\\`.
      */
     protected array $escapingReplacements = [
         '%' => '[%]',
