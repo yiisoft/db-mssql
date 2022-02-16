@@ -23,7 +23,7 @@ build:
         override:
           - php-scrutinizer-run
 
-    phpunit:
+    phpunit-and-coverage:
       services:
         db-mssql:
           image: mcr.microsoft.com/mssql/server:2017-latest
