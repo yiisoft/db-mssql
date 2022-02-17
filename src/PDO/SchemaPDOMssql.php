@@ -207,9 +207,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
             $parts = $matches[0];
         }
 
-        /** @var string[] */
-        $tableNameParts = str_replace(['[', ']'], '', $parts);
-        return $tableNameParts;
+        /** @psalm-var string[] */
+        return str_replace(['[', ']'], '', $parts);
     }
 
     /**

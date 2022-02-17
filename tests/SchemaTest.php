@@ -9,8 +9,6 @@ use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
 use Yiisoft\Db\Mssql\TableSchema;
-use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\TestSupport\AnyValue;
 use Yiisoft\Db\TestSupport\TestSchemaTrait;
 
