@@ -127,7 +127,8 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             throw new InvalidArgumentException("Table not found: $table");
         }
 
-        $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
+        $schemaName = $tableSchema->getSchemaName()
+            ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
         $tableName = 'N' . $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
         $columnName = $column ? 'N' . $this->queryBuilder->quoter()->quoteValue($column) : null;
         $comment = 'N' . $this->queryBuilder->quoter()->quoteValue($comment);
@@ -175,7 +176,8 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             throw new InvalidArgumentException("Table not found: $table");
         }
 
-        $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
+        $schemaName = $tableSchema->getSchemaName()
+            ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
         $tableName = 'N' . $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
         $columnName = $column ? 'N' . $this->queryBuilder->quoter()->quoteValue($column) : null;
 

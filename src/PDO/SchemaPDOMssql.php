@@ -16,6 +16,7 @@ use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\ColumnSchema;
 use Yiisoft\Db\Mssql\PDO;
 use Yiisoft\Db\Mssql\TableSchema;
@@ -35,6 +36,15 @@ use function version_compare;
 
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
+ *
+ * @psalm-type ColumnArray = array{
+ *   column_name: string,
+ *   is_nullable: string,
+ *   data_type: string,
+ *   column_default: mixed,
+ *   is_identity: string,
+ *   comment: null|string
+ * }
  *
  * @psalm-type ConstraintArray = array<
  *   array-key,
@@ -61,6 +71,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
 
     /**
      * @var array mapping from physical column types (keys) to abstract column types (values)
+     *
+     * @psalm-var string[]
      */
     private array $typeMap = [
         /** exact numbers */
@@ -127,6 +139,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * @param string $name the table name.
      *
      * @return TableSchema resolved table, schema, etc. names.
+     *
+     * @todo Review this method and see if it can be simplified @darkdef.
      */
     protected function resolveTableName(string $name): TableSchema
     {
@@ -137,28 +151,34 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         $partCount = count($parts);
 
         if ($partCount === 4) {
-            /** server name, catalog name, schema name and table name passed */
+            /** server name, catalog name, schema name and table name passed - not coverage tests */
             $resolvedName->catalogName($parts[1]);
             $resolvedName->schemaName($parts[2]);
             $resolvedName->name($parts[3]);
             $resolvedName->fullName(
-                $resolvedName->getCatalogName() . '.' . $resolvedName->getSchemaName() . '.' . $resolvedName->getName()
+                (string) $resolvedName->getCatalogName() . '.' .
+                (string) $resolvedName->getSchemaName() . '.' .
+                $resolvedName->getName()
             );
         } elseif ($partCount === 3) {
-            /** catalog name, schema name and table name passed */
+            /** catalog name, schema name and table name passed - not coverage tests */
             $resolvedName->catalogName($parts[0]);
             $resolvedName->schemaName($parts[1]);
             $resolvedName->name($parts[2]);
             $resolvedName->fullName(
-                $resolvedName->getCatalogName() . '.' . $resolvedName->getSchemaName() . '.' . $resolvedName->getName()
+                (string) $resolvedName->getCatalogName() . '.' .
+                (string) $resolvedName->getSchemaName() . '.' .
+                $resolvedName->getName()
             );
         } elseif ($partCount === 2) {
-            /** only schema name and table name passed */
+            /** only schema name and table name passed - not coverage tests */
             $resolvedName->schemaName($parts[0]);
             $resolvedName->name($parts[1]);
             $resolvedName->fullName(
-                ($resolvedName->getSchemaName() !== $this->defaultSchema
-                    ? $resolvedName->getSchemaName() . '.' : '') . $resolvedName->getName()
+                (
+                    $resolvedName->getSchemaName() !== $this->defaultSchema
+                    ? (string) $resolvedName->getSchemaName() . '.' : ''
+                ) . $resolvedName->getName()
             );
         } else {
             /** only table name passed */
@@ -175,7 +195,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      *
      * @param string $name
      *
-     * @return array
+     * @psalm-return string[]
      */
     protected function getTableNameParts(string $name): array
     {
@@ -187,7 +207,9 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
             $parts = $matches[0];
         }
 
-        return str_replace(['[', ']'], '', $parts);
+        /** @var string[] */
+        $tableNameParts = str_replace(['[', ']'], '', $parts);
+        return $tableNameParts;
     }
 
     /**
@@ -242,7 +264,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
 
         $tables = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
 
-        return array_map(static fn ($item) => '[' . $item . ']', $tables);
+        return array_map(static fn (string $item): string => '[' . $item . ']', $tables);
     }
 
     /**
@@ -276,11 +298,13 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return Constraint|null primary key for the given table, `null` if the table has no primary key.
+     * @return Constraint|null The primary key for the given table, `null` if the table has no primary key.
      */
     protected function loadTablePrimaryKey(string $tableName): ?Constraint
     {
-        return $this->loadTableConstraints($tableName, 'primaryKey');
+        /** @var mixed */
+        $tablePrimaryKey = $this->loadTableConstraints($tableName, 'primaryKey');
+        return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
 
     /**
@@ -290,11 +314,13 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return ForeignKeyConstraint[] foreign keys for the given table.
+     * @return array The foreign keys for the given table.
      */
     protected function loadTableForeignKeys(string $tableName): array
     {
-        return $this->loadTableConstraints($tableName, 'foreignKeys');
+        /** @var mixed */
+        $tableForeingKeys = $this->loadTableConstraints($tableName, 'foreignKeys');
+        return is_array($tableForeingKeys) ? $tableForeingKeys : [];
     }
 
     /**
@@ -332,6 +358,15 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
 
         $result = [];
 
+        /**
+         * @psalm-var array<
+         *   string,
+         *   array<
+         *     array-key,
+         *     array{array-key, name: string, column_name: string, index_is_unique: string, index_is_primary: string}
+         *   >
+         * > $indexes
+         */
         foreach ($indexes as $name => $index) {
             $result[] = (new IndexConstraint())
                 ->primary((bool) $index[0]['index_is_primary'])
@@ -350,11 +385,13 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return Constraint[] unique constraints for the given table.
+     * @return array The unique constraints for the given table.
      */
     protected function loadTableUniques(string $tableName): array
     {
-        return $this->loadTableConstraints($tableName, 'uniques');
+        /** @var mixed */
+        $tableUniques = $this->loadTableConstraints($tableName, 'uniques');
+        return is_array($tableUniques) ? $tableUniques : [];
     }
 
     /**
@@ -364,11 +401,13 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return CheckConstraint[] check constraints for the given table.
+     * @return array The check constraints for the given table.
      */
     protected function loadTableChecks(string $tableName): array
     {
-        return $this->loadTableConstraints($tableName, 'checks');
+        /** @var mixed */
+        $tableCheck = $this->loadTableConstraints($tableName, 'checks');
+        return is_array($tableCheck) ? $tableCheck : [];
     }
 
     /**
@@ -378,11 +417,13 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return DefaultValueConstraint[] default value constraints for the given table.
+     * @return array The default value constraints for the given table.
      */
     protected function loadTableDefaultValues(string $tableName): array
     {
-        return $this->loadTableConstraints($tableName, 'defaults');
+        /** @var mixed */
+        $tableDefault = $this->loadTableConstraints($tableName, 'defaults');
+        return is_array($tableDefault) ? $tableDefault : [];
     }
 
     /**
@@ -404,7 +445,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      */
     public function releaseSavepoint(string $name): void
     {
-        /** does nothing as MSSQL does not support this */
+        throw new NotSupportedException(__METHOD__ . ' is not supported.');
     }
 
     /**
@@ -436,6 +477,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      *
      * @param TableSchema $table the table metadata object.
      * @param string $name the table name
+     *
+     * @todo Review this method and see if it can be simplified @darkdef.
      */
     protected function resolveTableNames(TableSchema $table, string $name): void
     {
@@ -444,24 +487,28 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         $partCount = count($parts);
 
         if ($partCount === 4) {
-            /** server name, catalog name, schema name and table name passed */
+            /** server name, catalog name, schema name and table name passed - no coverage tests */
             $table->catalogName($parts[1]);
             $table->schemaName($parts[2]);
             $table->name($parts[3]);
-            $table->fullName($table->getCatalogName() . '.' . $table->getSchemaName() . '.' . $table->getName());
+            $table->fullName(
+                (string) $table->getCatalogName() . '.' . (string) $table->getSchemaName() . '.' . $table->getName()
+            );
         } elseif ($partCount === 3) {
-            /** catalog name, schema name and table name passed */
+            /** catalog name, schema name and table name passed - no coverage tests */
             $table->catalogName($parts[0]);
             $table->schemaName($parts[1]);
             $table->name($parts[2]);
-            $table->fullName($table->getCatalogName() . '.' . $table->getSchemaName() . '.' . $table->getName());
+            $table->fullName(
+                (string) $table->getCatalogName() . '.' . (string) $table->getSchemaName() . '.' . $table->getName()
+            );
         } elseif ($partCount === 2) {
-            /** only schema name and table name passed */
+            /** only schema name and table name passed - no coverage tests */
             $table->schemaName($parts[0]);
             $table->name($parts[1]);
             $table->fullName(
                 $table->getSchemaName() !== $this->defaultSchema
-                ? $table->getSchemaName() . '.' . $table->getName() : $table->getName()
+                ? (string) $table->getSchemaName() . '.' . $table->getName() : $table->getName()
             );
         } else {
             /** only table name passed */
@@ -474,7 +521,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     /**
      * Loads the column information into a {@see ColumnSchema} object.
      *
-     * @param array $info column information.
+     * @psalm-param ColumnArray $info The column information.
      *
      * @return ColumnSchema the column schema object.
      */
@@ -487,7 +534,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         $column->dbType($info['data_type']);
         $column->enumValues([]); // mssql has only vague equivalents to enum
         $column->primaryKey(false); // primary key will be determined in findColumns() method
-        $column->autoIncrement($info['is_identity'] === 1);
+        $column->autoIncrement($info['is_identity'] === '1');
         $column->unsigned(stripos($column->getDbType(), 'unsigned') !== false);
         $column->comment($info['comment'] ?? '');
         $column->type(self::TYPE_STRING);
@@ -588,6 +635,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         SQL;
 
         try {
+            /** @psalm-var ColumnArray[] */
             $columns = $this->db->createCommand($sql)->queryAll();
 
             if (empty($columns)) {
@@ -673,7 +721,10 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      */
     protected function findPrimaryKeys(TableSchema $table): void
     {
-        foreach ($this->findTableConstraints($table, 'PRIMARY KEY') as $row) {
+        /** @psalm-var array<array-key, array{index_name: string, field_name: string}> $primaryKeys */
+        $primaryKeys = $this->findTableConstraints($table, 'PRIMARY KEY');
+
+        foreach ($primaryKeys as $row) {
             $table->primaryKey($row['field_name']);
         }
     }
@@ -687,15 +738,17 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      */
     protected function findForeignKeys(TableSchema $table): void
     {
+        $catalogName = $table->getCatalogName();
         $fk = [];
         $object = $table->getName();
+        $schemaName = $table->getSchemaName();
 
-        if ($table->getSchemaName() !== null) {
-            $object = $table->getSchemaName() . '.' . $object;
+        if ($schemaName !== null) {
+            $object = $schemaName . '.' . $object;
         }
 
-        if ($table->getCatalogName() !== null) {
-            $object = $table->getCatalogName() . '.' . $object;
+        if ($catalogName !== null) {
+            $object = $catalogName . '.' . $object;
         }
 
         /**
@@ -718,6 +771,12 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         WHERE [fk].[parent_object_id] = OBJECT_ID(:object)
         SQL;
 
+        /**
+         * @psalm-var array<
+         *   array-key,
+         *   array{fk_name: string, fk_column_name: string, uq_table_name: string, uq_column_name: string}
+         * > $rows
+         */
         $rows = $this->db->createCommand($sql, [':object' => $object])->queryAll();
         $table->foreignKeys([]);
 
@@ -747,9 +806,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
 
         $views = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
 
-        return array_map(static function ($item) {
-            return '[' . $item . ']';
-        }, $views);
+        return array_map(static fn (string $item): string => '[' . $item . ']', $views);
     }
 
     /**
@@ -774,7 +831,10 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     {
         $result = [];
 
-        foreach ($this->findTableConstraints($table, 'UNIQUE') as $row) {
+        /** @psalm-var array<array-key, array{index_name: string, field_name: string}> $tableUniqueConstraints */
+        $tableUniqueConstraints = $this->findTableConstraints($table, 'UNIQUE');
+
+        foreach ($tableUniqueConstraints as $row) {
             $result[$row['index_name']][] = $row['field_name'];
         }
 
@@ -914,6 +974,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * @throws Exception|InvalidCallException|InvalidConfigException|Throwable
      *
      * @return array|false primary key values or false if the command fails.
+     *
+     * @todo Remove old version support @darkdef.
      */
     public function insert(string $table, array $columns): bool|array
     {
@@ -924,14 +986,15 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         }
 
         $isVersion2005orLater = version_compare($this->db->getServerVersion(), '9', '>=');
+        /** @var array */
         $inserted = $isVersion2005orLater ? $command->getPdoStatement()?->fetch() : [];
         $tableSchema = $this->getTableSchema($table);
 
         $result = [];
 
         if ($tableSchema !== null) {
-            /** @psalm-var string[] $pks */
             $pks = $tableSchema->getPrimaryKey();
+            $columnsTable = $tableSchema->getColumns();
 
             foreach ($pks as $name) {
                 /**
@@ -939,14 +1002,17 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
                 * @link https://github.com/yiisoft/yii2/issues/17474
                 */
                 if (isset($inserted[$name])) {
+                    /** @var string */
                     $result[$name] = $inserted[$name];
                 } elseif ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
                     // for a version earlier than 2005
                     $result[$name] = $this->getLastInsertID((string) $tableSchema->getSequenceName());
                 } elseif (isset($columns[$name])) {
+                    /** @var string */
                     $result[$name] = $columns[$name];
                 } else {
-                    $result[$name] = $tableSchema->getColumns()[$name]->getDefaultValue();
+                    /** @var mixed */
+                    $result[$name] = !array_key_exists($name, $columnsTable) ?: $columnsTable[$name]->getDefaultValue();
                 }
             }
         }
