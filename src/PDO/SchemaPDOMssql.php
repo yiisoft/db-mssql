@@ -591,7 +591,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function findColumns(TableSchema $table): bool
     {
         $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
-        $whereSql = '[t1].[table_name] = ' . $this->db->getQuoter()->quoteValue($table->getName());
+        $whereSql = '[t1].[table_name] = ' . (string) $this->db->getQuoter()->quoteValue($table->getName());
 
         if ($table->getCatalogName() !== null) {
             $columnsTableName = "{$table->getCatalogName()}.$columnsTableName";

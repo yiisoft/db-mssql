@@ -43,7 +43,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . $this->queryBuilder->quoter()->quoteTableName($table)
             . ' ADD CONSTRAINT '
             . $this->queryBuilder->quoter()->quoteColumnName($name)
-            . ' DEFAULT ' . $this->queryBuilder->quoter()->quoteValue($value)
+            . ' DEFAULT ' . (string) $this->queryBuilder->quoter()->quoteValue($value)
             . ' FOR ' . $this->queryBuilder->quoter()->quoteColumnName($column);
     }
 
@@ -129,9 +129,9 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
         $schemaName = $tableSchema->getSchemaName()
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . $this->queryBuilder->quoter()->quoteValue($column) : null;
-        $comment = 'N' . $this->queryBuilder->quoter()->quoteValue($comment);
+        $tableName = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . (string) $this->queryBuilder->quoter()->quoteValue($column) : null;
+        $comment = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($comment);
         $functionParams = "
             @name = N'MS_description',
             @value = $comment,
@@ -178,8 +178,8 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
         $schemaName = $tableSchema->getSchemaName()
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . $this->queryBuilder->quoter()->quoteValue($column) : null;
+        $tableName = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . (string) $this->queryBuilder->quoter()->quoteValue($column) : null;
 
         return "
             IF EXISTS (
