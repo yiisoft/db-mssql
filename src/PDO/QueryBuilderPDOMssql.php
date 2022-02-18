@@ -167,6 +167,8 @@ final class QueryBuilderPDOMssql extends QueryBuilder
      * @param Expression|int|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
+     * @psalm-param array<string, Expression|int|string> $orderBy
+     *
      * @throws Exception|InvalidArgumentException
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
@@ -191,10 +193,10 @@ final class QueryBuilderPDOMssql extends QueryBuilder
          * {@see http://technet.microsoft.com/en-us/library/gg699618.aspx}
          */
         $offset = $this->hasOffset($offset) ? $offset : '0';
-        $sql .= $this->separator . 'OFFSET ' . $offset . ' ROWS';
+        $sql .= $this->separator . 'OFFSET ' . (string) $offset . ' ROWS';
 
         if ($this->hasLimit($limit)) {
-            $sql .= $this->separator . 'FETCH NEXT ' . $limit . ' ROWS ONLY';
+            $sql .= $this->separator . 'FETCH NEXT ' . (string) $limit . ' ROWS ONLY';
         }
 
         return $sql;
@@ -205,8 +207,7 @@ final class QueryBuilderPDOMssql extends QueryBuilder
      *
      * @param string $table
      *
-     * @return array|bool
-     * @psalm-return array<array-key, string>|bool
+     * @psalm-return string[]|bool
      */
     protected function extractAlias(string $table): array|bool
     {

@@ -27,7 +27,7 @@ final class ColumnSchema extends AbstractColumnSchema
     {
         if ($value !== null) {
             /** convert from MSSQL column_default format, e.g. ('1') -> 1, ('string') -> string */
-            $value = substr(substr($value, 2), 0, -2);
+            $value = substr(substr((string) $value, 2), 0, -2);
         }
 
         return $this->phpTypecast($value);

@@ -67,12 +67,15 @@ final class InConditionBuilder extends AbstractInConditionBuilder
     ): string {
         $quotedColumns = [];
 
+        /** @psalm-var string[] $columns */
         foreach ($columns as $i => $column) {
             $quotedColumns[$i] = strpos($column, '(') === false
                 ? $this->queryBuilder->quoter()->quoteColumnName($column) : $column;
         }
 
         $vss = [];
+
+        /** @psalm-var string[][] $values */
         foreach ($values as $value) {
             $vs = [];
             foreach ($columns as $i => $column) {
