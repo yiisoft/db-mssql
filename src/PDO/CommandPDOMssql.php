@@ -27,7 +27,6 @@ final class CommandPDOMssql extends Command
     {
         if (isset($this->pdoStatement)) {
             $this->bindPendingParams();
-
             return;
         }
 

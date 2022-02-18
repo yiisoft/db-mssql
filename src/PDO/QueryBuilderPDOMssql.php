@@ -126,17 +126,12 @@ final class QueryBuilderPDOMssql extends QueryBuilder
 
     public function renameTable(string $oldName, string $newName): string
     {
-        return 'sp_rename ' .
-            $this->quoter->quoteTableName($oldName) . ', ' . $this->quoter->quoteTableName($newName);
+        return $this->ddlBuilder->renameTable($oldName, $newName);
     }
 
     public function renameColumn(string $table, string $oldName, string $newName): string
     {
-        $table = $this->quoter->quoteTableName($table);
-        $oldName = $this->quoter->quoteColumnName($oldName);
-        $newName = $this->quoter->quoteColumnName($newName);
-
-        return "sp_rename '$table.$oldName', $newName, 'COLUMN'";
+        return $this->ddlBuilder->renameColumn($table, $oldName, $newName);
     }
 
     public function selectExists(string $rawSql): string

@@ -39,7 +39,6 @@ final class QueryTest extends TestCase
             );
 
         $result = $query->all();
-
         $this->assertNotEmpty($result);
         $this->assertCount(4, $result);
     }

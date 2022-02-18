@@ -228,10 +228,6 @@ final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterf
             throw new InvalidConfigException('None of the master DB servers is available.');
         }
 
-        if (empty($this->driver->getDsn())) {
-            throw new InvalidConfigException('Connection::dsn cannot be empty.');
-        }
-
         $token = 'Opening DB connection: ' . $this->driver->getDsn();
 
         try {
@@ -262,9 +258,5 @@ final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterf
     {
         $this->pdo = $this->driver->createConnection();
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        if (in_array($this->getDriverName(), ['mssql', 'dblib'], true)) {
-            $this->pdo->exec('SET ANSI_NULL_DFLT_ON ON');
-        }
     }
 }

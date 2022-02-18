@@ -174,10 +174,7 @@ final class SchemaTest extends TestCase
     public function testGetViewNames(): void
     {
         $schema = $this->getConnection()->getSchema();
-        $this->assertSame(
-            ['dbo' => [0 => '[animal_view]', 1 => '[testCreateView]']],
-            $schema->getViewNames('dbo', true),
-        );
+        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->getViewNames('dbo', true));
     }
 
     /**

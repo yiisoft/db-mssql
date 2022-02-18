@@ -105,6 +105,22 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . $this->queryBuilder->quoter()->quoteColumnName($name);
     }
 
+    public function renameTable(string $oldName, string $newName): string
+    {
+        return 'sp_rename '
+            . $this->queryBuilder->quoter()->quoteTableName($oldName) . ', '
+            . $this->queryBuilder->quoter()->quoteTableName($newName);
+    }
+
+    public function renameColumn(string $table, string $oldName, string $newName): string
+    {
+        return 'sp_rename '
+            . $this->queryBuilder->quoter()->quoteTableName($table) . '.'
+            . $this->queryBuilder->quoter()->quoteColumnName($oldName) . ', '
+            . $this->queryBuilder->quoter()->quoteColumnName($newName)
+            . ' COLUMN';
+    }
+
     /**
      * Builds a SQL command for adding or updating a comment to a table or a column. The command built will check if a
      * comment already exists. If so, it will be updated, otherwise, it will be added.

@@ -6,6 +6,9 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use Closure;
 use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Db\Command\CommandInterface;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Mssql\DDLQueryBuilder;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestSupport\TestQueryBuilderTrait;
 
@@ -104,6 +107,17 @@ final class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $sql);
     }
 
+    public function testBuildAddCommentSql(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table not found: noExist');
+        $this->invokeMethod(
+            new DDLQueryBuilder($this->getConnection()->getQueryBuilder()),
+            'buildAddCommentSql',
+            ['', 'noExist'],
+        );
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildConditionsProvider
      *
@@ -134,6 +148,20 @@ final class QueryBuilderTest extends TestCase
         [$sql, $params] = $db->getQueryBuilder()->build($query);
         $this->assertEquals('SELECT *' . (empty($expected) ? '' : ' WHERE ' . $this->replaceQuotes($expected)), $sql);
         $this->assertEquals($expectedParams, $params);
+    }
+
+    public function buildFromDataProvider(): array
+    {
+        $data = $this->buildFromDataProviderTrait();
+
+        $data[] = ['[test]', '[[test]]'];
+        $data[] = ['[test] [t1]', '[[test]] [[t1]]'];
+        $data[] = ['[table.name]', '[[table.name]]'];
+        $data[] = ['[table.name.with.dots]', '[[table.name.with.dots]]'];
+        $data[] = ['[table name]', '[[table name]]'];
+        $data[] = ['[table name with spaces]', '[[table name with spaces]]'];
+
+        return $data;
     }
 
     /**
@@ -168,6 +196,17 @@ final class QueryBuilderTest extends TestCase
         $this->assertEquals($expectedParams, $params);
     }
 
+    public function testBuildRemoveCommentSql(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table not found: noExist');
+        $this->invokeMethod(
+            new DDLQueryBuilder($this->getConnection()->getQueryBuilder()),
+            'buildRemoveCommentSql',
+            ['noExist'],
+        );
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildExistsParamsProvider
      *
@@ -185,6 +224,26 @@ final class QueryBuilderTest extends TestCase
         [$actualQuerySql, $actualQueryParams] = $db->getQueryBuilder()->build($query);
         $this->assertEquals($expectedQuerySql, $actualQuerySql);
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
+    }
+
+    /** @todo Check method checkIntegrity @darkdef */
+    public function testCheckIntegrity(): void
+    {
+        // Check integrity all tables.
+        $this->assertEqualsWithoutLE(
+            <<<SQL
+            ALTER TABLE [dbo].[animal] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[bit_values] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[category] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[column_type_table] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[composite_fk] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[customer] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[default_pk] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[department] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[document] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[dossier] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[employee] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[item] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[like_test] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[negative_default_values] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[new_type] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[null_values] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[order] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[order_item] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[order_item_with_null_fk] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[order_with_null_fk] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[profile] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[qlog1] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[qlog2] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[qlog3] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[qlog4] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[stranger 'table] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[T_constraints_1] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[T_constraints_2] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[T_constraints_3] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[T_constraints_4] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[T_upsert] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[T_upsert_1] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[T_upsert_varbinary] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[table.with.special.characters] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[test_ck] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[test_def] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[test_fk] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[test_idx] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[test_trigger] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[test_trigger_alert] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[test_uq] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[testAlterTable] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[testCreateTable] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[testCreateViewTable] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[testPKTable] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[type] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[validator_main] CHECK CONSTRAINT ALL; ALTER TABLE [dbo].[validator_ref] CHECK CONSTRAINT ALL;
+            SQL . ' ',
+            $this->getConnection(true)->getQueryBuilder()->checkIntegrity(),
+        );
+
+        // Check integrity only one table.
+        $this->assertEqualsWithoutLE(
+            <<<SQL
+            ALTER TABLE [dbo].[animal] CHECK CONSTRAINT ALL;
+            SQL . ' ',
+            $this->getConnection()->getQueryBuilder()->checkIntegrity('dbo', 'animal'),
+        );
     }
 
     public function testCommentAdditionOnQuotedTableOrColumn(): void
@@ -336,6 +395,11 @@ final class QueryBuilderTest extends TestCase
         $this->assertSame($expectedParams, $actualParams);
     }
 
+    public function testGetCommand(): void
+    {
+        $this->assertInstanceOf(CommandInterface::class, $this->getConnection()->getQueryBuilder()->command());
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertProvider()
      *
@@ -388,18 +452,33 @@ final class QueryBuilderTest extends TestCase
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
     }
 
-    public function buildFromDataProvider(): array
+    public function testRenameColumn(): void
     {
-        $data = $this->buildFromDataProviderTrait();
+        $qb = $this->getConnection()->getQueryBuilder();
 
-        $data[] = ['[test]', '[[test]]'];
-        $data[] = ['[test] [t1]', '[[test]] [[t1]]'];
-        $data[] = ['[table.name]', '[[table.name]]'];
-        $data[] = ['[table.name.with.dots]', '[[table.name.with.dots]]'];
-        $data[] = ['[table name]', '[[table name]]'];
-        $data[] = ['[table name with spaces]', '[[table name with spaces]]'];
+        $sql = $qb->renameColumn('alpha', 'string_identifier', 'string_identifier_test');
+        $this->assertSame('sp_rename [alpha].[string_identifier], [string_identifier_test] COLUMN', $sql);
 
-        return $data;
+        $sql = $qb->renameColumn('alpha', 'string_identifier_test', 'string_identifier');
+        $this->assertSame('sp_rename [alpha].[string_identifier_test], [string_identifier] COLUMN', $sql);
+    }
+
+    public function testResetSequence(): void
+    {
+        $qb = $this->getConnection(true)->getQueryBuilder();
+
+        $sql = $qb->resetSequence('item');
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, (SELECT COALESCE(MAX([id]),0) FROM [item])+1)", $sql);
+
+        $sql = $qb->resetSequence('item', 4);
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 4)", $sql);
+    }
+
+    public function testResetSequenceException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("There is not sequence associated with table 'noExist'.");
+        $sql = $this->getConnection(true)->getQueryBuilder()->resetSequence('noExist');
     }
 
     /**

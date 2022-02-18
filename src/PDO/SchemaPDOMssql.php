@@ -804,7 +804,6 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         SQL;
 
         $views = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
-
         return array_map(static fn (string $item): string => '[' . $item . ']', $views);
     }
 
@@ -1141,13 +1140,10 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
 
     public function getViewNames(string $schema = '', bool $refresh = false): array
     {
-        /** @var array */
-        $viewNames = $this->viewNames[$schema] ?? [];
-
-        if ($viewNames === [] || $refresh) {
-            $viewNames[$schema] = $this->findViewNames($schema);
+        if ($this->viewNames === [] || $refresh) {
+            $this->viewNames[$schema] = $this->findViewNames($schema);
         }
 
-        return $this->viewNames[$schema] = $viewNames;
+        return is_array($this->viewNames[$schema]) ? $this->viewNames[$schema] : [];
     }
 }
