@@ -6,6 +6,9 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use Closure;
 use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Db\Command\CommandInterface;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Mssql\DDLQueryBuilder;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestSupport\TestQueryBuilderTrait;
 
@@ -104,6 +107,17 @@ final class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $sql);
     }
 
+    public function testBuildAddCommentSql(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table not found: noExist');
+        $this->invokeMethod(
+            new DDLQueryBuilder($this->getConnection()->getQueryBuilder()),
+            'buildAddCommentSql',
+            ['', 'noExist'],
+        );
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildConditionsProvider
      *
@@ -134,6 +148,20 @@ final class QueryBuilderTest extends TestCase
         [$sql, $params] = $db->getQueryBuilder()->build($query);
         $this->assertEquals('SELECT *' . (empty($expected) ? '' : ' WHERE ' . $this->replaceQuotes($expected)), $sql);
         $this->assertEquals($expectedParams, $params);
+    }
+
+    public function buildFromDataProvider(): array
+    {
+        $data = $this->buildFromDataProviderTrait();
+
+        $data[] = ['[test]', '[[test]]'];
+        $data[] = ['[test] [t1]', '[[test]] [[t1]]'];
+        $data[] = ['[table.name]', '[[table.name]]'];
+        $data[] = ['[table.name.with.dots]', '[[table.name.with.dots]]'];
+        $data[] = ['[table name]', '[[table name]]'];
+        $data[] = ['[table name with spaces]', '[[table name with spaces]]'];
+
+        return $data;
     }
 
     /**
@@ -168,6 +196,17 @@ final class QueryBuilderTest extends TestCase
         $this->assertEquals($expectedParams, $params);
     }
 
+    public function testBuildRemoveCommentSql(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table not found: noExist');
+        $this->invokeMethod(
+            new DDLQueryBuilder($this->getConnection()->getQueryBuilder()),
+            'buildRemoveCommentSql',
+            ['noExist'],
+        );
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildExistsParamsProvider
      *
@@ -185,6 +224,17 @@ final class QueryBuilderTest extends TestCase
         [$actualQuerySql, $actualQueryParams] = $db->getQueryBuilder()->build($query);
         $this->assertEquals($expectedQuerySql, $actualQuerySql);
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
+    }
+
+    /** @todo Check method checkIntegrity @darkdef */
+    public function testCheckIntegrity(): void
+    {
+        $this->assertEqualsWithoutLE(
+            <<<SQL
+            ALTER TABLE [dbo].[animal] CHECK CONSTRAINT ALL;
+            SQL . ' ',
+            $this->getConnection()->getQueryBuilder()->checkIntegrity('dbo', 'animal'),
+        );
     }
 
     public function testCommentAdditionOnQuotedTableOrColumn(): void
@@ -336,6 +386,11 @@ final class QueryBuilderTest extends TestCase
         $this->assertSame($expectedParams, $actualParams);
     }
 
+    public function testGetCommand(): void
+    {
+        $this->assertInstanceOf(CommandInterface::class, $this->getConnection()->getQueryBuilder()->command());
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertProvider()
      *
@@ -388,18 +443,33 @@ final class QueryBuilderTest extends TestCase
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
     }
 
-    public function buildFromDataProvider(): array
+    public function testRenameColumn(): void
     {
-        $data = $this->buildFromDataProviderTrait();
+        $qb = $this->getConnection()->getQueryBuilder();
 
-        $data[] = ['[test]', '[[test]]'];
-        $data[] = ['[test] [t1]', '[[test]] [[t1]]'];
-        $data[] = ['[table.name]', '[[table.name]]'];
-        $data[] = ['[table.name.with.dots]', '[[table.name.with.dots]]'];
-        $data[] = ['[table name]', '[[table name]]'];
-        $data[] = ['[table name with spaces]', '[[table name with spaces]]'];
+        $sql = $qb->renameColumn('alpha', 'string_identifier', 'string_identifier_test');
+        $this->assertSame('sp_rename [alpha].[string_identifier], [string_identifier_test] COLUMN', $sql);
 
-        return $data;
+        $sql = $qb->renameColumn('alpha', 'string_identifier_test', 'string_identifier');
+        $this->assertSame('sp_rename [alpha].[string_identifier_test], [string_identifier] COLUMN', $sql);
+    }
+
+    public function testResetSequence(): void
+    {
+        $qb = $this->getConnection(true)->getQueryBuilder();
+
+        $sql = $qb->resetSequence('item');
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, (SELECT COALESCE(MAX([id]),0) FROM [item])+1)", $sql);
+
+        $sql = $qb->resetSequence('item', 4);
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 4)", $sql);
+    }
+
+    public function testResetSequenceException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("There is not sequence associated with table 'noExist'.");
+        $sql = $this->getConnection(true)->getQueryBuilder()->resetSequence('noExist');
     }
 
     /**

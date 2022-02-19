@@ -27,11 +27,10 @@ final class CommandPDOMssql extends Command
     {
         if (isset($this->pdoStatement)) {
             $this->bindPendingParams();
-
             return;
         }
 
-        $sql = $this->getSql();
+        $sql = $this->getSql() ?? '';
 
         if ($this->db->getTransaction()) {
             /** master is in a transaction. use the same connection. */
@@ -45,10 +44,11 @@ final class CommandPDOMssql extends Command
         }
 
         try {
-            $this->pdoStatement = $pdo->prepare($sql);
+            $this->pdoStatement = $pdo?->prepare($sql);
             $this->bindPendingParams();
         } catch (PDOException $e) {
             $message = $e->getMessage() . "\nFailed to prepare SQL: $sql";
+            /** @var array|null */
             $errorInfo = $e->errorInfo ?? null;
 
             throw new Exception($message, $errorInfo, $e);
@@ -78,9 +78,12 @@ final class CommandPDOMssql extends Command
                     && $this->isolationLevel !== null
                     && $this->db->getTransaction() === null
                 ) {
-                    $this->db->transaction(fn (string $rawSql) => $this->internalExecute($rawSql), $this->isolationLevel);
+                    $this->db->transaction(
+                        fn (string $rawSql) => $this->internalExecute($rawSql),
+                        $this->isolationLevel
+                    );
                 } else {
-                    $this->pdoStatement->execute();
+                    $this->pdoStatement?->execute();
                 }
                 break;
             } catch (PDOException $e) {

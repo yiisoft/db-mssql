@@ -397,4 +397,3 @@ CREATE TABLE [dbo].[test_trigger_alert] (
   [stringcol] [varchar](32) DEFAULT NULL,
   PRIMARY KEY (id)
 );
-

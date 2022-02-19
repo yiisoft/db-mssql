@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use InvalidArgumentException;
 use JsonException;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\DMLQueryBuilder as AbstractDMLQueryBuilder;
-use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilderInterface;
+use Yiisoft\Db\Query\QueryInterface;
 
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
@@ -23,36 +24,43 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     }
 
     /**
-     * @throws Exception|InvalidConfigException|NotSupportedException|\Yiisoft\Db\Exception\InvalidArgumentException
+     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException
      */
-    public function insert(string $table, Query|array $columns, array &$params = []): string
+    public function insert(string $table, QueryInterface|array $columns, array &$params = []): string
     {
+        $cols = [];
+
+        /**
+         * @psalm-var string[] $names
+         * @psalm-var string[] $placeholders
+         */
         [$names, $placeholders, $values, $params] = $this->queryBuilder->prepareInsertValues($table, $columns, $params);
 
         $sql = 'INSERT INTO '
             . $this->queryBuilder->quoter()->quoteTableName($table)
             . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
             . ' OUTPUT INSERTED.* INTO @temporary_inserted'
-            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : $values);
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : (string) $values);
 
-        $schema = $this->queryBuilder->schema()->getTableSchema($table);
-        $cols = [];
+        $tableSchema = $this->queryBuilder->schema()->getTableSchema($table);
 
-        foreach ($schema->getColumns() as $column) {
-            $cols[] = $this->queryBuilder->quoter()->quoteColumnName($column->getName()) . ' '
-                . $column->getDbType()
-                . (in_array(
-                    $column->getDbType(),
-                    ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary']
-                ) ? '(MAX)' : '')
-                . ' ' . ($column->isAllowNull() ? 'NULL' : '');
+        if ($tableSchema !== null) {
+            foreach ($tableSchema->getColumns() as $column) {
+                $cols[] = $this->queryBuilder->quoter()->quoteColumnName($column->getName()) . ' '
+                    . $column->getDbType()
+                    . (in_array(
+                        $column->getDbType(),
+                        ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary']
+                    ) ? '(MAX)' : '')
+                    . ' ' . ($column->isAllowNull() ? 'NULL' : '');
+            }
         }
 
         return 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $cols) . ');'
             . $sql . ';SELECT * FROM @temporary_inserted';
     }
 
-    public function resetSequence(string $tableName, $value = null): string
+    public function resetSequence(string $tableName, mixed $value = null): string
     {
         $table = $this->queryBuilder->schema()->getTableSchema($tableName);
 
@@ -74,16 +82,18 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     }
 
     /**
-     * @throws Exception|InvalidConfigException|JsonException|NotSupportedException|\Yiisoft\Db\Exception\InvalidArgumentException
+     * @throws Exception|InvalidArgumentException|InvalidConfigException|JsonException|NotSupportedException
      */
     public function upsert(
         string $table,
-        Query|array $insertColumns,
+        QueryInterface|array $insertColumns,
         bool|array $updateColumns,
         array &$params = []
     ): string {
-        /** @var Constraint[] $constraints */
+        /** @psalm-var Constraint[] $constraints */
         $constraints = [];
+
+        /** @psalm-var string[] $insertNames */
         [$uniqueNames, $insertNames, $updateNames] = $this->queryBuilder->prepareUpsertColumns(
             $table,
             $insertColumns,
@@ -101,20 +111,27 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         foreach ($constraints as $constraint) {
             $constraintCondition = ['and'];
 
-            foreach ($constraint->getColumnNames() as $name) {
-                $quotedName = $this->queryBuilder->quoter()->quoteColumnName($name);
-                $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
+            $columnNames = $constraint->getColumnNames() ?? [];
+
+            if (is_array($columnNames)) {
+                /** @psalm-var string[] $columnNames */
+                foreach ($columnNames as $name) {
+                    $quotedName = $this->queryBuilder->quoter()->quoteColumnName($name);
+                    $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
+                }
             }
 
             $onCondition[] = $constraintCondition;
         }
 
         $on = $this->queryBuilder->buildCondition($onCondition, $params);
+
+        /** @psalm-var string[] $placeholders */
         [, $placeholders, $values, $params] = $this->queryBuilder->prepareInsertValues($table, $insertColumns, $params);
         $mergeSql = 'MERGE ' . $this->queryBuilder->quoter()->quoteTableName($table) . ' WITH (HOLDLOCK) '
             . 'USING (' . (!empty($placeholders)
             ? 'VALUES (' . implode(', ', $placeholders) . ')'
-            : ltrim($values, ' ')) . ') AS [EXCLUDED] (' . implode(', ', $insertNames) . ') ' . "ON ($on)";
+            : ltrim((string) $values, ' ')) . ') AS [EXCLUDED] (' . implode(', ', $insertNames) . ') ' . "ON ($on)";
         $insertValues = [];
 
         foreach ($insertNames as $name) {
@@ -136,6 +153,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         if ($updateColumns === true) {
             $updateColumns = [];
 
+            /** @psalm-var string[] $updateNames */
             foreach ($updateNames as $name) {
                 $quotedName = $this->queryBuilder->quoter()->quoteColumnName($name);
                 if (strrpos($quotedName, '.') === false) {
@@ -146,6 +164,11 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             }
         }
 
+        /**
+         * @var array $params
+         * @psalm-var string[] $updates
+         * @psalm-var array<string, ExpressionInterface|string> $updateColumns
+         */
         [$updates, $params] = $this->queryBuilder->prepareUpdateSets($table, $updateColumns, $params);
         $updateSql = 'UPDATE SET ' . implode(', ', $updates);
 

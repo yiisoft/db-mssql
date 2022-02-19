@@ -43,7 +43,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . $this->queryBuilder->quoter()->quoteTableName($table)
             . ' ADD CONSTRAINT '
             . $this->queryBuilder->quoter()->quoteColumnName($name)
-            . ' DEFAULT ' . $this->queryBuilder->quoter()->quoteValue($value)
+            . ' DEFAULT ' . (string) $this->queryBuilder->quoter()->quoteValue($value)
             . ' FOR ' . $this->queryBuilder->quoter()->quoteColumnName($column);
     }
 
@@ -66,7 +66,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
         /** @var SchemaPDOMssql */
         $schemaInstance = $this->queryBuilder->schema();
-        $defaultSchema = $schema ?: $schemaInstance->getDefaultSchema();
+        $defaultSchema = $schema ?: $schemaInstance->getDefaultSchema() ?? '';
         $tableNames = $schemaInstance->getTableSchema($table)
              ? [$table] : $schemaInstance->getTableNames($defaultSchema);
         $viewNames = $schemaInstance->getViewNames($defaultSchema);
@@ -105,6 +105,22 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . $this->queryBuilder->quoter()->quoteColumnName($name);
     }
 
+    public function renameTable(string $oldName, string $newName): string
+    {
+        return 'sp_rename '
+            . $this->queryBuilder->quoter()->quoteTableName($oldName) . ', '
+            . $this->queryBuilder->quoter()->quoteTableName($newName);
+    }
+
+    public function renameColumn(string $table, string $oldName, string $newName): string
+    {
+        return 'sp_rename '
+            . $this->queryBuilder->quoter()->quoteTableName($table) . '.'
+            . $this->queryBuilder->quoter()->quoteColumnName($oldName) . ', '
+            . $this->queryBuilder->quoter()->quoteColumnName($newName)
+            . ' COLUMN';
+    }
+
     /**
      * Builds a SQL command for adding or updating a comment to a table or a column. The command built will check if a
      * comment already exists. If so, it will be updated, otherwise, it will be added.
@@ -127,10 +143,11 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             throw new InvalidArgumentException("Table not found: $table");
         }
 
-        $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . $this->queryBuilder->quoter()->quoteValue($column) : null;
-        $comment = 'N' . $this->queryBuilder->quoter()->quoteValue($comment);
+        $schemaName = $tableSchema->getSchemaName()
+            ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
+        $tableName = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . (string) $this->queryBuilder->quoter()->quoteValue($column) : null;
+        $comment = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($comment);
         $functionParams = "
             @name = N'MS_description',
             @value = $comment,
@@ -175,9 +192,10 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             throw new InvalidArgumentException("Table not found: $table");
         }
 
-        $schemaName = $tableSchema->getSchemaName() ? "N'" . $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . $this->queryBuilder->quoter()->quoteValue($column) : null;
+        $schemaName = $tableSchema->getSchemaName()
+            ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
+        $tableName = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . (string) $this->queryBuilder->quoter()->quoteValue($column) : null;
 
         return "
             IF EXISTS (

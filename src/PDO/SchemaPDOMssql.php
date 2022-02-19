@@ -16,6 +16,7 @@ use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\ColumnSchema;
 use Yiisoft\Db\Mssql\PDO;
 use Yiisoft\Db\Mssql\TableSchema;
@@ -36,6 +37,15 @@ use function version_compare;
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
  *
+ * @psalm-type ColumnArray = array{
+ *   column_name: string,
+ *   is_nullable: string,
+ *   data_type: string,
+ *   column_default: mixed,
+ *   is_identity: string,
+ *   comment: null|string
+ * }
+ *
  * @psalm-type ConstraintArray = array<
  *   array-key,
  *   array {
@@ -48,7 +58,7 @@ use function version_compare;
  *     on_update: string,
  *     on_delete: string,
  *     check_expr: string,
- *     default_expr?: string
+ *     default_expr: string
  *   }
  * >
  */
@@ -61,6 +71,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
 
     /**
      * @var array mapping from physical column types (keys) to abstract column types (values)
+     *
+     * @psalm-var string[]
      */
     private array $typeMap = [
         /** exact numbers */
@@ -127,6 +139,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * @param string $name the table name.
      *
      * @return TableSchema resolved table, schema, etc. names.
+     *
+     * @todo Review this method and see if it can be simplified @darkdef.
      */
     protected function resolveTableName(string $name): TableSchema
     {
@@ -137,28 +151,34 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         $partCount = count($parts);
 
         if ($partCount === 4) {
-            /** server name, catalog name, schema name and table name passed */
+            /** server name, catalog name, schema name and table name passed - not coverage tests */
             $resolvedName->catalogName($parts[1]);
             $resolvedName->schemaName($parts[2]);
             $resolvedName->name($parts[3]);
             $resolvedName->fullName(
-                $resolvedName->getCatalogName() . '.' . $resolvedName->getSchemaName() . '.' . $resolvedName->getName()
+                (string) $resolvedName->getCatalogName() . '.' .
+                (string) $resolvedName->getSchemaName() . '.' .
+                $resolvedName->getName()
             );
         } elseif ($partCount === 3) {
-            /** catalog name, schema name and table name passed */
+            /** catalog name, schema name and table name passed - not coverage tests */
             $resolvedName->catalogName($parts[0]);
             $resolvedName->schemaName($parts[1]);
             $resolvedName->name($parts[2]);
             $resolvedName->fullName(
-                $resolvedName->getCatalogName() . '.' . $resolvedName->getSchemaName() . '.' . $resolvedName->getName()
+                (string) $resolvedName->getCatalogName() . '.' .
+                (string) $resolvedName->getSchemaName() . '.' .
+                $resolvedName->getName()
             );
         } elseif ($partCount === 2) {
-            /** only schema name and table name passed */
+            /** only schema name and table name passed - not coverage tests */
             $resolvedName->schemaName($parts[0]);
             $resolvedName->name($parts[1]);
             $resolvedName->fullName(
-                ($resolvedName->getSchemaName() !== $this->defaultSchema
-                    ? $resolvedName->getSchemaName() . '.' : '') . $resolvedName->getName()
+                (
+                    $resolvedName->getSchemaName() !== $this->defaultSchema
+                    ? (string) $resolvedName->getSchemaName() . '.' : ''
+                ) . $resolvedName->getName()
             );
         } else {
             /** only table name passed */
@@ -175,7 +195,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      *
      * @param string $name
      *
-     * @return array
+     * @psalm-return string[]
      */
     protected function getTableNameParts(string $name): array
     {
@@ -187,6 +207,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
             $parts = $matches[0];
         }
 
+        /** @psalm-var string[] */
         return str_replace(['[', ']'], '', $parts);
     }
 
@@ -234,17 +255,15 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         }
 
         $sql = <<<SQL
-SELECT [t].[table_name]
-FROM [INFORMATION_SCHEMA].[TABLES] AS [t]
-WHERE [t].[table_schema] = :schema AND [t].[table_type] IN ('BASE TABLE', 'VIEW')
-ORDER BY [t].[table_name]
-SQL;
+        SELECT [t].[table_name]
+        FROM [INFORMATION_SCHEMA].[TABLES] AS [t]
+        WHERE [t].[table_schema] = :schema AND [t].[table_type] IN ('BASE TABLE', 'VIEW')
+        ORDER BY [t].[table_name]
+        SQL;
 
         $tables = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
 
-        return array_map(static function ($item) {
-            return '[' . $item . ']';
-        }, $tables);
+        return array_map(static fn (string $item): string => '[' . $item . ']', $tables);
     }
 
     /**
@@ -278,11 +297,13 @@ SQL;
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return Constraint|null primary key for the given table, `null` if the table has no primary key.
+     * @return Constraint|null The primary key for the given table, `null` if the table has no primary key.
      */
     protected function loadTablePrimaryKey(string $tableName): ?Constraint
     {
-        return $this->loadTableConstraints($tableName, 'primaryKey');
+        /** @var mixed */
+        $tablePrimaryKey = $this->loadTableConstraints($tableName, 'primaryKey');
+        return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
 
     /**
@@ -292,11 +313,13 @@ SQL;
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return ForeignKeyConstraint[] foreign keys for the given table.
+     * @return array The foreign keys for the given table.
      */
     protected function loadTableForeignKeys(string $tableName): array
     {
-        return $this->loadTableConstraints($tableName, 'foreignKeys');
+        /** @var mixed */
+        $tableForeingKeys = $this->loadTableConstraints($tableName, 'foreignKeys');
+        return is_array($tableForeingKeys) ? $tableForeingKeys : [];
     }
 
     /**
@@ -311,26 +334,38 @@ SQL;
     protected function loadTableIndexes(string $tableName): array
     {
         $sql = <<<SQL
-SELECT
-    [i].[name] AS [name],
-    [iccol].[name] AS [column_name],
-    [i].[is_unique] AS [index_is_unique],
-    [i].[is_primary_key] AS [index_is_primary]
-FROM [sys].[indexes] AS [i]
-INNER JOIN [sys].[index_columns] AS [ic]
-    ON [ic].[object_id] = [i].[object_id] AND [ic].[index_id] = [i].[index_id]
-INNER JOIN [sys].[columns] AS [iccol]
-    ON [iccol].[object_id] = [ic].[object_id] AND [iccol].[column_id] = [ic].[column_id]
-WHERE [i].[object_id] = OBJECT_ID(:fullName)
-ORDER BY [ic].[key_ordinal] ASC
-SQL;
+        SELECT
+            [i].[name] AS [name],
+            [iccol].[name] AS [column_name],
+            [i].[is_unique] AS [index_is_unique],
+            [i].[is_primary_key] AS [index_is_primary]
+        FROM [sys].[indexes] AS [i]
+        INNER JOIN [sys].[index_columns] AS [ic]
+            ON [ic].[object_id] = [i].[object_id] AND [ic].[index_id] = [i].[index_id]
+        INNER JOIN [sys].[columns] AS [iccol]
+            ON [iccol].[object_id] = [ic].[object_id] AND [iccol].[column_id] = [ic].[column_id]
+        WHERE [i].[object_id] = OBJECT_ID(:fullName)
+        ORDER BY [ic].[key_ordinal] ASC
+        SQL;
+
         $resolvedName = $this->resolveTableName($tableName);
         $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
+
+        /** @psalm-var array[] $indexes */
         $indexes = $this->normalizePdoRowKeyCase($indexes, true);
         $indexes = ArrayHelper::index($indexes, null, 'name');
 
         $result = [];
 
+        /**
+         * @psalm-var array<
+         *   string,
+         *   array<
+         *     array-key,
+         *     array{array-key, name: string, column_name: string, index_is_unique: string, index_is_primary: string}
+         *   >
+         * > $indexes
+         */
         foreach ($indexes as $name => $index) {
             $result[] = (new IndexConstraint())
                 ->primary((bool) $index[0]['index_is_primary'])
@@ -349,11 +384,13 @@ SQL;
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return Constraint[] unique constraints for the given table.
+     * @return array The unique constraints for the given table.
      */
     protected function loadTableUniques(string $tableName): array
     {
-        return $this->loadTableConstraints($tableName, 'uniques');
+        /** @var mixed */
+        $tableUniques = $this->loadTableConstraints($tableName, 'uniques');
+        return is_array($tableUniques) ? $tableUniques : [];
     }
 
     /**
@@ -363,11 +400,13 @@ SQL;
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return CheckConstraint[] check constraints for the given table.
+     * @return array The check constraints for the given table.
      */
     protected function loadTableChecks(string $tableName): array
     {
-        return $this->loadTableConstraints($tableName, 'checks');
+        /** @var mixed */
+        $tableCheck = $this->loadTableConstraints($tableName, 'checks');
+        return is_array($tableCheck) ? $tableCheck : [];
     }
 
     /**
@@ -377,11 +416,13 @@ SQL;
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return DefaultValueConstraint[] default value constraints for the given table.
+     * @return array The default value constraints for the given table.
      */
     protected function loadTableDefaultValues(string $tableName): array
     {
-        return $this->loadTableConstraints($tableName, 'defaults');
+        /** @var mixed */
+        $tableDefault = $this->loadTableConstraints($tableName, 'defaults');
+        return is_array($tableDefault) ? $tableDefault : [];
     }
 
     /**
@@ -403,7 +444,7 @@ SQL;
      */
     public function releaseSavepoint(string $name): void
     {
-        /** does nothing as MSSQL does not support this */
+        throw new NotSupportedException(__METHOD__ . ' is not supported.');
     }
 
     /**
@@ -435,6 +476,8 @@ SQL;
      *
      * @param TableSchema $table the table metadata object.
      * @param string $name the table name
+     *
+     * @todo Review this method and see if it can be simplified @darkdef.
      */
     protected function resolveTableNames(TableSchema $table, string $name): void
     {
@@ -443,24 +486,28 @@ SQL;
         $partCount = count($parts);
 
         if ($partCount === 4) {
-            /** server name, catalog name, schema name and table name passed */
+            /** server name, catalog name, schema name and table name passed - no coverage tests */
             $table->catalogName($parts[1]);
             $table->schemaName($parts[2]);
             $table->name($parts[3]);
-            $table->fullName($table->getCatalogName() . '.' . $table->getSchemaName() . '.' . $table->getName());
+            $table->fullName(
+                (string) $table->getCatalogName() . '.' . (string) $table->getSchemaName() . '.' . $table->getName()
+            );
         } elseif ($partCount === 3) {
-            /** catalog name, schema name and table name passed */
+            /** catalog name, schema name and table name passed - no coverage tests */
             $table->catalogName($parts[0]);
             $table->schemaName($parts[1]);
             $table->name($parts[2]);
-            $table->fullName($table->getCatalogName() . '.' . $table->getSchemaName() . '.' . $table->getName());
+            $table->fullName(
+                (string) $table->getCatalogName() . '.' . (string) $table->getSchemaName() . '.' . $table->getName()
+            );
         } elseif ($partCount === 2) {
-            /** only schema name and table name passed */
+            /** only schema name and table name passed - no coverage tests */
             $table->schemaName($parts[0]);
             $table->name($parts[1]);
             $table->fullName(
                 $table->getSchemaName() !== $this->defaultSchema
-                ? $table->getSchemaName() . '.' . $table->getName() : $table->getName()
+                ? (string) $table->getSchemaName() . '.' . $table->getName() : $table->getName()
             );
         } else {
             /** only table name passed */
@@ -473,7 +520,7 @@ SQL;
     /**
      * Loads the column information into a {@see ColumnSchema} object.
      *
-     * @param array $info column information.
+     * @psalm-param ColumnArray $info The column information.
      *
      * @return ColumnSchema the column schema object.
      */
@@ -486,7 +533,7 @@ SQL;
         $column->dbType($info['data_type']);
         $column->enumValues([]); // mssql has only vague equivalents to enum
         $column->primaryKey(false); // primary key will be determined in findColumns() method
-        $column->autoIncrement($info['is_identity'] === 1);
+        $column->autoIncrement($info['is_identity'] === '1');
         $column->unsigned(stripos($column->getDbType(), 'unsigned') !== false);
         $column->comment($info['comment'] ?? '');
         $column->type(self::TYPE_STRING);
@@ -544,7 +591,7 @@ SQL;
     protected function findColumns(TableSchema $table): bool
     {
         $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
-        $whereSql = '[t1].[table_name] = ' . $this->db->getQuoter()->quoteValue($table->getName());
+        $whereSql = '[t1].[table_name] = ' . (string) $this->db->getQuoter()->quoteValue($table->getName());
 
         if ($table->getCatalogName() !== null) {
             $columnsTableName = "{$table->getCatalogName()}.$columnsTableName";
@@ -587,6 +634,7 @@ SQL;
         SQL;
 
         try {
+            /** @psalm-var ColumnArray[] */
             $columns = $this->db->createCommand($sql)->queryAll();
 
             if (empty($columns)) {
@@ -672,7 +720,10 @@ SQL;
      */
     protected function findPrimaryKeys(TableSchema $table): void
     {
-        foreach ($this->findTableConstraints($table, 'PRIMARY KEY') as $row) {
+        /** @psalm-var array<array-key, array{index_name: string, field_name: string}> $primaryKeys */
+        $primaryKeys = $this->findTableConstraints($table, 'PRIMARY KEY');
+
+        foreach ($primaryKeys as $row) {
             $table->primaryKey($row['field_name']);
         }
     }
@@ -686,14 +737,17 @@ SQL;
      */
     protected function findForeignKeys(TableSchema $table): void
     {
+        $catalogName = $table->getCatalogName();
+        $fk = [];
         $object = $table->getName();
+        $schemaName = $table->getSchemaName();
 
-        if ($table->getSchemaName() !== null) {
-            $object = $table->getSchemaName() . '.' . $object;
+        if ($schemaName !== null) {
+            $object = $schemaName . '.' . $object;
         }
 
-        if ($table->getCatalogName() !== null) {
-            $object = $table->getCatalogName() . '.' . $object;
+        if ($catalogName !== null) {
+            $object = $catalogName . '.' . $object;
         }
 
         /**
@@ -701,27 +755,28 @@ SQL;
          * {@see http://msdn2.microsoft.com/en-us/library/aa175805(SQL.80).aspx}
          */
         $sql = <<<SQL
-SELECT
-	[fk].[name] AS [fk_name],
-	[cp].[name] AS [fk_column_name],
-	OBJECT_NAME([fk].[referenced_object_id]) AS [uq_table_name],
-	[cr].[name] AS [uq_column_name]
-FROM
-	[sys].[foreign_keys] AS [fk]
-	INNER JOIN [sys].[foreign_key_columns] AS [fkc] ON
-		[fk].[object_id] = [fkc].[constraint_object_id]
-	INNER JOIN [sys].[columns] AS [cp] ON
-		[fk].[parent_object_id] = [cp].[object_id] AND
-		[fkc].[parent_column_id] = [cp].[column_id]
-	INNER JOIN [sys].[columns] AS [cr] ON
-		[fk].[referenced_object_id] = [cr].[object_id] AND
-		[fkc].[referenced_column_id] = [cr].[column_id]
-WHERE
-	[fk].[parent_object_id] = OBJECT_ID(:object)
-SQL;
+        SELECT
+        [fk].[name] AS [fk_name],
+        [cp].[name] AS [fk_column_name],
+        OBJECT_NAME([fk].[referenced_object_id]) AS [uq_table_name],
+        [cr].[name] AS [uq_column_name]
+        FROM [sys].[foreign_keys] AS [fk]
+        INNER JOIN [sys].[foreign_key_columns] AS [fkc]
+            ON [fk].[object_id] = [fkc].[constraint_object_id]
+        INNER JOIN [sys].[columns] AS [cp]
+            ON [fk].[parent_object_id] = [cp].[object_id] AND [fkc].[parent_column_id] = [cp].[column_id]
+        INNER JOIN [sys].[columns] AS [cr]
+            ON [fk].[referenced_object_id] = [cr].[object_id] AND [fkc].[referenced_column_id] = [cr].[column_id]
+        WHERE [fk].[parent_object_id] = OBJECT_ID(:object)
+        SQL;
 
+        /**
+         * @psalm-var array<
+         *   array-key,
+         *   array{fk_name: string, fk_column_name: string, uq_table_name: string, uq_column_name: string}
+         * > $rows
+         */
         $rows = $this->db->createCommand($sql, [':object' => $object])->queryAll();
-
         $table->foreignKeys([]);
 
         foreach ($rows as $row) {
@@ -749,10 +804,7 @@ SQL;
         SQL;
 
         $views = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
-
-        return array_map(static function ($item) {
-            return '[' . $item . ']';
-        }, $views);
+        return array_map(static fn (string $item): string => '[' . $item . ']', $views);
     }
 
     /**
@@ -777,7 +829,10 @@ SQL;
     {
         $result = [];
 
-        foreach ($this->findTableConstraints($table, 'UNIQUE') as $row) {
+        /** @psalm-var array<array-key, array{index_name: string, field_name: string}> $tableUniqueConstraints */
+        $tableUniqueConstraints = $this->findTableConstraints($table, 'UNIQUE');
+
+        foreach ($tableUniqueConstraints as $row) {
             $result[$row['index_name']][] = $row['field_name'];
         }
 
@@ -802,49 +857,52 @@ SQL;
     private function loadTableConstraints(string $tableName, string $returnType): mixed
     {
         $sql = <<<SQL
-SELECT
-    [o].[name] AS [name],
-    COALESCE([ccol].[name], [dcol].[name], [fccol].[name], [kiccol].[name]) AS [column_name],
-    RTRIM([o].[type]) AS [type],
-    OBJECT_SCHEMA_NAME([f].[referenced_object_id]) AS [foreign_table_schema],
-    OBJECT_NAME([f].[referenced_object_id]) AS [foreign_table_name],
-    [ffccol].[name] AS [foreign_column_name],
-    [f].[update_referential_action_desc] AS [on_update],
-    [f].[delete_referential_action_desc] AS [on_delete],
-    [c].[definition] AS [check_expr],
-    [d].[definition] AS [default_expr]
-FROM (SELECT OBJECT_ID(:fullName) AS [object_id]) AS [t]
-INNER JOIN [sys].[objects] AS [o]
-    ON [o].[parent_object_id] = [t].[object_id] AND [o].[type] IN ('PK', 'UQ', 'C', 'D', 'F')
-LEFT JOIN [sys].[check_constraints] AS [c]
-    ON [c].[object_id] = [o].[object_id]
-LEFT JOIN [sys].[columns] AS [ccol]
-    ON [ccol].[object_id] = [c].[parent_object_id] AND [ccol].[column_id] = [c].[parent_column_id]
-LEFT JOIN [sys].[default_constraints] AS [d]
-    ON [d].[object_id] = [o].[object_id]
-LEFT JOIN [sys].[columns] AS [dcol]
-    ON [dcol].[object_id] = [d].[parent_object_id] AND [dcol].[column_id] = [d].[parent_column_id]
-LEFT JOIN [sys].[key_constraints] AS [k]
-    ON [k].[object_id] = [o].[object_id]
-LEFT JOIN [sys].[index_columns] AS [kic]
-    ON [kic].[object_id] = [k].[parent_object_id] AND [kic].[index_id] = [k].[unique_index_id]
-LEFT JOIN [sys].[columns] AS [kiccol]
-    ON [kiccol].[object_id] = [kic].[object_id] AND [kiccol].[column_id] = [kic].[column_id]
-LEFT JOIN [sys].[foreign_keys] AS [f]
-    ON [f].[object_id] = [o].[object_id]
-LEFT JOIN [sys].[foreign_key_columns] AS [fc]
-    ON [fc].[constraint_object_id] = [o].[object_id]
-LEFT JOIN [sys].[columns] AS [fccol]
-    ON [fccol].[object_id] = [fc].[parent_object_id] AND [fccol].[column_id] = [fc].[parent_column_id]
-LEFT JOIN [sys].[columns] AS [ffccol]
-    ON [ffccol].[object_id] = [fc].[referenced_object_id] AND [ffccol].[column_id] = [fc].[referenced_column_id]
-ORDER BY [kic].[key_ordinal] ASC, [fc].[constraint_column_id] ASC
-SQL;
+        SELECT
+            [o].[name] AS [name],
+            COALESCE([ccol].[name], [dcol].[name], [fccol].[name], [kiccol].[name]) AS [column_name],
+            RTRIM([o].[type]) AS [type],
+            OBJECT_SCHEMA_NAME([f].[referenced_object_id]) AS [foreign_table_schema],
+            OBJECT_NAME([f].[referenced_object_id]) AS [foreign_table_name],
+            [ffccol].[name] AS [foreign_column_name],
+            [f].[update_referential_action_desc] AS [on_update],
+            [f].[delete_referential_action_desc] AS [on_delete],
+            [c].[definition] AS [check_expr],
+            [d].[definition] AS [default_expr]
+        FROM (SELECT OBJECT_ID(:fullName) AS [object_id]) AS [t]
+        INNER JOIN [sys].[objects] AS [o]
+            ON [o].[parent_object_id] = [t].[object_id] AND [o].[type] IN ('PK', 'UQ', 'C', 'D', 'F')
+        LEFT JOIN [sys].[check_constraints] AS [c]
+            ON [c].[object_id] = [o].[object_id]
+        LEFT JOIN [sys].[columns] AS [ccol]
+            ON [ccol].[object_id] = [c].[parent_object_id] AND [ccol].[column_id] = [c].[parent_column_id]
+        LEFT JOIN [sys].[default_constraints] AS [d]
+            ON [d].[object_id] = [o].[object_id]
+        LEFT JOIN [sys].[columns] AS [dcol]
+            ON [dcol].[object_id] = [d].[parent_object_id] AND [dcol].[column_id] = [d].[parent_column_id]
+        LEFT JOIN [sys].[key_constraints] AS [k]
+            ON [k].[object_id] = [o].[object_id]
+        LEFT JOIN [sys].[index_columns] AS [kic]
+            ON [kic].[object_id] = [k].[parent_object_id] AND [kic].[index_id] = [k].[unique_index_id]
+        LEFT JOIN [sys].[columns] AS [kiccol]
+            ON [kiccol].[object_id] = [kic].[object_id] AND [kiccol].[column_id] = [kic].[column_id]
+        LEFT JOIN [sys].[foreign_keys] AS [f]
+            ON [f].[object_id] = [o].[object_id]
+        LEFT JOIN [sys].[foreign_key_columns] AS [fc]
+            ON [fc].[constraint_object_id] = [o].[object_id]
+        LEFT JOIN [sys].[columns] AS [fccol]
+            ON [fccol].[object_id] = [fc].[parent_object_id] AND [fccol].[column_id] = [fc].[parent_column_id]
+        LEFT JOIN [sys].[columns] AS [ffccol]
+            ON [ffccol].[object_id] = [fc].[referenced_object_id] AND [ffccol].[column_id] = [fc].[referenced_column_id]
+        ORDER BY [kic].[key_ordinal] ASC, [fc].[constraint_column_id] ASC
+        SQL;
 
         $resolvedName = $this->resolveTableName($tableName);
         $constraints = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
+
+        /** @psalm-var array[] $constraints */
         $constraints = $this->normalizePdoRowKeyCase($constraints, true);
         $constraints = ArrayHelper::index($constraints, null, ['type', 'name']);
+
         $result = [
             'primaryKey' => null,
             'foreignKeys' => [],
@@ -897,6 +955,7 @@ SQL;
                 }
             }
         }
+
         foreach ($result as $type => $data) {
             $this->setTableMetadata($tableName, $type, $data);
         }
@@ -913,32 +972,46 @@ SQL;
      * @throws Exception|InvalidCallException|InvalidConfigException|Throwable
      *
      * @return array|false primary key values or false if the command fails.
+     *
+     * @todo Remove old version support @darkdef.
      */
     public function insert(string $table, array $columns): bool|array
     {
         $command = $this->db->createCommand()->insert($table, $columns);
+
         if (!$command->execute()) {
             return false;
         }
 
         $isVersion2005orLater = version_compare($this->db->getServerVersion(), '9', '>=');
-        $inserted = $isVersion2005orLater ? $command->getPdoStatement()->fetch() : [];
+        /** @var array */
+        $inserted = $isVersion2005orLater ? $command->getPdoStatement()?->fetch() : [];
         $tableSchema = $this->getTableSchema($table);
 
         $result = [];
-        foreach ($tableSchema->getPrimaryKey() as $name) {
-            /**
-             * {@see https://github.com/yiisoft/yii2/issues/13828 & https://github.com/yiisoft/yii2/issues/17474
-             */
-            if (isset($inserted[$name])) {
-                $result[$name] = $inserted[$name];
-            } elseif ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
-                // for a version earlier than 2005
-                $result[$name] = $this->getLastInsertID($tableSchema->getSequenceName());
-            } elseif (isset($columns[$name])) {
-                $result[$name] = $columns[$name];
-            } else {
-                $result[$name] = $tableSchema->getColumns()[$name]->getDefaultValue();
+
+        if ($tableSchema !== null) {
+            $pks = $tableSchema->getPrimaryKey();
+            $columnsTable = $tableSchema->getColumns();
+
+            foreach ($pks as $name) {
+                /**
+                * @link https://github.com/yiisoft/yii2/issues/13828
+                * @link https://github.com/yiisoft/yii2/issues/17474
+                */
+                if (isset($inserted[$name])) {
+                    /** @var string */
+                    $result[$name] = $inserted[$name];
+                } elseif ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
+                    // for a version earlier than 2005
+                    $result[$name] = $this->getLastInsertID((string) $tableSchema->getSequenceName());
+                } elseif (isset($columns[$name])) {
+                    /** @var string */
+                    $result[$name] = $columns[$name];
+                } else {
+                    /** @var mixed */
+                    $result[$name] = !array_key_exists($name, $columnsTable) ?: $columnsTable[$name]->getDefaultValue();
+                }
             }
         }
 
@@ -1054,8 +1127,10 @@ SQL;
 
     public function getLastInsertID(string $sequenceName = ''): string
     {
-        if ($this->db->isActive()) {
-            return $this->db->getPDO()->lastInsertId(
+        $pdo = $this->db->getPDO();
+
+        if ($pdo !== null && $this->db->isActive()) {
+            return $pdo->lastInsertId(
                 $sequenceName === '' ? null : $this->db->getQuoter()->quoteTableName($sequenceName)
             );
         }
@@ -1065,10 +1140,10 @@ SQL;
 
     public function getViewNames(string $schema = '', bool $refresh = false): array
     {
-        if (!isset($this->viewNames[$schema]) || $refresh) {
+        if ($this->viewNames === [] || $refresh) {
             $this->viewNames[$schema] = $this->findViewNames($schema);
         }
 
-        return $this->viewNames[$schema];
+        return is_array($this->viewNames[$schema]) ? $this->viewNames[$schema] : [];
     }
 }

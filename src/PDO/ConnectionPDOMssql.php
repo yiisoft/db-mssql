@@ -21,9 +21,6 @@ use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Transaction\TransactionInterface;
 
-/**
- * The class Connection represents a connection to a database via [PDO](https://secure.php.net/manual/en/book.pdo.php).
- */
 final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterface
 {
     private ?PDO $pdo = null;
@@ -102,7 +99,7 @@ final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterf
     public function close(): void
     {
         if (!empty($this->master)) {
-            /** @var ConnectionPDOMssql */
+            /** @var ConnectionPDOInterface */
             $db = $this->master;
 
             if ($this->pdo === $db->getPDO()) {
@@ -200,7 +197,6 @@ final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterf
 
     public function getSlavePdo(bool $fallbackToMaster = true): ?PDO
     {
-        /** @var ConnectionPDOMssql|null $db */
         $db = $this->getSlave(false);
 
         if ($db === null) {
@@ -222,7 +218,6 @@ final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterf
         }
 
         if (!empty($this->masters)) {
-            /** @var ConnectionPDOMssql|null */
             $db = $this->getMaster();
 
             if ($db !== null) {
@@ -231,10 +226,6 @@ final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterf
             }
 
             throw new InvalidConfigException('None of the master DB servers is available.');
-        }
-
-        if (empty($this->driver->getDsn())) {
-            throw new InvalidConfigException('Connection::dsn cannot be empty.');
         }
 
         $token = 'Opening DB connection: ' . $this->driver->getDsn();
@@ -266,11 +257,6 @@ final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterf
     protected function initConnection(): void
     {
         $this->pdo = $this->driver->createConnection();
-
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        if (in_array($this->getDriverName(), ['mssql', 'dblib'], true)) {
-            $this->pdo->exec('SET ANSI_NULL_DFLT_ON ON');
-        }
     }
 }
