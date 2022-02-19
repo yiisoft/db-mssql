@@ -9,8 +9,6 @@ use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestSupport\TestCommandTrait;
 
-use function trim;
-
 /**
  * @group mssql
  * @group upsert
