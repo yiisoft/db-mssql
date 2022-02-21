@@ -972,20 +972,13 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * @throws Exception|InvalidCallException|InvalidConfigException|Throwable
      *
      * @return array|false primary key values or false if the command fails.
-     *
-     * @todo Remove old version support @darkdef.
      */
     public function insert(string $table, array $columns): bool|array
     {
         $command = $this->db->createCommand()->insert($table, $columns);
 
-        if (!$command->execute()) {
-            return false;
-        }
+        $inserted = $command->queryOne();
 
-        $isVersion2005orLater = version_compare($this->db->getServerVersion(), '9', '>=');
-        /** @var array */
-        $inserted = $isVersion2005orLater ? $command->getPdoStatement()?->fetch() : [];
         $tableSchema = $this->getTableSchema($table);
 
         $result = [];
@@ -1002,9 +995,6 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
                 if (isset($inserted[$name])) {
                     /** @var string */
                     $result[$name] = $inserted[$name];
-                } elseif ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
-                    // for a version earlier than 2005
-                    $result[$name] = $this->getLastInsertID((string) $tableSchema->getSequenceName());
                 } elseif (isset($columns[$name])) {
                     /** @var string */
                     $result[$name] = $columns[$name];
