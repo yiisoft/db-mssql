@@ -26,10 +26,8 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     /**
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException
      */
-    public function insert(string $table, QueryInterface|array $columns, array &$params = []): string
+    public function insertEx(string $table, QueryInterface|array $columns, array &$params = []): string
     {
-        $cols = [];
-
         /**
          * @psalm-var string[] $names
          * @psalm-var string[] $placeholders
@@ -42,18 +40,17 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             . ' OUTPUT INSERTED.* INTO @temporary_inserted'
             . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : (string) $values);
 
+        $cols = [];
         $tableSchema = $this->queryBuilder->schema()->getTableSchema($table);
-
-        if ($tableSchema !== null) {
-            foreach ($tableSchema->getColumns() as $column) {
-                $cols[] = $this->queryBuilder->quoter()->quoteColumnName($column->getName()) . ' '
-                    . $column->getDbType()
-                    . (in_array(
-                        $column->getDbType(),
-                        ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary']
-                    ) ? '(MAX)' : '')
-                    . ' ' . ($column->isAllowNull() ? 'NULL' : '');
-            }
+        $returnColumns = $tableSchema?->getColumns() ?? [];
+        foreach($returnColumns as $returnColumn) {
+            $cols[] = $this->queryBuilder->quoter()->quoteColumnName($returnColumn->getName()) . ' '
+                . $returnColumn->getDbType()
+                . (in_array(
+                    $returnColumn->getDbType(),
+                    ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary']
+                ) ? '(MAX)' : '')
+                . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
         }
 
         return 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $cols) . ');'

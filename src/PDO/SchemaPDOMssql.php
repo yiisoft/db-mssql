@@ -964,51 +964,6 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     }
 
     /**
-     * Executes the INSERT command, returning primary key values.
-     *
-     * @param string $table the table that new rows will be inserted into.
-     * @param array $columns the column data (name => value) to be inserted into the table.
-     *
-     * @throws Exception|InvalidCallException|InvalidConfigException|Throwable
-     *
-     * @return array|false primary key values or false if the command fails.
-     */
-    public function insert(string $table, array $columns): bool|array
-    {
-        $command = $this->db->createCommand()->insert($table, $columns);
-
-        $inserted = $command->queryOne();
-
-        $tableSchema = $this->getTableSchema($table);
-
-        $result = [];
-
-        if ($tableSchema !== null) {
-            $pks = $tableSchema->getPrimaryKey();
-            $columnsTable = $tableSchema->getColumns();
-
-            foreach ($pks as $name) {
-                /**
-                * @link https://github.com/yiisoft/yii2/issues/13828
-                * @link https://github.com/yiisoft/yii2/issues/17474
-                */
-                if (isset($inserted[$name])) {
-                    /** @var string */
-                    $result[$name] = $inserted[$name];
-                } elseif (isset($columns[$name])) {
-                    /** @var string */
-                    $result[$name] = $columns[$name];
-                } else {
-                    /** @var mixed */
-                    $result[$name] = !array_key_exists($name, $columnsTable) ?: $columnsTable[$name]->getDefaultValue();
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * Create a column schema builder instance giving the type and value precision.
      *
      * This method may be overridden by child classes to create a DBMS-specific column schema builder.

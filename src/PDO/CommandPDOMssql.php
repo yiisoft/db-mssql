@@ -18,6 +18,20 @@ final class CommandPDOMssql extends Command
         parent::__construct($queryCache);
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function insertEx(string $table, array $columns): bool|array
+    {
+        $params = [];
+        $sql = $this->queryBuilder()->insertEx($table, $columns, $params);
+
+        $this->setSql($sql)->bindValues($params);
+        $this->prepare(false);
+
+        return $this->queryOne();
+    }
+
     public function queryBuilder(): QueryBuilderInterface
     {
         return $this->db->getQueryBuilder();
