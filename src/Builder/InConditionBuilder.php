@@ -27,14 +27,7 @@ final class InConditionBuilder extends AbstractInConditionBuilder
     /**
      * Builds SQL for IN condition.
      *
-     * @param string $operator
-     * @param array|string $columns
-     * @param ExpressionInterface $values
-     * @param array $params
-     *
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException
-     *
-     * @return string SQL
      */
     protected function buildSubqueryInCondition(
         string $operator,
@@ -51,13 +44,6 @@ final class InConditionBuilder extends AbstractInConditionBuilder
 
     /**
      * Builds SQL for IN condition.
-     *
-     * @param string|null $operator
-     * @param array|Traversable $columns
-     * @param array $values
-     * @param array $params
-     *
-     * @return string SQL
      */
     protected function buildCompositeInCondition(
         ?string $operator,
