@@ -15,7 +15,6 @@ use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\DMLQueryBuilder as AbstractDMLQueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Query\QueryInterface;
 
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
