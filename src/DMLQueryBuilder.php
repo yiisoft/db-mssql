@@ -43,7 +43,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         $cols = [];
         $tableSchema = $this->queryBuilder->schema()->getTableSchema($table);
         $returnColumns = $tableSchema?->getColumns() ?? [];
-        foreach($returnColumns as $returnColumn) {
+        foreach ($returnColumns as $returnColumn) {
             $cols[] = $this->queryBuilder->quoter()->quoteColumnName($returnColumn->getName()) . ' '
                 . $returnColumn->getDbType()
                 . (in_array(

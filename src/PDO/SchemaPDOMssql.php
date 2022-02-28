@@ -32,7 +32,6 @@ use function preg_match_all;
 use function str_replace;
 use function strcasecmp;
 use function stripos;
-use function version_compare;
 
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
