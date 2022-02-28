@@ -33,7 +33,7 @@ final class CommandPDOMssql extends Command
         /** @psalm-var array|bool */
         $result = $this->queryOne();
 
-        return is_array($result) ? $result: false;
+        return is_array($result) ? $result : false;
     }
 
     public function queryBuilder(): QueryBuilderInterface
