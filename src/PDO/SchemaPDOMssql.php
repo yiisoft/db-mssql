@@ -32,7 +32,6 @@ use function preg_match_all;
 use function str_replace;
 use function strcasecmp;
 use function stripos;
-use function version_compare;
 
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
@@ -961,61 +960,6 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         }
 
         return $result[$returnType];
-    }
-
-    /**
-     * Executes the INSERT command, returning primary key values.
-     *
-     * @param string $table the table that new rows will be inserted into.
-     * @param array $columns the column data (name => value) to be inserted into the table.
-     *
-     * @throws Exception|InvalidCallException|InvalidConfigException|Throwable
-     *
-     * @return array|false primary key values or false if the command fails.
-     *
-     * @todo Remove old version support @darkdef.
-     */
-    public function insert(string $table, array $columns): bool|array
-    {
-        $command = $this->db->createCommand()->insert($table, $columns);
-
-        if (!$command->execute()) {
-            return false;
-        }
-
-        $isVersion2005orLater = version_compare($this->db->getServerVersion(), '9', '>=');
-        /** @var array */
-        $inserted = $isVersion2005orLater ? $command->getPdoStatement()?->fetch() : [];
-        $tableSchema = $this->getTableSchema($table);
-
-        $result = [];
-
-        if ($tableSchema !== null) {
-            $pks = $tableSchema->getPrimaryKey();
-            $columnsTable = $tableSchema->getColumns();
-
-            foreach ($pks as $name) {
-                /**
-                * @link https://github.com/yiisoft/yii2/issues/13828
-                * @link https://github.com/yiisoft/yii2/issues/17474
-                */
-                if (isset($inserted[$name])) {
-                    /** @var string */
-                    $result[$name] = $inserted[$name];
-                } elseif ($tableSchema->getColumns()[$name]->isAutoIncrement()) {
-                    // for a version earlier than 2005
-                    $result[$name] = $this->getLastInsertID((string) $tableSchema->getSequenceName());
-                } elseif (isset($columns[$name])) {
-                    /** @var string */
-                    $result[$name] = $columns[$name];
-                } else {
-                    /** @var mixed */
-                    $result[$name] = !array_key_exists($name, $columnsTable) ?: $columnsTable[$name]->getDefaultValue();
-                }
-            }
-        }
-
-        return $result;
     }
 
     /**

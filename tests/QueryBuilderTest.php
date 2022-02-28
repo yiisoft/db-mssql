@@ -407,6 +407,22 @@ final class QueryBuilderTest extends TestCase
         $this->assertSame($expectedParams, $params);
     }
 
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertExProvider()
+     *
+     * @param string $table
+     * @param array|ColumnSchema $columns
+     * @param array $params
+     * @param string $expectedSQL
+     * @param array $expectedParams
+     */
+    public function testInsertEx(string $table, $columns, array $params, string $expectedSQL, array $expectedParams): void
+    {
+        $db = $this->getConnection();
+        $this->assertSame($expectedSQL, $db->getQueryBuilder()->insertEx($table, $columns, $params));
+        $this->assertSame($expectedParams, $params);
+    }
+
     public function testLimit(): void
     {
         $db = $this->getConnection();
