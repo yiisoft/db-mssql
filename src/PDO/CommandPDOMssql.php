@@ -21,7 +21,7 @@ final class CommandPDOMssql extends Command
 
     /**
      * @inheritDoc
-     */
+    */
     public function insertEx(string $table, array $columns): bool|array
     {
         $params = [];
@@ -30,7 +30,10 @@ final class CommandPDOMssql extends Command
         $this->setSql($sql)->bindValues($params);
         $this->prepare(false);
 
-        return $this->queryOne();
+        /** @psalm-var array|bool */
+        $result = $this->queryOne();
+
+        return is_array($result) ? $result : false;
     }
 
     public function queryBuilder(): QueryBuilderInterface

@@ -14,7 +14,7 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\DMLQueryBuilder as AbstractDMLQueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
-use Yiisoft\Db\Query\QueryInterface;
+use Yiisoft\Db\Query\Query;
 
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
@@ -26,7 +26,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     /**
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException
      */
-    public function insertEx(string $table, QueryInterface|array $columns, array &$params = []): string
+    public function insertEx(string $table, Query|array $columns, array &$params = []): string
     {
         /**
          * @psalm-var string[] $names
@@ -83,7 +83,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function upsert(
         string $table,
-        QueryInterface|array $insertColumns,
+        Query|array $insertColumns,
         bool|array $updateColumns,
         array &$params = []
     ): string {
