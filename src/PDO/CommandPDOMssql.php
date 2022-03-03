@@ -48,7 +48,7 @@ final class CommandPDOMssql extends Command
             return;
         }
 
-        $sql = $this->getSql() ?? '';
+        $sql = $this->getSql();
 
         if ($this->db->getTransaction()) {
             /** master is in a transaction. use the same connection. */
