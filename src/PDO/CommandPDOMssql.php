@@ -48,7 +48,7 @@ final class CommandPDOMssql extends Command
             return;
         }
 
-        $sql = $this->getSql() ?? '';
+        $sql = $this->getSql();
 
         if ($this->db->getTransaction()) {
             /** master is in a transaction. use the same connection. */
@@ -73,7 +73,7 @@ final class CommandPDOMssql extends Command
         }
     }
 
-    protected function getCacheKey(string $method, ?int $fetchMode, string $rawSql): array
+    protected function getCacheKey(string $method, array|int|null $fetchMode, string $rawSql): array
     {
         return [
             __CLASS__,

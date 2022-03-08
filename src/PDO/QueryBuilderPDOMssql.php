@@ -52,6 +52,8 @@ final class QueryBuilderPDOMssql extends QueryBuilder
         Schema::TYPE_BOOLEAN => 'bit',
         Schema::TYPE_MONEY => 'decimal(19,4)',
     ];
+    private DDLQueryBuilder $ddlBuilder;
+    private DMLQueryBuilder $dmlBuilder;
 
     public function __construct(
         private CommandInterface $command,
@@ -60,7 +62,7 @@ final class QueryBuilderPDOMssql extends QueryBuilder
     ) {
         $this->ddlBuilder = new DDLQueryBuilder($this);
         $this->dmlBuilder = new DMLQueryBuilder($this);
-        parent::__construct($quoter, $schema);
+        parent::__construct($quoter, $schema, $this->ddlBuilder, $this->dmlBuilder);
     }
 
     public function addCommentOnColumn(string $table, string $column, string $comment): string

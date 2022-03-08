@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Builder;
 
+use Iterator;
 use Traversable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -31,7 +32,7 @@ final class InConditionBuilder extends AbstractInConditionBuilder
      */
     protected function buildSubqueryInCondition(
         string $operator,
-        array|string $columns,
+        iterable|string|Iterator $columns,
         ExpressionInterface $values,
         array &$params = []
     ): string {
