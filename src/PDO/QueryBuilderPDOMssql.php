@@ -96,7 +96,7 @@ final class QueryBuilderPDOMssql extends QueryBuilder
     }
 
     /**
-     * @throws InvalidConfigException|Throwable|NotSupportedException|Exception
+     * @throws Exception|InvalidConfigException|NotSupportedException|Throwable
      */
     public function checkIntegrity(string $schema = '', string $table = '', bool $check = true): string
     {

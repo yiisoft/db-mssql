@@ -791,7 +791,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     }
 
     /**
-     * @throws InvalidConfigException|Throwable|Exception
+     * @throws Exception|InvalidConfigException|Throwable
      */
     public function findViewNames(string $schema = ''): array
     {
@@ -1089,7 +1089,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     }
 
     /**
-     * @throws InvalidConfigException|Throwable|Exception
+     * @throws Exception|InvalidConfigException|Throwable
      */
     public function getViewNames(string $schema = '', bool $refresh = false): array
     {
