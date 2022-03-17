@@ -7,8 +7,8 @@ namespace Yiisoft\Db\Mssql;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Pdo\PdoValue;
 use Yiisoft\Db\Schema\ColumnSchema as AbstractColumnSchema;
-
 use Yiisoft\Db\Schema\Schema;
+
 use function substr;
 
 /**
