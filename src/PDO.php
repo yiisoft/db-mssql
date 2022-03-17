@@ -16,11 +16,11 @@ final class PDO extends AbstractPDO
     /**
      * Returns value of the last inserted ID.
      *
-     * @param string|null $sequence the sequence name. Defaults to null.
+     * @param string|null $name the sequence name. Defaults to null.
      *
      * @return string last inserted ID value.
      */
-    public function lastInsertId($sequence = null): string
+    public function lastInsertId(string $name = null): string
     {
         return (string) $this->query('SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS bigint)')->fetchColumn();
     }
@@ -75,7 +75,7 @@ final class PDO extends AbstractPDO
      * @return mixed A successful call returns the value of the requested PDO attribute.
      * An unsuccessful call returns null.
      */
-    public function getAttribute($attribute)
+    public function getAttribute(int $attribute): mixed
     {
         try {
             return parent::getAttribute($attribute);

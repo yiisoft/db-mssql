@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use Exception;
+use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
 use Yiisoft\Db\Query\DDLQueryBuilder as AbstractDDLQueryBuilder;
@@ -58,7 +60,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     }
 
     /**
-     * @throws NotSupportedException
+     * @throws NotSupportedException|InvalidConfigException|Throwable|\Yiisoft\Db\Exception\Exception
      */
     public function checkIntegrity(string $schema = '', string $table = '', bool $check = true): string
     {
@@ -67,6 +69,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         /** @var SchemaPDOMssql */
         $schemaInstance = $this->queryBuilder->schema();
         $defaultSchema = $schema ?: $schemaInstance->getDefaultSchema() ?? '';
+        /** @psalm-var string[] */
         $tableNames = $schemaInstance->getTableSchema($table)
              ? [$table] : $schemaInstance->getTableNames($defaultSchema);
         $viewNames = $schemaInstance->getViewNames($defaultSchema);

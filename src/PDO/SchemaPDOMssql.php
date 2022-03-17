@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\PDO;
 
+use PDO;
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Cache\SchemaCache;
@@ -18,7 +19,6 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\ColumnSchema;
-use Yiisoft\Db\Mssql\PDO;
 use Yiisoft\Db\Mssql\TableSchema;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema;
@@ -124,7 +124,6 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         'table' => self::TYPE_STRING,
     ];
 
-    private ?string $serverVersion = null;
     private array $viewNames = [];
 
     public function __construct(private ConnectionPDOInterface $db, SchemaCache $schemaCache)
@@ -144,9 +143,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function resolveTableName(string $name): TableSchema
     {
         $resolvedName = new TableSchema();
-
         $parts = $this->getTableNameParts($name);
-
         $partCount = count($parts);
 
         if ($partCount === 4) {
@@ -193,6 +190,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * Splits full table name into parts.
      *
      * @param string $name
+     *
+     * @return array
      *
      * @psalm-return string[]
      */
@@ -440,6 +439,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * Releases an existing savepoint.
      *
      * @param string $name the savepoint name.
+     *
+     * @throws NotSupportedException
      */
     public function releaseSavepoint(string $name): void
     {
@@ -639,7 +640,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
             if (empty($columns)) {
                 return false;
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
 
@@ -789,6 +790,9 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         }
     }
 
+    /**
+     * @throws InvalidConfigException|Throwable|Exception
+     */
     public function findViewNames(string $schema = ''): array
     {
         if ($schema === '') {
@@ -971,6 +975,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * @param array|int|string|null $length length or precision of the column. See {@see ColumnSchemaBuilder::$length}.
      *
      * @return ColumnSchemaBuilder column schema builder instance
+     *
+     * @psalm-param array<array-key, string>|int|null|string $length
      */
     public function createColumnSchemaBuilder(string $type, array|int|string $length = null): ColumnSchemaBuilder
     {
@@ -1082,6 +1088,9 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         throw new InvalidCallException('DB Connection is not active.');
     }
 
+    /**
+     * @throws InvalidConfigException|Throwable|Exception
+     */
     public function getViewNames(string $schema = '', bool $refresh = false): array
     {
         if ($this->viewNames === [] || $refresh) {

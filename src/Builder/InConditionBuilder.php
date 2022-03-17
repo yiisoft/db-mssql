@@ -16,7 +16,6 @@ use Yiisoft\Db\Query\QueryBuilderInterface;
 
 use function implode;
 use function is_array;
-use function strpos;
 
 final class InConditionBuilder extends AbstractInConditionBuilder
 {
@@ -56,7 +55,7 @@ final class InConditionBuilder extends AbstractInConditionBuilder
 
         /** @psalm-var string[] $columns */
         foreach ($columns as $i => $column) {
-            $quotedColumns[$i] = strpos($column, '(') === false
+            $quotedColumns[$i] = !str_contains($column, '(')
                 ? $this->queryBuilder->quoter()->quoteColumnName($column) : $column;
         }
 

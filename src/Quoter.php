@@ -9,10 +9,14 @@ use Yiisoft\Db\Schema\QuoterInterface;
 
 final class Quoter extends BaseQuoter implements QuoterInterface
 {
+    /**
+     * @psalm-param string[] $columnQuoteCharacter
+     * @psalm-param string[] $tableQuoteCharacter
+     */
     public function __construct(
-        private array $columnQuoteCharacter,
-        private array $tableQuoteCharacter,
-        private string $tablePrefix = ''
+        array $columnQuoteCharacter,
+        array $tableQuoteCharacter,
+        string $tablePrefix = ''
     ) {
         parent::__construct($columnQuoteCharacter, $tableQuoteCharacter, $tablePrefix);
     }
@@ -29,7 +33,6 @@ final class Quoter extends BaseQuoter implements QuoterInterface
     protected function getTableNameParts(string $name): array
     {
         $parts = [$name];
-
         preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches);
 
         if (isset($matches[0]) && !empty($matches[0])) {

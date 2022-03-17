@@ -57,6 +57,9 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             . $sql . ';SELECT * FROM @temporary_inserted';
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function resetSequence(string $tableName, mixed $value = null): string
     {
         $table = $this->queryBuilder->schema()->getTableSchema($tableName);
