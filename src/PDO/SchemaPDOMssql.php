@@ -69,6 +69,8 @@ use function stripos;
  */
 final class SchemaPDOMssql extends Schema implements ViewInterface
 {
+    public const DEFAULTS = 'defaults';
+
     /**
      * @var string|null the default schema used for the current session.
      */
@@ -306,7 +308,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTablePrimaryKey(string $tableName): ?Constraint
     {
         /** @var mixed */
-        $tablePrimaryKey = $this->loadTableConstraints($tableName, 'primaryKey');
+        $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
         return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
 
@@ -322,7 +324,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTableForeignKeys(string $tableName): array
     {
         /** @var mixed */
-        $tableForeingKeys = $this->loadTableConstraints($tableName, 'foreignKeys');
+        $tableForeingKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
         return is_array($tableForeingKeys) ? $tableForeingKeys : [];
     }
 
@@ -393,7 +395,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTableUniques(string $tableName): array
     {
         /** @var mixed */
-        $tableUniques = $this->loadTableConstraints($tableName, 'uniques');
+        $tableUniques = $this->loadTableConstraints($tableName, self::UNIQUES);
         return is_array($tableUniques) ? $tableUniques : [];
     }
 
@@ -409,7 +411,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTableChecks(string $tableName): array
     {
         /** @var mixed */
-        $tableCheck = $this->loadTableConstraints($tableName, 'checks');
+        $tableCheck = $this->loadTableConstraints($tableName, self::CHECKS);
         return is_array($tableCheck) ? $tableCheck : [];
     }
 
@@ -425,7 +427,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTableDefaultValues(string $tableName): array
     {
         /** @var mixed */
-        $tableDefault = $this->loadTableConstraints($tableName, 'defaults');
+        $tableDefault = $this->loadTableConstraints($tableName, self::DEFAULTS);
         return is_array($tableDefault) ? $tableDefault : [];
     }
 
