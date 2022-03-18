@@ -24,6 +24,7 @@ use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\Schema\SchemaInterface;
 
+use function array_merge;
 use function preg_match;
 use function preg_replace;
 

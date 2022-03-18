@@ -21,6 +21,10 @@ use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Transaction\TransactionInterface;
 
+use function array_keys;
+use function is_string;
+use function strncmp;
+
 final class ConnectionPDOMssql extends Connection implements ConnectionPDOInterface
 {
     private ?PDO $pdo = null;

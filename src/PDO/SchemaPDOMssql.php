@@ -24,11 +24,17 @@ use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\View\ViewInterface;
 
+use function array_change_key_case;
 use function array_map;
 use function count;
 use function explode;
+use function is_array;
+use function md5;
 use function preg_match;
 use function preg_match_all;
+use function preg_replace;
+use function serialize;
+use function str_contains;
 use function str_replace;
 use function strcasecmp;
 use function stripos;

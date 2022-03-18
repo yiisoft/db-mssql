@@ -9,6 +9,8 @@ use Yiisoft\Db\Pdo\PdoValue;
 use Yiisoft\Db\Schema\ColumnSchema as AbstractColumnSchema;
 use Yiisoft\Db\Schema\Schema;
 
+use function bin2hex;
+use function is_string;
 use function substr;
 
 /**

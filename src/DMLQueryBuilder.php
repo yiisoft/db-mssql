@@ -16,6 +16,11 @@ use Yiisoft\Db\Query\DMLQueryBuilder as AbstractDMLQueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 use Yiisoft\Db\Query\QueryInterface;
 
+use function implode;
+use function in_array;
+use function ltrim;
+use function strrpos;
+
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
     public function __construct(private QueryBuilderInterface $queryBuilder)

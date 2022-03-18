@@ -7,6 +7,10 @@ namespace Yiisoft\Db\Mssql;
 use Yiisoft\Db\Schema\Quoter as BaseQuoter;
 use Yiisoft\Db\Schema\QuoterInterface;
 
+use function preg_match;
+use function preg_match_all;
+use function str_replace;
+
 final class Quoter extends BaseQuoter implements QuoterInterface
 {
     /**

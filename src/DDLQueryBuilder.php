@@ -13,6 +13,8 @@ use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
 use Yiisoft\Db\Query\DDLQueryBuilder as AbstractDDLQueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 
+use function array_diff;
+
 final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 {
     public function __construct(private QueryBuilderInterface $queryBuilder)

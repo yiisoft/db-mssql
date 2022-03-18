@@ -16,6 +16,7 @@ use Yiisoft\Db\Query\QueryBuilderInterface;
 
 use function implode;
 use function is_array;
+use function str_contains;
 
 final class InConditionBuilder extends AbstractInConditionBuilder
 {
