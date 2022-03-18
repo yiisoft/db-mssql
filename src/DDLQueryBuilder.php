@@ -62,7 +62,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     }
 
     /**
-     * @throws NotSupportedException|InvalidConfigException|Throwable|\Yiisoft\Db\Exception\Exception
+     * @throws InvalidConfigException|NotSupportedException|Throwable|\Yiisoft\Db\Exception\Exception
      */
     public function checkIntegrity(string $schema = '', string $table = '', bool $check = true): string
     {
