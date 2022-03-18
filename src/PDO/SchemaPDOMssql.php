@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\PDO;
 
+use PDO;
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Cache\SchemaCache;
@@ -18,17 +19,22 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\ColumnSchema;
-use Yiisoft\Db\Mssql\PDO;
 use Yiisoft\Db\Mssql\TableSchema;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\View\ViewInterface;
 
+use function array_change_key_case;
 use function array_map;
 use function count;
 use function explode;
+use function is_array;
+use function md5;
 use function preg_match;
 use function preg_match_all;
+use function preg_replace;
+use function serialize;
+use function str_contains;
 use function str_replace;
 use function strcasecmp;
 use function stripos;
@@ -63,6 +69,8 @@ use function stripos;
  */
 final class SchemaPDOMssql extends Schema implements ViewInterface
 {
+    public const DEFAULTS = 'defaults';
+
     /**
      * @var string|null the default schema used for the current session.
      */
@@ -124,7 +132,6 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         'table' => self::TYPE_STRING,
     ];
 
-    private ?string $serverVersion = null;
     private array $viewNames = [];
 
     public function __construct(private ConnectionPDOInterface $db, SchemaCache $schemaCache)
@@ -144,9 +151,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function resolveTableName(string $name): TableSchema
     {
         $resolvedName = new TableSchema();
-
         $parts = $this->getTableNameParts($name);
-
         $partCount = count($parts);
 
         if ($partCount === 4) {
@@ -193,6 +198,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * Splits full table name into parts.
      *
      * @param string $name
+     *
+     * @return array
      *
      * @psalm-return string[]
      */
@@ -301,7 +308,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTablePrimaryKey(string $tableName): ?Constraint
     {
         /** @var mixed */
-        $tablePrimaryKey = $this->loadTableConstraints($tableName, 'primaryKey');
+        $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
         return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
 
@@ -317,7 +324,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTableForeignKeys(string $tableName): array
     {
         /** @var mixed */
-        $tableForeingKeys = $this->loadTableConstraints($tableName, 'foreignKeys');
+        $tableForeingKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
         return is_array($tableForeingKeys) ? $tableForeingKeys : [];
     }
 
@@ -388,7 +395,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTableUniques(string $tableName): array
     {
         /** @var mixed */
-        $tableUniques = $this->loadTableConstraints($tableName, 'uniques');
+        $tableUniques = $this->loadTableConstraints($tableName, self::UNIQUES);
         return is_array($tableUniques) ? $tableUniques : [];
     }
 
@@ -404,7 +411,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTableChecks(string $tableName): array
     {
         /** @var mixed */
-        $tableCheck = $this->loadTableConstraints($tableName, 'checks');
+        $tableCheck = $this->loadTableConstraints($tableName, self::CHECKS);
         return is_array($tableCheck) ? $tableCheck : [];
     }
 
@@ -420,7 +427,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     protected function loadTableDefaultValues(string $tableName): array
     {
         /** @var mixed */
-        $tableDefault = $this->loadTableConstraints($tableName, 'defaults');
+        $tableDefault = $this->loadTableConstraints($tableName, self::DEFAULTS);
         return is_array($tableDefault) ? $tableDefault : [];
     }
 
@@ -440,6 +447,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * Releases an existing savepoint.
      *
      * @param string $name the savepoint name.
+     *
+     * @throws NotSupportedException
      */
     public function releaseSavepoint(string $name): void
     {
@@ -639,7 +648,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
             if (empty($columns)) {
                 return false;
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             return false;
         }
 
@@ -789,6 +798,9 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         }
     }
 
+    /**
+     * @throws Exception|InvalidConfigException|Throwable
+     */
     public function findViewNames(string $schema = ''): array
     {
         if ($schema === '') {
@@ -971,6 +983,8 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
      * @param array|int|string|null $length length or precision of the column. See {@see ColumnSchemaBuilder::$length}.
      *
      * @return ColumnSchemaBuilder column schema builder instance
+     *
+     * @psalm-param array<array-key, string>|int|null|string $length
      */
     public function createColumnSchemaBuilder(string $type, array|int|string $length = null): ColumnSchemaBuilder
     {
@@ -1082,6 +1096,9 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         throw new InvalidCallException('DB Connection is not active.');
     }
 
+    /**
+     * @throws Exception|InvalidConfigException|Throwable
+     */
     public function getViewNames(string $schema = '', bool $refresh = false): array
     {
         if ($this->viewNames === [] || $refresh) {

@@ -16,6 +16,11 @@ use Yiisoft\Db\Query\DMLQueryBuilder as AbstractDMLQueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 use Yiisoft\Db\Query\QueryInterface;
 
+use function implode;
+use function in_array;
+use function ltrim;
+use function strrpos;
+
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
     public function __construct(private QueryBuilderInterface $queryBuilder)
@@ -57,6 +62,9 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             . $sql . ';SELECT * FROM @temporary_inserted';
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function resetSequence(string $tableName, mixed $value = null): string
     {
         $table = $this->queryBuilder->schema()->getTableSchema($tableName);

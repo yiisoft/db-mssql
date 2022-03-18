@@ -12,6 +12,8 @@ use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 
+use function is_array;
+
 final class CommandPDOMssql extends Command
 {
     public function __construct(private ConnectionPDOInterface $db, QueryCache $queryCache)

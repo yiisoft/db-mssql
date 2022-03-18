@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\PDO;
 
+use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
@@ -21,6 +24,7 @@ use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\Schema\SchemaInterface;
 
+use function array_merge;
 use function preg_match;
 use function preg_replace;
 
@@ -92,6 +96,9 @@ final class QueryBuilderPDOMssql extends QueryBuilder
         return $this->newBuildOrderByAndLimit($sql, $orderBy, $limit, $offset, $params);
     }
 
+    /**
+     * @throws Exception|InvalidConfigException|NotSupportedException|Throwable
+     */
     public function checkIntegrity(string $schema = '', string $table = '', bool $check = true): string
     {
         return $this->ddlBuilder->checkIntegrity($schema, $table, $check);
@@ -102,11 +109,17 @@ final class QueryBuilderPDOMssql extends QueryBuilder
         return $this->command;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function dropCommentFromColumn(string $table, string $column): string
     {
         return $this->ddlBuilder->dropCommentFromColumn($table, $column);
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function dropCommentFromTable(string $table): string
     {
         return $this->ddlBuilder->dropCommentFromTable($table);
@@ -164,8 +177,6 @@ final class QueryBuilderPDOMssql extends QueryBuilder
      * @param Expression|int|null $offset the offset number. See {@see Query::offset} for more details.
      * @param array $params the binding parameters to be populated.
      *
-     * @psalm-param array<string, Expression|int|string> $orderBy
-     *
      * @throws Exception|InvalidArgumentException
      *
      * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
@@ -203,6 +214,8 @@ final class QueryBuilderPDOMssql extends QueryBuilder
      * Extracts table alias if there is one or returns false
      *
      * @param string $table
+     *
+     * @return array|bool
      *
      * @psalm-return string[]|bool
      */
