@@ -6,7 +6,7 @@ namespace Yiisoft\Db\Mssql\PDO;
 
 use PDOException;
 use Yiisoft\Db\Cache\QueryCache;
-use Yiisoft\Db\Command\CommandPdo;
+use Yiisoft\Db\Command\CommandPDO;
 use Yiisoft\Db\Connection\ConnectionPDOInterface;
 use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\Exception\Exception;
@@ -14,7 +14,7 @@ use Yiisoft\Db\Query\QueryBuilderInterface;
 
 use function is_array;
 
-final class CommandPDOMssql extends CommandPdo
+final class CommandPDOMssql extends CommandPDO
 {
     public function __construct(private ConnectionPDOInterface $db, QueryCache $queryCache)
     {
