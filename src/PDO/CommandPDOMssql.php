@@ -6,7 +6,7 @@ namespace Yiisoft\Db\Mssql\PDO;
 
 use PDOException;
 use Yiisoft\Db\Cache\QueryCache;
-use Yiisoft\Db\Command\Command;
+use Yiisoft\Db\Command\CommandPdo;
 use Yiisoft\Db\Connection\ConnectionPDOInterface;
 use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\Exception\Exception;
@@ -14,7 +14,7 @@ use Yiisoft\Db\Query\QueryBuilderInterface;
 
 use function is_array;
 
-final class CommandPDOMssql extends Command
+final class CommandPDOMssql extends CommandPdo
 {
     public function __construct(private ConnectionPDOInterface $db, QueryCache $queryCache)
     {
@@ -75,10 +75,11 @@ final class CommandPDOMssql extends Command
         }
     }
 
-    protected function getCacheKey(string $rawSql): array
+    protected function getCacheKey(int $queryMode, string $rawSql): array
     {
         return [
             __CLASS__,
+            $queryMode,
             $this->db->getDriver()->getDsn(),
             $this->db->getDriver()->getUsername(),
             $rawSql,
