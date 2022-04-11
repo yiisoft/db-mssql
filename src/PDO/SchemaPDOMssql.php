@@ -239,7 +239,12 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         ORDER BY [s].[name] ASC
         SQL;
 
-        return $this->db->createCommand($sql)->queryColumn();
+        $schemaNames = $this->db->createCommand($sql)->queryColumn();
+        if (!$schemaNames) {
+            return [];
+        }
+
+        return $schemaNames;
     }
 
     /**
@@ -268,6 +273,9 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         SQL;
 
         $tables = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
+        if (!$tables) {
+            return [];
+        }
 
         return array_map(static fn (string $item): string => '[' . $item . ']', $tables);
     }
@@ -815,6 +823,10 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         SQL;
 
         $views = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
+        if (!$views) {
+            return [];
+        }
+
         return array_map(static fn (string $item): string => '[' . $item . ']', $views);
     }
 
