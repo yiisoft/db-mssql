@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\PDO;
 
 use PDO;
-use Yiisoft\Db\Cache\QueryCache;
-use Yiisoft\Db\Cache\SchemaCache;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Connection\ConnectionPDO;
-use Yiisoft\Db\Driver\PDODriver;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\Quoter;
@@ -24,14 +21,6 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  */
 final class ConnectionPDOMssql extends ConnectionPDO
 {
-    public function __construct(
-        protected PDODriver $driver,
-        protected QueryCache $queryCache,
-        protected SchemaCache $schemaCache
-    ) {
-        parent::__construct($queryCache);
-    }
-
     public function createCommand(?string $sql = null, array $params = []): CommandInterface
     {
         $command = new CommandPDOMssql($this, $this->queryCache);
