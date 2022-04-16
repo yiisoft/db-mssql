@@ -15,7 +15,6 @@ use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\ColumnSchema;
@@ -1086,17 +1085,12 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         return array_change_key_case($row, CASE_LOWER);
     }
 
-    public function getLastInsertID(string $sequenceName = ''): string
+    /**
+     * @inheritDoc
+     */
+    public function getLastInsertID(?string $sequenceName = null): string
     {
-        $pdo = $this->db->getPDO();
-
-        if ($pdo !== null && $this->db->isActive()) {
-            return $pdo->lastInsertId(
-                $sequenceName === '' ? null : $this->db->getQuoter()->quoteTableName($sequenceName)
-            );
-        }
-
-        throw new InvalidCallException('DB Connection is not active.');
+        return $this->db->getLastInsertID($sequenceName);
     }
 
     /**
