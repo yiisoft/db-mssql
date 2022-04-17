@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\PDO;
+namespace Yiisoft\Db\Mssql;
 
-use PDO;
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Cache\SchemaCache;
-use Yiisoft\Db\Connection\ConnectionPDOInterface;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constraint\CheckConstraint;
 use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
@@ -17,10 +16,8 @@ use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\ColumnSchema;
-use Yiisoft\Db\Mssql\TableSchema;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
-use Yiisoft\Db\Schema\Schema;
+use Yiisoft\Db\Schema\Schema as AbstractSchema;
 use Yiisoft\Db\View\ViewInterface;
 
 use function array_change_key_case;
@@ -66,7 +63,7 @@ use function stripos;
  *   }
  * >
  */
-final class SchemaPDOMssql extends Schema implements ViewInterface
+final class Schema extends AbstractSchema implements ViewInterface
 {
     public const DEFAULTS = 'defaults';
 
@@ -133,7 +130,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
 
     private array $viewNames = [];
 
-    public function __construct(private ConnectionPDOInterface $db, SchemaCache $schemaCache)
+    public function __construct(private ConnectionInterface $db, SchemaCache $schemaCache)
     {
         parent::__construct($schemaCache);
     }
@@ -365,7 +362,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $indexes */
-        $indexes = $this->normalizePdoRowKeyCase($indexes, true);
+        $indexes = $this->normalizeRowKeyCase($indexes, true);
         $indexes = ArrayHelper::index($indexes, null, 'name');
 
         $result = [];
@@ -922,7 +919,7 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
         $constraints = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $constraints */
-        $constraints = $this->normalizePdoRowKeyCase($constraints, true);
+        $constraints = $this->normalizeRowKeyCase($constraints, true);
         $constraints = ArrayHelper::index($constraints, null, ['type', 'name']);
 
         $result = [
@@ -1061,21 +1058,15 @@ final class SchemaPDOMssql extends Schema implements ViewInterface
     }
 
     /**
-     * Changes row's array key case to lower if PDO one is set to uppercase.
+     * Changes row's array key case to lower.
      *
      * @param array $row row's array or an array of row's arrays.
      * @param bool $multiple whether multiple rows or a single row passed.
      *
-     * @throws Exception
-     *
      * @return array normalized row or rows.
      */
-    protected function normalizePdoRowKeyCase(array $row, bool $multiple): array
+    protected function normalizeRowKeyCase(array $row, bool $multiple): array
     {
-        if ($this->db->getActivePDO()?->getAttribute(PDO::ATTR_CASE) !== PDO::CASE_UPPER) {
-            return $row;
-        }
-
         if ($multiple) {
             return array_map(static function (array $row) {
                 return array_change_key_case($row, CASE_LOWER);
