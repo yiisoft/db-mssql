@@ -9,8 +9,9 @@ use Yiisoft\Cache\CacheKeyNormalizer;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Mssql\PDO\TransactionPDOMssql;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\TestSupport\TestConnectionTrait;
+use Yiisoft\Db\Transaction\TransactionInterface;
 
 /**
  * @group mssql
@@ -202,16 +203,16 @@ final class ConnectionTest extends TestCase
     public function testTransactionIsolation(): void
     {
         $db = $this->getConnection(true);
-        $transaction = $db->beginTransaction(TransactionPDOMssql::READ_UNCOMMITTED);
+        $transaction = $db->beginTransaction(TransactionInterface::READ_UNCOMMITTED);
         $transaction->commit();
 
-        $transaction = $db->beginTransaction(TransactionPDOMssql::READ_COMMITTED);
+        $transaction = $db->beginTransaction(TransactionInterface::READ_COMMITTED);
         $transaction->commit();
 
-        $transaction = $db->beginTransaction(TransactionPDOMssql::REPEATABLE_READ);
+        $transaction = $db->beginTransaction(TransactionInterface::REPEATABLE_READ);
         $transaction->commit();
 
-        $transaction = $db->beginTransaction(TransactionPDOMssql::SERIALIZABLE);
+        $transaction = $db->beginTransaction(TransactionInterface::SERIALIZABLE);
         $transaction->commit();
         /* should not be any exception so far */
         $this->assertTrue(true);
@@ -223,12 +224,20 @@ final class ConnectionTest extends TestCase
         $result = $db->transaction(static function (ConnectionInterface $db): bool {
             $db->createCommand()->insert('profile', ['description' => 'test transaction shortcut'])->execute();
             return true;
-        }, TransactionPDOMssql::READ_UNCOMMITTED);
+        }, TransactionInterface::READ_UNCOMMITTED);
         $this->assertTrue($result, 'transaction shortcut valid value should be returned from callback');
 
         $profilesCount = $db->createCommand(
             "SELECT COUNT(*) FROM profile WHERE description = 'test transaction shortcut';"
         )->queryScalar();
         $this->assertEquals(1, $profilesCount, 'profile should be inserted in transaction shortcut');
+    }
+
+    public function testReleaseSavepoint(): void
+    {
+        $connection = $this->getConnection();
+        $this->expectException(NotSupportedException::class);
+        $this->expectExceptionMessage('Yiisoft\Db\Mssql\PDO\TransactionPDOMssql::releaseSavepoint is not supported.');
+        $connection->createTransaction()->releaseSavepoint('savepoint');
     }
 }

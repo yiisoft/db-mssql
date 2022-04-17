@@ -310,14 +310,6 @@ final class SchemaTest extends TestCase
         $this->assertMetadataEquals($expected, $constraints);
     }
 
-    public function testReleaseSavepoint(): void
-    {
-        $schema = $this->getConnection()->getSchema();
-        $this->expectException(NotSupportedException::class);
-        $this->expectExceptionMessage('Yiisoft\Db\Mssql\Schema::releaseSavepoint is not supported.');
-        $schema->releaseSavepoint('savepoint');
-    }
-
     protected function getExpectedColumns(): array
     {
         return [
