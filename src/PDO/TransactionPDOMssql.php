@@ -47,5 +47,4 @@ final class TransactionPDOMssql extends TransactionPDO
     {
         $this->db->createCommand("ROLLBACK TRANSACTION $name")->execute();
     }
-
 }
