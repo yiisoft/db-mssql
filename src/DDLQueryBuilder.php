@@ -9,7 +9,6 @@ use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
 use Yiisoft\Db\Query\DDLQueryBuilder as AbstractDDLQueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 
@@ -68,7 +67,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     {
         $enable = $check ? 'CHECK' : 'NOCHECK';
 
-        /** @var SchemaPDOMssql */
+        /** @var Schema */
         $schemaInstance = $this->queryBuilder->schema();
         $defaultSchema = $schema ?: $schemaInstance->getDefaultSchema() ?? '';
         /** @psalm-var string[] */

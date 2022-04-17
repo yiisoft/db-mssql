@@ -7,7 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 use PDO;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
+use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\TableSchema;
 use Yiisoft\Db\TestSupport\AnyValue;
 use Yiisoft\Db\TestSupport\TestSchemaTrait;
@@ -50,7 +50,7 @@ final class SchemaTest extends TestCase
 
         $db->createCommand()->createTable(
             'testPKTable',
-            ['id' => SchemaPDOMssql::TYPE_PK, 'bar' => SchemaPDOMssql::TYPE_INTEGER]
+            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
         )->execute();
         $insertResult = $db->createCommand()->insertEx('testPKTable', ['bar' => 1]);
         $selectResult = $db->createCommand('select [id] from [testPKTable] where [bar]=1')->queryOne();
@@ -314,7 +314,7 @@ final class SchemaTest extends TestCase
     {
         $schema = $this->getConnection()->getSchema();
         $this->expectException(NotSupportedException::class);
-        $this->expectExceptionMessage('Yiisoft\Db\Mssql\PDO\SchemaPDOMssql::releaseSavepoint is not supported.');
+        $this->expectExceptionMessage('Yiisoft\Db\Mssql\Schema::releaseSavepoint is not supported.');
         $schema->releaseSavepoint('savepoint');
     }
 

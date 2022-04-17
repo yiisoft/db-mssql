@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Mssql\PDO\SchemaPDOMssql;
+use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestSupport\TestCommandTrait;
 
@@ -56,11 +56,11 @@ final class CommandTest extends TestCase
 
         $db->createCommand()->createTable(
             'testAlterTable',
-            ['id' => SchemaPDOMssql::TYPE_PK, 'bar' => SchemaPDOMssql::TYPE_INTEGER]
+            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
         )->execute();
 
         $db->createCommand()->insert('testAlterTable', ['bar' => 1])->execute();
-        $db->createCommand()->alterColumn('testAlterTable', 'bar', SchemaPDOMssql::TYPE_STRING)->execute();
+        $db->createCommand()->alterColumn('testAlterTable', 'bar', Schema::TYPE_STRING)->execute();
         $db->createCommand()->insert('testAlterTable', ['bar' => 'hello'])->execute();
         $records = $db->createCommand('SELECT [[id]], [[bar]] FROM {{testAlterTable}};')->queryAll();
         $this->assertEquals([['id' => 1, 'bar' => 1], ['id' => 2, 'bar' => 'hello']], $records);
