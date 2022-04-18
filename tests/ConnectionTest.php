@@ -12,6 +12,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\TestSupport\TestConnectionTrait;
 use Yiisoft\Db\Transaction\TransactionInterface;
+use function PHPUnit\Framework\assertEquals;
 
 /**
  * @group mssql
@@ -231,13 +232,5 @@ final class ConnectionTest extends TestCase
             "SELECT COUNT(*) FROM profile WHERE description = 'test transaction shortcut';"
         )->queryScalar();
         $this->assertEquals(1, $profilesCount, 'profile should be inserted in transaction shortcut');
-    }
-
-    public function testReleaseSavepoint(): void
-    {
-        $connection = $this->getConnection();
-        $this->expectException(NotSupportedException::class);
-        $this->expectExceptionMessage('Yiisoft\Db\Mssql\PDO\TransactionPDOMssql::releaseSavepoint is not supported.');
-        $connection->createTransaction()->releaseSavepoint('savepoint');
     }
 }

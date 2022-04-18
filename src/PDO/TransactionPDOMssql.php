@@ -33,7 +33,7 @@ final class TransactionPDOMssql extends TransactionPDO
      */
     public function releaseSavepoint(string $name): void
     {
-        throw new NotSupportedException(__METHOD__ . ' is not supported.');
+        // does nothing as MSSQL does not support this
     }
 
     /**
