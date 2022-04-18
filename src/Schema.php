@@ -15,7 +15,6 @@ use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
 use Yiisoft\Db\View\ViewInterface;
@@ -433,42 +432,6 @@ final class Schema extends AbstractSchema implements ViewInterface
         /** @var mixed */
         $tableDefault = $this->loadTableConstraints($tableName, self::DEFAULTS);
         return is_array($tableDefault) ? $tableDefault : [];
-    }
-
-    /**
-     * Creates a new savepoint.
-     *
-     * @param string $name the savepoint name.
-     *
-     * @throws Exception|InvalidConfigException|Throwable
-     */
-    public function createSavepoint(string $name): void
-    {
-        $this->db->createCommand("SAVE TRANSACTION $name")->execute();
-    }
-
-    /**
-     * Releases an existing savepoint.
-     *
-     * @param string $name the savepoint name.
-     *
-     * @throws NotSupportedException
-     */
-    public function releaseSavepoint(string $name): void
-    {
-        throw new NotSupportedException(__METHOD__ . ' is not supported.');
-    }
-
-    /**
-     * Rolls back to a previously created savepoint.
-     *
-     * @param string $name the savepoint name.
-     *
-     * @throws Exception|InvalidConfigException|Throwable
-     */
-    public function rollBackSavepoint(string $name): void
-    {
-        $this->db->createCommand("ROLLBACK TRANSACTION $name")->execute();
     }
 
     /**
@@ -997,11 +960,6 @@ final class Schema extends AbstractSchema implements ViewInterface
     public function createColumnSchemaBuilder(string $type, array|int|string $length = null): ColumnSchemaBuilder
     {
         return new ColumnSchemaBuilder($type, $length);
-    }
-
-    public function setTransactionIsolationLevel(string $level): void
-    {
-        $this->db->createCommand("SET TRANSACTION ISOLATION LEVEL $level")->execute();
     }
 
     /**
