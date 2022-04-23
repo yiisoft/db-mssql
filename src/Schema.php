@@ -530,12 +530,12 @@ final class Schema extends AbstractSchema implements ViewInterface
                 }
 
                 if ($column->getSize() === 1 && ($type === 'tinyint' || $type === 'bit')) {
-                    $column->type('boolean');
+                    $column->type(self::TYPE_BOOLEAN);
                 } elseif ($type === 'bit') {
                     if ($column->getSize() > 32) {
-                        $column->type('bigint');
+                        $column->type(self::TYPE_BIGINT);
                     } elseif ($column->getSize() === 32) {
-                        $column->type('integer');
+                        $column->type(self::TYPE_INTEGER);
                     }
                 }
             }
@@ -886,11 +886,11 @@ final class Schema extends AbstractSchema implements ViewInterface
         $constraints = ArrayHelper::index($constraints, null, ['type', 'name']);
 
         $result = [
-            'primaryKey' => null,
-            'foreignKeys' => [],
-            'uniques' => [],
-            'checks' => [],
-            'defaults' => [],
+            self::PRIMARY_KEY => null,
+            self::FOREIGN_KEYS => [],
+            self::UNIQUES => [],
+            self::CHECKS => [],
+            self::DEFAULTS => [],
         ];
 
         /** @psalm-var array<array-key, array> $constraints */
@@ -903,12 +903,12 @@ final class Schema extends AbstractSchema implements ViewInterface
                 switch ($type) {
                     case 'PK':
                         /** @var Constraint */
-                        $result['primaryKey'] = (new Constraint())
+                        $result[self::PRIMARY_KEY] = (new Constraint())
                             ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'F':
-                        $result['foreignKeys'][] = (new ForeignKeyConstraint())
+                        $result[self::FOREIGN_KEYS][] = (new ForeignKeyConstraint())
                             ->foreignSchemaName($constraint[0]['foreign_table_schema'])
                             ->foreignTableName($constraint[0]['foreign_table_name'])
                             ->foreignColumnNames(ArrayHelper::getColumn($constraint, 'foreign_column_name'))
@@ -918,18 +918,18 @@ final class Schema extends AbstractSchema implements ViewInterface
                             ->name($name);
                         break;
                     case 'UQ':
-                        $result['uniques'][] = (new Constraint())
+                        $result[self::UNIQUES][] = (new Constraint())
                             ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'C':
-                        $result['checks'][] = (new CheckConstraint())
+                        $result[self::CHECKS][] = (new CheckConstraint())
                             ->expression($constraint[0]['check_expr'])
                             ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'D':
-                        $result['defaults'][] = (new DefaultValueConstraint())
+                        $result[self::DEFAULTS][] = (new DefaultValueConstraint())
                             ->value($constraint[0]['default_expr'])
                             ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
                             ->name($name);
