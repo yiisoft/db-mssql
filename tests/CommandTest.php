@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestSupport\TestCommandTrait;

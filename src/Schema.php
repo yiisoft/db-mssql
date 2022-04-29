@@ -17,6 +17,7 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
+use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\View\ViewInterface;
 
 use function array_change_key_case;
@@ -449,12 +450,12 @@ final class Schema extends AbstractSchema implements ViewInterface
     /**
      * Resolves the table name and schema name (if any).
      *
-     * @param TableSchema $table the table metadata object.
+     * @param TableSchemaInterface $table the table metadata object.
      * @param string $name the table name
      *
      * @todo Review this method and see if it can be simplified @darkdef.
      */
-    protected function resolveTableNames(TableSchema $table, string $name): void
+    protected function resolveTableNames(TableSchemaInterface $table, string $name): void
     {
         $parts = $this->getTableNameParts($name);
 
@@ -557,13 +558,13 @@ final class Schema extends AbstractSchema implements ViewInterface
     /**
      * Collects the metadata of table columns.
      *
-     * @param TableSchema $table the table metadata.
+     * @param TableSchemaInterface $table the table metadata.
      *
      * @throws Throwable
      *
      * @return bool whether the table exists in the database.
      */
-    protected function findColumns(TableSchema $table): bool
+    protected function findColumns(TableSchemaInterface $table): bool
     {
         $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
         $whereSql = '[t1].[table_name] = ' . (string) $this->db->getQuoter()->quoteValue($table->getName());
@@ -641,14 +642,14 @@ final class Schema extends AbstractSchema implements ViewInterface
     /**
      * Collects the constraint details for the given table and constraint type.
      *
-     * @param TableSchema $table
+     * @param TableSchemaInterface $table
      * @param string $type either PRIMARY KEY or UNIQUE.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array each entry contains index_name and field_name.
      */
-    protected function findTableConstraints(TableSchema $table, string $type): array
+    protected function findTableConstraints(TableSchemaInterface $table, string $type): array
     {
         $keyColumnUsageTableName = 'INFORMATION_SCHEMA.KEY_COLUMN_USAGE';
         $tableConstraintsTableName = 'INFORMATION_SCHEMA.TABLE_CONSTRAINTS';
@@ -689,11 +690,11 @@ final class Schema extends AbstractSchema implements ViewInterface
     /**
      * Collects the primary key column details for the given table.
      *
-     * @param TableSchema $table the table metadata
+     * @param TableSchemaInterface $table the table metadata
      *
      * @throws Exception|InvalidConfigException|Throwable
      */
-    protected function findPrimaryKeys(TableSchema $table): void
+    protected function findPrimaryKeys(TableSchemaInterface $table): void
     {
         /** @psalm-var array<array-key, array{index_name: string, field_name: string}> $primaryKeys */
         $primaryKeys = $this->findTableConstraints($table, 'PRIMARY KEY');
@@ -706,11 +707,11 @@ final class Schema extends AbstractSchema implements ViewInterface
     /**
      * Collects the foreign key column details for the given table.
      *
-     * @param TableSchema $table the table metadata
+     * @param TableSchemaInterface $table the table metadata
      *
      * @throws Exception|InvalidConfigException|Throwable
      */
-    protected function findForeignKeys(TableSchema $table): void
+    protected function findForeignKeys(TableSchemaInterface $table): void
     {
         $catalogName = $table->getCatalogName();
         $fk = [];
@@ -801,13 +802,13 @@ final class Schema extends AbstractSchema implements ViewInterface
      * ]
      * ```
      *
-     * @param TableSchema $table the table metadata.
+     * @param TableSchemaInterface $table the table metadata.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array all unique indexes for the given table.
      */
-    public function findUniqueIndexes(TableSchema $table): array
+    public function findUniqueIndexes(TableSchemaInterface $table): array
     {
         $result = [];
 

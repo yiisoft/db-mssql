@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\PDO;
 
 use PDO;
-use Yiisoft\Db\Command\CommandInterface;
+use Yiisoft\Db\Command\CommandPDOInterface;
 use Yiisoft\Db\Connection\ConnectionPDO;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -22,7 +22,7 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  */
 final class ConnectionPDOMssql extends ConnectionPDO
 {
-    public function createCommand(?string $sql = null, array $params = []): CommandInterface
+    public function createCommand(?string $sql = null, array $params = []): CommandPDOInterface
     {
         $command = new CommandPDOMssql($this, $this->queryCache);
 
