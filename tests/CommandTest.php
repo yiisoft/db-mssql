@@ -179,6 +179,7 @@ final class CommandTest extends TestCase
         $sql = 'SELECT int_col, char_col, float_col, CONVERT([nvarchar], blob_col) AS blob_col, numeric_col
             FROM type';
         $row = $db->createCommand($sql)->queryOne();
+        $this->assertIsArray($row);
         $this->assertEquals($intCol, $row['int_col']);
         $this->assertEquals($charCol, trim($row['char_col']));
         $this->assertEquals($floatCol, (float) $row['float_col']);
@@ -246,6 +247,7 @@ final class CommandTest extends TestCase
         $db->createCommand()->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData])->execute();
         $query = (new Query($db))->select(['blob_col'])->from('T_upsert_varbinary')->where(['id' => 1]);
         $resultData = $query->createCommand()->queryOne();
+        $this->assertIsArray($resultData);
         $this->assertEquals($expectedData, $resultData['blob_col']);
     }
 

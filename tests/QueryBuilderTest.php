@@ -13,7 +13,7 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\DDLQueryBuilder;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Schema\ColumnSchema;
+use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\TestSupport\TestQueryBuilderTrait;
 
 /**
@@ -134,6 +134,7 @@ final class QueryBuilderTest extends TestCase
         $db = $this->getConnection();
         $query = (new Query($db))->where($condition);
         [$sql, $params] = $db->getQueryBuilder()->build($query);
+        /** @psalm-suppress PossiblyInvalidOperand */
         $this->assertEquals('SELECT *' . (empty($expected) ? '' : ' WHERE ' . $this->replaceQuotes($expected)), $sql);
         $this->assertEquals($expectedParams, $params);
     }
@@ -150,6 +151,7 @@ final class QueryBuilderTest extends TestCase
         $db = $this->getConnection();
         $query = (new Query($db))->filterWhere($condition);
         [$sql, $params] = $db->getQueryBuilder()->build($query);
+        /** @psalm-suppress PossiblyInvalidOperand */
         $this->assertEquals('SELECT *' . (empty($expected) ? '' : ' WHERE ' . $this->replaceQuotes($expected)), $sql);
         $this->assertEquals($expectedParams, $params);
     }
@@ -181,6 +183,7 @@ final class QueryBuilderTest extends TestCase
         $db = $this->getConnection();
         $params = [];
         $sql = $db->getQueryBuilder()->buildFrom([$table], $params);
+        /** @psalm-suppress PossiblyInvalidOperand */
         $this->assertEquals('FROM ' . $this->replaceQuotes($expected), $sql);
     }
 
@@ -194,8 +197,10 @@ final class QueryBuilderTest extends TestCase
     public function testBuildLikeCondition($condition, string $expected, array $expectedParams): void
     {
         $db = $this->getConnection();
+        /** @psalm-suppress ArgumentTypeCoercion */
         $query = (new Query($db))->where($condition);
         [$sql, $params] = $db->getQueryBuilder()->build($query);
+        /** @psalm-suppress PossiblyInvalidOperand */
         $this->assertEquals('SELECT *' . (empty($expected) ? '' : ' WHERE ' . $this->replaceQuotes($expected)), $sql);
         $this->assertEquals($expectedParams, $params);
     }
@@ -399,7 +404,7 @@ final class QueryBuilderTest extends TestCase
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertProvider()
      *
      * @param string $table
-     * @param array|ColumnSchema $columns
+     * @param array|QueryInterface $columns
      * @param array $params
      * @param string $expectedSQL
      * @param array $expectedParams
@@ -415,7 +420,7 @@ final class QueryBuilderTest extends TestCase
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertExProvider()
      *
      * @param string $table
-     * @param array|ColumnSchema $columns
+     * @param array|QueryInterface $columns
      * @param array $params
      * @param string $expectedSQL
      * @param array $expectedParams
@@ -518,17 +523,17 @@ final class QueryBuilderTest extends TestCase
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::upsertProvider
      *
      * @param string $table
-     * @param array|ColumnSchema|Query $insertColumns
-     * @param array|bool|null $updateColumns
+     * @param array|QueryInterface $insertColumns
+     * @param array|bool $updateColumns
      * @param string|string[] $expectedSQL
-     * @param array|string $expectedParams
+     * @param array $expectedParams
      *
      * @throws Exception|NotSupportedException
      */
     public function testUpsert(
         string $table,
-        array|ColumnSchema|Query $insertColumns,
-        array|bool|null $updateColumns,
+        array|QueryInterface $insertColumns,
+        array|bool $updateColumns,
         array|string $expectedSQL,
         array $expectedParams
     ): void {
@@ -567,6 +572,7 @@ final class QueryBuilderTest extends TestCase
 
         $query = (new Query($db))->select(['blob_col as blob_col'])->from('T_upsert_varbinary')->where(['id' => 1]);
         $resultData = $query->createCommand()->queryOne();
+        $this->assertIsArray($resultData);
         $this->assertEquals($testData, $resultData['blob_col']);
     }
 

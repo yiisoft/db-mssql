@@ -18,7 +18,6 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
 use Yiisoft\Db\Schema\TableSchemaInterface;
-use Yiisoft\Db\View\ViewInterface;
 
 use function array_change_key_case;
 use function array_map;
@@ -63,7 +62,7 @@ use function stripos;
  *   }
  * >
  */
-final class Schema extends AbstractSchema implements ViewInterface
+final class Schema extends AbstractSchema
 {
     public const DEFAULTS = 'defaults';
 
@@ -654,9 +653,10 @@ final class Schema extends AbstractSchema implements ViewInterface
         $keyColumnUsageTableName = 'INFORMATION_SCHEMA.KEY_COLUMN_USAGE';
         $tableConstraintsTableName = 'INFORMATION_SCHEMA.TABLE_CONSTRAINTS';
 
-        if ($table->getCatalogName() !== null) {
-            $keyColumnUsageTableName = $table->getCatalogName() . '.' . $keyColumnUsageTableName;
-            $tableConstraintsTableName = $table->getCatalogName() . '.' . $tableConstraintsTableName;
+        $catalogName = $table->getCatalogName();
+        if ($catalogName !== null) {
+            $keyColumnUsageTableName = $catalogName . '.' . $keyColumnUsageTableName;
+            $tableConstraintsTableName = $catalogName . '.' . $tableConstraintsTableName;
         }
 
         $keyColumnUsageTableName = $this->db->getQuoter()->quoteTableName($keyColumnUsageTableName);

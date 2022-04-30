@@ -9,6 +9,7 @@ use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\TableSchema;
+use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\TestSupport\AnyValue;
 use Yiisoft\Db\TestSupport\TestSchemaTrait;
 
@@ -36,6 +37,7 @@ final class SchemaTest extends TestCase
     {
         $schema = $this->getConnection(true)->getSchema();
         $tUpsert = $schema->getTableSchema('T_upsert');
+        $this->assertInstanceOf(TableSchemaInterface::class, $tUpsert);
         $this->assertContains([0 => 'email', 1 => 'recovery_email'], $schema->findUniqueIndexes($tUpsert));
         $this->assertContains([0 => 'email'], $schema->findUniqueIndexes($tUpsert));
     }
@@ -54,6 +56,8 @@ final class SchemaTest extends TestCase
         )->execute();
         $insertResult = $db->createCommand()->insertEx('testPKTable', ['bar' => 1]);
         $selectResult = $db->createCommand('select [id] from [testPKTable] where [bar]=1')->queryOne();
+        $this->assertIsArray($insertResult);
+        $this->assertIsArray($selectResult);
         $this->assertEquals($selectResult['id'], $insertResult['id']);
     }
 
@@ -70,7 +74,13 @@ final class SchemaTest extends TestCase
     public function testGetStringFieldsSize(): void
     {
         $schema = $this->getConnection()->getSchema();
-        $columns = $schema->getTableSchema('type', false)->getColumns();
+        $tableSchema = $schema->getTableSchema('type', false);
+        $this->assertInstanceOf(TableSchemaInterface::class, $tableSchema);
+        $columns = $tableSchema->getColumns();
+
+        $expectedType = null;
+        $expectedSize = null;
+        $expectedDbType = null;
 
         foreach ($columns as $name => $column) {
             $type = $column->getType();
@@ -117,7 +127,7 @@ final class SchemaTest extends TestCase
                 continue;
             }
 
-            $db->getPDO()->setAttribute($name, $value);
+            $db->getPDO()?->setAttribute($name, $value);
         }
 
         $schema = $db->getSchema();
@@ -142,6 +152,7 @@ final class SchemaTest extends TestCase
     public function testGetTableSchema(string $name, string $expectedName): void
     {
         $tableSchema = $this->getConnection()->getSchema()->getTableSchema($name);
+        $this->assertInstanceOf(TableSchemaInterface::class, $tableSchema);
         $this->assertEquals($expectedName, $tableSchema->getName());
     }
 
@@ -159,7 +170,7 @@ final class SchemaTest extends TestCase
                 continue;
             }
 
-            $db->getPDO()->setAttribute($name, $value);
+            $db->getPDO()?->setAttribute($name, $value);
         }
 
         $schema = $db->getSchema();
@@ -209,6 +220,7 @@ final class SchemaTest extends TestCase
         $db = $this->getConnection();
         $schema = $db->getSchema();
 
+        $this->assertNotNull($this->schemaCache);
         $this->schemaCache->setEnable(true);
 
         $db->setTablePrefix($tablePrefix);
