@@ -26,11 +26,13 @@ final class SchemaTest extends TestCase
         'dbo',
     ];
 
-    public function testFindViewNames(): void
+    public function testGetViewNames(): void
     {
         $schema = $this->getConnection()->getSchema();
-        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->findViewNames());
-        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->findViewNames('dbo'));
+
+        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->getViewNames());
+        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->getViewNames('dbo'));
+        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->getViewNames('dbo', true));
     }
 
     public function testFindUniquesIndex(): void
@@ -180,12 +182,6 @@ final class SchemaTest extends TestCase
         foreach ($tables as $table) {
             $this->assertInstanceOf(TableSchema::class, $table);
         }
-    }
-
-    public function testGetViewNames(): void
-    {
-        $schema = $this->getConnection()->getSchema();
-        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->getViewNames('dbo', true));
     }
 
     /**
