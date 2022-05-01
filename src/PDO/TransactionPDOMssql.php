@@ -8,7 +8,7 @@ use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Transaction\TransactionPDO;
+use Yiisoft\Db\Driver\PDO\TransactionPDO;
 
 final class TransactionPDOMssql extends TransactionPDO
 {
