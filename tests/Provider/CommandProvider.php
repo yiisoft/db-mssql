@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use PDO;
+use Yiisoft\Db\Driver\PDO\PDOValue;
 use Yiisoft\Db\Mssql\Tests\TestCase;
-use Yiisoft\Db\Pdo\PdoValue;
 
 use function json_encode;
 use function serialize;
@@ -31,7 +31,7 @@ final class CommandProvider extends TestCase
             ],
             [
                 serialize(['string' => 'string', 'integer' => 1234]),
-                new PdoValue(serialize(['string' => 'string', 'integer' => 1234]), PDO::PARAM_LOB),
+                new PDOValue(serialize(['string' => 'string', 'integer' => 1234]), PDO::PARAM_LOB),
             ],
             [
                 'simple string',

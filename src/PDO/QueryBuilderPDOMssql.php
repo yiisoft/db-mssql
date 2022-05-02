@@ -79,7 +79,7 @@ final class QueryBuilderPDOMssql extends QueryBuilder
         return $this->ddlBuilder->addCommentOnTable($table, $comment);
     }
 
-    public function alterColumn(string $table, string $column, string $type): string
+    public function alterColumn(string $table, string $column, string|ColumnSchemaBuilder $type): string
     {
         $type = $this->getColumnType($type);
         return $this->ddlBuilder->alterColumn($table, $column, $type);
