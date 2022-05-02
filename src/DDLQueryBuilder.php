@@ -12,6 +12,7 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Query\DDLQueryBuilder as AbstractDDLQueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 
+use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use function array_diff;
 
 final class DDLQueryBuilder extends AbstractDDLQueryBuilder
@@ -50,7 +51,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . ' FOR ' . $this->queryBuilder->quoter()->quoteColumnName($column);
     }
 
-    public function alterColumn(string $table, string $column, string $type): string
+    public function alterColumn(string $table, string $column, ColumnSchemaBuilder|string $type): string
     {
         return 'ALTER TABLE '
             . $this->queryBuilder->quoter()->quoteTableName($table)
