@@ -51,7 +51,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . ' FOR ' . $this->queryBuilder->quoter()->quoteColumnName($column);
     }
 
-    public function alterColumn(string $table, string $column, string|ColumnSchemaBuilder $type): string
+    public function alterColumn(string $table, string $column, ColumnSchemaBuilder|string $type): string
     {
         return 'ALTER TABLE '
             . $this->queryBuilder->quoter()->quoteTableName($table)
