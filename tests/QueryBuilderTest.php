@@ -6,7 +6,6 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use Closure;
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
@@ -393,11 +392,6 @@ final class QueryBuilderTest extends TestCase
         $db = $this->getConnection();
         $this->assertSame($expectedSQL, $db->getQueryBuilder()->delete($table, $condition, $actualParams));
         $this->assertSame($expectedParams, $actualParams);
-    }
-
-    public function testGetCommand(): void
-    {
-        $this->assertInstanceOf(CommandInterface::class, $this->getConnection()->getQueryBuilder()->command());
     }
 
     /**

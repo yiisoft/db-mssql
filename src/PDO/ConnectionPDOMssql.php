@@ -58,7 +58,6 @@ final class ConnectionPDOMssql extends ConnectionPDO
     {
         if ($this->queryBuilder === null) {
             $this->queryBuilder = new QueryBuilderPDOMssql(
-                $this->createCommand(),
                 $this->getQuoter(),
                 $this->getSchema(),
             );
