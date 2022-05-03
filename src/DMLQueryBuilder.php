@@ -20,6 +20,8 @@ use function implode;
 use function in_array;
 use function ltrim;
 use function strrpos;
+use function is_array;
+use function reset;
 
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
@@ -37,19 +39,19 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
          * @psalm-var string[] $names
          * @psalm-var string[] $placeholders
          */
-        [$names, $placeholders, $values, $params] = $this->queryBuilder->prepareInsertValues($table, $columns, $params);
+        [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
 
         $sql = 'INSERT INTO '
-            . $this->queryBuilder->quoter()->quoteTableName($table)
+            . $this->quoter->quoteTableName($table)
             . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
             . ' OUTPUT INSERTED.* INTO @temporary_inserted'
             . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : (string) $values);
 
         $cols = [];
-        $tableSchema = $this->queryBuilder->schema()->getTableSchema($table);
+        $tableSchema = $this->schema->getTableSchema($table);
         $returnColumns = $tableSchema?->getColumns() ?? [];
         foreach ($returnColumns as $returnColumn) {
-            $cols[] = $this->queryBuilder->quoter()->quoteColumnName($returnColumn->getName()) . ' '
+            $cols[] = $this->quoter->quoteColumnName($returnColumn->getName()) . ' '
                 . $returnColumn->getDbType()
                 . (in_array(
                     $returnColumn->getDbType(),
@@ -67,14 +69,14 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function resetSequence(string $tableName, mixed $value = null): string
     {
-        $table = $this->queryBuilder->schema()->getTableSchema($tableName);
+        $table = $this->schema->getTableSchema($tableName);
 
         if ($table !== null && $table->getSequenceName() !== null) {
-            $tableName = $this->queryBuilder->quoter()->quoteTableName($tableName);
+            $tableName = $this->quoter->quoteTableName($tableName);
 
             if ($value === null) {
                 $pk = $table->getPrimaryKey();
-                $key = $this->queryBuilder->quoter()->quoteColumnName(reset($pk));
+                $key = $this->quoter->quoteColumnName(reset($pk));
                 $value = "(SELECT COALESCE(MAX($key),0) FROM $tableName)+1";
             } else {
                 $value = (int)$value;
@@ -99,7 +101,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         $constraints = [];
 
         /** @psalm-var string[] $insertNames */
-        [$uniqueNames, $insertNames, $updateNames] = $this->queryBuilder->prepareUpsertColumns(
+        [$uniqueNames, $insertNames, $updateNames] = $this->prepareUpsertColumns(
             $table,
             $insertColumns,
             $updateColumns,
@@ -111,7 +113,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         }
 
         $onCondition = ['or'];
-        $quotedTableName = $this->queryBuilder->quoter()->quoteTableName($table);
+        $quotedTableName = $this->quoter->quoteTableName($table);
 
         foreach ($constraints as $constraint) {
             $constraintCondition = ['and'];
@@ -121,7 +123,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             if (is_array($columnNames)) {
                 /** @psalm-var string[] $columnNames */
                 foreach ($columnNames as $name) {
-                    $quotedName = $this->queryBuilder->quoter()->quoteColumnName($name);
+                    $quotedName = $this->quoter->quoteColumnName($name);
                     $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
                 }
             }
@@ -132,15 +134,15 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         $on = $this->queryBuilder->buildCondition($onCondition, $params);
 
         /** @psalm-var string[] $placeholders */
-        [, $placeholders, $values, $params] = $this->queryBuilder->prepareInsertValues($table, $insertColumns, $params);
-        $mergeSql = 'MERGE ' . $this->queryBuilder->quoter()->quoteTableName($table) . ' WITH (HOLDLOCK) '
+        [, $placeholders, $values, $params] = $this->prepareInsertValues($table, $insertColumns, $params);
+        $mergeSql = 'MERGE ' . $this->quoter->quoteTableName($table) . ' WITH (HOLDLOCK) '
             . 'USING (' . (!empty($placeholders)
             ? 'VALUES (' . implode(', ', $placeholders) . ')'
             : ltrim((string) $values, ' ')) . ') AS [EXCLUDED] (' . implode(', ', $insertNames) . ') ' . "ON ($on)";
         $insertValues = [];
 
         foreach ($insertNames as $name) {
-            $quotedName = $this->queryBuilder->quoter()->quoteColumnName($name);
+            $quotedName = $this->quoter->quoteColumnName($name);
 
             if (strrpos($quotedName, '.') === false) {
                 $quotedName = '[EXCLUDED].' . $quotedName;
@@ -160,7 +162,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
             /** @psalm-var string[] $updateNames */
             foreach ($updateNames as $name) {
-                $quotedName = $this->queryBuilder->quoter()->quoteColumnName($name);
+                $quotedName = $this->quoter->quoteColumnName($name);
                 if (strrpos($quotedName, '.') === false) {
                     $quotedName = '[EXCLUDED].' . $quotedName;
                 }
@@ -174,7 +176,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
          * @psalm-var string[] $updates
          * @psalm-var array<string, ExpressionInterface|string> $updateColumns
          */
-        [$updates, $params] = $this->queryBuilder->prepareUpdateSets($table, $updateColumns, $params);
+        [$updates, $params] = $this->prepareUpdateSets($table, $updateColumns, $params);
         $updateSql = 'UPDATE SET ' . implode(', ', $updates);
 
         return "$mergeSql WHEN MATCHED THEN $updateSql WHEN NOT MATCHED THEN $insertSql;";

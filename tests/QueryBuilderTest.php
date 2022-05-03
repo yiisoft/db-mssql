@@ -395,11 +395,6 @@ final class QueryBuilderTest extends TestCase
         $this->assertSame($expectedParams, $actualParams);
     }
 
-    public function testGetCommand(): void
-    {
-        $this->assertInstanceOf(CommandInterface::class, $this->getConnection()->getQueryBuilder()->command());
-    }
-
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertProvider()
      *
