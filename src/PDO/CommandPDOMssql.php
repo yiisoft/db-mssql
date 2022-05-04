@@ -8,6 +8,7 @@ use PDOException;
 use Yiisoft\Db\Driver\PDO\CommandPDO;
 use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\Query\QueryBuilderInterface;
+use Yiisoft\Db\Schema\SchemaInterface;
 
 use function is_array;
 
@@ -33,6 +34,11 @@ final class CommandPDOMssql extends CommandPDO
     public function queryBuilder(): QueryBuilderInterface
     {
         return $this->db->getQueryBuilder();
+    }
+
+    public function schema(): SchemaInterface
+    {
+        return $this->db->getSchema();
     }
 
     protected function internalExecute(?string $rawSql): void

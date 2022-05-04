@@ -112,10 +112,11 @@ final class QueryBuilderTest extends TestCase
 
     public function testBuildAddCommentSql(): void
     {
+        $db = $this->getConnection();
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Table not found: noExist');
         $this->invokeMethod(
-            new DDLQueryBuilder($this->getConnection()->getQueryBuilder()),
+            new DDLQueryBuilder($db->getQueryBuilder(), $db->getQuoter(), $db->getSchema()),
             'buildAddCommentSql',
             ['', 'noExist'],
         );
@@ -206,10 +207,11 @@ final class QueryBuilderTest extends TestCase
 
     public function testBuildRemoveCommentSql(): void
     {
+        $db = $this->getConnection();
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Table not found: noExist');
         $this->invokeMethod(
-            new DDLQueryBuilder($this->getConnection()->getQueryBuilder()),
+            new DDLQueryBuilder($db->getQueryBuilder(), $db->getQuoter(), $db->getSchema()),
             'buildRemoveCommentSql',
             ['noExist'],
         );

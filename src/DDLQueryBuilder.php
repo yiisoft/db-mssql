@@ -12,14 +12,19 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Query\DDLQueryBuilder as AbstractDDLQueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
+use Yiisoft\Db\Schema\QuoterInterface;
+use Yiisoft\Db\Schema\SchemaInterface;
 
 use function array_diff;
 
 final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 {
-    public function __construct(private QueryBuilderInterface $queryBuilder)
-    {
-        parent::__construct($queryBuilder);
+    public function __construct(
+        private QueryBuilderInterface $queryBuilder,
+        private QuoterInterface $quoter,
+        private SchemaInterface $schema
+    ) {
+        parent::__construct($queryBuilder, $quoter, $schema);
     }
 
     /**
@@ -44,19 +49,19 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     public function addDefaultValue(string $name, string $table, string $column, mixed $value): string
     {
         return 'ALTER TABLE '
-            . $this->queryBuilder->quoter()->quoteTableName($table)
+            . $this->quoter->quoteTableName($table)
             . ' ADD CONSTRAINT '
-            . $this->queryBuilder->quoter()->quoteColumnName($name)
-            . ' DEFAULT ' . (string) $this->queryBuilder->quoter()->quoteValue($value)
-            . ' FOR ' . $this->queryBuilder->quoter()->quoteColumnName($column);
+            . $this->quoter->quoteColumnName($name)
+            . ' DEFAULT ' . (string) $this->quoter->quoteValue($value)
+            . ' FOR ' . $this->quoter->quoteColumnName($column);
     }
 
     public function alterColumn(string $table, string $column, ColumnSchemaBuilder|string $type): string
     {
         return 'ALTER TABLE '
-            . $this->queryBuilder->quoter()->quoteTableName($table)
+            . $this->quoter->quoteTableName($table)
             . ' ALTER COLUMN '
-            . $this->queryBuilder->quoter()->quoteColumnName($column)
+            . $this->quoter->quoteColumnName($column)
             . ' '
             . $this->queryBuilder->getColumnType($type);
     }
@@ -79,7 +84,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         $command = '';
 
         foreach ($tableNames as $tableName) {
-            $tableName = $this->queryBuilder->quoter()->quoteTableName("$defaultSchema.$tableName");
+            $tableName = $this->quoter->quoteTableName("$defaultSchema.$tableName");
             $command .= "ALTER TABLE $tableName $enable CONSTRAINT ALL; ";
         }
 
@@ -105,24 +110,24 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     public function dropDefaultValue(string $name, string $table): string
     {
         return 'ALTER TABLE '
-            . $this->queryBuilder->quoter()->quoteTableName($table)
+            . $this->quoter->quoteTableName($table)
             . ' DROP CONSTRAINT '
-            . $this->queryBuilder->quoter()->quoteColumnName($name);
+            . $this->quoter->quoteColumnName($name);
     }
 
     public function renameTable(string $oldName, string $newName): string
     {
         return 'sp_rename '
-            . $this->queryBuilder->quoter()->quoteTableName($oldName) . ', '
-            . $this->queryBuilder->quoter()->quoteTableName($newName);
+            . $this->quoter->quoteTableName($oldName) . ', '
+            . $this->quoter->quoteTableName($newName);
     }
 
     public function renameColumn(string $table, string $oldName, string $newName): string
     {
         return 'sp_rename '
-            . $this->queryBuilder->quoter()->quoteTableName($table) . '.'
-            . $this->queryBuilder->quoter()->quoteColumnName($oldName) . ', '
-            . $this->queryBuilder->quoter()->quoteColumnName($newName)
+            . $this->quoter->quoteTableName($table) . '.'
+            . $this->quoter->quoteColumnName($oldName) . ', '
+            . $this->quoter->quoteColumnName($newName)
             . ' COLUMN';
     }
 
@@ -150,9 +155,9 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
         $schemaName = $tableSchema->getSchemaName()
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . (string) $this->queryBuilder->quoter()->quoteValue($column) : null;
-        $comment = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($comment);
+        $tableName = 'N' . (string) $this->quoter->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . (string) $this->quoter->quoteValue($column) : null;
+        $comment = 'N' . (string) $this->quoter->quoteValue($comment);
         $functionParams = "
             @name = N'MS_description',
             @value = $comment,
@@ -199,8 +204,8 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
         $schemaName = $tableSchema->getSchemaName()
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . (string) $this->queryBuilder->quoter()->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . (string) $this->queryBuilder->quoter()->quoteValue($column) : null;
+        $tableName = 'N' . (string) $this->quoter->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . (string) $this->quoter->quoteValue($column) : null;
 
         return "
             IF EXISTS (
