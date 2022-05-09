@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql;
+namespace Yiisoft\Db\Mssql\PDO\Dblib;
 
 use PDO as AbstractPDO;
 use PDOException;
@@ -75,7 +75,7 @@ final class PDO extends AbstractPDO
      * @return mixed A successful call returns the value of the requested PDO attribute.
      * An unsuccessful call returns null.
      */
-    public function getAttribute(int $attribute): mixed
+    public function getAttribute($attribute): mixed
     {
         try {
             return parent::getAttribute($attribute);

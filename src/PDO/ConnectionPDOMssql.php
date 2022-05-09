@@ -46,11 +46,6 @@ final class ConnectionPDOMssql extends ConnectionPDO
         return new TransactionPDOMssql($this);
     }
 
-    public function getDriverName(): string
-    {
-        return 'sqlsrv';
-    }
-
     /**
      * @throws Exception|InvalidConfigException
      */
@@ -98,6 +93,5 @@ final class ConnectionPDOMssql extends ConnectionPDO
     protected function initConnection(): void
     {
         $this->pdo = $this->driver->createConnection();
-        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 }

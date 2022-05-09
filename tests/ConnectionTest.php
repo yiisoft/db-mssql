@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PDO;
 use Yiisoft\Cache\CacheKeyNormalizer;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -208,5 +209,11 @@ final class ConnectionTest extends TestCase
             "SELECT COUNT(*) FROM profile WHERE description = 'test transaction shortcut';"
         )->queryScalar();
         $this->assertEquals(1, $profilesCount, 'profile should be inserted in transaction shortcut');
+    }
+
+    public function testSettingDefaultAttributes(): void
+    {
+        $db = $this->getConnection();
+        $this->assertEquals(PDO::ERRMODE_EXCEPTION, $db->getActivePDO()->getAttribute(PDO::ATTR_ERRMODE));
     }
 }
