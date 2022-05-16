@@ -49,7 +49,7 @@ final class InConditionBuilder extends AbstractInConditionBuilder
     protected function buildCompositeInCondition(
         ?string $operator,
         array|Traversable $columns,
-        array|Traversable $values,
+        iterable|Iterator $values,
         array &$params = []
     ): string {
         $quotedColumns = [];
