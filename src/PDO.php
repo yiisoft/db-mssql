@@ -22,7 +22,9 @@ final class PDO extends AbstractPDO
      */
     public function lastInsertId($sequence = null): string
     {
-        return (string) $this->query('SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS bigint)')->fetchColumn();
+        return (string) $this
+            ->query('SELECT CAST(COALESCE(SCOPE_IDENTITY(), @@IDENTITY) AS bigint)')
+            ->fetchColumn();
     }
 
     /**
@@ -82,7 +84,9 @@ final class PDO extends AbstractPDO
             return parent::getAttribute($attribute);
         } catch (PDOException $e) {
             if ($attribute === self::ATTR_SERVER_VERSION) {
-                return $this->query("SELECT CAST(SERVERPROPERTY('productversion') AS VARCHAR)")->fetchColumn();
+                return $this
+                    ->query("SELECT CAST(SERVERPROPERTY('productversion') AS VARCHAR)")
+                    ->fetchColumn();
             }
 
             throw $e;

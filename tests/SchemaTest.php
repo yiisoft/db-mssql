@@ -200,7 +200,9 @@ final class SchemaTest extends TestCase
 
     public function testGetSchemaNames(): void
     {
-        $schema = $this->getConnection()->getSchema();
+        $schema = $this
+            ->getConnection()
+            ->getSchema();
 
         $schemas = $schema->getSchemaNames();
 
@@ -217,7 +219,9 @@ final class SchemaTest extends TestCase
 
         $schema = $db->getSchema();
 
-        $columns = $schema->getTableSchema('type', false)->getColumns();
+        $columns = $schema
+            ->getTableSchema('type', false)
+            ->getColumns();
 
         foreach ($columns as $name => $column) {
             $type = $column->getType();
@@ -274,7 +278,9 @@ final class SchemaTest extends TestCase
                 continue;
             }
 
-            $db->getPDO()->setAttribute($name, $value);
+            $db
+                ->getPDO()
+                ->setAttribute($name, $value);
         }
 
         $schema = $db->getSchema();
@@ -309,7 +315,9 @@ final class SchemaTest extends TestCase
                 continue;
             }
 
-            $db->getPDO()->setAttribute($name, $value);
+            $db
+                ->getPDO()
+                ->setAttribute($name, $value);
         }
 
         $schema = $db->getSchema();
@@ -331,7 +339,9 @@ final class SchemaTest extends TestCase
      */
     public function testGetTableSchema(string $name, string $expectedName): void
     {
-        $schema = $this->getConnection()->getSchema();
+        $schema = $this
+            ->getConnection()
+            ->getSchema();
         $tableSchema = $schema->getTableSchema($name);
 
         $this->assertEquals($expectedName, $tableSchema->getName());
@@ -359,7 +369,9 @@ final class SchemaTest extends TestCase
      */
     public function testQuoteTableName(string $name, string $expectedName): void
     {
-        $schema = $this->getConnection()->getSchema();
+        $schema = $this
+            ->getConnection()
+            ->getSchema();
         $quotedName = $schema->quoteTableName($name);
 
         $this->assertEquals($expectedName, $quotedName);
@@ -402,7 +414,9 @@ final class SchemaTest extends TestCase
             $this->expectException(NotSupportedException::class);
         }
 
-        $constraints = $this->getConnection()->getSchema()->{'getTable' . ucfirst($type)}($tableName);
+        $constraints = $this
+            ->getConnection()
+            ->getSchema()->{'getTable' . ucfirst($type)}($tableName);
 
         $this->assertMetadataEquals($expected, $constraints);
     }
@@ -422,7 +436,9 @@ final class SchemaTest extends TestCase
 
         $connection = $this->getConnection();
 
-        $connection->getSlavePdo()->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+        $connection
+            ->getSlavePdo()
+            ->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 
         $constraints = $connection->getSchema()->{'getTable' . ucfirst($type)}($tableName, true);
 
@@ -444,7 +460,9 @@ final class SchemaTest extends TestCase
 
         $connection = $this->getConnection();
 
-        $connection->getSlavePdo()->setAttribute(PDO::ATTR_CASE, PDO::CASE_UPPER);
+        $connection
+            ->getSlavePdo()
+            ->setAttribute(PDO::ATTR_CASE, PDO::CASE_UPPER);
 
         $constraints = $connection->getSchema()->{'getTable' . ucfirst($type)}($tableName, true);
 
@@ -468,7 +486,9 @@ final class SchemaTest extends TestCase
         string $testTableName
     ): void {
         $db = $this->getConnection();
-        $schema = $this->getConnection()->getSchema();
+        $schema = $this
+            ->getConnection()
+            ->getSchema();
 
         $this->schemaCache->setEnable(true);
 
@@ -510,17 +530,29 @@ final class SchemaTest extends TestCase
     {
         $db = $this->getConnection();
 
-        if ($db->getSchema()->getTableSchema('testPKTable') !== null) {
-            $db->createCommand()->dropTable('testPKTable')->execute();
+        if ($db
+                ->getSchema()
+                ->getTableSchema('testPKTable') !== null) {
+            $db
+                ->createCommand()
+                ->dropTable('testPKTable')
+                ->execute();
         }
 
-        $db->createCommand()->createTable(
-            'testPKTable',
-            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
-        )->execute();
+        $db
+            ->createCommand()
+            ->createTable(
+                'testPKTable',
+                ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
+            )
+            ->execute();
 
-        $insertResult = $db->getSchema()->insert('testPKTable', ['bar' => 1]);
-        $selectResult = $db->createCommand('select [id] from [testPKTable] where [bar]=1')->queryOne();
+        $insertResult = $db
+            ->getSchema()
+            ->insert('testPKTable', ['bar' => 1]);
+        $selectResult = $db
+            ->createCommand('select [id] from [testPKTable] where [bar]=1')
+            ->queryOne();
 
         $this->assertEquals($selectResult['id'], $insertResult['id']);
     }

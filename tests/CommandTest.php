@@ -33,23 +33,37 @@ final class CommandTest extends TestCase
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
-            $db->createCommand()->dropTable($tableName)->execute();
+            $db
+                ->createCommand()
+                ->dropTable($tableName)
+                ->execute();
         }
 
-        $db->createCommand()->createTable($tableName, [
-            'int1' => 'integer',
-        ])->execute();
+        $db
+            ->createCommand()
+            ->createTable($tableName, [
+                'int1' => 'integer',
+            ])
+            ->execute();
 
         $this->assertEmpty($schema->getTableChecks($tableName, true));
 
-        $db->createCommand()->addCheck($name, $tableName, '[[int1]] > 1')->execute();
+        $db
+            ->createCommand()
+            ->addCheck($name, $tableName, '[[int1]] > 1')
+            ->execute();
 
         $this->assertMatchesRegularExpression(
             '/^.*int1.*>.*1.*$/',
-            $schema->getTableChecks($tableName, true)[0]->getExpression()
+            $schema
+                ->getTableChecks($tableName, true)
+                ->getExpression()
         );
 
-        $db->createCommand()->dropCheck($name, $tableName)->execute();
+        $db
+            ->createCommand()
+            ->dropCheck($name, $tableName)
+            ->execute();
 
         $this->assertEmpty($schema->getTableChecks($tableName, true));
     }
@@ -116,7 +130,9 @@ final class CommandTest extends TestCase
         $sql = 'SELECT int_col, char_col, float_col, CONVERT([nvarchar], blob_col) AS blob_col, numeric_col
             FROM type';
 
-        $row = $db->createCommand($sql)->queryOne();
+        $row = $db
+            ->createCommand($sql)
+            ->queryOne();
 
         $this->assertEquals($intCol, $row['int_col']);
         $this->assertEquals($charCol, trim($row['char_col']));
@@ -146,22 +162,41 @@ final class CommandTest extends TestCase
     {
         $db = $this->getConnection();
 
-        if ($db->getSchema()->getTableSchema('testAlterTable') !== null) {
-            $db->createCommand()->dropTable('testAlterTable')->execute();
+        if ($db
+                ->getSchema()
+                ->getTableSchema('testAlterTable') !== null) {
+            $db
+                ->createCommand()
+                ->dropTable('testAlterTable')
+                ->execute();
         }
 
-        $db->createCommand()->createTable(
-            'testAlterTable',
-            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
-        )->execute();
+        $db
+            ->createCommand()
+            ->createTable(
+                'testAlterTable',
+                ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
+            )
+            ->execute();
 
-        $db->createCommand()->insert('testAlterTable', ['bar' => 1])->execute();
+        $db
+            ->createCommand()
+            ->insert('testAlterTable', ['bar' => 1])
+            ->execute();
 
-        $db->createCommand()->alterColumn('testAlterTable', 'bar', Schema::TYPE_STRING)->execute();
+        $db
+            ->createCommand()
+            ->alterColumn('testAlterTable', 'bar', Schema::TYPE_STRING)
+            ->execute();
 
-        $db->createCommand()->insert('testAlterTable', ['bar' => 'hello'])->execute();
+        $db
+            ->createCommand()
+            ->insert('testAlterTable', ['bar' => 'hello'])
+            ->execute();
 
-        $records = $db->createCommand('SELECT [[id]], [[bar]] FROM {{testAlterTable}};')->queryAll();
+        $records = $db
+            ->createCommand('SELECT [[id]], [[bar]] FROM {{testAlterTable}};')
+            ->queryAll();
 
         $this->assertEquals([
             ['id' => 1, 'bar' => 1],
@@ -179,23 +214,37 @@ final class CommandTest extends TestCase
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema($tableName) !== null) {
-            $db->createCommand()->dropTable($tableName)->execute();
+            $db
+                ->createCommand()
+                ->dropTable($tableName)
+                ->execute();
         }
 
-        $db->createCommand()->createTable($tableName, [
-            'int1' => 'integer',
-        ])->execute();
+        $db
+            ->createCommand()
+            ->createTable($tableName, [
+                'int1' => 'integer',
+            ])
+            ->execute();
 
         $this->assertEmpty($schema->getTableDefaultValues($tableName, true));
 
-        $db->createCommand()->addDefaultValue($name, $tableName, 'int1', 41)->execute();
+        $db
+            ->createCommand()
+            ->addDefaultValue($name, $tableName, 'int1', 41)
+            ->execute();
 
         $this-> assertMatchesRegularExpression(
             '/^.*41.*$/',
-            $schema->getTableDefaultValues($tableName, true)[0]->getValue()
+            $schema
+                ->getTableDefaultValues($tableName, true)
+                ->getValue()
         );
 
-        $db->createCommand()->dropDefaultValue($name, $tableName)->execute();
+        $db
+            ->createCommand()
+            ->dropDefaultValue($name, $tableName)
+            ->execute();
 
         $this->assertEmpty($schema->getTableDefaultValues($tableName, true));
     }
@@ -269,14 +318,17 @@ final class CommandTest extends TestCase
     {
         $db = $this->getConnection();
 
-        $db->createCommand()->insert(
-            'customer',
-            [
-                'name' => 'testParams',
-                'email' => 'testParams@example.com',
-                'address' => '1',
-            ]
-        )->execute();
+        $db
+            ->createCommand()
+            ->insert(
+                'customer',
+                [
+                    'name' => 'testParams',
+                    'email' => 'testParams@example.com',
+                    'address' => '1',
+                ]
+            )
+            ->execute();
 
         $params = [
             ':email' => 'testParams@example.com',
@@ -321,17 +373,21 @@ final class CommandTest extends TestCase
 
         $query = new Query($db);
 
-        $query->select($invalidSelectColumns)->from('{{customer}}');
+        $query
+            ->select($invalidSelectColumns)
+            ->from('{{customer}}');
 
         $command = $db->createCommand();
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Expected select query object with enumerated (named) parameters');
 
-        $command->insert(
-            '{{customer}}',
-            $query
-        )->execute();
+        $command
+            ->insert(
+                '{{customer}}',
+                $query
+            )
+            ->execute();
     }
 
     /**
@@ -345,16 +401,24 @@ final class CommandTest extends TestCase
     {
         $db = $this->getConnection();
 
-        $db->createCommand()->delete('T_upsert_varbinary')->execute();
+        $db
+            ->createCommand()
+            ->delete('T_upsert_varbinary')
+            ->execute();
 
-        $db->createCommand()->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData])->execute();
+        $db
+            ->createCommand()
+            ->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData])
+            ->execute();
 
         $query = (new Query($db))
             ->select(['blob_col'])
             ->from('T_upsert_varbinary')
             ->where(['id' => 1]);
 
-        $resultData = $query->createCommand()->queryOne();
+        $resultData = $query
+            ->createCommand()
+            ->queryOne();
 
         $this->assertEquals($expectedData, $resultData['blob_col']);
     }
@@ -389,11 +453,15 @@ final class CommandTest extends TestCase
     {
         $db = $this->getConnection(true);
 
-        $this->assertEquals(0, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
+        $this->assertEquals(0, $db
+            ->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')
+            ->queryScalar());
 
         $this->performAndCompareUpsertResult($db, $firstData);
 
-        $this->assertEquals(1, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
+        $this->assertEquals(1, $db
+            ->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')
+            ->queryScalar());
 
         $this->performAndCompareUpsertResult($db, $secondData);
     }
@@ -408,7 +476,9 @@ final class CommandTest extends TestCase
         $qb = $db->getQueryBuilder();
         $sql = $qb->upsert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData], ['blob_col' => $testData], $params);
 
-        $result = $db->createCommand($sql, $params)->execute();
+        $result = $db
+            ->createCommand($sql, $params)
+            ->execute();
 
         $this->assertEquals(1, $result);
 
@@ -417,7 +487,9 @@ final class CommandTest extends TestCase
             ->from('T_upsert_varbinary')
             ->where(['id' => 1]);
 
-        $resultData = $query->createCommand()->queryOne();
+        $resultData = $query
+            ->createCommand()
+            ->queryOne();
         $this->assertEquals($testData, $resultData['blob_col']);
     }
 }

@@ -57,7 +57,9 @@ final class QueryBuilderTest extends TestCase
                 DEFAULT, DEFAULT
         )';
 
-        return $db->createCommand($sql)->queryAll();
+        return $db
+            ->createCommand($sql)
+            ->queryAll();
     }
 
     protected function getCommentsFromColumn(string $table, string $column): array
@@ -72,7 +74,9 @@ final class QueryBuilderTest extends TestCase
                 'COLUMN', N" . $db->quoteValue($column) . '
         )';
 
-        return $db->createCommand($sql)->queryAll();
+        return $db
+            ->createCommand($sql)
+            ->queryAll();
     }
 
     protected function runAddCommentOnTable(string $comment, string $table): int
@@ -83,7 +87,9 @@ final class QueryBuilderTest extends TestCase
 
         $sql = $qb->addCommentOnTable($table, $comment);
 
-        return $db->createCommand($sql)->execute();
+        return $db
+            ->createCommand($sql)
+            ->execute();
     }
 
     protected function runAddCommentOnColumn(string $comment, string $table, string $column): int
@@ -94,7 +100,9 @@ final class QueryBuilderTest extends TestCase
 
         $sql = $qb->addCommentOnColumn($table, $column, $comment);
 
-        return $db->createCommand($sql)->execute();
+        return $db
+            ->createCommand($sql)
+            ->execute();
     }
 
     protected function runDropCommentFromTable(string $table): int
@@ -105,7 +113,9 @@ final class QueryBuilderTest extends TestCase
 
         $sql = $qb->dropCommentFromTable($table);
 
-        return $db->createCommand($sql)->execute();
+        return $db
+            ->createCommand($sql)
+            ->execute();
     }
 
     protected function runDropCommentFromColumn(string $table, string $column): int
@@ -116,7 +126,9 @@ final class QueryBuilderTest extends TestCase
 
         $sql = $qb->dropCommentFromColumn($table, $column);
 
-        return $db->createCommand($sql)->execute();
+        return $db
+            ->createCommand($sql)
+            ->execute();
     }
 
     public function testOffsetLimit(): void
@@ -128,9 +140,15 @@ final class QueryBuilderTest extends TestCase
 
         $query = new Query($db);
 
-        $query->select('id')->from('example')->limit(10)->offset(5);
+        $query
+            ->select('id')
+            ->from('example')
+            ->limit(10)
+            ->offset(5);
 
-        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
+        [$actualQuerySql, $actualQueryParams] = $this
+            ->getQueryBuilder()
+            ->build($query);
 
         $this->assertEquals($expectedQuerySql, $actualQuerySql);
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
@@ -145,9 +163,14 @@ final class QueryBuilderTest extends TestCase
 
         $query = new Query($db);
 
-        $query->select('id')->from('example')->limit(10);
+        $query
+            ->select('id')
+            ->from('example')
+            ->limit(10);
 
-        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
+        [$actualQuerySql, $actualQueryParams] = $this
+            ->getQueryBuilder()
+            ->build($query);
 
         $this->assertEquals($expectedQuerySql, $actualQuerySql);
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
@@ -162,9 +185,14 @@ final class QueryBuilderTest extends TestCase
 
         $query = new Query($db);
 
-        $query->select('id')->from('example')->offset(10);
+        $query
+            ->select('id')
+            ->from('example')
+            ->offset(10);
 
-        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
+        [$actualQuerySql, $actualQueryParams] = $this
+            ->getQueryBuilder()
+            ->build($query);
 
         $this->assertEquals($expectedQuerySql, $actualQuerySql);
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
@@ -314,7 +342,9 @@ final class QueryBuilderTest extends TestCase
      */
     public function testAddDropCheck(string $sql, Closure $builder): void
     {
-        $this->assertSame($this->getConnection()->quoteSql($sql), $builder($this->getQueryBuilder(false)));
+        $this->assertSame($this
+            ->getConnection()
+            ->quoteSql($sql), $builder($this->getQueryBuilder(false)));
     }
 
     /**
@@ -325,7 +355,9 @@ final class QueryBuilderTest extends TestCase
      */
     public function testAddDropForeignKey(string $sql, Closure $builder): void
     {
-        $this->assertSame($this->getConnection()->quoteSql($sql), $builder($this->getQueryBuilder(false)));
+        $this->assertSame($this
+            ->getConnection()
+            ->quoteSql($sql), $builder($this->getQueryBuilder(false)));
     }
 
     /**
@@ -336,7 +368,9 @@ final class QueryBuilderTest extends TestCase
      */
     public function testAddDropPrimaryKey(string $sql, Closure $builder): void
     {
-        $this->assertSame($this->getConnection()->quoteSql($sql), $builder($this->getQueryBuilder()));
+        $this->assertSame($this
+            ->getConnection()
+            ->quoteSql($sql), $builder($this->getQueryBuilder()));
     }
 
     /**
@@ -347,7 +381,9 @@ final class QueryBuilderTest extends TestCase
      */
     public function testAddDropUnique(string $sql, Closure $builder): void
     {
-        $this->assertSame($this->getConnection()->quoteSql($sql), $builder($this->getQueryBuilder(false)));
+        $this->assertSame($this
+            ->getConnection()
+            ->quoteSql($sql), $builder($this->getQueryBuilder(false)));
     }
 
     public function batchInsertProvider()
@@ -416,7 +452,9 @@ final class QueryBuilderTest extends TestCase
 
         $query = (new Query($db))->where($condition);
 
-        [$sql, $params] = $this->getQueryBuilder()->build($query);
+        [$sql, $params] = $this
+            ->getQueryBuilder()
+            ->build($query);
 
         $this->assertEquals('SELECT *' . (empty($expected) ? '' : ' WHERE ' . $this->replaceQuotes($expected)), $sql);
         $this->assertEquals($expectedParams, $params);
@@ -433,7 +471,9 @@ final class QueryBuilderTest extends TestCase
     {
         $query = (new Query($this->getConnection()))->filterWhere($condition);
 
-        [$sql, $params] = $this->getQueryBuilder()->build($query);
+        [$sql, $params] = $this
+            ->getQueryBuilder()
+            ->build($query);
 
         $this->assertEquals('SELECT *' . (empty($expected) ? '' : ' WHERE ' . $this->replaceQuotes($expected)), $sql);
         $this->assertEquals($expectedParams, $params);
@@ -470,7 +510,9 @@ final class QueryBuilderTest extends TestCase
     {
         $params = [];
 
-        $sql = $this->getQueryBuilder()->buildFrom([$table], $params);
+        $sql = $this
+            ->getQueryBuilder()
+            ->buildFrom([$table], $params);
 
         $this->assertEquals('FROM ' . $this->replaceQuotes($expected), $sql);
     }
@@ -488,7 +530,9 @@ final class QueryBuilderTest extends TestCase
 
         $query = (new Query($db))->where($condition);
 
-        [$sql, $params] = $this->getQueryBuilder()->build($query);
+        [$sql, $params] = $this
+            ->getQueryBuilder()
+            ->build($query);
 
         $this->assertEquals('SELECT *' . (empty($expected) ? '' : ' WHERE ' . $this->replaceQuotes($expected)), $sql);
         $this->assertEquals($expectedParams, $params);
@@ -508,16 +552,20 @@ final class QueryBuilderTest extends TestCase
 
         $subQuery = new Query($db);
 
-        $subQuery->select('1')
+        $subQuery
+            ->select('1')
             ->from('Website w');
 
         $query = new Query($db);
 
-        $query->select('id')
+        $query
+            ->select('id')
             ->from('TotalExample t')
             ->where([$cond, $subQuery]);
 
-        [$actualQuerySql, $actualQueryParams] = $this->getQueryBuilder()->build($query);
+        [$actualQuerySql, $actualQueryParams] = $this
+            ->getQueryBuilder()
+            ->build($query);
 
         $this->assertEquals($expectedQuerySql, $actualQuerySql);
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
@@ -530,7 +578,9 @@ final class QueryBuilderTest extends TestCase
      */
     public function testCreateDropIndex(string $sql, Closure $builder): void
     {
-        $this->assertSame($this->getConnection()->quoteSql($sql), $builder($this->getQueryBuilder(false)));
+        $this->assertSame($this
+            ->getConnection()
+            ->quoteSql($sql), $builder($this->getQueryBuilder(false)));
     }
 
     /**
@@ -545,7 +595,9 @@ final class QueryBuilderTest extends TestCase
     {
         $actualParams = [];
 
-        $actualSQL = $this->getQueryBuilder()->delete($table, $condition, $actualParams);
+        $actualSQL = $this
+            ->getQueryBuilder()
+            ->delete($table, $condition, $actualParams);
 
         $this->assertSame($expectedSQL, $actualSQL);
         $this->assertSame($expectedParams, $actualParams);
@@ -661,7 +713,9 @@ final class QueryBuilderTest extends TestCase
     {
         $actualParams = $params;
 
-        $actualSQL = $this->getQueryBuilder()->insert($table, $columns, $actualParams);
+        $actualSQL = $this
+            ->getQueryBuilder()
+            ->insert($table, $columns, $actualParams);
 
         $this->assertSame($expectedSQL, $actualSQL);
         $this->assertSame($expectedParams, $actualParams);
@@ -679,13 +733,15 @@ final class QueryBuilderTest extends TestCase
     public function testUpdate(
         string $table,
         array $columns,
-        $condition,
+               $condition,
         string $expectedSQL,
         array $expectedParams
     ): void {
         $actualParams = [];
 
-        $actualSQL = $this->getQueryBuilder()->update($table, $columns, $condition, $actualParams);
+        $actualSQL = $this
+            ->getQueryBuilder()
+            ->update($table, $columns, $condition, $actualParams);
 
         $this->assertSame($expectedSQL, $actualSQL);
         $this->assertSame($expectedParams, $actualParams);
@@ -696,93 +752,93 @@ final class QueryBuilderTest extends TestCase
         $concreteData = [
             'regular values' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ([email],'
-                . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
-                . ' UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status], [profile_id]'
-                . '=[EXCLUDED].[profile_id] WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id])'
-                . ' VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+                    . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
+                    . ' UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status], [profile_id]'
+                    . '=[EXCLUDED].[profile_id] WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id])'
+                    . ' VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
             ],
 
             'regular values with update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ([email],'
-                . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
-                . ' UPDATE SET [address]=:qp4, [status]=:qp5, [orders]=T_upsert.orders + 1 WHEN NOT MATCHED THEN'
-                . ' INSERT ([email], [address], [status], [profile_id]) VALUES ([EXCLUDED].[email],'
-                . ' [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+                    . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
+                    . ' UPDATE SET [address]=:qp4, [status]=:qp5, [orders]=T_upsert.orders + 1 WHEN NOT MATCHED THEN'
+                    . ' INSERT ([email], [address], [status], [profile_id]) VALUES ([EXCLUDED].[email],'
+                    . ' [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
             ],
 
             'regular values without update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ([email],'
-                . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN NOT MATCHED THEN'
-                . ' INSERT ([email], [address], [status], [profile_id]) VALUES ([EXCLUDED].[email],'
-                . ' [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+                    . ' [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN NOT MATCHED THEN'
+                    . ' INSERT ([email], [address], [status], [profile_id]) VALUES ([EXCLUDED].[email],'
+                    . ' [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
             ],
 
             'query' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] WHERE'
-                . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
-                . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN UPDATE SET'
-                . ' [status]=[EXCLUDED].[status] WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES'
-                . ' ([EXCLUDED].[email], [EXCLUDED].[status]);',
+                    . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
+                    . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN UPDATE SET'
+                    . ' [status]=[EXCLUDED].[status] WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES'
+                    . ' ([EXCLUDED].[email], [EXCLUDED].[status]);',
             ],
 
             'query with update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] WHERE'
-                . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
-                . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN UPDATE SET'
-                . ' [address]=:qp1, [status]=:qp2, [orders]=T_upsert.orders + 1 WHEN NOT MATCHED THEN'
-                . ' INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
+                    . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
+                    . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN MATCHED THEN UPDATE SET'
+                    . ' [address]=:qp1, [status]=:qp2, [orders]=T_upsert.orders + 1 WHEN NOT MATCHED THEN'
+                    . ' INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
             ],
 
             'query without update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] WHERE'
-                . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
-                . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN NOT MATCHED THEN INSERT ([email],'
-                . ' [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
+                    . ' [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ([email],'
+                    . ' [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) WHEN NOT MATCHED THEN INSERT ([email],'
+                    . ' [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
             ],
 
             'values and expressions' => [
                 3 => 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [ts] int NULL, [email] varchar(128)'
-                . ' , [recovery_email] varchar(128) NULL, [address] text NULL, [status] tinyint , [orders] int ,'
-                . ' [profile_id] int NULL);'
-                . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
-                . ' INTO @temporary_inserted VALUES (:qp0, now());'
-                . 'SELECT * FROM @temporary_inserted',
+                    . ' , [recovery_email] varchar(128) NULL, [address] text NULL, [status] tinyint , [orders] int ,'
+                    . ' [profile_id] int NULL);'
+                    . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
+                    . ' INTO @temporary_inserted VALUES (:qp0, now());'
+                    . 'SELECT * FROM @temporary_inserted',
             ],
 
             'values and expressions with update part' => [
                 3 => 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [ts] int NULL, [email] varchar(128)'
-                . ' , [recovery_email] varchar(128) NULL, [address] text NULL, [status] tinyint , [orders] int ,'
-                . ' [profile_id] int NULL);'
-                . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
-                . ' INTO @temporary_inserted VALUES (:qp0, now());'
-                . 'SELECT * FROM @temporary_inserted',
+                    . ' , [recovery_email] varchar(128) NULL, [address] text NULL, [status] tinyint , [orders] int ,'
+                    . ' [profile_id] int NULL);'
+                    . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
+                    . ' INTO @temporary_inserted VALUES (:qp0, now());'
+                    . 'SELECT * FROM @temporary_inserted',
             ],
 
             'values and expressions without update part' => [
                 3 => 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [ts] int NULL, [email] varchar(128)'
-                . ' , [recovery_email] varchar(128) NULL, [address] text NULL, [status] tinyint , [orders] int ,'
-                . ' [profile_id] int NULL);'
-                . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
-                . ' INTO @temporary_inserted VALUES (:qp0, now());'
-                . 'SELECT * FROM @temporary_inserted',
+                    . ' , [recovery_email] varchar(128) NULL, [address] text NULL, [status] tinyint , [orders] int ,'
+                    . ' [profile_id] int NULL);'
+                    . 'INSERT INTO {{%T_upsert}} ({{%T_upsert}}.[[email]], [[ts]]) OUTPUT INSERTED.*'
+                    . ' INTO @temporary_inserted VALUES (:qp0, now());'
+                    . 'SELECT * FROM @temporary_inserted',
             ],
 
             'query, values and expressions with update part' => [
                 3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], now() AS [[time]]) AS'
-                . ' [EXCLUDED] ([email], [[time]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
-                . ' UPDATE SET [ts]=:qp1, [[orders]]=T_upsert.orders + 1 WHEN NOT MATCHED THEN INSERT ([email],'
-                . ' [[time]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[time]]);',
+                    . ' [EXCLUDED] ([email], [[time]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
+                    . ' UPDATE SET [ts]=:qp1, [[orders]]=T_upsert.orders + 1 WHEN NOT MATCHED THEN INSERT ([email],'
+                    . ' [[time]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[time]]);',
             ],
 
             'query, values and expressions without update part' => [
                 3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], now() AS [[time]])'
-                . ' AS [EXCLUDED] ([email], [[time]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
-                . ' UPDATE SET [ts]=:qp1, [[orders]]=T_upsert.orders + 1 WHEN NOT MATCHED THEN INSERT ([email],'
-                . ' [[time]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[time]]);',
+                    . ' AS [EXCLUDED] ([email], [[time]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) WHEN MATCHED THEN'
+                    . ' UPDATE SET [ts]=:qp1, [[orders]]=T_upsert.orders + 1 WHEN NOT MATCHED THEN INSERT ([email],'
+                    . ' [[time]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[time]]);',
             ],
             'no columns to update' => [
                 3 => 'MERGE [T_upsert_1] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED] ([a]) ON'
-                . ' ([T_upsert_1].[a]=[EXCLUDED].[a]) WHEN NOT MATCHED THEN INSERT ([a]) VALUES ([EXCLUDED].[a]);',
+                    . ' ([T_upsert_1].[a]=[EXCLUDED].[a]) WHEN NOT MATCHED THEN INSERT ([a]) VALUES ([EXCLUDED].[a]);',
             ],
         ];
 
@@ -813,7 +869,8 @@ final class QueryBuilderTest extends TestCase
     {
         $actualParams = [];
 
-        $actualSQL = $this->getQueryBuilder(true)
+        $actualSQL = $this
+            ->getQueryBuilder(true)
             ->upsert($table, $insertColumns, $updateColumns, $actualParams);
 
         if (is_string($expectedSQL)) {
