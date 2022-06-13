@@ -6,8 +6,8 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\TestCase;
+use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Query\QueryBuilderInterface;
 use Yiisoft\Db\TestSupport\Provider\QueryBuilderProvider as BaseQueryBuilderProvider;
 use Yiisoft\Db\TestSupport\TraversableObject;
 
