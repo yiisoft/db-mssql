@@ -7,7 +7,7 @@ namespace Yiisoft\Db\Mssql\PDO;
 use PDOException;
 use Yiisoft\Db\Driver\PDO\CommandPDO;
 use Yiisoft\Db\Exception\ConvertException;
-use Yiisoft\Db\Query\QueryBuilderInterface;
+use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 
 use function is_array;

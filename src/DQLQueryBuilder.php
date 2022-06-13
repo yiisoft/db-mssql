@@ -9,9 +9,9 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
-use Yiisoft\Db\Query\Conditions\InCondition;
-use Yiisoft\Db\Query\Conditions\LikeCondition;
-use Yiisoft\Db\Query\DQLQueryBuilder as AbstractDQLQueryBuilder;
+use Yiisoft\Db\QueryBuilder\DQLQueryBuilder as AbstractDQLQueryBuilder;
+use Yiisoft\Db\QueryBuilder\Conditions\InCondition;
+use Yiisoft\Db\QueryBuilder\Conditions\LikeCondition;
 
 use function array_merge;
 use function preg_match;

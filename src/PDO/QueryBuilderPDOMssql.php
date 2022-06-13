@@ -7,7 +7,7 @@ namespace Yiisoft\Db\Mssql\PDO;
 use Yiisoft\Db\Mssql\DDLQueryBuilder;
 use Yiisoft\Db\Mssql\DMLQueryBuilder;
 use Yiisoft\Db\Mssql\DQLQueryBuilder;
-use Yiisoft\Db\Query\QueryBuilder;
+use Yiisoft\Db\QueryBuilder\QueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\Schema;
