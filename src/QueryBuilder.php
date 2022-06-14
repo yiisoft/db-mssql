@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use Yiisoft\Db\Mssql\DDLQueryBuilder;
-use Yiisoft\Db\Mssql\DMLQueryBuilder;
-use Yiisoft\Db\Mssql\DQLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\QueryBuilder as AbstractQueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\QuoterInterface;
