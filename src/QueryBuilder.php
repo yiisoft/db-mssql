@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\PDO;
+namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Mssql\DDLQueryBuilder;
 use Yiisoft\Db\Mssql\DMLQueryBuilder;
 use Yiisoft\Db\Mssql\DQLQueryBuilder;
-use Yiisoft\Db\QueryBuilder\QueryBuilder;
+use Yiisoft\Db\QueryBuilder\QueryBuilder as AbstractQueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\Schema;
@@ -15,7 +15,7 @@ use Yiisoft\Db\Schema\SchemaInterface;
 
 use function preg_replace;
 
-final class QueryBuilderPDOMssql extends QueryBuilder
+final class QueryBuilder extends AbstractQueryBuilder
 {
     /**
      * Defines a CLUSTERED index type for {@see createIndex()}.

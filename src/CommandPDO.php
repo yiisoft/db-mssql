@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\PDO;
+namespace Yiisoft\Db\Mssql;
 
 use PDOException;
-use Yiisoft\Db\Driver\PDO\CommandPDO;
+use Yiisoft\Db\Driver\PDO\CommandPDO as AbstractCommandPDO;
 use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 
 use function is_array;
 
-final class CommandPDOMssql extends CommandPDO
+final class CommandPDO extends AbstractCommandPDO
 {
     /**
      * @inheritDoc

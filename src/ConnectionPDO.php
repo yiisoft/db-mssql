@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\PDO;
+namespace Yiisoft\Db\Mssql;
 
 use PDO;
 use Yiisoft\Db\Driver\PDO\CommandPDOInterface;
-use Yiisoft\Db\Driver\PDO\ConnectionPDO;
+use Yiisoft\Db\Driver\PDO\ConnectionPDO as AbstractConnectionPDO;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\Quoter;
@@ -20,11 +20,11 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  * Database connection class prefilled for Microsoft SQL Server.
  * The class Connection represents a connection to a database via [PDO](https://secure.php.net/manual/en/book.pdo.php).
  */
-final class ConnectionPDOMssql extends ConnectionPDO
+final class ConnectionPDO extends AbstractConnectionPDO
 {
     public function createCommand(?string $sql = null, array $params = []): CommandPDOInterface
     {
-        $command = new CommandPDOMssql($this, $this->queryCache);
+        $command = new CommandPDO($this, $this->queryCache);
 
         if ($sql !== null) {
             $command->setSql($sql);
@@ -43,7 +43,7 @@ final class ConnectionPDOMssql extends ConnectionPDO
 
     public function createTransaction(): TransactionInterface
     {
-        return new TransactionPDOMssql($this);
+        return new TransactionPDO($this);
     }
 
     /**
@@ -52,7 +52,7 @@ final class ConnectionPDOMssql extends ConnectionPDO
     public function getQueryBuilder(): QueryBuilderInterface
     {
         if ($this->queryBuilder === null) {
-            $this->queryBuilder = new QueryBuilderPDOMssql(
+            $this->queryBuilder = new QueryBuilder(
                 $this->getQuoter(),
                 $this->getSchema(),
             );
