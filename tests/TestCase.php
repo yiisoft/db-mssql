@@ -6,8 +6,8 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use Exception;
 use PHPUnit\Framework\TestCase as AbstractTestCase;
-use Yiisoft\Db\Mssql\PDO\PDODriver;
-use Yiisoft\Db\Mssql\PDO\ConnectionPDOMssql;
+use Yiisoft\Db\Mssql\PDODriver;
+use Yiisoft\Db\Mssql\ConnectionPDO as ConnectionPDOMssql;
 use Yiisoft\Db\TestSupport\TestTrait;
 
 class TestCase extends AbstractTestCase

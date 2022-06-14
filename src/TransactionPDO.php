@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\PDO;
+namespace Yiisoft\Db\Mssql;
 
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Driver\PDO\TransactionPDO;
+use Yiisoft\Db\Driver\PDO\TransactionPDO as AbstractTransactionPDO;
 
-final class TransactionPDOMssql extends TransactionPDO
+final class TransactionPDO extends AbstractTransactionPDO
 {
     /**
      * Creates a new savepoint.
