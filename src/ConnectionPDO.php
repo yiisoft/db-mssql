@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use PDO;
 use Yiisoft\Db\Driver\PDO\CommandPDOInterface;
 use Yiisoft\Db\Driver\PDO\ConnectionPDO as AbstractConnectionPDO;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Query\BatchQueryResultInterface;
+use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
@@ -20,6 +21,11 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  */
 final class ConnectionPDO extends AbstractConnectionPDO
 {
+    public function createBatchQueryResult(QueryInterface $query, bool $each = false): BatchQueryResultInterface
+    {
+        return new BatchQueryResult($query, $each);
+    }
+
     public function createCommand(?string $sql = null, array $params = []): CommandPDOInterface
     {
         $command = new CommandPDO($this, $this->queryCache);
