@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 use Closure;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\IntegrityException;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
@@ -236,7 +237,6 @@ final class QueryBuilderTest extends TestCase
         $this->assertEquals($expectedQueryParams, $actualQueryParams);
     }
 
-    /** @todo Check method checkIntegrity @darkdef */
     public function testCheckIntegrity(): void
     {
         $this->assertEqualsWithoutLE(
@@ -245,6 +245,21 @@ final class QueryBuilderTest extends TestCase
             SQL . ' ',
             $this->getConnection()->getQueryBuilder()->checkIntegrity('dbo', 'animal'),
         );
+    }
+
+    public function testCheckIntegrityExecute(): void
+    {
+        $schema = 'dbo';
+        $tableName = 'T_constraints_3';
+
+        $db = $this->getConnection();
+        $db->createCommand()->checkIntegrity($schema, $tableName, false)->execute();
+        $sql = 'INSERT INTO {{' . $tableName . '}}([[C_id]], [[C_fk_id_1]], [[C_fk_id_2]]) VALUES (1, 2, 3)';
+        $command = $db->createCommand($sql);
+        $command->execute();
+        $db->createCommand()->checkIntegrity($schema, $tableName, true)->execute();
+        $this->expectException(IntegrityException::class);
+        $command->execute();
     }
 
     public function testCommentAdditionOnQuotedTableOrColumn(): void
