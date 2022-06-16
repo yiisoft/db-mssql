@@ -260,7 +260,6 @@ final class QueryBuilderTest extends TestCase
         $db->createCommand()->checkIntegrity($schema, $tableName, true)->execute();
         $this->expectException(IntegrityException::class);
         $command->execute();
-
     }
 
     public function testCommentAdditionOnQuotedTableOrColumn(): void
