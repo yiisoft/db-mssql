@@ -254,7 +254,7 @@ final class QueryBuilderTest extends TestCase
 
         $db = $this->getConnection();
         $db->createCommand()->checkIntegrity($schema, $tableName, false)->execute();
-        $sql = 'INSERT INTO {{'. $tableName .'}}([[C_id]], [[C_fk_id_1]], [[C_fk_id_2]]) VALUES (1, 2, 3)';
+        $sql = 'INSERT INTO {{' . $tableName . '}}([[C_id]], [[C_fk_id_1]], [[C_fk_id_2]]) VALUES (1, 2, 3)';
         $command = $db->createCommand($sql);
         $command->execute();
         $db->createCommand()->checkIntegrity($schema, $tableName, true)->execute();
