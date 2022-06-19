@@ -221,11 +221,9 @@ SQL;
 
         $tables = $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
 
-        $tables = array_map(static function ($item) {
+        return array_map(static function ($item) {
             return '[' . $item . ']';
         }, $tables);
-
-        return $tables;
     }
 
     /**
@@ -751,11 +749,9 @@ ORDER BY [t].[table_name]
 SQL;
 
         $views = $this->getDb()->createCommand($sql, [':schema' => $schema])->queryColumn();
-        $views = array_map(static function ($item) {
+        return array_map(static function ($item) {
             return '[' . $item . ']';
         }, $views);
-
-        return $views;
     }
 
     /**
