@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use Yiisoft\Db\Driver\PDO\PDOValue;
+use Yiisoft\Db\Command\ParamInterface;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\ColumnSchema as AbstractColumnSchema;
 use Yiisoft\Db\Schema\Schema;
@@ -38,8 +38,8 @@ final class ColumnSchema extends AbstractColumnSchema
     public function dbTypecast(mixed $value): mixed
     {
         if ($this->getType() === Schema::TYPE_BINARY && $this->getDbType() === 'varbinary') {
-            if ($value instanceof PDOValue && is_string($value->getValue())) {
-                $value = $value->getValue();
+            if ($value instanceof ParamInterface && is_string($value->getValue())) {
+                $value = (string) $value->getValue();
             }
             if (is_string($value)) {
                 return new Expression('CONVERT(VARBINARY(MAX), ' . ('0x' . bin2hex($value)) . ')');
