@@ -21,7 +21,7 @@ final class ConnectionTest extends TestCase
     public function testGetDriverName(): void
     {
         $db = $this->getConnection();
-        $this->assertEquals('sqlsrv', $db->getDriverName());
+        $this->assertEquals('sqlsrv', $db->getDriver()->getDriverName());
     }
 
     /**
