@@ -65,6 +65,11 @@ final class ConnectionPDO extends AbstractConnectionPDO
         return $this->queryBuilder;
     }
 
+    public function getName(): string
+    {
+        return $this->getDriver()->getName();
+    }
+
     public function getQuoter(): QuoterInterface
     {
         if ($this->quoter === null) {
