@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\TestUtility\TestQueryTrait;
+use Yiisoft\Db\TestSupport\TestQueryTrait;
 
 /**
  * @group mssql
@@ -39,7 +39,6 @@ final class QueryTest extends TestCase
             );
 
         $result = $query->all();
-
         $this->assertNotEmpty($result);
         $this->assertCount(4, $result);
     }
