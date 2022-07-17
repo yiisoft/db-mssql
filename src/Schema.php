@@ -18,6 +18,8 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
+use Yiisoft\Db\Schema\TableName;
+use Yiisoft\Db\Schema\TableNameInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_change_key_case;
@@ -143,9 +145,13 @@ final class Schema extends AbstractSchema
      * @todo Review this method and see if it can be simplified @darkdef.
      * also see case `wrongBehaviour` in \Yiisoft\Db\TestSupport\TestCommandTrait::batchInsertSqlProviderTrait
      */
-    protected function resolveTableName(string $name): TableSchemaInterface
+    protected function resolveTableName(string|TableSchemaInterface $name): TableSchemaInterface
     {
         $resolvedName = new TableSchema();
+//        $this->resolveTableNames($resolvedName, $name);
+//
+//        return $resolvedName;
+
         $parts = $this->getTableNameParts($name);
         $partCount = count($parts);
 
@@ -270,13 +276,13 @@ final class Schema extends AbstractSchema
     /**
      * Loads the metadata for the specified table.
      *
-     * @param string $name table name.
+     * @param string|TableNameInterface $name table name.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return TableSchemaInterface|null DBMS-dependent table metadata, `null` if the table does not exist.
      */
-    protected function loadTableSchema(string $name): ?TableSchemaInterface
+    protected function loadTableSchema(string|TableNameInterface $name): ?TableSchemaInterface
     {
         $table = new TableSchema();
 
@@ -294,13 +300,13 @@ final class Schema extends AbstractSchema
     /**
      * Loads a primary key for the given table.
      *
-     * @param string $tableName table name.
+     * @param string|TableNameInterface $tableName table name.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return Constraint|null The primary key for the given table, `null` if the table has no primary key.
      */
-    protected function loadTablePrimaryKey(string $tableName): ?Constraint
+    protected function loadTablePrimaryKey(string|TableNameInterface $tableName): ?Constraint
     {
         /** @var mixed */
         $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
@@ -310,13 +316,13 @@ final class Schema extends AbstractSchema
     /**
      * Loads all foreign keys for the given table.
      *
-     * @param string $tableName table name.
+     * @param string|TableNameInterface $tableName table name.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array The foreign keys for the given table.
      */
-    protected function loadTableForeignKeys(string $tableName): array
+    protected function loadTableForeignKeys(string|TableNameInterface $tableName): array
     {
         /** @var mixed */
         $tableForeingKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
@@ -326,13 +332,13 @@ final class Schema extends AbstractSchema
     /**
      * Loads all indexes for the given table.
      *
-     * @param string $tableName table name.
+     * @param string|TableNameInterface $tableName table name.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array indexes for the given table.
      */
-    protected function loadTableIndexes(string $tableName): array
+    protected function loadTableIndexes(string|TableNameInterface $tableName): array
     {
         $sql = <<<SQL
         SELECT
@@ -381,13 +387,13 @@ final class Schema extends AbstractSchema
     /**
      * Loads all unique constraints for the given table.
      *
-     * @param string $tableName table name.
+     * @param string|TableNameInterface $tableName table name.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array The unique constraints for the given table.
      */
-    protected function loadTableUniques(string $tableName): array
+    protected function loadTableUniques(string|TableNameInterface $tableName): array
     {
         /** @var mixed */
         $tableUniques = $this->loadTableConstraints($tableName, self::UNIQUES);
@@ -397,13 +403,13 @@ final class Schema extends AbstractSchema
     /**
      * Loads all check constraints for the given table.
      *
-     * @param string $tableName table name.
+     * @param string|TableNameInterface $tableName table name.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array The check constraints for the given table.
      */
-    protected function loadTableChecks(string $tableName): array
+    protected function loadTableChecks(string|TableNameInterface $tableName): array
     {
         /** @var mixed */
         $tableCheck = $this->loadTableConstraints($tableName, self::CHECKS);
@@ -413,13 +419,13 @@ final class Schema extends AbstractSchema
     /**
      * Loads all default value constraints for the given table.
      *
-     * @param string $tableName table name.
+     * @param string|TableNameInterface $tableName table name.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array The default value constraints for the given table.
      */
-    protected function loadTableDefaultValues(string $tableName): array
+    protected function loadTableDefaultValues(string|TableNameInterface $tableName): array
     {
         /** @var mixed */
         $tableDefault = $this->loadTableConstraints($tableName, self::DEFAULTS);
@@ -446,8 +452,17 @@ final class Schema extends AbstractSchema
      *
      * @todo Review this method and see if it can be simplified @darkdef.
      */
-    protected function resolveTableNames(TableSchemaInterface $table, string $name): void
+    protected function resolveTableNames(TableSchemaInterface $table, string|TableNameInterface $name): void
     {
+//        if ($name instanceof TableNameInterface) {
+//            $table->serverName($name->getServerName());
+//            $table->catalogName($name->getCatalogName());
+//            $table->schemaName($name->getSchemaName());
+//            $table->name($name->getTableName());
+//            $table->fullName((string) $name);
+//            return;
+//        }
+//
         $parts = $this->getTableNameParts($name);
 
         $partCount = count($parts);
@@ -814,7 +829,7 @@ final class Schema extends AbstractSchema
     /**
      * Loads multiple types of constraints and returns the specified ones.
      *
-     * @param string $tableName table name.
+     * @param string|TableNameInterface $tableName table name.
      * @param string $returnType return type:
      * - primaryKey
      * - foreignKeys
@@ -826,7 +841,7 @@ final class Schema extends AbstractSchema
      *
      * @return mixed constraints.
      */
-    private function loadTableConstraints(string $tableName, string $returnType): mixed
+    private function loadTableConstraints(string|TableNameInterface $tableName, string $returnType): mixed
     {
         $sql = <<<SQL
         SELECT
@@ -958,12 +973,16 @@ final class Schema extends AbstractSchema
      * This method will strip off curly brackets from the given table name and replace the percentage character '%' with
      * {@see ConnectionInterface::tablePrefix}.
      *
-     * @param string $name the table name to be converted.
+     * @param string|TableNameInterface $name the table name to be converted.
      *
      * @return string the real name of the given table name.
      */
-    public function getRawTableName(string $name): string
+    public function getRawTableName(string|TableNameInterface $name): string
     {
+//        if (!is_string($name)) {
+//            return (string) $name;
+//        }
+
         if (str_contains($name, '{{')) {
             $name = preg_replace('/{{(.*?)}}/', '\1', $name);
 
