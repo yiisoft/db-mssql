@@ -220,9 +220,9 @@ final class Schema extends AbstractSchema
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return array all schema names in the database, except system schemas.
+     * @return array All schema names in the database, except system schemas.
      *
-     * {@see https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-principals-transact-sql}
+     * @link https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-principals-transact-sql
      */
     protected function findSchemaNames(): array
     {
@@ -234,12 +234,7 @@ final class Schema extends AbstractSchema
         ORDER BY [s].[name] ASC
         SQL;
 
-        $schemaNames = $this->db->createCommand($sql)->queryColumn();
-        if (!$schemaNames) {
-            return [];
-        }
-
-        return $schemaNames;
+        return $this->db->createCommand($sql)->queryColumn();
     }
 
     /**
@@ -252,7 +247,7 @@ final class Schema extends AbstractSchema
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return array all table names in the database. The names have NO schema name prefix.
+     * @return array All table names in the database. The names have NO schema name prefix.
      */
     protected function findTableNames(string $schema = ''): array
     {
@@ -268,9 +263,6 @@ final class Schema extends AbstractSchema
         SQL;
 
         $tables = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
-        if (!$tables) {
-            return [];
-        }
 
         return array_map(static fn (string $item): string => '[' . $item . ']', $tables);
     }
@@ -783,9 +775,6 @@ final class Schema extends AbstractSchema
         SQL;
 
         $views = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
-        if (!$views) {
-            return [];
-        }
 
         return array_map(static fn (string $item): string => '[' . $item . ']', $views);
     }
