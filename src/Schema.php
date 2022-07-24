@@ -18,7 +18,6 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
-use Yiisoft\Db\Schema\TableName;
 use Yiisoft\Db\Schema\TableNameInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
@@ -136,66 +135,6 @@ final class Schema extends AbstractSchema
     }
 
     /**
-     * Resolves the table name and schema name (if any).
-     *
-     * @param string $name the table name.
-     *
-     * @return TableSchemaInterface resolved table, schema, etc. names.
-     *
-     * @todo Review this method and see if it can be simplified @darkdef.
-     * also see case `wrongBehaviour` in \Yiisoft\Db\TestSupport\TestCommandTrait::batchInsertSqlProviderTrait
-     */
-    protected function resolveTableName(string|TableSchemaInterface $name): TableSchemaInterface
-    {
-        $resolvedName = new TableSchema();
-//        $this->resolveTableNames($resolvedName, $name);
-//
-//        return $resolvedName;
-
-        $parts = $this->getTableNameParts($name);
-        $partCount = count($parts);
-
-        if ($partCount === 4) {
-            /** server name, catalog name, schema name and table name passed - not coverage tests */
-            $resolvedName->catalogName($parts[1]);
-            $resolvedName->schemaName($parts[2]);
-            $resolvedName->name($parts[3]);
-            $resolvedName->fullName(
-                (string) $resolvedName->getCatalogName() . '.' .
-                (string) $resolvedName->getSchemaName() . '.' .
-                $resolvedName->getName()
-            );
-        } elseif ($partCount === 3) {
-            /** catalog name, schema name and table name passed - not coverage tests */
-            $resolvedName->catalogName($parts[0]);
-            $resolvedName->schemaName($parts[1]);
-            $resolvedName->name($parts[2]);
-            $resolvedName->fullName(
-                (string) $resolvedName->getCatalogName() . '.' .
-                (string) $resolvedName->getSchemaName() . '.' .
-                $resolvedName->getName()
-            );
-        } elseif ($partCount === 2) {
-            /** only schema name and table name passed - not coverage tests */
-            $resolvedName->schemaName($parts[0]);
-            $resolvedName->name($parts[1]);
-            $resolvedName->fullName(
-                (
-                    $resolvedName->getSchemaName() !== $this->defaultSchema
-                    ? (string) $resolvedName->getSchemaName() . '.' : ''
-                ) . $resolvedName->getName()
-            );
-        } else {
-            /** only table name passed */
-            $resolvedName->schemaName($this->defaultSchema);
-            $resolvedName->name($parts[0]);
-            $resolvedName->fullName($resolvedName->getName());
-        }
-
-        return $resolvedName;
-    }
-
-    /**
      * Splits full table name into parts.
      *
      * @param string $name
@@ -287,6 +226,7 @@ final class Schema extends AbstractSchema
         $table = new TableSchema();
 
         $this->resolveTableNames($table, $name);
+//        print_r($table);die;
         $this->findPrimaryKeys($table);
 
         if ($this->findColumns($table)) {
@@ -355,7 +295,9 @@ final class Schema extends AbstractSchema
         ORDER BY [ic].[key_ordinal] ASC
         SQL;
 
-        $resolvedName = $this->resolveTableName($tableName);
+        $resolvedName = new TableSchema();
+        $this->resolveTableNames($resolvedName, $tableName);
+//        $resolvedName = $this->resolveTableName($tableName);
         $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $indexes */
@@ -448,21 +390,27 @@ final class Schema extends AbstractSchema
      * Resolves the table name and schema name (if any).
      *
      * @param TableSchemaInterface $table the table metadata object.
-     * @param string $name the table name
-     *
-     * @todo Review this method and see if it can be simplified @darkdef.
+     * @param string|TableNameInterface $name the table name
      */
     protected function resolveTableNames(TableSchemaInterface $table, string|TableNameInterface $name): void
     {
-//        if ($name instanceof TableNameInterface) {
-//            $table->serverName($name->getServerName());
-//            $table->catalogName($name->getCatalogName());
-//            $table->schemaName($name->getSchemaName());
-//            $table->name($name->getTableName());
-//            $table->fullName((string) $name);
-//            return;
-//        }
-//
+        if ($name instanceof TableNameInterface) {
+            $table->serverName($name->getServerName());
+            $table->catalogName($name->getCatalogName());
+            $table->schemaName($name->getSchemaName());
+            $table->name($name->getTableName());
+            $table->fullName((string) $name);
+            return;
+        }
+
+        $table->schemaName($this->defaultSchema);
+        $table->name(str_replace(['[', ']'], '', $this->getRawTableName($name)));
+        $table->fullName($table->getName());
+
+        return;
+
+//        print_r($table);die;
+
         $parts = $this->getTableNameParts($name);
 
         $partCount = count($parts);
@@ -883,7 +831,9 @@ final class Schema extends AbstractSchema
         ORDER BY [kic].[key_ordinal] ASC, [fc].[constraint_column_id] ASC
         SQL;
 
-        $resolvedName = $this->resolveTableName($tableName);
+        $resolvedName = new TableSchema();
+        $this->resolveTableNames($resolvedName, $tableName);
+//        $resolvedName = $this->resolveTableName($tableName);
         $constraints = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $constraints */
@@ -979,17 +929,16 @@ final class Schema extends AbstractSchema
      */
     public function getRawTableName(string|TableNameInterface $name): string
     {
-//        if (!is_string($name)) {
-//            return (string) $name;
+        if (!$name instanceof TableNameInterface) {
+            $name = $this->db->createTableName($name);
+        }
+//        if (str_contains($name, '{{')) {
+//            $name = preg_replace('/{{(.*?)}}/', '\1', $name);
+//
+//            return str_replace('%', $this->db->getTablePrefix(), $name);
 //        }
 
-        if (str_contains($name, '{{')) {
-            $name = preg_replace('/{{(.*?)}}/', '\1', $name);
-
-            return str_replace('%', $this->db->getTablePrefix(), $name);
-        }
-
-        return $name;
+        return (string) $name;
     }
 
     /**
