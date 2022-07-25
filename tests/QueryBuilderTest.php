@@ -436,7 +436,7 @@ final class QueryBuilderTest extends TestCase
      * @param string $expectedSQL
      * @param array $expectedParams
      */
-    public function testInsertEx(string $table, $columns, array $params, string $expectedSQL, array $expectedParams): void
+    public function testInsertEx2(string $table, $columns, array $params, string $expectedSQL, array $expectedParams): void
     {
         $db = $this->getConnection();
         $this->assertSame($expectedSQL, $db->getQueryBuilder()->insertEx($table, $columns, $params));

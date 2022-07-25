@@ -394,19 +394,33 @@ final class Schema extends AbstractSchema
      */
     protected function resolveTableNames(TableSchemaInterface $table, string|TableNameInterface $name): void
     {
-        if ($name instanceof TableNameInterface) {
-            $table->serverName($name->getServerName());
-            $table->catalogName($name->getCatalogName());
-            $table->schemaName($name->getSchemaName());
-            $table->name($name->getTableName());
-            $table->fullName((string) $name);
-            return;
+//        if ($name instanceof TableNameInterface) {
+//            $table->serverName($name->getServerName());
+//            $table->catalogName($name->getCatalogName());
+//            $table->schemaName($name->getSchemaName());
+//            $table->name($name->getTableName());
+//            $table->fullName((string) $name);
+//            return;
+//        }
+
+        if (!$name instanceof TableNameInterface) {
+            $name = $this->db->createTableName( str_replace(['[', ']'], '', $name));
         }
+
+        $table->serverName($name->getServerName());
+        $table->catalogName($name->getCatalogName());
+        $table->schemaName($name->getSchemaName() ?? $this->defaultSchema);
+        $table->name($name->getTableName());
+        $table->fullName((string) $name);
+
+//        print_r($table);die;
+        return;
 
         $table->schemaName($this->defaultSchema);
         $table->name(str_replace(['[', ']'], '', $this->getRawTableName($name)));
         $table->fullName($table->getName());
 
+        print_r($table);die;
         return;
 
 //        print_r($table);die;
@@ -932,6 +946,7 @@ final class Schema extends AbstractSchema
         if (!$name instanceof TableNameInterface) {
             $name = $this->db->createTableName($name);
         }
+
 //        if (str_contains($name, '{{')) {
 //            $name = preg_replace('/{{(.*?)}}/', '\1', $name);
 //
@@ -950,7 +965,9 @@ final class Schema extends AbstractSchema
      */
     protected function getCacheKey(string $name): array
     {
-        return array_merge([__CLASS__], $this->db->getCacheKey(), [$this->getRawTableName($name)]);
+//        return array_merge([__CLASS__], $this->db->getCacheKey(), [$this->getRawTableName($name)]);
+//        echo PHP_EOL . $name . PHP_EOL;
+        return array_merge([__CLASS__], $this->db->getCacheKey(), [$name]);
     }
 
     /**
