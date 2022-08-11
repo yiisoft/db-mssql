@@ -132,8 +132,7 @@ final class Schema extends AbstractSchema
      *
      * @return TableSchemaInterface resolved table, schema, etc. names.
      *
-     * @todo Review this method and see if it can be simplified @darkdef.
-     * also see case `wrongBehaviour` in \Yiisoft\Db\TestSupport\TestCommandTrait::batchInsertSqlProviderTrait
+     * @todo also see case `wrongBehaviour` in \Yiisoft\Db\TestSupport\TestCommandTrait::batchInsertSqlProviderTrait
      */
     protected function resolveTableName(TableNameInterface $name): TableSchemaInterface
     {
