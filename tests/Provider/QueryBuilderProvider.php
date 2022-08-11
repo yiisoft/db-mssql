@@ -224,27 +224,27 @@ final class QueryBuilderProvider extends TestCase
     public function insertExProvider(): array
     {
         return [
-//            'regular-values' => [
-//                'customer',
-//                [
-//                    'email' => 'test@example.com',
-//                    'name' => 'silverfire',
-//                    'address' => 'Kyiv {{city}}, Ukraine',
-//                    'is_active' => false,
-//                    'related_id' => null,
-//                ],
-//                [],
-//                $this->replaceQuotes('SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);' .
-//                    'INSERT INTO [[customer]] ([[email]], [[name]], [[address]], [[is_active]], [[related_id]]) OUTPUT INSERTED.* INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3, :qp4);' .
-//                    'SELECT * FROM @temporary_inserted'),
-//                [
-//                    ':qp0' => 'test@example.com',
-//                    ':qp1' => 'silverfire',
-//                    ':qp2' => 'Kyiv {{city}}, Ukraine',
-//                    ':qp3' => false,
-//                    ':qp4' => null,
-//                ],
-//            ],
+            'regular-values' => [
+                'customer',
+                [
+                    'email' => 'test@example.com',
+                    'name' => 'silverfire',
+                    'address' => 'Kyiv {{city}}, Ukraine',
+                    'is_active' => false,
+                    'related_id' => null,
+                ],
+                [],
+                $this->replaceQuotes('SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);' .
+                    'INSERT INTO [[customer]] ([[email]], [[name]], [[address]], [[is_active]], [[related_id]]) OUTPUT INSERTED.* INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3, :qp4);' .
+                    'SELECT * FROM @temporary_inserted'),
+                [
+                    ':qp0' => 'test@example.com',
+                    ':qp1' => 'silverfire',
+                    ':qp2' => 'Kyiv {{city}}, Ukraine',
+                    ':qp3' => false,
+                    ':qp4' => null,
+                ],
+            ],
             'params-and-expressions' => [
                 '{{%type}}',
                 [

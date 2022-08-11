@@ -6,7 +6,6 @@ namespace Yiisoft\Db\Mssql;
 
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\Cache\SchemaCache;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constraint\CheckConstraint;
 use Yiisoft\Db\Constraint\Constraint;
