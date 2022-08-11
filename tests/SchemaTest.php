@@ -8,6 +8,7 @@ use PDO;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Schema;
+use Yiisoft\Db\Schema\TableNameInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\TestSupport\AnyValue;
 use Yiisoft\Db\TestSupport\TestSchemaTrait;
@@ -147,13 +148,11 @@ final class SchemaTest extends TestCase
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::getTableSchemaDataProvider
      *
-     * @param string $name
+     * @param string|TableNameInterface $name
      * @param string $expectedName
      */
-    public function testGetTableSchema(string $name, string $expectedName): void
+    public function testGetTableSchema(string|TableNameInterface $name, string $expectedName): void
     {
-        $this->markTestSkipped('Temporary skipped (for TableNameInterface)');
-
         $tableSchema = $this->getConnection()->getSchema()->getTableSchema($name);
         $this->assertInstanceOf(TableSchemaInterface::class, $tableSchema);
         $this->assertEquals($expectedName, $tableSchema->getName());

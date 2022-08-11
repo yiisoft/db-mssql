@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Schema\Quoter as BaseQuoter;
-use Yiisoft\Db\Schema\QuoterInterface;
 
 use function preg_match;
 use function preg_match_all;
 use function str_replace;
 
-final class Quoter extends BaseQuoter implements QuoterInterface
+final class Quoter extends BaseQuoter
 {
     /**
      * @psalm-param string[] $columnQuoteCharacter
@@ -25,16 +24,7 @@ final class Quoter extends BaseQuoter implements QuoterInterface
         parent::__construct($columnQuoteCharacter, $tableQuoteCharacter, $tablePrefix);
     }
 
-    public function quoteColumnName(string $name): string
-    {
-        if (preg_match('/^\[.*]$/', $name)) {
-            return $name;
-        }
-
-        return parent::quoteColumnName($name);
-    }
-
-    protected function getTableNameParts(string $name): array
+    public function getTableNameParts(string $name): array
     {
         $parts = [$name];
         preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches);
@@ -44,5 +34,14 @@ final class Quoter extends BaseQuoter implements QuoterInterface
         }
 
         return str_replace(['[', ']'], '', $parts);
+    }
+
+    public function quoteColumnName(string $name): string
+    {
+        if (preg_match('/^\[.*]$/', $name)) {
+            return $name;
+        }
+
+        return parent::quoteColumnName($name);
     }
 }

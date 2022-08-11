@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Mssql\Tests\TestCase;
+use Yiisoft\Db\Schema\TableName;
 
 final class SchemaProvider extends TestCase
 {
@@ -29,6 +30,7 @@ final class SchemaProvider extends TestCase
             ['dbo.profile', 'profile'],
             ['profile', 'profile'],
             ['dbo.[table.with.special.characters]', 'table.with.special.characters'],
+            [new TableName('table.with.special.characters', 'dbo'), 'table.with.special.characters'],
         ];
     }
 }
