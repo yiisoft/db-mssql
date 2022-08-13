@@ -850,7 +850,16 @@ final class Schema extends AbstractSchema
      */
     public function getRawTableName(string|TableNameInterface $name): string
     {
-        return (string) $name;
+        if ($name instanceof TableNameInterface) {
+            return (string)$name;
+        }
+
+        if (!str_contains($name, '{{')) {
+            return $name;
+        }
+
+        $name = preg_replace('/{{(.*?)}}/', '\1', $name);
+        return str_replace('%', $this->db->getTablePrefix(), $name);
     }
 
     /**
