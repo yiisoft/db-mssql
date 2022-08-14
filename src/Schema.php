@@ -282,6 +282,7 @@ final class Schema extends AbstractSchema
         SQL;
 
         $resolvedName = $this->resolveTableName($tableName);
+        // @todo check fullName or name????
         $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $indexes */
