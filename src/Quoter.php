@@ -30,7 +30,7 @@ final class Quoter extends BaseQuoter
         preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches);
 
         if (isset($matches[0]) && !empty($matches[0])) {
-            $parts = $matches[0];
+            $parts = array_slice($matches[0], -4, 4, true);
         }
 
         return str_replace(['[', ']'], '', $parts);
