@@ -248,9 +248,7 @@ final class Schema extends AbstractSchema
      */
     protected function loadTableSchema(string $name): ?TableSchemaInterface
     {
-        $table = new TableSchema();
-
-        $this->resolveTableNames($table, $name);
+        $table = $this->resolveTableName($name);
         $this->findPrimaryKeys($table);
 
         if ($this->findColumns($table)) {
@@ -406,52 +404,6 @@ final class Schema extends AbstractSchema
     protected function createColumnSchema(): ColumnSchema
     {
         return new ColumnSchema();
-    }
-
-    /**
-     * Resolves the table name and schema name (if any).
-     *
-     * @param TableSchemaInterface $table the table metadata object.
-     * @param string $name the table name
-     *
-     * @todo Review this method and see if it can be simplified @darkdef.
-     */
-    protected function resolveTableNames(TableSchemaInterface $table, string $name): void
-    {
-        $parts = $this->getTableNameParts($name);
-
-        $partCount = count($parts);
-
-        if ($partCount === 4) {
-            /** server name, catalog name, schema name and table name passed - no coverage tests */
-            $table->catalogName($parts[1]);
-            $table->schemaName($parts[2]);
-            $table->name($parts[3]);
-            $table->fullName(
-                (string) $table->getCatalogName() . '.' . (string) $table->getSchemaName() . '.' . $table->getName()
-            );
-        } elseif ($partCount === 3) {
-            /** catalog name, schema name and table name passed - no coverage tests */
-            $table->catalogName($parts[0]);
-            $table->schemaName($parts[1]);
-            $table->name($parts[2]);
-            $table->fullName(
-                (string) $table->getCatalogName() . '.' . (string) $table->getSchemaName() . '.' . $table->getName()
-            );
-        } elseif ($partCount === 2) {
-            /** only schema name and table name passed - no coverage tests */
-            $table->schemaName($parts[0]);
-            $table->name($parts[1]);
-            $table->fullName(
-                $table->getSchemaName() !== $this->defaultSchema
-                ? (string) $table->getSchemaName() . '.' . $table->getName() : $table->getName()
-            );
-        } else {
-            /** only table name passed */
-            $table->schemaName($this->defaultSchema);
-            $table->name($parts[0]);
-            $table->fullName($table->getName());
-        }
     }
 
     /**
