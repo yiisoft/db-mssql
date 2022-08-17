@@ -34,15 +34,15 @@ final class Quoter extends BaseQuoter implements QuoterInterface
         return parent::quoteColumnName($name);
     }
 
-    protected function getTableNameParts(string $name): array
+    // @todo add test
+    public function getTableNameParts(string $name): array
     {
-        $parts = [$name];
-        preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches);
-
-        if (isset($matches[0]) && !empty($matches[0])) {
-            $parts = $matches[0];
+        if (preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches)) {
+            $parts = array_slice($matches[0], -4, 4);
+        } else {
+            $parts = [$name];
         }
 
-        return str_replace(['[', ']'], '', $parts);
+        return array_map(function($part) {return $this->unquoteSimpleTableName($part);}, $parts);
     }
 }

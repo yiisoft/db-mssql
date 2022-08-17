@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
+use Yiisoft\Db\Command\CommandInterface;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Schema;
@@ -488,6 +490,49 @@ final class SchemaTest extends TestCase
                 'scale' => null,
                 'defaultValue' => 1,
             ],
+        ];
+    }
+
+    /**
+     * @dataProvider tableSchemaWithDbSchemesDataProvider
+     */
+    public function testTableSchemaWithDbSchemes(string $tableName, string $expectedTableName): void
+    {
+        $db = $this->getConnection();
+
+        $commandMock = $this->createMock(CommandInterface::class);
+        $commandMock
+            ->method('queryAll')
+            ->willReturn([]);
+
+        $mockDb = $this->createMock(ConnectionInterface::class);
+
+        $mockDb->method('getQuoter')
+            ->willReturn($db->getQuoter());
+
+        $mockDb
+            ->method('createCommand')
+            ->with(self::callback(function($sql) {return true;}), self::callback(function ($params) use($expectedTableName) {
+                $this->assertEquals($expectedTableName, $params[':fullName']);
+                return true;
+            }))
+            ->willReturn($commandMock);
+
+        $schema = new Schema($mockDb, $this->createSchemaCache());
+
+        $schema->getTablePrimaryKey($tableName);
+    }
+
+    public function tableSchemaWithDbSchemesDataProvider(): array
+    {
+        return [
+            ['animal', 'animal',],
+            ['dbo.animal', 'animal',],
+            ['[dbo].[animal]', 'animal',],
+            ['[other].[animal2]', 'other.animal2',],
+            ['other.[animal2]', 'other.animal2',],
+            ['other.animal2', 'other.animal2',],
+            ['catalog.other.animal2', 'catalog.other.animal2',],
         ];
     }
 }

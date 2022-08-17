@@ -128,11 +128,6 @@ final class Schema extends AbstractSchema
         'table' => self::TYPE_STRING,
     ];
 
-    public function __construct(private ConnectionInterface $db, SchemaCache $schemaCache)
-    {
-        parent::__construct($schemaCache);
-    }
-
     /**
      * Resolves the table name and schema name (if any).
      *
@@ -140,50 +135,25 @@ final class Schema extends AbstractSchema
      *
      * @return TableSchemaInterface resolved table, schema, etc. names.
      *
-     * @todo Review this method and see if it can be simplified @darkdef.
      * also see case `wrongBehaviour` in \Yiisoft\Db\TestSupport\TestCommandTrait::batchInsertSqlProviderTrait
      */
     protected function resolveTableName(string $name): TableSchemaInterface
     {
         $resolvedName = new TableSchema();
-        $parts = $this->getTableNameParts($name);
-        $partCount = count($parts);
 
-        if ($partCount === 4) {
-            /** server name, catalog name, schema name and table name passed - not coverage tests */
-            $resolvedName->catalogName($parts[1]);
-            $resolvedName->schemaName($parts[2]);
-            $resolvedName->name($parts[3]);
-            $resolvedName->fullName(
-                (string) $resolvedName->getCatalogName() . '.' .
-                (string) $resolvedName->getSchemaName() . '.' .
-                $resolvedName->getName()
-            );
-        } elseif ($partCount === 3) {
-            /** catalog name, schema name and table name passed - not coverage tests */
-            $resolvedName->catalogName($parts[0]);
-            $resolvedName->schemaName($parts[1]);
-            $resolvedName->name($parts[2]);
-            $resolvedName->fullName(
-                (string) $resolvedName->getCatalogName() . '.' .
-                (string) $resolvedName->getSchemaName() . '.' .
-                $resolvedName->getName()
-            );
-        } elseif ($partCount === 2) {
-            /** only schema name and table name passed - not coverage tests */
-            $resolvedName->schemaName($parts[0]);
-            $resolvedName->name($parts[1]);
-            $resolvedName->fullName(
-                (
-                    $resolvedName->getSchemaName() !== $this->defaultSchema
-                    ? (string) $resolvedName->getSchemaName() . '.' : ''
-                ) . $resolvedName->getName()
-            );
+        $parts = array_reverse(
+            $this->db->getQuoter()->getTableNameParts($name)
+        );
+
+        $resolvedName->name($parts[0] ?? '');
+        $resolvedName->schemaName($parts[1] ?? $this->defaultSchema);
+        $resolvedName->catalogName($parts[2] ?? null);
+        $resolvedName->serverName($parts[3] ?? null);
+
+        if (empty($parts[2]) && $resolvedName->getSchemaName() === $this->defaultSchema) {
+            $resolvedName->fullName($parts[0]);
         } else {
-            /** only table name passed */
-            $resolvedName->schemaName($this->defaultSchema);
-            $resolvedName->name($parts[0]);
-            $resolvedName->fullName($resolvedName->getName());
+            $resolvedName->fullName(implode('.', array_reverse($parts)));
         }
 
         return $resolvedName;
@@ -950,27 +920,6 @@ final class Schema extends AbstractSchema
     public function createColumnSchemaBuilder(string $type, array|int|string $length = null): ColumnSchemaBuilder
     {
         return new ColumnSchemaBuilder($type, $length);
-    }
-
-    /**
-     * Returns the actual name of a given table name.
-     *
-     * This method will strip off curly brackets from the given table name and replace the percentage character '%' with
-     * {@see ConnectionInterface::tablePrefix}.
-     *
-     * @param string $name the table name to be converted.
-     *
-     * @return string the real name of the given table name.
-     */
-    public function getRawTableName(string $name): string
-    {
-        if (str_contains($name, '{{')) {
-            $name = preg_replace('/{{(.*?)}}/', '\1', $name);
-
-            return str_replace('%', $this->db->getTablePrefix(), $name);
-        }
-
-        return $name;
     }
 
     /**
