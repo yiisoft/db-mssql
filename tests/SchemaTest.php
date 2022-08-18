@@ -514,7 +514,7 @@ final class SchemaTest extends TestCase
             ->method('createCommand')
             ->with(self::callback(function ($sql) {
                 return true;
-            }), self::callback(function ($params) use($expectedTableName) {
+            }), self::callback(function ($params) use ($expectedTableName) {
                 $this->assertEquals($expectedTableName, $params[':fullName']);
                 return true;
             }))
