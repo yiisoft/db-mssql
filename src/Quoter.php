@@ -34,7 +34,6 @@ final class Quoter extends BaseQuoter implements QuoterInterface
         return parent::quoteColumnName($name);
     }
 
-    // @todo add test
     public function getTableNameParts(string $name): array
     {
         if (preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches)) {

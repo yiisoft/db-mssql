@@ -160,29 +160,6 @@ final class Schema extends AbstractSchema
     }
 
     /**
-     * Splits full table name into parts.
-     *
-     * @param string $name
-     *
-     * @return array
-     *
-     * @psalm-return string[]
-     */
-    protected function getTableNameParts(string $name): array
-    {
-        $parts = [$name];
-
-        preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches);
-
-        if (isset($matches[0]) && !empty($matches[0])) {
-            $parts = $matches[0];
-        }
-
-        /** @psalm-var string[] */
-        return str_replace(['[', ']'], '', $parts);
-    }
-
-    /**
      * Returns all schema names in the database, including the default one but not system schemas.
      *
      * This method should be overridden by child classes in order to support this feature because the default

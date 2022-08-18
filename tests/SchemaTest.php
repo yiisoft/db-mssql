@@ -533,6 +533,35 @@ final class SchemaTest extends TestCase
             ['other.[animal2]', 'other.animal2',],
             ['other.animal2', 'other.animal2',],
             ['catalog.other.animal2', 'catalog.other.animal2',],
+            ['server.catalog.other.animal2', 'server.catalog.other.animal2',],
+            ['unknown_part.server.catalog.other.animal2', 'server.catalog.other.animal2',],
+        ];
+    }
+
+    /**
+     * @dataProvider quoterTablePartsDataProvider
+     */
+    public function testQuoterTableParts(string $tableName, ...$expectedParts): void
+    {
+        $quoter = $this->getConnection()->getQuoter();
+
+        $parts = $quoter->getTableNameParts($tableName);
+
+        $this->assertEquals($expectedParts, array_reverse($parts));
+    }
+
+    public function quoterTablePartsDataProvider(): array
+    {
+        return [
+            ['animal', 'animal',],
+            ['dbo.animal', 'animal', 'dbo'],
+            ['[dbo].[animal]', 'animal', 'dbo'],
+            ['[other].[animal2]', 'animal2', 'other'],
+            ['other.[animal2]', 'animal2', 'other'],
+            ['other.animal2', 'animal2', 'other'],
+            ['catalog.other.animal2', 'animal2', 'other', 'catalog'],
+            ['server.catalog.other.animal2', 'animal2', 'other', 'catalog', 'server'],
+            ['unknown_part.server.catalog.other.animal2', 'animal2', 'other', 'catalog', 'server'],
         ];
     }
 }
