@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use PDO;
 use Yiisoft\Db\Schema\Quoter as BaseQuoter;
-use Yiisoft\Db\Schema\QuoterInterface;
 
 use function preg_match;
 use function preg_match_all;
 
-final class Quoter extends BaseQuoter implements QuoterInterface
+final class Quoter extends BaseQuoter
 {
     /**
      * @psalm-param string[] $columnQuoteCharacter
@@ -19,9 +19,10 @@ final class Quoter extends BaseQuoter implements QuoterInterface
     public function __construct(
         array $columnQuoteCharacter,
         array $tableQuoteCharacter,
-        string $tablePrefix = ''
+        string $tablePrefix = '',
+        protected PDO|null $pdo = null,
     ) {
-        parent::__construct($columnQuoteCharacter, $tableQuoteCharacter, $tablePrefix);
+        parent::__construct($columnQuoteCharacter, $tableQuoteCharacter, $tablePrefix, $pdo);
     }
 
     public function quoteColumnName(string $name): string
