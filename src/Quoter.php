@@ -5,25 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Schema\Quoter as BaseQuoter;
-use Yiisoft\Db\Schema\QuoterInterface;
 
 use function preg_match;
 use function preg_match_all;
 
-final class Quoter extends BaseQuoter implements QuoterInterface
+final class Quoter extends BaseQuoter
 {
-    /**
-     * @psalm-param string[] $columnQuoteCharacter
-     * @psalm-param string[] $tableQuoteCharacter
-     */
-    public function __construct(
-        array $columnQuoteCharacter,
-        array $tableQuoteCharacter,
-        string $tablePrefix = ''
-    ) {
-        parent::__construct($columnQuoteCharacter, $tableQuoteCharacter, $tablePrefix);
-    }
-
     public function quoteColumnName(string $name): string
     {
         if (preg_match('/^\[.*]$/', $name)) {

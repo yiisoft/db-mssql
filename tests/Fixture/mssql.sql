@@ -7,6 +7,7 @@ IF OBJECT_ID('[dbo].[order_with_null_fk]', 'U') IS NOT NULL DROP TABLE [dbo].[or
 IF OBJECT_ID('[dbo].[category]', 'U') IS NOT NULL DROP TABLE [dbo].[category];
 IF OBJECT_ID('[dbo].[customer]', 'U') IS NOT NULL DROP TABLE [dbo].[customer];
 IF OBJECT_ID('[dbo].[profile]', 'U') IS NOT NULL DROP TABLE [dbo].[profile];
+IF OBJECT_ID('[dbo].[quoter]', 'U') IS NOT NULL DROP TABLE [dbo].[quoter];
 IF OBJECT_ID('[dbo].[type]', 'U') IS NOT NULL DROP TABLE [dbo].[type];
 IF OBJECT_ID('[dbo].[null_values]', 'U') IS NOT NULL DROP TABLE [dbo].[null_values];
 IF OBJECT_ID('[dbo].[test_trigger]', 'U') IS NOT NULL DROP TABLE [dbo].[test_trigger];
@@ -35,6 +36,11 @@ CREATE TABLE [dbo].[profile] (
     CONSTRAINT [PK_profile] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
+);
+
+CREATE TABLE [dbo].[quoter] (
+    [name] [varchar](16) NOT NULL,
+    [description] [nvarchar](256) NOT NULL,
 );
 
 CREATE TABLE [dbo].[customer] (
