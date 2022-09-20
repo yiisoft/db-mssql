@@ -78,12 +78,19 @@ final class CommandTest extends TestCase
     {
         $data = $this->batchInsertSqlProviderTrait();
 
-        $data['issue11242']['expected'] = 'INSERT INTO [type] ([int_col], [float_col], [char_col])'
-            . ' VALUES (NULL, NULL, \'Kyiv {{city}}, Ukraine\')';
-        $data['wrongBehavior']['expected'] = 'INSERT INTO [type] ([type].[int_col], [float_col], [char_col])'
-            . ' VALUES (\'\', \'\', \'Kyiv {{city}}, Ukraine\')';
-        $data['batchInsert binds params from expression']['expected'] = 'INSERT INTO [type] ([int_col]) VALUES (:qp1)';
-        unset($data['batchIsert empty rows represented by ArrayObject']);
+        $data['multirow']['expectedParams'][':qp1'] = '0.0';
+        $data['multirow']['expectedParams'][':qp3'] = 1;
+        $data['multirow']['expectedParams'][':qp5'] = '0';
+        $data['multirow']['expectedParams'][':qp7'] = 0;
+
+        $data['issue11242']['expectedParams'][':qp1'] = '1.1';
+        $data['issue11242']['expectedParams'][':qp3'] = 1;
+
+        $data['wrongBehavior']['expectedParams'][':qp1'] = '0.0';
+        $data['wrongBehavior']['expectedParams'][':qp3'] = 0;
+
+        $data['batchInsert binds params from expression']['expectedParams'][':qp1'] = '1';
+        $data['batchInsert binds params from expression']['expectedParams'][':qp3'] = 0;
 
         return $data;
     }
@@ -98,6 +105,7 @@ final class CommandTest extends TestCase
      * @param array $values
      * @param string $expected
      * @param array $expectedParams
+     * @param int $insertedRow
      *
      * {@see https://github.com/yiisoft/yii2/issues/11242}
      */
@@ -106,14 +114,22 @@ final class CommandTest extends TestCase
         array $columns,
         array $values,
         string $expected,
-        array $expectedParams = []
+        array $expectedParams = [],
+        int $insertedRow = 1
     ): void {
         $db = $this->getConnection(true);
+
         $command = $db->createCommand();
+
         $command->batchInsert($table, $columns, $values);
+
         $command->prepare(false);
+
         $this->assertSame($expected, $command->getSql());
         $this->assertSame($expectedParams, $command->getParams());
+
+        $command->execute();
+        $this->assertEquals($insertedRow, (new Query($db))->from($table)->count());
     }
 
     /**
