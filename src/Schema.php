@@ -457,7 +457,7 @@ final class Schema extends AbstractSchema
 
         if ($table->getCatalogName() !== null) {
             $columnsTableName = "{$table->getCatalogName()}.$columnsTableName";
-            $whereSql .= " AND [t1].[table_catalog] = :catalog";
+            $whereSql .= ' AND [t1].[table_catalog] = :catalog';
             $whereParams[':catalog'] = $table->getCatalogName();
         }
 
