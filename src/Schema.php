@@ -451,11 +451,14 @@ final class Schema extends AbstractSchema
     protected function findColumns(TableSchemaInterface $table): bool
     {
         $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
-        $whereSql = '[t1].[table_name] = ' . (string) $this->db->getQuoter()->quoteValue($table->getName());
+
+        $whereParams = [':table_name' => $table->getName()];
+        $whereSql = '[t1].[table_name] = :table_name';
 
         if ($table->getCatalogName() !== null) {
             $columnsTableName = "{$table->getCatalogName()}.$columnsTableName";
-            $whereSql .= " AND [t1].[table_catalog] = '{$table->getCatalogName()}'";
+            $whereSql .= ' AND [t1].[table_catalog] = :catalog';
+            $whereParams[':catalog'] = $table->getCatalogName();
         }
 
         if ($table->getSchemaName() !== null) {
@@ -495,7 +498,7 @@ final class Schema extends AbstractSchema
 
         try {
             /** @psalm-var ColumnArray[] */
-            $columns = $this->db->createCommand($sql)->queryAll();
+            $columns = $this->db->createCommand($sql, $whereParams)->queryAll();
 
             if (empty($columns)) {
                 return false;
