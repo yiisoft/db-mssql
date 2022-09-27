@@ -532,6 +532,7 @@ final class Schema extends AbstractSchema
      * @param string $type either PRIMARY KEY or UNIQUE.
      *
      * @throws Exception|InvalidConfigException|Throwable
+     *
      * @return array each entry contains index_name and field_name.
      */
     protected function findTableConstraints(TableSchemaInterface $table, string $type): array
@@ -889,7 +890,7 @@ final class Schema extends AbstractSchema
     protected function normalizeRowKeyCase(array $row, bool $multiple): array
     {
         if ($multiple) {
-            return array_map(static fn(array $row) => array_change_key_case($row, CASE_LOWER), $row);
+            return array_map(static fn (array $row) => array_change_key_case($row, CASE_LOWER), $row);
         }
 
         return array_change_key_case($row, CASE_LOWER);

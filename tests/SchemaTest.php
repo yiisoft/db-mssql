@@ -14,8 +14,6 @@ use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\TestSupport\AnyValue;
 use Yiisoft\Db\TestSupport\TestSchemaTrait;
 
-use function strpos;
-
 /**
  * @group mssql
  */
@@ -485,7 +483,7 @@ final class SchemaTest extends TestCase
 
         $mockDb
             ->method('createCommand')
-            ->with(self::callback(fn($sql) => true), self::callback(function ($params) use ($expectedTableName) {
+            ->with(self::callback(fn ($sql) => true), self::callback(function ($params) use ($expectedTableName) {
                 $this->assertEquals($expectedTableName, $params[':fullName']);
                 return true;
             }))

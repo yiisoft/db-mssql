@@ -113,7 +113,7 @@ final class QueryBuilderTest extends TestCase
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildConditionsProvider
      */
-    public function testBuildCondition(array|\Yiisoft\Db\Expression\ExpressionInterface $condition, string $expected, array $expectedParams): void
+    public function testBuildCondition(array|ExpressionInterface $condition, string $expected, array $expectedParams): void
     {
         $db = $this->getConnection();
         $query = (new Query($db))->where($condition);
@@ -152,7 +152,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildFromDataProvider
-     *
      *
      * @throws Exception
      */
@@ -379,7 +378,7 @@ final class QueryBuilderTest extends TestCase
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertProvider()
      */
-    public function testInsert(string $table, array|\Yiisoft\Db\Query\QueryInterface $columns, array $params, string $expectedSQL, array $expectedParams): void
+    public function testInsert(string $table, array|QueryInterface $columns, array $params, string $expectedSQL, array $expectedParams): void
     {
         $db = $this->getConnection();
         $this->assertSame($expectedSQL, $db->getQueryBuilder()->insert($table, $columns, $params));
@@ -389,7 +388,7 @@ final class QueryBuilderTest extends TestCase
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertExProvider()
      */
-    public function testInsertEx(string $table, array|\Yiisoft\Db\Query\QueryInterface $columns, array $params, string $expectedSQL, array $expectedParams): void
+    public function testInsertEx(string $table, array|QueryInterface $columns, array $params, string $expectedSQL, array $expectedParams): void
     {
         $db = $this->getConnection();
         $this->assertSame($expectedSQL, $db->getQueryBuilder()->insertEx($table, $columns, $params));
