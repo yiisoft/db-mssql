@@ -14,8 +14,6 @@ use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\TestSupport\AnyValue;
 use Yiisoft\Db\TestSupport\TestSchemaTrait;
 
-use function strpos;
-
 /**
  * @group mssql
  */
@@ -90,7 +88,7 @@ final class SchemaTest extends TestCase
             $size = $column->getSize();
             $dbType = $column->getDbType();
 
-            if (strpos($name, 'char_') === 0) {
+            if (str_starts_with($name, 'char_')) {
                 switch ($name) {
                     case 'char_col':
                         $expectedType = 'char';
@@ -118,8 +116,6 @@ final class SchemaTest extends TestCase
 
     /**
      * @dataProvider pdoAttributesProviderTrait
-     *
-     * @param array $pdoAttributes
      */
     public function testGetTableNames(array $pdoAttributes): void
     {
@@ -148,9 +144,6 @@ final class SchemaTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::getTableSchemaDataProvider
-     *
-     * @param string $name
-     * @param string $expectedName
      */
     public function testGetTableSchema(string $name, string $expectedName): void
     {
@@ -161,8 +154,6 @@ final class SchemaTest extends TestCase
 
     /**
      * @dataProvider pdoAttributesProviderTrait
-     *
-     * @param array $pdoAttributes
      */
     public function testGetTableSchemas(array $pdoAttributes): void
     {
@@ -187,9 +178,6 @@ final class SchemaTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::quoteTableNameDataProvider
-     *
-     * @param string $name
-     * @param string $expectedName
      */
     public function testQuoteTableName(string $name, string $expectedName): void
     {
@@ -202,11 +190,6 @@ final class SchemaTest extends TestCase
      * @depends testSchemaCache
      *
      * @dataProvider tableSchemaCachePrefixesProviderTrait
-     *
-     * @param string $tablePrefix
-     * @param string $tableName
-     * @param string $testTablePrefix
-     * @param string $testTableName
      */
     public function testTableSchemaCacheWithTablePrefixes(
         string $tablePrefix,
@@ -266,12 +249,8 @@ final class SchemaTest extends TestCase
 
     /**
      * @dataProvider constraintsProvider
-     *
-     * @param string $tableName
-     * @param string $type
-     * @param mixed $expected
      */
-    public function testTableSchemaConstraints(string $tableName, string $type, $expected): void
+    public function testTableSchemaConstraints(string $tableName, string $type, mixed $expected): void
     {
         if ($expected === false) {
             $this->expectException(NotSupportedException::class);
@@ -283,12 +262,8 @@ final class SchemaTest extends TestCase
 
     /**
      * @dataProvider lowercaseConstraintsProviderTrait
-     *
-     * @param string $tableName
-     * @param string $type
-     * @param mixed $expected
      */
-    public function testTableSchemaConstraintsWithPdoLowercase(string $tableName, string $type, $expected): void
+    public function testTableSchemaConstraintsWithPdoLowercase(string $tableName, string $type, mixed $expected): void
     {
         if ($expected === false) {
             $this->expectException(NotSupportedException::class);
@@ -302,12 +277,8 @@ final class SchemaTest extends TestCase
 
     /**
      * @dataProvider uppercaseConstraintsProviderTrait
-     *
-     * @param string $tableName
-     * @param string $type
-     * @param mixed $expected
      */
-    public function testTableSchemaConstraintsWithPdoUppercase(string $tableName, string $type, $expected): void
+    public function testTableSchemaConstraintsWithPdoUppercase(string $tableName, string $type, mixed $expected): void
     {
         if ($expected === false) {
             $this->expectException(NotSupportedException::class);
@@ -512,9 +483,7 @@ final class SchemaTest extends TestCase
 
         $mockDb
             ->method('createCommand')
-            ->with(self::callback(function ($sql) {
-                return true;
-            }), self::callback(function ($params) use ($expectedTableName) {
+            ->with(self::callback(fn ($sql) => true), self::callback(function ($params) use ($expectedTableName) {
                 $this->assertEquals($expectedTableName, $params[':fullName']);
                 return true;
             }))

@@ -25,9 +25,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::addDropChecksProvider
-     *
-     * @param string $sql
-     * @param Closure $builder
      */
     public function testAddDropCheck(string $sql, Closure $builder): void
     {
@@ -62,9 +59,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::addDropForeignKeysProvider
-     *
-     * @param string $sql
-     * @param Closure $builder
      */
     public function testAddDropForeignKey(string $sql, Closure $builder): void
     {
@@ -74,9 +68,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::addDropPrimaryKeysProvider
-     *
-     * @param string $sql
-     * @param Closure $builder
      */
     public function testAddDropPrimaryKey(string $sql, Closure $builder): void
     {
@@ -86,9 +77,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::addDropUniquesProvider
-     *
-     * @param string $sql
-     * @param Closure $builder
      */
     public function testAddDropUnique(string $sql, Closure $builder): void
     {
@@ -98,12 +86,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::batchInsertProvider
-     *
-     * @param string $table
-     * @param array $columns
-     * @param array $value
-     * @param string|null $expected
-     * @param array $expectedParams
      */
     public function testBatchInsert(string $table, array $columns, array $value, ?string $expected, array $expectedParams = []): void
     {
@@ -130,12 +112,8 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildConditionsProvider
-     *
-     * @param array|ExpressionInterface $condition
-     * @param string $expected
-     * @param array $expectedParams
      */
-    public function testBuildCondition($condition, string $expected, array $expectedParams): void
+    public function testBuildCondition(array|ExpressionInterface $condition, string $expected, array $expectedParams): void
     {
         $db = $this->getConnection();
         $query = (new Query($db))->where($condition);
@@ -147,10 +125,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildFilterConditionProvider
-     *
-     * @param array $condition
-     * @param string $expected
-     * @param array $expectedParams
      */
     public function testBuildFilterCondition(array $condition, string $expected, array $expectedParams): void
     {
@@ -179,9 +153,6 @@ final class QueryBuilderTest extends TestCase
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildFromDataProvider
      *
-     * @param string $table
-     * @param string $expected
-     *
      * @throws Exception
      */
     public function testBuildFrom(string $table, string $expected): void
@@ -197,8 +168,6 @@ final class QueryBuilderTest extends TestCase
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildLikeConditionsProvider
      *
      * @param array|object $condition
-     * @param string $expected
-     * @param array $expectedParams
      */
     public function testBuildLikeCondition($condition, string $expected, array $expectedParams): void
     {
@@ -225,9 +194,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildExistsParamsProvider
-     *
-     * @param string $cond
-     * @param string $expectedQuerySql
      */
     public function testBuildWhereExists(string $cond, string $expectedQuerySql): void
     {
@@ -391,8 +357,6 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::createDropIndexesProvider
-     *
-     * @param string $sql
      */
     public function testCreateDropIndex(string $sql, Closure $builder): void
     {
@@ -402,13 +366,8 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::deleteProvider()
-     *
-     * @param string $table
-     * @param array|string $condition
-     * @param string $expectedSQL
-     * @param array $expectedParams
      */
-    public function testDelete(string $table, $condition, string $expectedSQL, array $expectedParams): void
+    public function testDelete(string $table, array|string $condition, string $expectedSQL, array $expectedParams): void
     {
         $actualParams = [];
         $db = $this->getConnection();
@@ -418,14 +377,8 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertProvider()
-     *
-     * @param string $table
-     * @param array|QueryInterface $columns
-     * @param array $params
-     * @param string $expectedSQL
-     * @param array $expectedParams
      */
-    public function testInsert(string $table, $columns, array $params, string $expectedSQL, array $expectedParams): void
+    public function testInsert(string $table, array|QueryInterface $columns, array $params, string $expectedSQL, array $expectedParams): void
     {
         $db = $this->getConnection();
         $this->assertSame($expectedSQL, $db->getQueryBuilder()->insert($table, $columns, $params));
@@ -434,14 +387,8 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertExProvider()
-     *
-     * @param string $table
-     * @param array|QueryInterface $columns
-     * @param array $params
-     * @param string $expectedSQL
-     * @param array $expectedParams
      */
-    public function testInsertEx(string $table, $columns, array $params, string $expectedSQL, array $expectedParams): void
+    public function testInsertEx(string $table, array|QueryInterface $columns, array $params, string $expectedSQL, array $expectedParams): void
     {
         $db = $this->getConnection();
         $this->assertSame($expectedSQL, $db->getQueryBuilder()->insertEx($table, $columns, $params));
@@ -515,17 +462,11 @@ final class QueryBuilderTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::updateProvider()
-     *
-     * @param string $table
-     * @param array $columns
-     * @param array|string $condition
-     * @param string $expectedSQL
-     * @param array $expectedParams
      */
     public function testUpdate(
         string $table,
         array $columns,
-        $condition,
+        array|string $condition,
         string $expectedSQL,
         array $expectedParams
     ): void {
@@ -538,11 +479,7 @@ final class QueryBuilderTest extends TestCase
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::upsertProvider
      *
-     * @param string $table
-     * @param array|QueryInterface $insertColumns
-     * @param array|bool $updateColumns
      * @param string|string[] $expectedSQL
-     * @param array $expectedParams
      *
      * @throws Exception|NotSupportedException
      */

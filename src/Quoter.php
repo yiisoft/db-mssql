@@ -28,8 +28,6 @@ final class Quoter extends BaseQuoter
             $parts = [$name];
         }
 
-        return array_map(function ($part) {
-            return $this->unquoteSimpleTableName($part);
-        }, $parts);
+        return array_map(fn ($part) => $this->unquoteSimpleTableName($part), $parts);
     }
 }

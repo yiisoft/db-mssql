@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-final class Dsn
+final class Dsn implements \Stringable
 {
-    private string $databaseName;
-    private string $driver;
-    private string $server;
-    private string $port;
-
-    public function __construct(string $driver, string $server, string $databaseName, string $port = '1433')
+    public function __construct(private string $driver, private string $server, private string $databaseName, private string $port = '1433')
     {
-        $this->driver = $driver;
-        $this->server = $server;
-        $this->databaseName = $databaseName;
-        $this->port = $port;
     }
 
     /**
