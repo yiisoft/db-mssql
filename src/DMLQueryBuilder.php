@@ -71,6 +71,8 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
     /**
      * @throws InvalidArgumentException
+     *
+     * @psalm-suppress RiskyCast
      */
     public function resetSequence(string $tableName, mixed $value = null): string
     {
@@ -84,7 +86,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
                 $key = $this->quoter->quoteColumnName(reset($pk));
                 $value = "(SELECT COALESCE(MAX($key),0) FROM $tableName)+1";
             } else {
-                $value = (int)$value;
+                $value = (int) $value;
             }
 
             return "DBCC CHECKIDENT ('$tableName', RESEED, $value)";
