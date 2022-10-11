@@ -26,8 +26,6 @@ class TestCase extends AbstractTestCase
 
     /**
      * @param bool $reset whether to clean up the test database.
-     * @param string|null $dsn
-     * @param string $fixture
      *
      * @return ConnectionPDOMssql
      */
