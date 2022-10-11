@@ -113,7 +113,7 @@ final class QueryBuilderTest extends TestCase
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildConditionsProvider
      */
-    public function testBuildCondition(array|ExpressionInterface $condition, string $expected, array $expectedParams): void
+    public function testBuildCondition(array|ExpressionInterface|string $condition, string $expected, array $expectedParams): void
     {
         $db = $this->getConnection();
         $query = (new Query($db))->where($condition);
