@@ -136,7 +136,6 @@ final class CommandTest extends TestCase
      * Test whether param binding works in other places than WHERE.
      *
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::bindParamsNonWhereProvider
-     *
      */
     public function testBindParamsNonWhere(string $sql): void
     {
@@ -234,7 +233,6 @@ final class CommandTest extends TestCase
      * Test INSERT INTO ... SELECT SQL statement with wrong query object.
      *
      * @dataProvider invalidSelectColumnsProviderTrait
-     *
      */
     public function testInsertSelectFailed(mixed $invalidSelectColumns): void
     {
@@ -269,7 +267,6 @@ final class CommandTest extends TestCase
      * Test command upsert.
      *
      * @dataProvider upsertProviderTrait
-     *
      */
     public function testUpsert(array $firstData, array $secondData): void
     {
