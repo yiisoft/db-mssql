@@ -64,7 +64,7 @@ final class Schema extends AbstractSchema
     /**
      * @var string|null the default schema used for the current session.
      */
-    protected ?string $defaultSchema = 'dbo';
+    protected string|null $defaultSchema = 'dbo';
 
     /**
      * @var array mapping from physical column types (keys) to abstract column types (values)
@@ -217,7 +217,7 @@ final class Schema extends AbstractSchema
      *
      * @return TableSchemaInterface|null DBMS-dependent table metadata, `null` if the table does not exist.
      */
-    protected function loadTableSchema(string $name): ?TableSchemaInterface
+    protected function loadTableSchema(string $name): TableSchemaInterface|null
     {
         $table = $this->resolveTableName($name);
         $this->findPrimaryKeys($table);
@@ -239,7 +239,7 @@ final class Schema extends AbstractSchema
      *
      * @return Constraint|null The primary key for the given table, `null` if the table has no primary key.
      */
-    protected function loadTablePrimaryKey(string $tableName): ?Constraint
+    protected function loadTablePrimaryKey(string $tableName): Constraint|null
     {
         /** @var mixed */
         $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
@@ -529,7 +529,6 @@ final class Schema extends AbstractSchema
     /**
      * Collects the constraint details for the given table and constraint type.
      *
-     * @param TableSchemaInterface $table
      * @param string $type either PRIMARY KEY or UNIQUE.
      *
      * @throws Exception|InvalidConfigException|Throwable
@@ -857,7 +856,7 @@ final class Schema extends AbstractSchema
      */
     protected function getCacheKey(string $name): array
     {
-        return array_merge([__CLASS__], $this->db->getCacheKey(), [$this->getRawTableName($name)]);
+        return array_merge([self::class], $this->db->getCacheKey(), [$this->getRawTableName($name)]);
     }
 
     /**
@@ -869,7 +868,7 @@ final class Schema extends AbstractSchema
      */
     protected function getCacheTag(): string
     {
-        return md5(serialize(array_merge([__CLASS__], $this->db->getCacheKey())));
+        return md5(serialize(array_merge([self::class], $this->db->getCacheKey())));
     }
 
     /**
@@ -891,9 +890,7 @@ final class Schema extends AbstractSchema
     protected function normalizeRowKeyCase(array $row, bool $multiple): array
     {
         if ($multiple) {
-            return array_map(static function (array $row) {
-                return array_change_key_case($row, CASE_LOWER);
-            }, $row);
+            return array_map(static fn (array $row) => array_change_key_case($row, CASE_LOWER), $row);
         }
 
         return array_change_key_case($row, CASE_LOWER);
@@ -902,7 +899,7 @@ final class Schema extends AbstractSchema
     /**
      * @inheritDoc
      */
-    public function getLastInsertID(?string $sequenceName = null): string
+    public function getLastInsertID(string $sequenceName = null): string
     {
         return $this->db->getLastInsertID($sequenceName);
     }

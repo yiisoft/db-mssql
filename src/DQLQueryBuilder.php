@@ -88,10 +88,6 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
     /**
      * Extracts table alias if there is one or returns false
      *
-     * @param string $table
-     *
-     * @return array|bool
-     *
      * @psalm-return string[]|bool
      */
     protected function extractAlias(string $table): array|bool

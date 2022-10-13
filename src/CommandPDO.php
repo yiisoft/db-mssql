@@ -41,7 +41,7 @@ final class CommandPDO extends AbstractCommandPDO
         return $this->db->getSchema();
     }
 
-    protected function internalExecute(?string $rawSql): void
+    protected function internalExecute(string|null $rawSql): void
     {
         $attempt = 0;
 

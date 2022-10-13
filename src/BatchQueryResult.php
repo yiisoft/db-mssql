@@ -22,8 +22,6 @@ class BatchQueryResult extends BaseBatchQueryResult
      *
      * @throws InvalidCallException
      *
-     * @return array
-     *
      * @psalm-suppress MixedArrayAccess
      */
     protected function getRows(): array
