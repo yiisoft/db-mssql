@@ -47,7 +47,7 @@ final class InConditionBuilder extends AbstractInConditionBuilder
      * Builds SQL for IN condition.
      */
     protected function buildCompositeInCondition(
-        ?string $operator,
+        string|null $operator,
         array|Traversable $columns,
         iterable|Iterator $values,
         array &$params = []
