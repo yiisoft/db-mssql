@@ -71,10 +71,8 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
     /**
      * @throws InvalidArgumentException
-     *
-     * @psalm-suppress RiskyCast
      */
-    public function resetSequence(string $tableName, mixed $value = null): string
+    public function resetSequence(string $tableName, int|string $value = null): string
     {
         $table = $this->schema->getTableSchema($tableName);
 
