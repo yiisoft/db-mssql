@@ -451,6 +451,9 @@ final class QueryBuilderTest extends TestCase
 
         $sql = $qb->resetSequence('item', 4);
         $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 4)", $sql);
+
+        $sql = $qb->resetSequence('item', '1');
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 1)", $sql);
     }
 
     public function testResetSequenceException(): void
