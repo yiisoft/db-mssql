@@ -15,7 +15,7 @@ This extension provides the MSSQL Server support for the [Yii framework 3 ](http
 [![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads.png)](https://packagist.org/packages/yiisoft/db-mssql)
 [![rector](https://github.com/yiisoft/db-mssql/actions/workflows/rector.yml/badge.svg)](https://github.com/yiisoft/db-mssql/actions/workflows/rector.yml)
 [![codecov](https://codecov.io/gh/yiisoft/db-mssql/branch/dev/graph/badge.svg?token=UF9VERNMYU)](https://codecov.io/gh/yiisoft/db-mssql)
-[![StyleCI](https://github.styleci.io/repos/140871052/shield?branch=master)](https://github.styleci.io/repos/140871052?branch=master)
+[![StyleCI](https://github.styleci.io/repos/114756477/shield?branch=master)](https://github.styleci.io/repos/114756477?branch=master)
 
 
 ## Support version
