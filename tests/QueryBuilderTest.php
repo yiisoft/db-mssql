@@ -210,7 +210,7 @@ final class QueryBuilderTest extends TestCase
 
     public function testCheckIntegrity(): void
     {
-        $this->assertEqualsWithoutLE(
+        $this->assertSame(
             <<<SQL
             ALTER TABLE [dbo].[animal] CHECK CONSTRAINT ALL;
             SQL . ' ',
