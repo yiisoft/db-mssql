@@ -83,8 +83,6 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
                 $pk = $table->getPrimaryKey();
                 $key = $this->quoter->quoteColumnName(reset($pk));
                 $value = "(SELECT COALESCE(MAX($key),0) FROM $tableName)+1";
-            } else {
-                $value = (int) $value;
             }
 
             return "DBCC CHECKIDENT ('$tableName', RESEED, $value)";
