@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Yiisoft\Db\Mssql\Tests\Support\MssqlHelper;
-
 require dirname(__DIR__) . '/vendor/autoload.php';
+
+use Yiisoft\Db\Mssql\Tests\Support\MssqlHelper;
 
 // add mssql fixture to database
 $mssql = new Mssqlhelper();
