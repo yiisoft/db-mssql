@@ -95,5 +95,4 @@ final class QuoterTest extends AbstractQuoterTest
         $this->assertSame("'string'", $quoter->quoteValue('string'));
         $this->assertSame("'It''s interesting'", $quoter->quoteValue("It's interesting"));
     }
-
 }
