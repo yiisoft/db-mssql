@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Tests\TestCase;
-use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
+use Yiisoft\Db\Mssql\Tests\Support\MssqlHelper;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\TestSupport\Provider\QueryBuilderProvider as BaseQueryBuilderProvider;
-use Yiisoft\Db\TestSupport\TraversableObject;
+use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
+use Yiisoft\Db\Tests\Provider\AbstractQueryBuilderProvider;
+use Yiisoft\Db\Tests\Support\DbHelper;
+use Yiisoft\Db\Tests\Support\TraversableObject;
 
-final class QueryBuilderProvider extends TestCase
+final class QueryBuilderProvider extends AbstractQueryBuilderProvider
 {
     /**
      * @var string ` ESCAPE 'char'` part of a LIKE condition SQL.
@@ -29,7 +30,7 @@ final class QueryBuilderProvider extends TestCase
         '\\\\' => '[\\]',
     ];
 
-    public function addDropChecksProvider(): array
+    public function addDropChecks(): array
     {
         $tableName = 'T_constraints_1';
         $name = 'CN_check';
@@ -46,29 +47,30 @@ final class QueryBuilderProvider extends TestCase
         ];
     }
 
-    public function addDropForeignKeysProvider(): array
+    public function addDropForeignKeys(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->addDropForeignKeysProvider();
+        return parent::addDropForeignKeys();
     }
 
-    public function addDropPrimaryKeysProvider(): array
+    public function addDropPrimaryKeys(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->addDropPrimaryKeysProvider();
+        return parent::addDropPrimaryKeys();
     }
 
-    public function addDropUniquesProvider(): array
+    public function addDropUniques(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->addDropUniquesProvider();
+        return parent::addDropUniques();
     }
 
-    public function batchInsertProvider(): array
+    public function batchInsert(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->batchInsertProvider();
+        return $this->getBatchInsert('sqlsrv');
     }
 
-    public function buildConditionsProvider(): array
+    public function buildConditions(): array
     {
-        $data = (new BaseQueryBuilderProvider($this->getConnection()))->buildConditionsProvider();
+        $mssqlHelper = new MssqlHelper();
+        $data = $this->getBuildConditions($mssqlHelper->createConnection());
 
         $data['composite in'] = [
             ['in', ['id', 'name'], [['id' => 1, 'name' => 'oy']]],
@@ -76,10 +78,11 @@ final class QueryBuilderProvider extends TestCase
             [':qp0' => 1, ':qp1' => 'oy'],
         ];
         $data['composite in using array objects'] = [
-            ['in', new TraversableObject(['id', 'name']), new TraversableObject([
-                ['id' => 1, 'name' => 'oy'],
-                ['id' => 2, 'name' => 'yo'],
-            ])],
+            [
+                'in',
+                new TraversableObject(['id', 'name']),
+                new TraversableObject([['id' => 1, 'name' => 'oy'], ['id' => 2, 'name' => 'yo']]),
+            ],
             '(([id] = :qp0 AND [name] = :qp1) OR ([id] = :qp2 AND [name] = :qp3))',
             [':qp0' => 1, ':qp1' => 'oy', ':qp2' => 2, ':qp3' => 'yo'],
         ];
@@ -87,42 +90,49 @@ final class QueryBuilderProvider extends TestCase
         return $data;
     }
 
-    public function buildExistsParamsProvider(): array
+    public function buildExistsParams(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->buildExistsParamsProvider();
+        return $this->getBuildExistsParams('sqlsrv');
     }
 
-    public function buildFilterConditionProvider(): array
+    public function buildFilterCondition(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->buildFilterConditionProvider();
+        return $this->getBuildFilterCondition('sqlsrv');
     }
 
-    public function buildFromDataProvider(): array
+    public function buildFromData(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->buildFromDataProvider();
+        $data = parent::buildFromData();
+
+        $data[] = ['[test]', '[[test]]'];
+        $data[] = ['[test] [t1]', '[[test]] [[t1]]'];
+        $data[] = ['[table.name]', '[[table.name]]'];
+        $data[] = ['[table.name.with.dots]', '[[table.name.with.dots]]'];
+        $data[] = ['[table name]', '[[table name]]'];
+        $data[] = ['[table name with spaces]', '[[table name with spaces]]'];
+
+        return $data;
     }
 
-    public function buildLikeConditionsProvider(): array
+    public function buildLikeConditions(): array
     {
-        return (new BaseQueryBuilderProvider(
-            $this->getConnection(),
-            $this->likeEscapeCharSql,
-            $this->likeParameterReplacements
-        ))->buildLikeConditionsProvider();
+        return $this->getBuildLikeConditions('sqlsrv');
     }
 
-    public function createDropIndexesProvider(): array
+    public function createDropIndexes(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->createDropIndexesProvider();
+        return parent::createDropIndexes();
     }
 
-    public function deleteProvider(): array
+    public function delete(): array
     {
-        return (new BaseQueryBuilderProvider($this->getConnection()))->deleteProvider();
+        return $this->getDelete('sqlsrv');
     }
 
-    public function insertProvider(): array
+    public function insert(): array
     {
+        $mssqlHelper = new MssqlHelper();
+
         return [
             'regular-values' => [
                 'customer',
@@ -179,7 +189,7 @@ final class QueryBuilderProvider extends TestCase
             ],
             'carry passed params (query)' => [
                 'customer',
-                (new Query($this->getConnection()))
+                (new Query($mssqlHelper->createConnection()))
                     ->select([
                         'email',
                         'name',
@@ -210,8 +220,10 @@ final class QueryBuilderProvider extends TestCase
         ];
     }
 
-    public function insertExProvider(): array
+    public function insertEx(): array
     {
+        $mssqlHelper = new MssqlHelper();
+
         return [
             'regular-values' => [
                 'customer',
@@ -223,9 +235,12 @@ final class QueryBuilderProvider extends TestCase
                     'related_id' => null,
                 ],
                 [],
-                $this->replaceQuotes('SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);' .
+                DbHelper::replaceQuotes(
+                    'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);' .
                     'INSERT INTO [[customer]] ([[email]], [[name]], [[address]], [[is_active]], [[related_id]]) OUTPUT INSERTED.* INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3, :qp4);' .
-                    'SELECT * FROM @temporary_inserted'),
+                    'SELECT * FROM @temporary_inserted',
+                    'sqlsrv',
+                ),
                 [
                     ':qp0' => 'test@example.com',
                     ':qp1' => 'silverfire',
@@ -259,9 +274,12 @@ final class QueryBuilderProvider extends TestCase
                     'col' => new Expression('CONCAT(:phFoo, :phBar)', [':phFoo' => 'foo']),
                 ],
                 [':phBar' => 'bar'],
-                $this->replaceQuotes('SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);' .
+                DbHelper::replaceQuotes(
+                    'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);' .
                     'INSERT INTO [[customer]] ([[email]], [[name]], [[address]], [[is_active]], [[related_id]], [[col]]) OUTPUT INSERTED.* INTO @temporary_inserted VALUES (:qp1, :qp2, :qp3, :qp4, :qp5, CONCAT(:phFoo, :phBar));' .
-                    'SELECT * FROM @temporary_inserted'),
+                    'SELECT * FROM @temporary_inserted',
+                    'sqlsrv',
+                ),
                 [
                     ':phBar' => 'bar',
                     ':qp1' => 'test@example.com',
@@ -274,7 +292,7 @@ final class QueryBuilderProvider extends TestCase
             ],
             'carry passed params (query)' => [
                 'customer',
-                (new Query($this->getConnection()))
+                (new Query($mssqlHelper->createConnection()))
                     ->select([
                         'email',
                         'name',
@@ -292,9 +310,12 @@ final class QueryBuilderProvider extends TestCase
                         'col' => new Expression('CONCAT(:phFoo, :phBar)', [':phFoo' => 'foo']),
                     ]),
                 [':phBar' => 'bar'],
-                $this->replaceQuotes('SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);' .
+                DbHelper::replaceQuotes(
+                    'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);' .
                     'INSERT INTO [[customer]] ([[email]], [[name]], [[address]], [[is_active]], [[related_id]]) OUTPUT INSERTED.* INTO @temporary_inserted SELECT [[email]], [[name]], [[address]], [[is_active]], [[related_id]] FROM [[customer]] WHERE ([[email]]=:qp1) AND ([[name]]=:qp2) AND ([[address]]=:qp3) AND ([[is_active]]=:qp4) AND ([[related_id]] IS NULL) AND ([[col]]=CONCAT(:phFoo, :phBar));' .
-                    'SELECT * FROM @temporary_inserted'),
+                    'SELECT * FROM @temporary_inserted',
+                    'sqlsrv',
+                ),
                 [
                     ':phBar' => 'bar',
                     ':qp1' => 'test@example.com',
@@ -307,31 +328,15 @@ final class QueryBuilderProvider extends TestCase
         ];
     }
 
-    public function updateProvider(): array
+    public function update(): array
     {
-        return [
-            [
-                'customer',
-                [
-                    'status' => 1,
-                    'updated_at' => new Expression('now()'),
-                ],
-                [
-                    'id' => 100,
-                ],
-                $this->replaceQuotes(
-                    'UPDATE [[customer]] SET [[status]]=:qp0, [[updated_at]]=now() WHERE [[id]]=:qp1'
-                ),
-                [
-                    ':qp0' => 1,
-                    ':qp1' => 100,
-                ],
-            ],
-        ];
+        return $this->getUpdate('sqlsrv');
     }
 
-    public function upsertProvider(): array
+    public function upsert(): array
     {
+        $mssqlHelper = new MssqlHelper();
+
         $concreteData = [
             'regular values' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ([email],'
@@ -410,7 +415,7 @@ final class QueryBuilderProvider extends TestCase
             ],
         ];
 
-        $newData = (new BaseQueryBuilderProvider($this->getConnection()))->upsertProvider();
+        $newData = $this->getUpsert($mssqlHelper->createConnection());
 
         foreach ($concreteData as $testName => $data) {
             $newData[$testName] = array_replace($newData[$testName], $data);

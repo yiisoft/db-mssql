@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\TestSupport\TestQueryTrait;
+use Yiisoft\Db\Tests\AbstractQueryTest;
 
 /**
  * @group mssql
  */
-final class QueryTest extends TestCase
+final class QueryTest extends AbstractQueryTest
 {
-    use TestQueryTrait;
+    use TestTrait;
 
     public function testUnion(): void
     {
@@ -39,6 +40,7 @@ final class QueryTest extends TestCase
             );
 
         $result = $query->all();
+
         $this->assertNotEmpty($result);
         $this->assertCount(4, $result);
     }

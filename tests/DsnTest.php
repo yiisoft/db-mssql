@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Yiisoft\Db\Mssql\Dsn;
 
 /**
  * @group mssql
- * @group upsert
  */
 final class DsnTest extends TestCase
 {
