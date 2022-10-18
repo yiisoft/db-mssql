@@ -24,7 +24,7 @@ jobs:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     env:
-      extensions: pdo, pdo_sqlsrv, pdo_sqlsrv-5.10.0-beta1
+      extensions: pdo, pdo_sqlsrv, pdo_sqlsrv-5.10.1
 
     runs-on: ${{ matrix.os }}
 
