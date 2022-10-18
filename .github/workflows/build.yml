@@ -31,7 +31,7 @@ name: build
 
 jobs:
   tests:
-    name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}
+    name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}-${{ inputs.install }}
 
     env:
       extensions: pdo, pdo_sqlsrv-5.10.1
