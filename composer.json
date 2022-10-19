@@ -22,7 +22,7 @@
         "php": "^8.1",
         "ext-pdo": "*",
         "yiisoft/arrays": "^2.0",
-        "yiisoft/db": "dev-big-refactoring-21"
+        "yiisoft/db": "dev-big-refactoring-2"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
@@ -60,11 +60,5 @@
     "scripts": {
         "test": "phpunit --testdox --no-interaction",
         "test-watch": "phpunit-watcher watch"
-    },
-    "repositories": [
-        {
-            "type": "github",
-            "url": "https://github.com/terabytesoftw/db"
-        }
-    ]
+    }
 }
