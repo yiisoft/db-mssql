@@ -38,6 +38,7 @@ use function stripos;
  *   data_type: string,
  *   column_default: mixed,
  *   is_identity: string,
+ *   is_computed: string,
  *   comment: null|string
  * }
  *
@@ -394,7 +395,7 @@ final class Schema extends AbstractSchema
         $column->enumValues([]); // mssql has only vague equivalents to enum
         $column->primaryKey(false); // primary key will be determined in findColumns() method
         $column->autoIncrement($info['is_identity'] === '1');
-        $column->computed((bool)$info['is_computed']);
+        $column->computed($info['is_computed'] === '1');
         $column->unsigned(stripos($column->getDbType(), 'unsigned') !== false);
         $column->comment($info['comment'] ?? '');
         $column->type(self::TYPE_STRING);
