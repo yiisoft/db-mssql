@@ -298,7 +298,10 @@ END';
         $db->createCommand($sql)->execute();
 
         $insertedString = 'test';
+
+        $transaction = $db->beginTransaction();
         $result = $db->createCommand()->insertEx('test_trigger', ['stringcol' => $insertedString]);
+        $transaction->commit();
 
         $this->assertIsArray($result);
         $this->assertEquals($insertedString, $result['stringcol']);
@@ -309,7 +312,7 @@ END';
     /**
      * @throws Throwable
      */
-    public function testInsertExWithRowVersionColumn()
+    public function testInsertExWithRowVersionColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -327,7 +330,7 @@ END';
     /**
      * @throws Throwable
      */
-    public function testInsertExWithRowVersionNullColumn()
+    public function testInsertExWithRowVersionNullColumn(): void
     {
         $db = $this->getConnection(true);
 
