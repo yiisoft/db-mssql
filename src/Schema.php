@@ -394,6 +394,7 @@ final class Schema extends AbstractSchema
         $column->enumValues([]); // mssql has only vague equivalents to enum
         $column->primaryKey(false); // primary key will be determined in findColumns() method
         $column->autoIncrement($info['is_identity'] === '1');
+        $column->computed((bool)$info['is_computed']);
         $column->unsigned(stripos($column->getDbType(), 'unsigned') !== false);
         $column->comment($info['comment'] ?? '');
         $column->type(self::TYPE_STRING);
@@ -482,6 +483,7 @@ final class Schema extends AbstractSchema
         END AS 'data_type',
         [t1].[column_default],
         COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsIdentity') AS is_identity,
+        COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsComputed') AS is_computed,
         (
         SELECT CONVERT(VARCHAR, [t2].[value])
         FROM [sys].[extended_properties] AS [t2]

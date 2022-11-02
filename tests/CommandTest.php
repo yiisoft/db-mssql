@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\TestSupport\TestCommandTrait;
@@ -248,7 +250,7 @@ final class CommandTest extends TestCase
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::dataInsertVarbinary
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws \Yiisoft\Db\Exception\Exception
      * @throws \Yiisoft\Db\Exception\InvalidConfigException
      */
@@ -275,5 +277,68 @@ final class CommandTest extends TestCase
         $this->performAndCompareUpsertResult($db, $firstData);
         $this->assertEquals(1, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
         $this->performAndCompareUpsertResult($db, $secondData);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function testInsertExWithComputedColumn(): void
+    {
+        $db = $this->getConnection(true);
+
+        $sql = 'CREATE OR ALTER FUNCTION TESTFUNC(@Number INT)
+RETURNS VARCHAR(15)
+AS
+BEGIN
+      RETURN (SELECT TRY_CONVERT(VARCHAR(15),@Number))
+END';
+        $db->createCommand($sql)->execute();
+
+        $sql = 'ALTER TABLE [dbo].[test_trigger] ADD [computed_column] AS dbo.TESTFUNC([ID])';
+        $db->createCommand($sql)->execute();
+
+        $insertedString = 'test';
+        $result = $db->createCommand()->insertEx('test_trigger', ['stringcol' => $insertedString]);
+
+        $this->assertIsArray($result);
+        $this->assertEquals($insertedString, $result['stringcol']);
+        $this->assertEquals(1, $result['id']);
+    }
+
+
+    /**
+     * @throws Throwable
+     */
+    public function testInsertExWithRowVersionColumn()
+    {
+        $db = $this->getConnection(true);
+
+        $sql = 'ALTER TABLE [dbo].[test_trigger] ADD [RV] rowversion';
+        $db->createCommand($sql)->execute();
+
+        $insertedString = 'test';
+        $result = $db->createCommand()->insertEx('test_trigger', ['stringcol' => $insertedString]);
+
+        $this->assertIsArray($result);
+        $this->assertEquals($insertedString, $result['stringcol']);
+        $this->assertEquals(1, $result['id']);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    public function testInsertExWithRowVersionNullColumn()
+    {
+        $db = $this->getConnection(true);
+
+        $sql = 'ALTER TABLE [dbo].[test_trigger] ADD [RV] rowversion NULL';
+        $db->createCommand($sql)->execute();
+
+        $insertedString = 'test';
+        $result = $db->createCommand()->insertEx('test_trigger', ['stringcol' => $insertedString, 'RV' => new Expression('DEFAULT')]);
+
+        $this->assertIsArray($result);
+        $this->assertEquals($insertedString, $result['stringcol']);
+        $this->assertEquals(1, $result['id']);
     }
 }

@@ -46,27 +46,37 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
          */
         [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
 
-        $sql = 'INSERT INTO '
-            . $this->quoter->quoteTableName($table)
-            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
-            . ' OUTPUT INSERTED.* INTO @temporary_inserted'
-            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : (string) $values);
 
-        $cols = [];
+        $createdCols = $insertedCols = [];
         $tableSchema = $this->schema->getTableSchema($table);
         $returnColumns = $tableSchema?->getColumns() ?? [];
         foreach ($returnColumns as $returnColumn) {
-            $cols[] = $this->quoter->quoteColumnName($returnColumn->getName()) . ' '
-                . $returnColumn->getDbType()
-                . (in_array(
-                    $returnColumn->getDbType(),
-                    ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary']
-                ) ? '(MAX)' : '')
-                . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
+            if ($returnColumn->isComputed()) {
+                continue;
+            }
+
+            $dbType = $returnColumn->getDbType();
+            if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'])) {
+                $dbType .= '(MAX)';
+            }
+            if ($returnColumn->getDbType() === Schema::TYPE_TIMESTAMP) {
+                $dbType = $returnColumn->isAllowNull() ? 'varbinary(8)' : 'binary(8)';
+            }
+
+            $quotedName = $this->quoter->quoteColumnName($returnColumn->getName());
+            $createdCols[] = $quotedName . ' ' . $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
+            $insertedCols[] = 'INSERTED.' . $quotedName;
         }
 
-        return 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $cols) . ');'
-            . $sql . ';SELECT * FROM @temporary_inserted';
+        $sql = 'INSERT INTO '
+            . $this->quoter->quoteTableName($table)
+            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
+            . ' OUTPUT ' . implode(',', $insertedCols) . ' INTO @temporary_inserted'
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : (string) $values);
+
+
+        return 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $createdCols) . ');'
+            . $sql . ';SELECT * FROM @temporary_inserted;';
     }
 
     /**
