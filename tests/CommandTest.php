@@ -308,7 +308,6 @@ END';
         $this->assertEquals(1, $result['id']);
     }
 
-
     /**
      * @throws Throwable
      */
