@@ -447,7 +447,7 @@ final class QueryBuilderTest extends TestCase
         $qb = $this->getConnection(true)->getQueryBuilder();
 
         $sql = $qb->resetSequence('item');
-        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, (SELECT COALESCE(MAX([id]),0) FROM [item])+1)", $sql);
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 0) WITH NO_INFOMSGS;DBCC CHECKIDENT ('[item]', RESEED)", $sql);
 
         $sql = $qb->resetSequence('item', 4);
         $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 4)", $sql);
