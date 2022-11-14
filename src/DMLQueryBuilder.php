@@ -23,7 +23,6 @@ use function in_array;
 use function ltrim;
 use function strrpos;
 use function is_array;
-use function reset;
 
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
