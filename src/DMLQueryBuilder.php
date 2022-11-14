@@ -23,7 +23,6 @@ use function in_array;
 use function ltrim;
 use function strrpos;
 use function is_array;
-use function reset;
 
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
@@ -90,9 +89,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             $tableName = $this->quoter->quoteTableName($tableName);
 
             if ($value === null) {
-                $pk = $table->getPrimaryKey();
-                $key = $this->quoter->quoteColumnName(reset($pk));
-                $value = "(SELECT COALESCE(MAX($key),0) FROM $tableName)+1";
+                return "DBCC CHECKIDENT ('$tableName', RESEED, 0) WITH NO_INFOMSGS;DBCC CHECKIDENT ('$tableName', RESEED)";
             }
 
             return "DBCC CHECKIDENT ('$tableName', RESEED, $value)";
