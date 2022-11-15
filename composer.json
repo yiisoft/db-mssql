@@ -21,7 +21,6 @@
     "require": {
         "php": "^8.0",
         "ext-pdo": "*",
-        "ext-ctype": "*",
         "yiisoft/arrays": "^2.0",
         "yiisoft/db": "dev-temp as 3.0@dev"
     },
@@ -61,11 +60,5 @@
     "scripts": {
         "test": "phpunit --testdox --no-interaction",
         "test-watch": "phpunit-watcher watch"
-    },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../db"
-        }
-    ]
+    }
 }
