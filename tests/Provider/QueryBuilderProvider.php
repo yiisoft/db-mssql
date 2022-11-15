@@ -143,7 +143,7 @@ final class QueryBuilderProvider
                 '\_' => '[_]',
                 '[' => '[[]',
                 ']' => '[]]',
-                '\\\\' => '[\\]'
+                '\\\\' => '[\\]',
             ],
         );
     }
@@ -157,7 +157,6 @@ final class QueryBuilderProvider
 
         return $baseQueryBuilderProvider->buildWhereExists($this->getConnection());
     }
-
 
     /**
      * @throws Exception

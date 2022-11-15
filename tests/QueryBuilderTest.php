@@ -317,7 +317,8 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $expected = json_encode(['test' => 'string', 'test2' => 'integer']);
         $sql = $qb->upsert(
             'T_upsert_varbinary',
-            ['id' => 1, 'blob_col' => $expected], ['blob_col' => $expected],
+            ['id' => 1, 'blob_col' => $expected],
+            ['blob_col' => $expected],
             $params,
         );
         $execute = $db->createCommand($sql, $params)->execute();

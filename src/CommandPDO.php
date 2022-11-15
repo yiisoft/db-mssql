@@ -13,9 +13,9 @@ use function is_array;
 
 final class CommandPDO extends AbstractCommandPDO
 {
-   /**
-    * @inheritDoc
-    */
+    /**
+     * @inheritDoc
+     */
     public function insertEx(string $table, array $columns): bool|array
     {
         $params = [];

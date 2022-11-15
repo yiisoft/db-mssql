@@ -222,6 +222,7 @@ final class CommandTest extends CommonCommandTest
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::createIndex()
+     *
      * @throws Exception
      */
     public function testCreateIndex(
