@@ -244,7 +244,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testExecuteResetSequence(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getConnection();
         $oldRow = $db->createCommand()->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
         $db->createCommand()->delete('item', ['id' => $oldRow['id']])->execute();
 

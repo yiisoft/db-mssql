@@ -273,7 +273,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
 
     public function testResetSequence(): void
     {
-        $qb = $this->getConnection(true)->getQueryBuilder();
+        $qb = $this->getConnection()->getQueryBuilder();
 
         $sql = $qb->resetSequence('item');
         $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 0) WITH NO_INFOMSGS;DBCC CHECKIDENT ('[item]', RESEED)", $sql);
@@ -290,7 +290,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("There is not sequence associated with table 'noExist'.");
 
-        $sql = $this->getConnection(true)->getQueryBuilder()->resetSequence('noExist');
+        $sql = $this->getConnection()->getQueryBuilder()->resetSequence('noExist');
     }
 
     /**
