@@ -271,6 +271,28 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testSelectExists($sql, $expected);
     }
 
+    public function testResetSequence(): void
+    {
+        $qb = $this->getConnection(true)->getQueryBuilder();
+
+        $sql = $qb->resetSequence('item');
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 0) WITH NO_INFOMSGS;DBCC CHECKIDENT ('[item]', RESEED)", $sql);
+
+        $sql = $qb->resetSequence('item', 4);
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 4)", $sql);
+
+        $sql = $qb->resetSequence('item', '1');
+        $this->assertSame("DBCC CHECKIDENT ('[item]', RESEED, 1)", $sql);
+    }
+
+    public function testResetSequenceException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("There is not sequence associated with table 'noExist'.");
+
+        $sql = $this->getConnection(true)->getQueryBuilder()->resetSequence('noExist');
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::update()
      */

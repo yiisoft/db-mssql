@@ -242,6 +242,18 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame($expected, $sql);
     }
 
+    public function testExecuteResetSequence(): void
+    {
+        $db = $this->getConnection(true);
+        $oldRow = $db->createCommand()->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+        $db->createCommand()->delete('item', ['id' => $oldRow['id']])->execute();
+
+        $db->createCommand()->executeResetSequence('item')->execute();
+        $newRow = $db->createCommand()->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+
+        $this->assertEquals($oldRow['id'], $newRow['id']);
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql()
      *
