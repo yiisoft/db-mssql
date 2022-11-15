@@ -25,7 +25,6 @@ jobs:
   psalm:
     uses: yiisoft/actions/.github/workflows/psalm.yml@master
     with:
-      extensions: pdo, pdo_sqlsrv-5.10.1
       os: >-
         ['ubuntu-latest']
       php: >-
