@@ -63,7 +63,7 @@ final class SchemaTest extends CommonSchemaTest
      */
     public function testGetViewNames(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getConnectionWithData();
 
         $schema = $db->getSchema();
 
