@@ -244,12 +244,13 @@ final class CommandTest extends CommonCommandTest
 
     public function testExecuteResetSequence(): void
     {
-        $db = $this->getConnection();
-        $oldRow = $db->createCommand()->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
-        $db->createCommand()->delete('item', ['id' => $oldRow['id']])->execute();
+        $db = $this->getConnectionWithData();
 
-        $db->createCommand()->executeResetSequence('item')->execute();
-        $newRow = $db->createCommand()->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+        $command = $db->createCommand();
+        $oldRow = $command->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+        $command->delete('item', ['id' => $oldRow['id']])->execute();
+        $command->executeResetSequence('item')->execute();
+        $newRow = $command->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
 
         $this->assertEquals($oldRow['id'], $newRow['id']);
     }
