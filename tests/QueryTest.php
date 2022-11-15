@@ -4,42 +4,36 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\TestSupport\TestQueryTrait;
+use Yiisoft\Db\Tests\Common\CommonQueryTest;
 
 /**
  * @group mssql
  */
-final class QueryTest extends TestCase
+final class QueryTest extends CommonQueryTest
 {
-    use TestQueryTrait;
+    use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testUnion(): void
     {
         $db = $this->getConnection();
 
-        /* MSSQL supports limit only in sub queries with UNION */
-        $query = (new Query($db))
-            ->select(['id', 'name'])
-            ->from(
-                (new Query($db))
-                    ->select(['id', 'name'])
-                    ->from('item')
-                    ->limit(2)
-            )
-            ->union(
-                (new Query($db))
-                    ->select(['id', 'name'])
-                    ->from(
-                        (new Query($db))
-                            ->select(['id', 'name'])
-                            ->from(['category'])
-                            ->limit(2)
-                    )
-            );
+        $subQueryFromItem = (new Query($db))->select(['id', 'name'])->from('item')->limit(2);
+        $subQueryFromCategory = (new Query($db))->select(['id', 'name'])->from(['category'])->limit(2);
+        $subQueryUnion = (new Query($db))->select(['id', 'name'])->from($subQueryFromCategory);
 
-        $result = $query->all();
-        $this->assertNotEmpty($result);
-        $this->assertCount(4, $result);
+        $query = (new Query($db))->select(['id', 'name'])->from($subQueryFromItem)->union($subQueryUnion);
+        $data = $query->all();
+
+        $this->assertCount(4, $data);
     }
 }

@@ -5,111 +5,152 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use Throwable;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Schema;
+use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\TestSupport\TestCommandTrait;
+use Yiisoft\Db\Schema\Schema;
+use Yiisoft\Db\Tests\Common\CommonCommandTest;
 
 use function trim;
 
 /**
  * @group mssql
- * @group upsert
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
-final class CommandTest extends TestCase
+final class CommandTest extends CommonCommandTest
 {
-    use TestCommandTrait;
+    use TestTrait;
 
-    protected $upsertTestCharCast = 'CAST([[address]] AS VARCHAR(255))';
+    protected string $upsertTestCharCast = 'CAST([[address]] AS VARCHAR(255))';
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testAddColumn(): void
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+        $sql = $command->addColumn('table', 'column', Schema::TYPE_INTEGER)->getSql();
+
+        $this->assertSame(
+            <<<SQL
+            ALTER TABLE [table] ADD [column] int
+            SQL,
+            $sql,
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testAddDropCheck(): void
     {
         $db = $this->getConnection();
-        $schema = $db->getSchema();
 
+        $command = $db->createCommand();
+        $schema = $db->getSchema();
         $tableName = 'test_ck';
         $name = 'test_ck_constraint';
 
         if ($schema->getTableSchema($tableName) !== null) {
-            $db->createCommand()->dropTable($tableName)->execute();
+            $command->dropTable($tableName)->execute();
         }
 
-        $db->createCommand()->createTable($tableName, ['int1' => 'integer'])->execute();
+        $command->createTable($tableName, ['int1' => 'integer'])->execute();
+
         $this->assertEmpty($schema->getTableChecks($tableName, true));
 
-        $db->createCommand()->addCheck($name, $tableName, '[[int1]] > 1')->execute();
+        $command->addCheck($name, $tableName, '[[int1]] > 1')->execute();
+
         $this->assertMatchesRegularExpression(
             '/^.*int1.*>.*1.*$/',
             $schema->getTableChecks($tableName, true)[0]->getExpression()
         );
 
-        $db->createCommand()->dropCheck($name, $tableName)->execute();
+        $command->dropCheck($name, $tableName)->execute();
+
         $this->assertEmpty($schema->getTableChecks($tableName, true));
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testAlterColumn(): void
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+        $sql = $command->alterColumn('table', 'column', Schema::TYPE_INTEGER)->getSql();
+
+        $this->assertSame(
+            <<<SQL
+            ALTER TABLE [table] ALTER COLUMN [column] int
+            SQL,
+            $sql,
+        );
     }
 
     public function testAlterTable(): void
     {
         $db = $this->getConnection();
 
-        if ($db->getSchema()->getTableSchema('testAlterTable') !== null) {
-            $db->createCommand()->dropTable('testAlterTable')->execute();
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('testAlterTable', true) !== null) {
+            $command->dropTable('testAlterTable')->execute();
         }
 
-        $db->createCommand()->createTable(
-            'testAlterTable',
-            ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER]
-        )->execute();
+        $command->createTable('testAlterTable', ['id' => Schema::TYPE_PK, 'bar' => Schema::TYPE_INTEGER])->execute();
+        $command->insert('testAlterTable', ['bar' => 1])->execute();
+        $command->alterColumn('testAlterTable', 'bar', Schema::TYPE_STRING)->execute();
+        $command->insert('testAlterTable', ['bar' => 'hello'])->execute();
+        $records = $command->setSql(
+            <<<SQL
+            SELECT [[id]], [[bar]] FROM {{testAlterTable}};
+            SQL
+        )->queryAll();
 
-        $db->createCommand()->insert('testAlterTable', ['bar' => 1])->execute();
-        $db->createCommand()->alterColumn('testAlterTable', 'bar', Schema::TYPE_STRING)->execute();
-        $db->createCommand()->insert('testAlterTable', ['bar' => 'hello'])->execute();
-        $records = $db->createCommand('SELECT [[id]], [[bar]] FROM {{testAlterTable}};')->queryAll();
-        $this->assertEquals([['id' => 1, 'bar' => 1], ['id' => 2, 'bar' => 'hello']], $records);
+        $this->assertSame([['id' => '1', 'bar' => '1'], ['id' => '2', 'bar' => 'hello']], $records);
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testAutoQuoting(): void
     {
         $db = $this->getConnection();
-        $sql = 'SELECT [[id]], [[t.name]] FROM {{customer}} t';
+
+        $sql = <<<SQL
+        SELECT [[id]], [[t.name]] FROM {{customer}} t
+        SQL;
         $command = $db->createCommand($sql);
-        $this->assertEquals('SELECT [id], [t].[name] FROM [customer] t', $command->getSql());
-    }
 
-    public function batchInsertSqlProvider()
-    {
-        $data = $this->batchInsertSqlProviderTrait();
-
-        $data['multirow']['expectedParams'][':qp1'] = '0.0';
-        $data['multirow']['expectedParams'][':qp3'] = 1;
-        $data['multirow']['expectedParams'][':qp5'] = '0';
-        $data['multirow']['expectedParams'][':qp7'] = 0;
-
-        $data['issue11242']['expectedParams'][':qp1'] = '1.1';
-        $data['issue11242']['expectedParams'][':qp3'] = 1;
-
-        $data['wrongBehavior']['expectedParams'][':qp1'] = '0.0';
-        $data['wrongBehavior']['expectedParams'][':qp3'] = 0;
-
-        $data['batchInsert binds params from expression']['expectedParams'][':qp1'] = '1';
-        $data['batchInsert binds params from expression']['expectedParams'][':qp3'] = 0;
-
-        return $data;
+        $this->assertSame(
+            <<<SQL
+            SELECT [id], [t].[name] FROM [customer] t
+            SQL,
+            $command->getSql(),
+        );
     }
 
     /**
      * Make sure that `{{something}}` in values will not be encoded.
      *
-     * @dataProvider batchInsertSqlProvider
-     *
-     * @param string $table
-     * @param array $columns
-     * @param array $values
-     * @param string $expected
-     * @param array $expectedParams
-     * @param int $insertedRow
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::batchInsertSql()
      *
      * {@see https://github.com/yiisoft/yii2/issues/11242}
+     *
+     * @throws Exception
+     * @throws Throwable
      */
     public function testBatchInsertSQL(
         string $table,
@@ -119,65 +160,37 @@ final class CommandTest extends TestCase
         array $expectedParams = [],
         int $insertedRow = 1
     ): void {
-        $db = $this->getConnection(true);
-
-        $command = $db->createCommand();
-
-        $command->batchInsert($table, $columns, $values);
-
-        $command->prepare(false);
-
-        $this->assertSame($expected, $command->getSql());
-        $this->assertSame($expectedParams, $command->getParams());
-
-        $command->execute();
-        $this->assertEquals($insertedRow, (new Query($db))->from($table)->count());
+        parent::testBatchInsertSQL($table, $columns, $values, $expected, $expectedParams, $insertedRow);
     }
 
     /**
-     * Test whether param binding works in other places than WHERE.
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::bindParamsNonWhere()
      *
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::bindParamsNonWhereProvider
+     * @throws Exception
+     * @throws Throwable
      */
     public function testBindParamsNonWhere(string $sql): void
     {
-        $db = $this->getConnection();
-        $db->createCommand()->insert(
-            'customer',
-            [
-                'name' => 'testParams',
-                'email' => 'testParams@example.com',
-                'address' => '1',
-            ]
-        )->execute();
-        $params = [':email' => 'testParams@example.com', ':len' => 5];
-        $command = $db->createCommand($sql, $params);
-        $this->assertEquals('Params', $command->queryScalar());
+        parent::testBindParamsNonWhere($sql);
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testBindParamValue(): void
     {
-        $db = $this->getConnection(true);
+        parent::testBindParamValue();
 
-        // bindParam
-        $sql = 'INSERT INTO customer(email, name, address) VALUES (:email, :name, :address)';
-        $command = $db->createCommand($sql);
-        $email = 'user4@example.com';
-        $name = 'user4';
-        $address = 'address4';
-        $command->bindParam(':email', $email);
-        $command->bindParam(':name', $name);
-        $command->bindParam(':address', $address);
-        $command->execute();
+        $db = $this->getConnection();
 
-        $sql = 'SELECT name FROM customer WHERE email=:email';
-        $command = $db->createCommand($sql);
-        $command->bindParam(':email', $email);
-        $this->assertEquals($name, $command->queryScalar());
-
-        $sql = 'INSERT INTO type (int_col, char_col, float_col, blob_col, numeric_col, bool_col)
-            VALUES (:int_col, :char_col, :float_col, CONVERT([varbinary], :blob_col), :numeric_col, :bool_col)';
-        $command = $db->createCommand($sql);
+        $command = $db->createCommand();
+        $command = $command->setSql(
+            <<<SQL
+            INSERT INTO type (int_col, char_col, float_col, blob_col, numeric_col, bool_col) VALUES (:int_col, :char_col, :float_col, CONVERT([varbinary], :blob_col), :numeric_col, :bool_col)
+            SQL
+        );
         $intCol = 123;
         $charCol = 'abc';
         $floatCol = 1.23;
@@ -190,93 +203,74 @@ final class CommandTest extends TestCase
         $command->bindParam(':blob_col', $blobCol);
         $command->bindParam(':numeric_col', $numericCol);
         $command->bindParam(':bool_col', $boolCol);
+
         $this->assertEquals(1, $command->execute());
 
-        $sql = 'SELECT int_col, char_col, float_col, CONVERT([nvarchar], blob_col) AS blob_col, numeric_col
-            FROM type';
-        $row = $db->createCommand($sql)->queryOne();
+        $row = $command->setSql(
+            <<<SQL
+            SELECT int_col, char_col, float_col, CONVERT([nvarchar], blob_col) AS blob_col, numeric_col FROM type
+            SQL
+        )->queryOne();
+
         $this->assertIsArray($row);
         $this->assertEquals($intCol, $row['int_col']);
-        $this->assertEquals($charCol, trim($row['char_col']));
+        $this->assertSame($charCol, trim($row['char_col']));
         $this->assertEquals($floatCol, (float) $row['float_col']);
-        $this->assertEquals($blobCol, $row['blob_col']);
+        $this->assertSame($blobCol, $row['blob_col']);
         $this->assertEquals($numericCol, $row['numeric_col']);
-
-        // bindValue
-        $sql = 'INSERT INTO customer(email, name, address) VALUES (:email, \'user5\', \'address5\')';
-        $command = $db->createCommand($sql);
-        $command->bindValue(':email', 'user5@example.com');
-        $command->execute();
-        $sql = 'SELECT email FROM customer WHERE name=:name';
-        $command = $db->createCommand($sql);
-        $command->bindValue(':name', 'user5');
-        $this->assertEquals('user5@example.com', $command->queryScalar());
     }
 
     /**
-     * Test command getRawSql.
-     *
-     * @dataProvider getRawSqlProviderTrait
-     *
-     * @param string $sql
-     * @param array  $params
-     * @param string $expectedRawSql
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::createIndex()
+     * @throws Exception
+     */
+    public function testCreateIndex(
+        string $name,
+        string $table,
+        array|string $column,
+        string $indexType,
+        string $indexMethod,
+        string $expected,
+    ): void {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        $sql = $command->createIndex($name, $table, $column, $indexType, $indexMethod)->getSql();
+
+        $this->assertSame($expected, $sql);
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql()
      *
      * {@see https://github.com/yiisoft/yii2/issues/8592}
+     *
+     * @throws Exception
      */
     public function testGetRawSql(string $sql, array $params, string $expectedRawSql): void
     {
-        $db = $this->getConnection();
-        $command = $db->createCommand($sql, $params);
-        $this->assertEquals($expectedRawSql, $command->getRawSql());
+        parent::testGetRawSql($sql, $params, $expectedRawSql);
     }
 
     /**
-     * Test INSERT INTO ... SELECT SQL statement with wrong query object.
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::dataInsertVarbinary()
      *
-     * @dataProvider invalidSelectColumnsProviderTrait
-     */
-    public function testInsertSelectFailed(mixed $invalidSelectColumns): void
-    {
-        $db = $this->getConnection();
-        $query = new Query($db);
-        $query->select($invalidSelectColumns)->from('{{customer}}');
-        $command = $db->createCommand();
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Expected select query object with enumerated (named) parameters');
-        $command->insert('{{customer}}', $query)->execute();
-    }
-
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::dataInsertVarbinary
-     *
+     * @throws Exception
+     * @throws InvalidConfigException
      * @throws Throwable
-     * @throws \Yiisoft\Db\Exception\Exception
-     * @throws \Yiisoft\Db\Exception\InvalidConfigException
      */
-    public function testInsertVarbinary($expectedData, $testData)
+    public function testInsertVarbinary(mixed $expectedData, mixed $testData): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getConnectionWithData();
+
         $db->createCommand()->delete('T_upsert_varbinary')->execute();
         $db->createCommand()->insert('T_upsert_varbinary', ['id' => 1, 'blob_col' => $testData])->execute();
         $query = (new Query($db))->select(['blob_col'])->from('T_upsert_varbinary')->where(['id' => 1]);
         $resultData = $query->createCommand()->queryOne();
-        $this->assertIsArray($resultData);
-        $this->assertEquals($expectedData, $resultData['blob_col']);
-    }
 
-    /**
-     * Test command upsert.
-     *
-     * @dataProvider upsertProviderTrait
-     */
-    public function testUpsert(array $firstData, array $secondData): void
-    {
-        $db = $this->getConnection(true);
-        $this->assertEquals(0, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
-        $this->performAndCompareUpsertResult($db, $firstData);
-        $this->assertEquals(1, $db->createCommand('SELECT COUNT(*) FROM {{T_upsert}}')->queryScalar());
-        $this->performAndCompareUpsertResult($db, $secondData);
+        $this->assertIsArray($resultData);
+        $this->assertSame($expectedData, $resultData['blob_col']);
     }
 
     /**
@@ -284,28 +278,37 @@ final class CommandTest extends TestCase
      */
     public function testInsertExWithComputedColumn(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getConnectionWithData();
 
-        $sql = 'CREATE OR ALTER FUNCTION TESTFUNC(@Number INT)
-RETURNS VARCHAR(15)
-AS
-BEGIN
-      RETURN (SELECT TRY_CONVERT(VARCHAR(15),@Number))
-END';
-        $db->createCommand($sql)->execute();
-
-        $sql = 'ALTER TABLE [dbo].[test_trigger] ADD [computed_column] AS dbo.TESTFUNC([ID])';
-        $db->createCommand($sql)->execute();
-
+        $command = $db->createCommand();
+        $command->setSql(
+            <<<SQL
+            CREATE OR ALTER FUNCTION TESTFUNC(@Number INT)
+                RETURNS VARCHAR(15)
+            AS
+            BEGIN
+                RETURN (SELECT TRY_CONVERT(VARCHAR(15),@Number))
+            END
+            SQL
+        )->execute();
+        $command->setSql(
+            <<<SQL
+            ALTER TABLE [dbo].[test_trigger] ADD [computed_column] AS dbo.TESTFUNC([ID])
+            SQL
+        )->execute();
+        $command->setSql(
+            <<<SQL
+            ALTER TABLE [dbo].[test_trigger] ADD [RV] rowversion NULL
+            SQL
+        )->execute();
         $insertedString = 'test';
-
         $transaction = $db->beginTransaction();
-        $result = $db->createCommand()->insertEx('test_trigger', ['stringcol' => $insertedString]);
+        $result = $command->insertEx('test_trigger', ['stringcol' => $insertedString]);
         $transaction->commit();
 
         $this->assertIsArray($result);
-        $this->assertEquals($insertedString, $result['stringcol']);
-        $this->assertEquals(1, $result['id']);
+        $this->assertSame($insertedString, $result['stringcol']);
+        $this->assertSame('1', $result['id']);
     }
 
     /**
@@ -313,17 +316,20 @@ END';
      */
     public function testInsertExWithRowVersionColumn(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getConnectionWithData();
 
-        $sql = 'ALTER TABLE [dbo].[test_trigger] ADD [RV] rowversion';
-        $db->createCommand($sql)->execute();
-
+        $command = $db->createCommand();
+        $command->setSql(
+            <<<SQL
+            ALTER TABLE [dbo].[test_trigger] ADD [RV] rowversion
+            SQL
+        )->execute();
         $insertedString = 'test';
-        $result = $db->createCommand()->insertEx('test_trigger', ['stringcol' => $insertedString]);
+        $result = $command->insertEx('test_trigger', ['stringcol' => $insertedString]);
 
         $this->assertIsArray($result);
-        $this->assertEquals($insertedString, $result['stringcol']);
-        $this->assertEquals(1, $result['id']);
+        $this->assertSame($insertedString, $result['stringcol']);
+        $this->assertSame('1', $result['id']);
     }
 
     /**
@@ -331,16 +337,67 @@ END';
      */
     public function testInsertExWithRowVersionNullColumn(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getConnectionWithData();
 
-        $sql = 'ALTER TABLE [dbo].[test_trigger] ADD [RV] rowversion NULL';
-        $db->createCommand($sql)->execute();
-
+        $command = $db->createCommand();
+        $command->setSql(
+            <<<SQL
+            ALTER TABLE [dbo].[test_trigger] ADD [RV] rowversion NULL
+            SQL
+        )->execute();
         $insertedString = 'test';
-        $result = $db->createCommand()->insertEx('test_trigger', ['stringcol' => $insertedString, 'RV' => new Expression('DEFAULT')]);
+        $result = $command->insertEx(
+            'test_trigger',
+            ['stringcol' => $insertedString, 'RV' => new Expression('DEFAULT')],
+        );
 
         $this->assertIsArray($result);
-        $this->assertEquals($insertedString, $result['stringcol']);
-        $this->assertEquals(1, $result['id']);
+        $this->assertSame($insertedString, $result['stringcol']);
+        $this->assertSame('1', $result['id']);
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testRenameColumn(): void
+    {
+        $db = $this->getConnection();
+
+        $sql = $db->createCommand()->renameColumn('table', 'oldname', 'newname')->getSql();
+
+        $this->assertSame(
+            <<<SQL
+            sp_rename [table].[oldname], [newname] COLUMN
+            SQL,
+            $sql,
+        );
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::update()
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testUpdate(
+        string $table,
+        array $columns,
+        array|string $conditions,
+        array $params,
+        string $expected
+    ): void {
+        parent::testUpdate($table, $columns, $conditions, $params, $expected);
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::upsert()
+     *
+     * @throws Exception
+     * @throws Throwable
+     */
+    public function testUpsert(array $firstData, array $secondData): void
+    {
+        parent::testUpsert($firstData, $secondData);
     }
 }

@@ -242,8 +242,9 @@ final class Schema extends AbstractSchema
      */
     protected function loadTablePrimaryKey(string $tableName): Constraint|null
     {
-        /** @var mixed */
+        /** @var mixed $tablePrimaryKey */
         $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
+
         return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
 
@@ -258,8 +259,9 @@ final class Schema extends AbstractSchema
      */
     protected function loadTableForeignKeys(string $tableName): array
     {
-        /** @var mixed */
+        /** @var mixed $tableForeingKeys */
         $tableForeingKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
+
         return is_array($tableForeingKeys) ? $tableForeingKeys : [];
     }
 
@@ -500,7 +502,7 @@ final class Schema extends AbstractSchema
         SQL;
 
         try {
-            /** @psalm-var ColumnArray[] */
+            /** @psalm-var ColumnArray[] $columns */
             $columns = $this->db->createCommand($sql, $whereParams)->queryAll();
 
             if (empty($columns)) {
@@ -790,7 +792,7 @@ final class Schema extends AbstractSchema
             foreach ($names as $name => $constraint) {
                 switch ($type) {
                     case 'PK':
-                        /** @var Constraint */
+                        /** @var Constraint[] $constraint */
                         $result[self::PRIMARY_KEY] = (new Constraint())
                             ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
                             ->name($name);
@@ -872,14 +874,6 @@ final class Schema extends AbstractSchema
     protected function getCacheTag(): string
     {
         return md5(serialize(array_merge([self::class], $this->db->getCacheKey())));
-    }
-
-    /**
-     * @return bool whether this DBMS supports [savepoint](http://en.wikipedia.org/wiki/Savepoint).
-     */
-    public function supportsSavepoint(): bool
-    {
-        return $this->db->isSavepointEnabled();
     }
 
     /**

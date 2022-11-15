@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Yiisoft\Db\TestSupport\TestColumnSchemaBuilderTrait;
+use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Tests\Common\CommonColumnSchemaBuilderTest;
 
 /**
  * @group mssql
  */
-final class ColumnSchemaBuilderTest extends TestCase
+final class ColumnSchemaBuilderTest extends CommonColumnSchemaBuilderTest
 {
-    use TestColumnSchemaBuilderTrait;
+    use TestTrait;
 
     /**
-     * @dataProvider typesProviderTrait
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnSchemaBuilderProvider::types();
      */
-    public function testCustomTypes(string $expected, string $type, ?int $length, mixed $calls): void
+    public function testCustomTypes(string $expected, string $type, int|null $length, array $calls): void
     {
         $this->checkBuildString($expected, $type, $length, $calls);
     }

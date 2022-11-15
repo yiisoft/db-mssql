@@ -8,14 +8,13 @@ use PDOException;
 use Yiisoft\Db\Driver\PDO\CommandPDO as AbstractCommandPDO;
 use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
-use Yiisoft\Db\Schema\SchemaInterface;
 
 use function is_array;
 
 final class CommandPDO extends AbstractCommandPDO
 {
-    /**
-     * @inheritDoc
+   /**
+    * @inheritDoc
     */
     public function insertEx(string $table, array $columns): bool|array
     {
@@ -25,7 +24,7 @@ final class CommandPDO extends AbstractCommandPDO
         $this->setSql($sql)->bindValues($params);
         $this->prepare(false);
 
-        /** @psalm-var array|bool */
+        /** @psalm-var array|bool $result */
         $result = $this->queryOne();
 
         return is_array($result) ? $result : false;
@@ -34,11 +33,6 @@ final class CommandPDO extends AbstractCommandPDO
     public function queryBuilder(): QueryBuilderInterface
     {
         return $this->db->getQueryBuilder();
-    }
-
-    public function schema(): SchemaInterface
-    {
-        return $this->db->getSchema();
     }
 
     protected function internalExecute(string|null $rawSql): void

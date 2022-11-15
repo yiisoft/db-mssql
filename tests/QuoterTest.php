@@ -4,55 +4,55 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Yiisoft\Db\TestSupport\TestQuoterTrait;
+use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Tests\Common\CommonQuoterTest;
 
 /**
  * @group mssql
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
-final class QuoterTest extends TestCase
+final class QuoterTest extends CommonQuoterTest
 {
-    use TestQuoterTrait;
+    use TestTrait;
 
     /**
-     * @return string[][]
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::columnNames()
      */
-    public function simpleTableNamesProvider(): array
+    public function testQuoteColumnNameWithDbGetQuoter(string $columnName, string $expected): void
     {
-        return [
-            ['test', 'test', ],
-            ['te`st', 'te`st', ],
-            ['te\'st', 'te\'st', ],
-            ['te"st', 'te"st', ],
-            ['current-table-name', 'current-table-name', ],
-            ['[current-table-name]', 'current-table-name', ],
-        ];
+        parent::testQuoteColumnNameWithDbGetQuoter($columnName, $expected);
     }
 
     /**
-     * @return string[][]
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::simpleColumnNames()
      */
-    public function simpleColumnNamesProvider(): array
+    public function testQuoteSimpleColumnNameWithDbGetQuoter(string $columnName, string $expected): void
     {
-        return [
-            ['test', '[test]', 'test'],
-            ['[test]', '[test]', 'test'],
-            ['*', '*', '*'],
-        ];
+        parent::testQuoteSimpleColumnNameWithDbGetQuoter($columnName, $expected);
     }
 
     /**
-     * @return string[][]
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::simpleTableNames()
      */
-    public function columnNamesProvider(): array
+    public function testQuoteSimpleTableNameWithDbGetQuoter(string $tableName, string $expected): void
     {
-        return [
-            ['*', '*'],
-            ['table.*', '[table].*'],
-            ['[table].*', '[table].*'],
-            ['table.column', '[table].[column]'],
-            ['[table].column', '[table].[column]'],
-            ['table.[column]', '[table].[column]'],
-            ['[table].[column]', '[table].[column]'],
-        ];
+        parent::testQuoteSimpleTableNameWithDbGetQuoter($tableName, $expected);
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::unquoteSimpleColumnName()
+     */
+    public function testUnquoteSimpleColumnNameWithDbGetQuoter(string $columnName, string $expected): void
+    {
+        parent::testUnquoteSimpleColumnNameWithDbGetQuoter($columnName, $expected);
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::unquoteSimpleTableName()
+     */
+    public function testUnquoteSimpleTableNameWithDbGetQuoter(string $tableName, string $expected): void
+    {
+        parent::testUnquoteSimpleTableNameWithDbGetQuoter($tableName, $expected);
     }
 }
