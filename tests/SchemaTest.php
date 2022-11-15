@@ -8,7 +8,6 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
-use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonSchemaTest;
 
 /**
