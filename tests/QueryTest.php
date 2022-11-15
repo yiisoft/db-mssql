@@ -25,7 +25,7 @@ final class QueryTest extends CommonQueryTest
      */
     public function testUnion(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getConnectionWithData();
 
         $subQueryFromItem = (new Query($db))->select(['id', 'name'])->from('item')->limit(2);
         $subQueryFromCategory = (new Query($db))->select(['id', 'name'])->from(['category'])->limit(2);
