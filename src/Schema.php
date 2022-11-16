@@ -892,12 +892,4 @@ final class Schema extends AbstractSchema
 
         return array_change_key_case($row, CASE_LOWER);
     }
-
-    /**
-     * @inheritDoc
-     */
-    public function getLastInsertID(string $sequenceName = null): string
-    {
-        return $this->db->getLastInsertID($sequenceName);
-    }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use PDOException;
-use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Query\BatchQueryResult as BaseBatchQueryResult;
 
 class BatchQueryResult extends BaseBatchQueryResult
@@ -19,10 +18,6 @@ class BatchQueryResult extends BaseBatchQueryResult
 
     /**
      * Reads and collects rows for batch.
-     *
-     * @throws InvalidCallException
-     *
-     * @psalm-suppress MixedArrayAccess
      */
     protected function getRows(): array
     {
@@ -36,9 +31,8 @@ class BatchQueryResult extends BaseBatchQueryResult
                 $row = $this->dataReader?->current();
             } while ($row && ($rows[] = $row) && ++$count < $this->batchSize);
         } catch (PDOException $e) {
-            if (($e->errorInfo[1] ?? null) !== $this->mssqlNoMoreRowsErrorCode) {
-                throw $e;
-            }
+            $e->errorInfo[1] ??= null;
+            $rows = $e->errorInfo[1] !== $this->mssqlNoMoreRowsErrorCode ? throw $e : [];
         }
 
         return $rows;

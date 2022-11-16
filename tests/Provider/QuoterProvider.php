@@ -22,6 +22,22 @@ final class QuoterProvider
         ];
     }
 
+    public function quoterTableParts(): array
+    {
+        return [
+            ['', ''],
+            ['animal', 'animal'],
+            ['dbo.animal', 'animal', 'dbo'],
+            ['[dbo].[animal]', 'animal', 'dbo'],
+            ['[other].[animal2]', 'animal2', 'other'],
+            ['other.[animal2]', 'animal2', 'other'],
+            ['other.animal2', 'animal2', 'other'],
+            ['catalog.other.animal2', 'animal2', 'other', 'catalog'],
+            ['server.catalog.other.animal2', 'animal2', 'other', 'catalog', 'server'],
+            ['unknown_part.server.catalog.other.animal2', 'animal2', 'other', 'catalog', 'server'],
+        ];
+    }
+
     /**
      * @return string[][]
      */

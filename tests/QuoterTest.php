@@ -55,4 +55,16 @@ final class QuoterTest extends CommonQuoterTest
     {
         parent::testUnquoteSimpleTableNameWithDbGetQuoter($tableName, $expected);
     }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::quoterTableParts()
+     */
+    public function testQuoterTableParts(string $tableName, ...$expectedParts): void
+    {
+        $quoter = $this->getQuoter();
+
+        $parts = $quoter->getTableNameParts($tableName);
+
+        $this->assertEquals($expectedParts, array_reverse($parts));
+    }
 }
