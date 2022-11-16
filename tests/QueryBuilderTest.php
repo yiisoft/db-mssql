@@ -280,7 +280,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
 
         $this->assertSame(
             <<<SQL
-            DBCC CHECKIDENT ([item], RESEED, 0) WITH NO_INFOMSGS;DBCC CHECKIDENT ([item], RESEED)
+            DBCC CHECKIDENT ('[item]', RESEED, 0) WITH NO_INFOMSGS;DBCC CHECKIDENT ('[item]', RESEED)
             SQL,
             $sql,
         );
@@ -289,7 +289,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
 
         $this->assertSame(
             <<<SQL
-            DBCC CHECKIDENT ([item], RESEED, 4)
+            DBCC CHECKIDENT ('[item]', RESEED, 4)
             SQL,
             $sql,
         );
