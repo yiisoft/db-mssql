@@ -51,6 +51,30 @@ final class ConnectionPDO extends AbstractConnectionPDO
     }
 
     /**
+     * Returns value of the last inserted ID.
+     *
+     * SQLSERVER driver implements {@see PDO::lastInsertId()} method but with a single peculiarity:
+     *
+     * When `$sequence` value is a null or an empty string it returns the last inserted ID for table with an identity
+     * column.
+     * But when parameter is not specified it works as expected and returns actual last inserted ID (like the other PDO
+     * drivers).
+     * if `$sequenceName` is the table name return empty string.
+     *
+     * @param string|null $sequenceNAme the sequence name. Defaults to null.
+     *
+     * @return string last inserted ID value.
+     */
+    public function getLastInsertID(string $sequenceName = null): string
+    {
+        if ($this->isActive() && $this->pdo) {
+            return $this->pdo->lastInsertID($sequenceName);
+        }
+
+        throw new InvalidCallException('DB Connection is not active.');
+    }
+
+    /**
      * @throws Exception|InvalidConfigException
      */
     public function getQueryBuilder(): QueryBuilderInterface
