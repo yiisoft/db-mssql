@@ -22,14 +22,6 @@ final class ConnectionTest extends CommonConnectionTest
     use TestTrait;
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ConnectionProvider::execute()
-     */
-    public function testExecute(string $expected): void
-    {
-        parent::testExecute($expected);
-    }
-
-    /**
      * @throws Exception
      */
     public function testGetDriverName(): void
