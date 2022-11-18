@@ -242,19 +242,6 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame($expected, $sql);
     }
 
-    public function testExecuteResetSequence(): void
-    {
-        $db = $this->getConnectionWithData();
-
-        $command = $db->createCommand();
-        $oldRow = $command->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
-        $command->delete('item', ['id' => $oldRow['id']])->execute();
-        $command->executeResetSequence('item')->execute();
-        $newRow = $command->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
-
-        $this->assertEquals($oldRow['id'], $newRow['id']);
-    }
-
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql()
      *
@@ -386,6 +373,23 @@ final class CommandTest extends CommonCommandTest
             SQL,
             $sql,
         );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testResetSequence(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $oldRow = $command->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+        $command->delete('item', ['id' => $oldRow['id']])->execute();
+        $command->resetSequence('item')->execute();
+        $newRow = $command->insertEx('item', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+
+        $this->assertEquals($oldRow['id'], $newRow['id']);
     }
 
     /**
