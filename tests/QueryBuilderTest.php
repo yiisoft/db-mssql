@@ -16,6 +16,7 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Tests\Common\CommonQueryBuilderTest;
+use Yiisoft\Db\Tests\Support\DbHelper;
 
 /**
  * @group mssql
@@ -41,6 +42,32 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
             SQL,
             $qb->addColumn('user', 'age', 'integer')
         );
+    }
+
+    public function testAddCommentOnColumn(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $qb = $db->getQueryBuilder();
+        $sql = $qb->addCommentOnColumn('customer', 'id', 'Primary key.');
+        $command->setSql($sql)->execute();
+        $commentOnColumn = DbHelper::getCommmentsFromColumn('customer', 'id', $db);
+
+        $this->assertSame(['value' => 'Primary key.'], $commentOnColumn);
+    }
+
+    public function testAddCommentOnTable(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $qb = $db->getQueryBuilder();
+        $sql = $qb->addCommentOnTable('customer', 'Customer table.');
+        $command->setSql($sql)->execute();
+        $commentOnTable = DbHelper::getCommmentsFromTable('customer', $db);
+
+        $this->assertSame(['value' => 'Customer table.'], $commentOnTable);
     }
 
     /**

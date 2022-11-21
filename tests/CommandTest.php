@@ -6,12 +6,14 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\IntegrityException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
+use Yiisoft\Db\Tests\Support\DbHelper;
 
 use function trim;
 
@@ -43,6 +45,28 @@ final class CommandTest extends CommonCommandTest
             SQL,
             $sql,
         );
+    }
+
+    public function testAddCommentOnColumn(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $command->addCommentOnColumn('customer', 'id', 'Primary key.')->execute();
+        $commentOnColumn = DbHelper::getCommmentsFromColumn('customer', 'id', $db);
+
+        $this->assertSame(['value' => 'Primary key.'], $commentOnColumn);
+    }
+
+    public function testAddCommentOnTable(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $command->addCommentOnTable('customer', 'Customer table.')->execute();
+        $commentOnTable = DbHelper::getCommmentsFromTable('customer', $db);
+
+        $this->assertSame(['value' => 'Customer table.'], $commentOnTable);
     }
 
     /**
@@ -218,6 +242,34 @@ final class CommandTest extends CommonCommandTest
         $this->assertEquals($floatCol, (float) $row['float_col']);
         $this->assertSame($blobCol, $row['blob_col']);
         $this->assertEquals($numericCol, $row['numeric_col']);
+    }
+
+    public function testCheckIntegrity(): void
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        $this->assertSame(0, $command->checkIntegrity('dbo', 'customer')->execute());
+    }
+
+    public function testCheckIntegrityExecuteException(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $schemaName = 'dbo';
+        $tableName = 'T_constraints_3';
+        $command->checkIntegrity($schemaName, $tableName, false)->execute();
+        $sql = <<<SQL
+        INSERT INTO {{{$tableName}}} ([[C_id]], [[C_fk_id_1]], [[C_fk_id_2]]) VALUES (1, 2, 3)
+        SQL;
+        $command->setSql($sql)->execute();
+        $db->createCommand()->checkIntegrity($schemaName, $tableName)->execute();
+
+        $this->expectException(IntegrityException::class);
+
+        $command->setSql($sql)->execute();
     }
 
     /**
