@@ -220,6 +220,25 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testDelete($table, $condition, $expectedSQL, $expectedParams);
     }
 
+    public function testDropCommentFromColumn(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $qb = $db->getQueryBuilder();
+        $sql = $qb->addCommentOnColumn('customer', 'id', 'Primary key.');
+        $command->setSql($sql)->execute();
+        $commentOnColumn = DbHelper::getCommmentsFromColumn('customer', 'id', $db);
+
+        $this->assertSame(['value' => 'Primary key.'], $commentOnColumn);
+
+        $sql = $qb->dropCommentFromColumn('customer', 'id');
+        $command->setSql($sql)->execute();
+        $commentOnColumn = DbHelper::getCommmentsFromColumn('customer', 'id', $db);
+
+        $this->assertNull($commentOnColumn);
+    }
+
     /**
      * @throws Exception
      */
@@ -233,6 +252,25 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $this->expectExceptionMessage('Table not found: noExist');
 
         $qb->dropCommentFromColumn('noExist', 'noExist');
+    }
+
+    public function testDropCommentFromTable(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $qb = $db->getQueryBuilder();
+        $sql = $qb->addCommentOnTable('customer', 'Customer table.');
+        $command->setSql($sql)->execute();
+        $commentOnTable = DbHelper::getCommmentsFromTable('customer', $db);
+
+        $this->assertSame(['value' => 'Customer table.'], $commentOnTable);
+
+        $sql = $qb->dropCommentFromTable('customer');
+        $command->setSql($sql)->execute();
+        $commentOnTable = DbHelper::getCommmentsFromTable('customer', $db);
+
+        $this->assertNull($commentOnTable);
     }
 
     /**

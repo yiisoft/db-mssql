@@ -294,6 +294,38 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame($expected, $sql);
     }
 
+    public function testDropCommentFromColumn(): void
+    {
+        $db = $this->getConnectionwithData();
+
+        $command = $db->createCommand();
+        $command->addCommentOnColumn('customer', 'id', 'Primary key.')->execute();
+        $commentOnColumn = DbHelper::getCommmentsFromColumn('customer', 'id', $db);
+
+        $this->assertSame(['value' => 'Primary key.'], $commentOnColumn);
+
+        $command->dropCommentFromColumn('customer', 'id')->execute();
+        $commentOnColumn = DbHelper::getCommmentsFromColumn('customer', 'id', $db);
+
+        $this->assertNull($commentOnColumn);
+    }
+
+    public function testDropCommentFromTable(): void
+    {
+        $db = $this->getConnectionWithData();
+
+        $command = $db->createCommand();
+        $command->addCommentOnTable('customer', 'Customer table.')->execute();
+        $commentOnTable = DbHelper::getCommmentsFromTable('customer', $db);
+
+        $this->assertSame(['value' => 'Customer table.'], $commentOnTable);
+
+        $command->dropCommentFromTable('customer')->execute();
+        $commentOnTable = DbHelper::getCommmentsFromTable('customer', $db);
+
+        $this->assertNull($commentOnTable);
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql()
      *
