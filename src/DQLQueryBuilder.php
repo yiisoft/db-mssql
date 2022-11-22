@@ -10,8 +10,8 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
 use Yiisoft\Db\QueryBuilder\DQLQueryBuilder as AbstractDQLQueryBuilder;
-use Yiisoft\Db\QueryBuilder\Conditions\InCondition;
-use Yiisoft\Db\QueryBuilder\Conditions\LikeCondition;
+use Yiisoft\Db\QueryBuilder\Condition\InCondition;
+use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
 
 use function array_merge;
 use function preg_match;
