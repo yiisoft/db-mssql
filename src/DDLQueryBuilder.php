@@ -125,10 +125,9 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     public function renameColumn(string $table, string $oldName, string $newName): string
     {
         return 'sp_rename '
-            . $this->quoter->quoteTableName($table) . '.'
-            . $this->quoter->quoteColumnName($oldName) . ', '
-            . $this->quoter->quoteColumnName($newName)
-            . ' COLUMN';
+            . "'" . $this->quoter->quoteTableName($table) . '.' . $this->quoter->quoteColumnName($oldName) . "'" . ', '
+            . $this->quoter->quoteColumnName($newName) . ', '
+            . "'COLUMN'";
     }
 
     /**
