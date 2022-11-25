@@ -32,7 +32,7 @@ class TestCase extends AbstractTestCase
     protected function getConnection(
         bool $reset = false,
         ?string $dsn = null,
-        string $fixture = __DIR__ . '/Fixture/mssql.sql'
+        string $fixture = __DIR__ . '/Support/Fixture/mssql.sql'
     ): ConnectionPDOMssql {
         $pdoDriver = new PDODriver($dsn ?? $this->dsn, $this->username, $this->password);
         $this->db = new ConnectionPDOMssql($pdoDriver, $this->createQueryCache(), $this->createSchemaCache());
