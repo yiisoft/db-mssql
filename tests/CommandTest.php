@@ -358,7 +358,7 @@ END';
 
     public function testRenameColumn(): void
     {
-        $db = $this->getConnection('customer');
+        $db = $this->getConnection(true);
 
         $command = $db->createCommand();
         $schema = $db->getSchema();
