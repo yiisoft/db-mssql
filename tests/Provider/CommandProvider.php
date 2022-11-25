@@ -7,7 +7,6 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 use PDO;
 use Yiisoft\Db\Command\Param;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
-use Yiisoft\Db\Mssql\Tests\TestCase;
 use Yiisoft\Db\Tests\Provider\BaseCommandProvider;
 
 use function json_encode;

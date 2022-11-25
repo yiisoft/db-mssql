@@ -8,10 +8,7 @@ use Yiisoft\Db\Exception\IntegrityException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Schema\Schema;
-use Yiisoft\Db\Tests\AbstractCommandTest;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
-use Yiisoft\Db\Tests\Support\DbHelper;
 
 use function trim;
 

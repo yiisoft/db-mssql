@@ -5,13 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use PDO;
-use Yiisoft\Db\Command\Param;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
-use Yiisoft\Db\Mssql\Tests\TestCase;
-use Yiisoft\Db\Tests\Provider\BaseCommandProvider;
-
-use function json_encode;
-use function serialize;
 
 final class CommandPDOProvider
 {
@@ -65,7 +58,7 @@ final class CommandPDOProvider
                     'status' => '2',
                     'profile_id' => '2',
                 ],
-            ]
+            ],
         ];
     }
 
