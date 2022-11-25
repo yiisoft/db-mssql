@@ -355,4 +355,17 @@ END';
 
         $this->assertEquals($oldRow['id'], $newRow['id']);
     }
+
+    public function testRenameColumn(): void
+    {
+        $db = $this->getConnection('customer');
+
+        $command = $db->createCommand();
+        $schema = $db->getSchema();
+
+        $command->renameColumn('{{customer}}', 'address', 'address_city')->execute();
+
+        $this->assertContains('address_city', $schema->getTableSchema('{{customer}}')->getColumnNames());
+        $this->assertNotContains('address', $schema->getTableSchema('{{customer}}')->getColumnNames());
+    }
 }
