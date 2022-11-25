@@ -14,7 +14,7 @@ This extension provides the MSSQL Server support for the [Yii framework 3 ](http
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/db-mssql/v/stable.png)](https://packagist.org/packages/yiisoft/db-mssql)
 [![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads.png)](https://packagist.org/packages/yiisoft/db-mssql)
 [![rector](https://github.com/yiisoft/db-mssql/actions/workflows/rector.yml/badge.svg)](https://github.com/yiisoft/db-mssql/actions/workflows/rector.yml)
-[![codecov](https://codecov.io/gh/yiisoft/db-mssql/branch/dev/graph/badge.svg?token=UF9VERNMYU)](https://codecov.io/gh/yiisoft/db-mssql)
+[![codecov](https://codecov.io/gh/yiisoft/db-mssql/branch/master/graph/badge.svg?token=UF9VERNMYU)](https://codecov.io/gh/yiisoft/db-mssql)
 [![StyleCI](https://github.styleci.io/repos/114756477/shield?branch=master)](https://github.styleci.io/repos/114756477?branch=master)
 
 
@@ -41,11 +41,11 @@ Di-Container:
 
 ```php
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Mssql\Connection as MssqlConnection;
+use Yiisoft\Db\Mssql\ConnectionPDO;
 
 return [
     ConnectionInterface::class => [
-        'class' => MssqlConnection::class,
+        'class' => ConnectionPDO::class,
         '__construct()' => [
             'dsn' => $params['yiisoft/db-mssql']['dsn']
         ],
@@ -67,6 +67,16 @@ return [
         'password' => 'YourStrong!Passw0rd',
     ]
 ];
+```
+
+### Composer require checker
+
+This package uses [composer-require-checker](https://github.com/maglnet/ComposerRequireChecker) to check if all dependencies are correctly defined in `composer.json`.
+
+To run the checker, execute the following command:
+
+```shell
+./vendor/bin/composer-require-checker
 ```
 
 ### Unit testing
