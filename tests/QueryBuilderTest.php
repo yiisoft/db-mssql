@@ -436,10 +436,10 @@ final class QueryBuilderTest extends TestCase
         $qb = $this->getConnection()->getQueryBuilder();
 
         $sql = $qb->renameColumn('alpha', 'string_identifier', 'string_identifier_test');
-        $this->assertSame('sp_rename [alpha].[string_identifier], [string_identifier_test] COLUMN', $sql);
+        $this->assertSame("sp_rename '[alpha].[string_identifier]', [string_identifier_test], 'COLUMN'", $sql);
 
         $sql = $qb->renameColumn('alpha', 'string_identifier_test', 'string_identifier');
-        $this->assertSame('sp_rename [alpha].[string_identifier_test], [string_identifier] COLUMN', $sql);
+        $this->assertSame("sp_rename '[alpha].[string_identifier_test]', [string_identifier], 'COLUMN'", $sql);
     }
 
     public function testResetSequence(): void
