@@ -12,6 +12,9 @@ use Yiisoft\Db\Tests\Provider\BaseCommandProvider;
 use function json_encode;
 use function serialize;
 
+/**
+ * @psalm-suppress MixedArrayAssignment
+ */
 final class CommandProvider
 {
     use TestTrait;
@@ -55,6 +58,13 @@ final class CommandProvider
                 'simple string',
             ],
         ];
+    }
+
+    public function rawSql(): array
+    {
+        $baseCommandProvider = new BaseCommandProvider();
+
+        return $baseCommandProvider->rawSql($this->getConnection());
     }
 
     public function update(): array

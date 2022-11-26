@@ -11,7 +11,7 @@ use Yiisoft\Db\Tests\Support\DbHelper;
 
 trait TestTrait
 {
-    protected function getConnection(string ...$fixtures): ConnectionPDOInterface
+    protected function getConnection(bool $fixture = false): ConnectionPDOInterface
     {
         $db = new ConnectionPDO(
             new PDODriver('sqlsrv:Server=127.0.0.1,1433;Database=yiitest', 'SA', 'YourStrong!Passw0rd'),
@@ -19,8 +19,8 @@ trait TestTrait
             DbHelper::getSchemaCache(),
         );
 
-        foreach ($fixtures as $fixture) {
-            DbHelper::loadFixture($db, __DIR__ . "/Fixture/$fixture.sql");
+        if ($fixture) {
+            DbHelper::loadFixture($db, __DIR__ . "/Fixture/mssql.sql");
         }
 
         return $db;

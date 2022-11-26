@@ -67,17 +67,17 @@ final class CommandPDOProvider
         return[
             [
                 <<<SQL
-                SELECT SUBSTRING(name, :len, 6) AS name FROM {{customer}} WHERE [[email]] = :email GROUP BY name
+                SELECT SUBSTRING([[name]], :len, 6) AS name FROM [[customer]] WHERE [[email]] = :email GROUP BY name
                 SQL,
             ],
             [
                 <<<SQL
-                SELECT SUBSTRING(name, :len, 6) as name FROM {{customer}} WHERE [[email]] = :email ORDER BY name
+                SELECT SUBSTRING([[name]], :len, 6) as name FROM [[customer]] WHERE [[email]] = :email ORDER BY name
                 SQL,
             ],
             [
                 <<<SQL
-                SELECT SUBSTRING(name, :len, 6) FROM {{customer}} WHERE [[email]] = :email
+                SELECT SUBSTRING([[name]], :len, 6) FROM [[customer]] WHERE [[email]] = :email
                 SQL,
             ],
         ];
