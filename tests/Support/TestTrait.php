@@ -20,7 +20,7 @@ trait TestTrait
         );
 
         if ($fixture) {
-            DbHelper::loadFixture($db, __DIR__ . "/Fixture/mssql.sql");
+            DbHelper::loadFixture($db, __DIR__ . '/Fixture/mssql.sql');
         }
 
         return $db;
