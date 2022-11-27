@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use PDOException;
 use Yiisoft\Db\Driver\PDO\CommandPDO as AbstractCommandPDO;
+use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
 use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
@@ -36,11 +37,9 @@ final class CommandPDO extends AbstractCommandPDO
         return $this->db->getQueryBuilder();
     }
 
-    public function schema(): SchemaInterface
-    {
-        return $this->db->getSchema();
-    }
-
+    /**
+     * @psalm-suppress UnusedClosureParam
+     */
     protected function internalExecute(string|null $rawSql): void
     {
         $attempt = 0;
@@ -53,7 +52,7 @@ final class CommandPDO extends AbstractCommandPDO
                     && $this->db->getTransaction() === null
                 ) {
                     $this->db->transaction(
-                        fn (string $rawSql) => $this->internalExecute($rawSql),
+                        fn (ConnectionPDOInterface $db) => $this->internalExecute($rawSql),
                         $this->isolationLevel
                     );
                 } else {
