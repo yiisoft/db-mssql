@@ -8,7 +8,7 @@ use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Tests\Common\CommonCommandPDOTest;
 
 /**
- * @group sqlite
+ * @group mssql
  */
 final class CommandPDOTest extends CommonCommandPDOTest
 {
@@ -30,8 +30,6 @@ final class CommandPDOTest extends CommonCommandPDOTest
     }
 
     /**
-     * Test whether param binding works in other places than WHERE.
-     *
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandPDOProvider::bindParamsNonWhere()
      */
     public function testBindParamsNonWhere(string $sql): void

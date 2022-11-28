@@ -18,13 +18,13 @@ use Yiisoft\Db\Tests\Common\CommonCommandTest;
 use function trim;
 
 /**
- * @group sqlite
+ * @group mssql
  *
  * @psalm-suppress PossiblyInvalidArrayAccess
- * @psalm-suppress PropertyNotSetInConstructor
  * @psalm-suppress PossiblyNullArgument
  * @psalm-suppress PossiblyNullArrayAccess
  * @psalm-suppress PossiblyNullReference
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 final class CommandTest extends CommonCommandTest
 {
@@ -51,11 +51,7 @@ final class CommandTest extends CommonCommandTest
     }
 
     /**
-     * Make sure that `{{something}}` in values will not be encoded.
-     *
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::batchInsert()
-     *
-     * {@see https://github.com/yiisoft/yii2/issues/11242}
      *
      * @throws Throwable
      */
@@ -114,15 +110,11 @@ final class CommandTest extends CommonCommandTest
     }
 
     /**
-     * Test command getRawSql.
-     *
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql()
      *
      * @throws Exception
      * @throws InvalidConfigException
      * @throws NotSupportedException
-     *
-     * {@see https://github.com/yiisoft/yii2/issues/8592}
      */
     public function testGetRawSql(string $sql, array $params, string $expectedRawSql): void
     {
