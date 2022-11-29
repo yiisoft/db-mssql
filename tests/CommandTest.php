@@ -141,6 +141,25 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame($expectedData, $resultData['blob_col']);
     }
 
+    public function testInsertEx(): void
+    {
+        $db = $this->getConnection(true);
+
+        $command = $db->createCommand();
+
+        $this->assertSame(
+            [
+                'id' => '4',
+                'email' => 'test_1@example.com',
+                'name' => 'test_1',
+                'address' => null,
+                'status' => '0',
+                'profile_id' => null,
+            ],
+            $command->insertEx('{{customer}}', ['name' => 'test_1', 'email' => 'test_1@example.com']),
+        );
+    }
+
     /**
      * @throws Exception
      * @throws InvalidCallException
