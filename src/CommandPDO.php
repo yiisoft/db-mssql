@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use PDOException;
+use Throwable;
 use Yiisoft\Db\Driver\PDO\CommandPDO as AbstractCommandPDO;
+use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
 use Yiisoft\Db\Exception\ConvertException;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
-use Yiisoft\Db\Schema\SchemaInterface;
 
 use function is_array;
 
@@ -25,7 +27,7 @@ final class CommandPDO extends AbstractCommandPDO
         $this->setSql($sql)->bindValues($params);
         $this->prepare(false);
 
-        /** @psalm-var array|bool */
+        /** @psalm-var array|bool $result */
         $result = $this->queryOne();
 
         return is_array($result) ? $result : false;
@@ -36,11 +38,12 @@ final class CommandPDO extends AbstractCommandPDO
         return $this->db->getQueryBuilder();
     }
 
-    public function schema(): SchemaInterface
-    {
-        return $this->db->getSchema();
-    }
-
+    /**
+     * @psalm-suppress UnusedClosureParam
+     *
+     * @throws Exception
+     * @throws Throwable
+     */
     protected function internalExecute(string|null $rawSql): void
     {
         $attempt = 0;
@@ -53,7 +56,7 @@ final class CommandPDO extends AbstractCommandPDO
                     && $this->db->getTransaction() === null
                 ) {
                     $this->db->transaction(
-                        fn (string $rawSql) => $this->internalExecute($rawSql),
+                        fn (ConnectionPDOInterface $db) => $this->internalExecute($rawSql),
                         $this->isolationLevel
                     );
                 } else {
