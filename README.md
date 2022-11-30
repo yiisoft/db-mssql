@@ -69,16 +69,6 @@ return [
 ];
 ```
 
-### Composer require checker
-
-This package uses [composer-require-checker](https://github.com/maglnet/ComposerRequireChecker) to check if all dependencies are correctly defined in `composer.json`.
-
-To run the checker, execute the following command:
-
-```shell
-./vendor/bin/composer-require-checker
-```
-
 ### Unit testing
 
 The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
@@ -110,6 +100,16 @@ use either newest or any specific version of PHP:
 
 ```shell
 ./vendor/bin/rector
+```
+
+### Composer require checker
+
+This package uses [composer-require-checker](https://github.com/maglnet/ComposerRequireChecker) to check if all dependencies are correctly defined in `composer.json`.
+
+To run the checker, execute the following command:
+
+```shell
+./vendor/bin/composer-require-checker
 ```
 
 ### Support the project
