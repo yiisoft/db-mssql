@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
-use Yiisoft\Db\Tests\Common\CommonBatchQueryResultTest;
+use Yiisoft\Db\TestSupport\TestBatchQueryResultTrait;
 
 /**
  * @group mssql
  */
-final class BatchQueryResultTest extends CommonBatchQueryResultTest
+final class BatchQueryResultTest extends TestCase
 {
-    use TestTrait;
+    use TestBatchQueryResultTrait;
 }
