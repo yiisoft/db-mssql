@@ -22,7 +22,7 @@
         "php": "^8.0",
         "ext-pdo": "*",
         "yiisoft/arrays": "^2.0",
-        "yiisoft/db": "dev-remove-test-batch-query-result-trait as 3.0@dev"
+        "yiisoft/db": "^3.0@dev"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
