@@ -179,6 +179,26 @@ final class Schema extends AbstractSchema
         return $this->db->createCommand($sql)->queryColumn();
     }
 
+    protected function findTableComment(TableSchemaInterface $tableSchema): void
+    {
+        $schemaName = $tableSchema->getSchemaName()
+            ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
+        $tableName = 'N' . (string) $this->db->getQuoter()->quoteValue($tableSchema->getName());
+
+        $sql = <<<SQL
+        SELECT [value]
+        FROM fn_listextendedproperty (
+            N'MS_description',
+            'SCHEMA', $schemaName,
+            'TABLE', $tableName,
+            DEFAULT, DEFAULT)
+        SQL;
+
+        $comment = $this->db->createCommand($sql)->queryScalar();
+
+        $tableSchema->comment(is_string($comment) ? $comment : null);
+    }
+
     /**
      * Returns all table names in the database.
      *
@@ -222,6 +242,7 @@ final class Schema extends AbstractSchema
     {
         $table = $this->resolveTableName($name);
         $this->findPrimaryKeys($table);
+        $this->findTableComment($table);
 
         if ($this->findColumns($table)) {
             $this->findForeignKeys($table);
