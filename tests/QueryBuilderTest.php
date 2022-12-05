@@ -40,7 +40,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
                         N'MS_description',
                         'SCHEMA', N'dbo',
                         'TABLE', N'customer',
-        ";
+                        'COLUMN', N'id' ";
 
         $this->assertStringContainsString($sql, $qb->addCommentOnColumn('customer', 'id', 'Primary key.'));
     }
@@ -75,7 +75,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
                         N'MS_description',
                         'SCHEMA', N'dbo',
                         'TABLE', N'customer',
-        ";
+                         DEFAULT, DEFAULT ";
 
         $this->assertStringContainsString($sql, $qb->addCommentOnTable('customer', 'Customer table.'));
     }
@@ -314,7 +314,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
                         N'MS_description',
                         'SCHEMA', N'dbo',
                         'TABLE', N'customer',
-        ";
+                        'COLUMN', N'id' ";
 
         $this->assertStringContainsString($sql, $qb->dropCommentFromColumn('customer', 'id'));
     }
@@ -344,7 +344,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
                         N'MS_description',
                         'SCHEMA', N'dbo',
                         'TABLE', N'customer',
-        ";
+                         DEFAULT, DEFAULT ";
 
         $this->assertStringContainsString($sql, $qb->dropCommentFromTable('customer'));
     }
