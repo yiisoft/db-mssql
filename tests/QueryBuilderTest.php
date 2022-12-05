@@ -14,6 +14,8 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Tests\Common\CommonQueryBuilderTest;
 
+use function json_encode;
+
 /**
  * @group mssql
  *
@@ -31,9 +33,31 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db = $this->getConnection();
 
         $qb = $db->getQueryBuilder();
-        $sql = $qb->addCommentOnColumn('customer', 'id', 'Primary key.');
+        $sql = "
+            IF NOT EXISTS (
+                    SELECT 1
+                    FROM fn_listextendedproperty (
+                        N'MS_description',
+                        'SCHEMA', N'dbo',
+                        'TABLE', N'customer',
+        ";
 
-        $this->assertStringContainsString('IF NOT EXISTS (', $sql);
+        $this->assertStringContainsString($sql, $qb->addCommentOnColumn('customer', 'id', 'Primary key.'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testAddCommentOnColumnException(): void
+    {
+        $db = $this->getConnection();
+
+        $qb = $db->getQueryBuilder();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table not found: noExist');
+
+        $qb->addCommentOnColumn('noExist', 'id', 'Primary key.');
     }
 
     /**
@@ -44,9 +68,31 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db = $this->getConnection();
 
         $qb = $db->getQueryBuilder();
-        $sql = $qb->addCommentOnTable('customer', 'Customer table.');
+        $sql = "
+            IF NOT EXISTS (
+                    SELECT 1
+                    FROM fn_listextendedproperty (
+                        N'MS_description',
+                        'SCHEMA', N'dbo',
+                        'TABLE', N'customer',
+        ";
 
-        $this->assertStringContainsString('IF NOT EXISTS (', $sql);
+        $this->assertStringContainsString($sql, $qb->addCommentOnTable('customer', 'Customer table.'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testAddCommentOnTableException(): void
+    {
+        $db = $this->getConnection();
+
+        $qb = $db->getQueryBuilder();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table not found: noExist');
+
+        $qb->addCommentOnTable('noExist', 'Customer table.');
     }
 
     /**
@@ -58,13 +104,12 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db = $this->getConnection();
 
         $qb = $db->getQueryBuilder();
-        $sql = $qb->addDefaultValue('name', 'table', 'column', 'value');
 
         $this->assertSame(
             <<<SQL
-            ALTER TABLE [table] ADD CONSTRAINT [name] DEFAULT 'value' FOR [column]
+            ALTER TABLE [T_constraints_1] ADD CONSTRAINT [CN_pk] DEFAULT 1 FOR [C_default]
             SQL,
-            $sql,
+            $qb->addDefaultValue('CN_pk', 'T_constraints_1', 'C_default', 1),
         );
     }
 
@@ -74,13 +119,12 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
 
         $qb = $db->getQueryBuilder();
         $schema = $db->getSchema();
-        $sql = $qb->alterColumn('table', 'column', (string) $schema::TYPE_STRING);
 
         $this->assertSame(
             <<<SQL
-            ALTER TABLE [table] ALTER COLUMN [column] nvarchar(255)
+            ALTER TABLE [customer] ALTER COLUMN [email] nvarchar(255)
             SQL,
-            $sql,
+            $qb->alterColumn('customer', 'email', (string) $schema::TYPE_STRING),
         );
     }
 
@@ -93,6 +137,31 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         array $expectedParams
     ): void {
         parent::testBuildCondition($condition, $expected, $expectedParams);
+    }
+
+    public function testBuildFrom(): void
+    {
+        $db = $this->getConnection();
+
+        $qb = $db->getQueryBuilder();
+        $query = (new Query($db))->from('admin_user');
+        $params = [];
+
+        $this->assertSame(
+            <<<SQL
+            FROM [admin_user]
+            SQL,
+            $qb->buildFrom($query->getFrom(), $params),
+        );
+
+        $query = (new Query($db))->from('[admin_user]');
+
+        $this->assertSame(
+            <<<SQL
+            FROM [admin_user]
+            SQL,
+            $qb->buildFrom($query->getFrom(), $params),
+        );
     }
 
     /**
@@ -250,6 +319,18 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $this->assertStringContainsString($sql, $qb->dropCommentFromColumn('customer', 'id'));
     }
 
+    public function testDropCommentFromColumnException(): void
+    {
+        $db = $this->getConnection();
+
+        $qb = $db->getQueryBuilder();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table not found: noExist');
+
+        $qb->dropCommentFromColumn('noExist', 'id');
+    }
+
     public function testDropCommentFromTable(): void
     {
         $db = $this->getConnection();
@@ -266,6 +347,18 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         ";
 
         $this->assertStringContainsString($sql, $qb->dropCommentFromTable('customer'));
+    }
+
+    public function testDropCommentFromTableException(): void
+    {
+        $db = $this->getConnection();
+
+        $qb = $db->getQueryBuilder();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Table not found: noExist');
+
+        $qb->dropCommentFromTable('noExist');
     }
 
     /**
@@ -304,13 +397,12 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db = $this->getConnection();
 
         $qb = $db->getQueryBuilder();
-        $sql = $qb->renameColumn('alpha', 'string_identifier', 'string_identifier_test');
 
         $this->assertSame(
             <<<SQL
             sp_rename '[alpha].[string_identifier]', [string_identifier_test], 'COLUMN'
             SQL,
-            $sql,
+            $qb->renameColumn('alpha', 'string_identifier', 'string_identifier_test'),
         );
     }
 
@@ -319,13 +411,12 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db = $this->getConnection();
 
         $qb = $db->getQueryBuilder();
-        $sql = $qb->renameTable('alpha', 'alpha-test');
 
         $this->assertSame(
             <<<SQL
             sp_rename [alpha], [alpha-test]
             SQL,
-            $sql,
+            $qb->renameTable('alpha', 'alpha-test'),
         );
     }
 
@@ -354,6 +445,18 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         );
     }
 
+    public function testResetSequenceException(): void
+    {
+        $db = $this->getConnection();
+
+        $qb = $db->getQueryBuilder();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("There is not sequence associated with table 'noExist'.");
+
+        $qb->resetSequence('noExist');
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::selectExist()
      */
@@ -373,5 +476,31 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         array $expectedParams
     ): void {
         parent::testUpsert($table, $insertColumns, $updateColumns, $expectedSQL, $expectedParams);
+    }
+
+    public function testUpsertVarbinary()
+    {
+        $db = $this->getConnection();
+
+        $qb = $db->getQueryBuilder();
+        $testData = json_encode(['test' => 'string', 'test2' => 'integer']);
+        $params = [];
+        $result = $db->createCommand(
+            $qb->upsert(
+                'T_upsert_varbinary',
+                ['id' => 1, 'blob_col' => $testData],
+                ['blob_col' => $testData],
+                $params,
+            ),
+            $params,
+        )->execute();
+
+        $this->assertSame(1, $result);
+
+        $query = (new Query($db))->select(['blob_col as blob_col'])->from('T_upsert_varbinary')->where(['id' => 1]);
+        $resultData = $query->createCommand()->queryOne();
+
+        $this->assertIsArray($resultData);
+        $this->assertSame($testData, $resultData['blob_col']);
     }
 }
