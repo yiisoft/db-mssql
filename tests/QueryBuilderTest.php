@@ -394,6 +394,19 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     }
 
     /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insert()
+     */
+    public function testInsert(
+        string $table,
+        array|QueryInterface $columns,
+        array $params,
+        string $expectedSQL,
+        array $expectedParams
+    ): void {
+        parent::testInsert($table, $columns, $params, $expectedSQL, $expectedParams);
+    }
+
+    /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertEx()
      */
     public function testInsertEx(

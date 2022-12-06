@@ -90,6 +90,19 @@ final class QueryBuilderProvider
         );
     }
 
+    public function insert(): array
+    {
+        $baseQueryBuilderProvider = new BaseQueryBuilderProvider();
+
+        $insert = $baseQueryBuilderProvider->insert($this->getConnection());
+
+        $insert['empty columns'][3] = <<<SQL
+        INSERT INTO [customer] DEFAULT VALUES
+        SQL;
+
+        return $insert;
+    }
+
     public function insertEx(): array
     {
         $baseQueryBuilderProvider = new BaseQueryBuilderProvider();
