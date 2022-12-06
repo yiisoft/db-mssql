@@ -6,12 +6,12 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\QueryBuilder\Condition\InCondition;
-use Yiisoft\Db\Tests\Provider\BaseQueryBuilderProvider;
+use Yiisoft\Db\Tests\Provider\AbstractQueryBuilderProvider;
 use Yiisoft\Db\Tests\Support\TraversableObject;
 
 use function array_replace;
 
-final class QueryBuilderProvider
+final class QueryBuilderProvider extends AbstractQueryBuilderProvider
 {
     use TestTrait;
 
@@ -33,9 +33,7 @@ final class QueryBuilderProvider
 
     public function buildCondition(): array
     {
-        $baseQueryBuilderProvider = new BaseQueryBuilderProvider();
-
-        $buildCondition = $baseQueryBuilderProvider->buildCondition($this->getConnection());
+        $buildCondition = parent::buildCondition();
 
         $buildCondition['inCondition-custom-1'] = [new InCondition(['id', 'name'], 'in', []), '()', []];
         $buildCondition['inCondition-custom-3'] = [
@@ -79,22 +77,9 @@ final class QueryBuilderProvider
         return $buildCondition;
     }
 
-    public function buildLikeCondition(): array
-    {
-        $baseQueryBuilderProvider = new BaseQueryBuilderProvider();
-
-        return $baseQueryBuilderProvider->buildLikeCondition(
-            $this->getDriverName(),
-            $this->likeEscapeCharSql,
-            $this->likeParameterReplacements,
-        );
-    }
-
     public function insert(): array
     {
-        $baseQueryBuilderProvider = new BaseQueryBuilderProvider();
-
-        $insert = $baseQueryBuilderProvider->insert($this->getConnection());
+        $insert = parent::insert();
 
         $insert['empty columns'][3] = <<<SQL
         INSERT INTO [customer] DEFAULT VALUES
@@ -105,9 +90,7 @@ final class QueryBuilderProvider
 
     public function insertEx(): array
     {
-        $baseQueryBuilderProvider = new BaseQueryBuilderProvider();
-
-        $insertEx = $baseQueryBuilderProvider->insertEx($this->getConnection());
+        $insertEx = parent::insertEx();
 
         $insertEx['regular-values'][3] = <<<SQL
         SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int , [email] varchar(128) , [name] varchar(128) NULL, [address] text NULL, [status] int NULL, [profile_id] int NULL);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id],INSERTED.[email],INSERTED.[name],INSERTED.[address],INSERTED.[status],INSERTED.[profile_id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3, :qp4);SELECT * FROM @temporary_inserted;
@@ -127,9 +110,7 @@ final class QueryBuilderProvider
 
     public function selectExist(): array
     {
-        $baseQueryBuilderProvider = new BaseQueryBuilderProvider();
-
-        $selectExist = $baseQueryBuilderProvider->selectExist($this->getDriverName());
+        $selectExist = parent::selectExist();
 
         $selectExist[0][1] = <<<SQL
         SELECT CASE WHEN EXISTS(SELECT 1 FROM `table` WHERE `id` = 1) THEN 1 ELSE 0 END
@@ -213,8 +194,7 @@ final class QueryBuilderProvider
             ],
         ];
 
-        $baseQueryBuilderProvider = new BaseQueryBuilderProvider();
-        $upsert = $baseQueryBuilderProvider->upsert($this->getConnection());
+        $upsert = parent::upsert();
 
         foreach ($concreteData as $testName => $data) {
             $upsert[$testName] = array_replace($upsert[$testName], $data);
