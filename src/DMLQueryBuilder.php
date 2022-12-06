@@ -83,8 +83,8 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function resetSequence(string $tableName, int|string $value = null): string
     {
-        $sequenceName = null;
         $table = $this->schema->getTableSchema($tableName);
+        $sequenceName = null;
 
         if ($table !== null && ($sequenceName = $table->getSequenceName()) !== null) {
             $tableName = $this->quoter->quoteTableName($tableName);
