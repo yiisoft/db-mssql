@@ -84,25 +84,24 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     public function resetSequence(string $tableName, int|string $value = null): string
     {
         $table = $this->schema->getTableSchema($tableName);
-        $sequenceName = null;
-
-        if ($table !== null && ($sequenceName = $table->getSequenceName()) !== null) {
-            $tableName = $this->quoter->quoteTableName($tableName);
-
-            if ($value === null) {
-                return "DBCC CHECKIDENT ('$tableName', RESEED, 0) WITH NO_INFOMSGS;DBCC CHECKIDENT ('$tableName', RESEED)";
-            }
-
-            return "DBCC CHECKIDENT ('$tableName', RESEED, $value)";
-        }
 
         if ($table === null) {
             throw new InvalidArgumentException("Table not found: '$tableName'.");
         }
 
+        $sequenceName = $table->getSequenceName();
+
         if ($sequenceName === null) {
             throw new InvalidArgumentException("There is not sequence associated with table '$tableName'.'");
         }
+
+        $tableName = $this->quoter->quoteTableName($tableName);
+
+        if ($value === null) {
+            return "DBCC CHECKIDENT ('$tableName', RESEED, 0) WITH NO_INFOMSGS;DBCC CHECKIDENT ('$tableName', RESEED)";
+        }
+
+        return "DBCC CHECKIDENT ('$tableName', RESEED, $value)";
     }
 
     /**
