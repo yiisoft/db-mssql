@@ -472,18 +472,6 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         );
     }
 
-    public function testResetSequenceException(): void
-    {
-        $db = $this->getConnection();
-
-        $qb = $db->getQueryBuilder();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("There is not sequence associated with table 'noExist'.");
-
-        $qb->resetSequence('noExist');
-    }
-
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::selectExist()
      */

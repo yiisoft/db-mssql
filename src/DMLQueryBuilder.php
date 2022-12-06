@@ -85,7 +85,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     {
         $table = $this->schema->getTableSchema($tableName);
 
-        if ($table !== null && $table->getSequenceName() !== null) {
+        if ($table !== null && ($sequenceName = $table->getSequenceName()) !== null) {
             $tableName = $this->quoter->quoteTableName($tableName);
 
             if ($value === null) {
@@ -95,7 +95,13 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             return "DBCC CHECKIDENT ('$tableName', RESEED, $value)";
         }
 
-        throw new InvalidArgumentException("There is not sequence associated with table '$tableName'.");
+        if ($table === null) {
+            throw new InvalidArgumentException("Table not found: '$tableName'.");
+        }
+
+        if ($sequenceName === null) {
+            throw new InvalidArgumentException("There is not sequence associated with table '$tableName'.'");
+        }
     }
 
     /**
