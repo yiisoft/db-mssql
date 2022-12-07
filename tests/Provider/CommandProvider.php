@@ -18,23 +18,23 @@ final class CommandProvider extends AbstractCommandProvider
 
     public function batchInsert(): array
     {
-        $batchInsertSql = parent::batchInsert();
+        $batchInsert = parent::batchInsert();
 
-        $batchInsertSql['multirow']['expectedParams'][':qp1'] = '0.0';
-        $batchInsertSql['multirow']['expectedParams'][':qp3'] = 1;
-        $batchInsertSql['multirow']['expectedParams'][':qp5'] = '0';
-        $batchInsertSql['multirow']['expectedParams'][':qp7'] = 0;
+        $batchInsert['multirow']['expectedParams'][':qp1'] = '0.0';
+        $batchInsert['multirow']['expectedParams'][':qp3'] = 1;
+        $batchInsert['multirow']['expectedParams'][':qp5'] = '0';
+        $batchInsert['multirow']['expectedParams'][':qp7'] = 0;
 
-        $batchInsertSql['issue11242']['expectedParams'][':qp1'] = '1.1';
-        $batchInsertSql['issue11242']['expectedParams'][':qp3'] = 1;
+        $batchInsert['issue11242']['expectedParams'][':qp1'] = '1.1';
+        $batchInsert['issue11242']['expectedParams'][':qp3'] = 1;
 
-        $batchInsertSql['wrongBehavior']['expectedParams'][':qp1'] = '0.0';
-        $batchInsertSql['wrongBehavior']['expectedParams'][':qp3'] = 0;
+        $batchInsert['wrongBehavior']['expectedParams'][':qp1'] = '0.0';
+        $batchInsert['wrongBehavior']['expectedParams'][':qp3'] = 0;
 
-        $batchInsertSql['batchInsert binds params from expression']['expectedParams'][':qp1'] = '1';
-        $batchInsertSql['batchInsert binds params from expression']['expectedParams'][':qp3'] = 0;
+        $batchInsert['batchInsert binds params from expression']['expectedParams'][':qp1'] = '1';
+        $batchInsert['batchInsert binds params from expression']['expectedParams'][':qp3'] = 0;
 
-        return $batchInsertSql;
+        return $batchInsert;
     }
 
     public function dataInsertVarbinary(): array
