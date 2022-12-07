@@ -28,6 +28,6 @@ trait TestTrait
 
     protected function getDriverName(): string
     {
-        return 'mssql';
+        return 'sqlsrv';
     }
 }
