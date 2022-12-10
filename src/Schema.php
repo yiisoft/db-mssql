@@ -18,7 +18,6 @@ use Yiisoft\Db\Schema\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\Schema as AbstractSchema;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
-use function array_change_key_case;
 use function array_map;
 use function explode;
 use function is_array;
@@ -893,22 +892,5 @@ final class Schema extends AbstractSchema
     protected function getCacheTag(): string
     {
         return md5(serialize(array_merge([self::class], $this->db->getCacheKey())));
-    }
-
-    /**
-     * Changes row's array key case to lower.
-     *
-     * @param array $row row's array or an array of row's arrays.
-     * @param bool $multiple whether multiple rows or a single row passed.
-     *
-     * @return array normalized row or rows.
-     */
-    protected function normalizeRowKeyCase(array $row, bool $multiple): array
-    {
-        if ($multiple) {
-            return array_map(static fn (array $row) => array_change_key_case($row, CASE_LOWER), $row);
-        }
-
-        return array_change_key_case($row, CASE_LOWER);
     }
 }
