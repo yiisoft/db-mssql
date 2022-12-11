@@ -22,6 +22,7 @@ final class CommandPDO extends AbstractCommandPDO
     public function insertEx(string $table, array $columns): bool|array
     {
         $params = [];
+
         $sql = $this->queryBuilder()->insertEx($table, $columns, $params);
 
         $this->setSql($sql)->bindValues($params);
