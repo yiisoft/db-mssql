@@ -87,12 +87,6 @@ final class ConnectionPDO extends AbstractConnectionPDO
      * Initializes the DB connection.
      *
      * This method is invoked right after the DB connection is established.
-     *
-     * The default implementation turns on `PDO::ATTR_EMULATE_PREPARES`.
-     *
-     * if {@see emulatePrepare} is true, and sets the database {@see charset} if it is not empty.
-     *
-     * It then triggers an {@see EVENT_AFTER_OPEN} event.
      */
     protected function initConnection(): void
     {
