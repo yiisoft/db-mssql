@@ -111,8 +111,8 @@ final class SchemaTest extends CommonSchemaTest
         $schema = $db->getSchema();
 
         $this->assertSame(['[animal_view]'], $schema->getViewNames());
-        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->getViewNames('dbo'));
-        $this->assertSame([0 => '[animal_view]', 1 => '[testCreateView]'], $schema->getViewNames('dbo', true));
+        $this->assertSame(['[animal_view]'], $schema->getViewNames('dbo'));
+        $this->assertSame(['[animal_view]'], $schema->getViewNames('dbo', true));
     }
 
     /**
