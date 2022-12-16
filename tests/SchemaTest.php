@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
+use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
@@ -32,6 +34,11 @@ final class SchemaTest extends CommonSchemaTest
         parent::testColumnSchema($columns);
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testFindUniquesIndexes(): void
     {
         $db = $this->getConnection(true);
@@ -78,6 +85,8 @@ final class SchemaTest extends CommonSchemaTest
 
     /**
      * @dataProvider \Yiisoft\Db\Tests\Provider\SchemaProvider::pdoAttributes()
+     *
+     * @throws NotSupportedException
      */
     public function testGetTableNames(array $pdoAttributes): void
     {
