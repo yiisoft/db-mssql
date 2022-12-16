@@ -178,7 +178,6 @@ final class SchemaTest extends CommonSchemaTest
                 )
             )
             ->willReturn($commandMock);
-
         $schema = new Schema($mockDb, DbHelper::getSchemaCache());
         $schema->getTablePrimaryKey($tableName);
     }
