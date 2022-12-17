@@ -4,55 +4,39 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Yiisoft\Db\TestSupport\TestQuoterTrait;
+use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Tests\AbstractQuoterTest;
 
 /**
  * @group mssql
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
-final class QuoterTest extends TestCase
+final class QuoterTest extends AbstractQuoterTest
 {
-    use TestQuoterTrait;
+    use TestTrait;
 
     /**
-     * @return string[][]
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::columnNames()
      */
-    public function simpleTableNamesProvider(): array
+    public function testQuoteColumnName(string $columnName, string $expected): void
     {
-        return [
-            ['test', 'test', ],
-            ['te`st', 'te`st', ],
-            ['te\'st', 'te\'st', ],
-            ['te"st', 'te"st', ],
-            ['current-table-name', 'current-table-name', ],
-            ['[current-table-name]', 'current-table-name', ],
-        ];
+        parent::testQuoteColumnName($columnName, $expected);
     }
 
     /**
-     * @return string[][]
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::tableNameParts()
      */
-    public function simpleColumnNamesProvider(): array
+    public function testGetTableNameParts(string $tableName, string ...$expected): void
     {
-        return [
-            ['test', '[test]', 'test'],
-            ['[test]', '[test]', 'test'],
-            ['*', '*', '*'],
-        ];
+        parent::testGetTableNameParts($tableName, ...$expected);
     }
 
     /**
-     * @return string[][]
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::simpleTableNames()
      */
-    public function columnNamesProvider(): array
+    public function testQuoteTableName(string $tableName, string $expected): void
     {
-        return [
-            ['*', '*'],
-            ['table.*', '[table].*'],
-            ['[table].*', '[table].*'],
-            ['table.column', '[table].[column]'],
-            ['[table].column', '[table].[column]'],
-            ['table.[column]', '[table].[column]'],
-            ['[table].[column]', '[table].[column]'],
-        ];
+        parent::testQuoteTableName($tableName, $expected);
     }
 }
