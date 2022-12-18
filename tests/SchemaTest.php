@@ -11,6 +11,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Mssql\QueryBuilder;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Schema\TableSchemaInterface;
@@ -180,5 +181,21 @@ final class SchemaTest extends CommonSchemaTest
             ->willReturn($commandMock);
         $schema = new Schema($mockDb, DbHelper::getSchemaCache());
         $schema->getTablePrimaryKey($tableName);
+    }
+
+    public function withIndexDataProvider(): array
+    {
+        return array_merge(parent::withIndexDataProvider(), [
+            [
+                'indexType' => QueryBuilder::INDEX_CLUSTERED,
+                'indexMethod' => null,
+                'columnType' => 'varchar(16)',
+            ],
+            [
+                'indexType' => QueryBuilder::INDEX_NONCLUSTERED,
+                'indexMethod' => null,
+                'columnType' => 'varchar(16)',
+            ],
+        ]);
     }
 }
