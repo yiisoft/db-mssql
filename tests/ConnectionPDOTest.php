@@ -11,7 +11,6 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Tests\Common\CommonConnectionPDOTest;
-use Yiisoft\Db\Tests\Support\DbHelper;
 
 /**
  * @group mssql
@@ -21,18 +20,6 @@ use Yiisoft\Db\Tests\Support\DbHelper;
 final class ConnectionPDOTest extends CommonConnectionPDOTest
 {
     use TestTrait;
-
-    public function testCreateCommandWithLoggerProfiler(): void
-    {
-        $db = $this->getConnection();
-
-        $db->setLogger(DbHelper::getLogger());
-        $db->setProfiler(DbHelper::getProfiler());
-        $command = $db->createCommand('SELECT 1');
-
-        $this->assertSame('SELECT 1', $command->getSql());
-        $this->assertSame([], $command->getParams());
-    }
 
     /**
      * @throws Exception
