@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Yiisoft\Db\Mssql\Dsn;
 
 /**
