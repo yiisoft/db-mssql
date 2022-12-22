@@ -264,6 +264,12 @@ final class QueryBuilderProvider extends AbstractQueryBuilderProvider
                 MERGE [T_upsert_1] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED] ([a]) ON ([T_upsert_1].[a]=[EXCLUDED].[a]) WHEN NOT MATCHED THEN INSERT ([a]) VALUES ([EXCLUDED].[a]);
                 SQL,
             ],
+            // @todo - SQL code have a bug. Need fix in next PR
+            'no columns to update with unique' => [
+                3 => <<<SQL
+                MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED] ([email]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) WHEN MATCHED THEN UPDATE SET  WHEN NOT MATCHED THEN INSERT ([email]) VALUES ([EXCLUDED].[email]);
+                SQL,
+            ],
         ];
 
         $upsert = parent::upsert();
