@@ -20,7 +20,7 @@ final class Quoter extends BaseQuoter
         return parent::quoteColumnName($name);
     }
 
-    public function getTableNameParts(string $name): array
+    public function getTableNameParts(string $name, bool $withColumn = false): array
     {
         if (preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches)) {
             $parts = array_slice($matches[0], -4, 4);
@@ -28,6 +28,6 @@ final class Quoter extends BaseQuoter
             $parts = [$name];
         }
 
-        return array_map(fn ($part) => $this->unquoteSimpleTableName($part), $parts);
+        return $this->unquoteParts($parts, $withColumn);
     }
 }
