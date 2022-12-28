@@ -169,6 +169,11 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
         $insertSql = 'INSERT (' . implode(', ', $insertNames) . ')' . ' VALUES (' . implode(', ', $insertValues) . ')';
 
+        if ($updateNames === []) {
+            /** there are no columns to update */
+            $updateColumns = false;
+        }
+
         if ($updateColumns === false) {
             return "$mergeSql WHEN NOT MATCHED THEN $insertSql;";
         }

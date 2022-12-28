@@ -493,6 +493,17 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testUpsert($table, $insertColumns, $updateColumns, $expectedSQL, $expectedParams);
     }
 
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::upsert()
+     */
+    public function testUpsertExecute(
+        string $table,
+        array|QueryInterface $insertColumns,
+        array|bool $updateColumns
+    ): void {
+        parent::testUpsertExecute($table, $insertColumns, $updateColumns);
+    }
+
     public function testUpsertVarbinary()
     {
         $db = $this->getConnection();
