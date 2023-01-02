@@ -8,12 +8,13 @@ use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\ConnectionPDO;
+use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\Mssql\PDODriver;
 use Yiisoft\Db\Tests\Support\DbHelper;
 
 trait TestTrait
 {
-    private string $dsn = 'sqlsrv:Server=127.0.0.1,1433;Database=yiitest';
+    private string $dsn = '';
 
     /**
      * @throws Exception
@@ -22,7 +23,7 @@ trait TestTrait
     protected function getConnection(bool $fixture = false): ConnectionPDOInterface
     {
         $db = new ConnectionPDO(
-            new PDODriver($this->dsn, 'SA', 'YourStrong!Passw0rd'),
+            new PDODriver($this->getDsn(), 'SA', 'YourStrong!Passw0rd'),
             DbHelper::getQueryCache(),
             DbHelper::getSchemaCache(),
         );
@@ -32,6 +33,15 @@ trait TestTrait
         }
 
         return $db;
+    }
+
+    protected function getDsn(): string
+    {
+        if ($this->dsn === '') {
+            $this->dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
+        }
+
+        return $this->dsn;
     }
 
     protected function getDriverName(): string

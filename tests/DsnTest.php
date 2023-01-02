@@ -9,7 +9,8 @@ use Yiisoft\Db\Mssql\Dsn;
 
 /**
  * @group mssql
- * @group upsert
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 final class DsnTest extends TestCase
 {
@@ -21,19 +22,11 @@ final class DsnTest extends TestCase
         );
     }
 
-    public function testGetDriver(): void
+    public function testAsStringWithEmptyPort(): void
     {
         $this->assertSame(
-            'sqlsrv',
-            (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->getDriver(),
-        );
-    }
-
-    public function testToString(): void
-    {
-        $this->assertSame(
-            'sqlsrv:Server=127.0.0.1,1433;Database=yiitest',
-            (string) (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', '1433')),
+            'sqlsrv:Server=127.0.0.1;Database=yiitest',
+            (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', ''))->asString(),
         );
     }
 }

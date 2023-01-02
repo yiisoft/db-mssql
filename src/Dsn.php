@@ -4,10 +4,25 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-final class Dsn implements \Stringable
+use Yiisoft\Db\Connection\AbstractDsn;
+
+/**
+ * The Dsn class is typically used to parse a DSN string, which is a string that contains all the necessary information
+ * to connect to a database SQL Server, such as the database driver, host, database name, port.
+ *
+ * It also allows you to access individual components of the DSN, such as the driver, host, database name or port.
+ *
+ * @link https://www.php.net/manual/en/ref.pdo-sqlsrv.connection.php
+ */
+final class Dsn extends AbstractDsn
 {
-    public function __construct(private string $driver, private string $server, private string $databaseName, private string $port = '1433')
-    {
+    public function __construct(
+        private string $driver,
+        private string $host,
+        private string $databaseName,
+        private string $port = '1433'
+    ) {
+        parent::__construct($driver, $host, $databaseName, $port);
     }
 
     /**
@@ -18,24 +33,17 @@ final class Dsn implements \Stringable
      * `key=value` and concatenated by `;`. For example:
      *
      * ```php
-     * $dsn = new MssqlDsn('sqlsrv', 'localhost', 'yiitest', '1433');
-     * $connection = new MssqlConnection($this->cache, $this->logger, $this->profiler, $dsn->asString());
+     * $dsn = new Dsn('sqlsrv', 'localhost', 'yiitest', '1433');
+     * $db = new ConnectionPDO(new PDODriver($dsn->asString(), 'username', 'password'), $queryCache, $schemaCache);
      * ```
      *
      * Will result in the DSN string `sqlsrv:Server=localhost,1433;Database=yiitest`.
      */
     public function asString(): string
     {
-        return "$this->driver:" . "Server=$this->server," . "$this->port" . ";Database=$this->databaseName";
-    }
-
-    public function __toString(): string
-    {
-        return $this->asString();
-    }
-
-    public function getDriver(): string
-    {
-        return $this->driver;
+        return match ($this->port) {
+            '' => "$this->driver:" . "Server=$this->host;" . "Database=$this->databaseName",
+            default => "$this->driver:" . "Server=$this->host,$this->port;" . "Database=$this->databaseName",
+        };
     }
 }
