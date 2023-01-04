@@ -313,4 +313,42 @@ final class CommandTest extends CommonCommandTest
         $scalarValue = $db->createCommand('SELECT [[blob_col]] FROM {{%T_upsert_varbinary}}')->queryScalar();
         $this->assertEquals($value, $scalarValue);
     }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
+    public function testAddDefaultValueSql(): void
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        $this->assertEmpty($command->getRawSql());
+        $command->addDefaultValue('{{test_def_constraint}}', '{{test_def}}', 'int1', 41);
+        $this->assertEquals(
+            'ALTER TABLE [test_def] ADD CONSTRAINT [test_def_constraint] DEFAULT 41 FOR [int1]',
+            $command->getRawSql()
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
+    public function testDropDefaultValueSql(): void
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        $this->assertEmpty($command->getRawSql());
+        $command->dropDefaultValue('{{test_def_constraint}}', '{{test_def}}');
+        $this->assertEquals(
+            'ALTER TABLE [test_def] DROP CONSTRAINT [test_def_constraint]',
+            $command->getRawSql()
+        );
+    }
 }
