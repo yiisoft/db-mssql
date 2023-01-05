@@ -90,7 +90,7 @@ final class QueryBuilderProvider extends AbstractQueryBuilderProvider
         return $insert;
     }
 
-    public function insertEx(): array
+    public function insertWithReturningPks(): array
     {
         $db = $this->getConnection();
 

@@ -37,7 +37,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     /**
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException
      */
-    public function insertEx(string $table, QueryInterface|array $columns, array &$params = []): string
+    public function insertWithReturningPks(string $table, QueryInterface|array $columns, array &$params = []): string
     {
         /**
          * @psalm-var string[] $names

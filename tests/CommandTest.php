@@ -144,7 +144,7 @@ final class CommandTest extends CommonCommandTest
      * @throws InvalidConfigException
      * @throws Throwable
      */
-    public function testInsertEx(): void
+    public function testInsertWithReturningPks(): void
     {
         $db = $this->getConnection(true);
 
@@ -159,7 +159,7 @@ final class CommandTest extends CommonCommandTest
                 'status' => '0',
                 'profile_id' => null,
             ],
-            $command->insertEx('{{customer}}', ['name' => 'test_1', 'email' => 'test_1@example.com']),
+            $command->insertWithReturningPks('{{customer}}', ['name' => 'test_1', 'email' => 'test_1@example.com']),
         );
     }
 
@@ -170,7 +170,7 @@ final class CommandTest extends CommonCommandTest
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testInsertExWithComputedColumn(): void
+    public function testInsertWithReturningPksWithComputedColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -197,7 +197,7 @@ final class CommandTest extends CommonCommandTest
         )->execute();
         $insertedString = 'test';
         $transaction = $db->beginTransaction();
-        $result = $command->insertEx('{{test_trigger}}', ['stringcol' => $insertedString]);
+        $result = $command->insertWithReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
         $transaction->commit();
 
         $this->assertIsArray($result);
@@ -211,7 +211,7 @@ final class CommandTest extends CommonCommandTest
      * @throws InvalidConfigException
      * @throws Throwable
      */
-    public function testInsertExWithRowVersionColumn(): void
+    public function testInsertWithReturningPksWithRowVersionColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -222,7 +222,7 @@ final class CommandTest extends CommonCommandTest
             SQL
         )->execute();
         $insertedString = 'test';
-        $result = $command->insertEx('{{test_trigger}}', ['stringcol' => $insertedString]);
+        $result = $command->insertWithReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
 
         $this->assertIsArray($result);
         $this->assertSame($insertedString, $result['stringcol']);
@@ -235,7 +235,7 @@ final class CommandTest extends CommonCommandTest
      * @throws InvalidConfigException
      * @throws Throwable
      */
-    public function testInsertExWithRowVersionNullColumn(): void
+    public function testInsertWithReturningPksWithRowVersionNullColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -246,7 +246,7 @@ final class CommandTest extends CommonCommandTest
             SQL
         )->execute();
         $insertedString = 'test';
-        $result = $command->insertEx(
+        $result = $command->insertWithReturningPks(
             '{{test_trigger}}',
             ['stringcol' => $insertedString, 'RV' => new Expression('DEFAULT')],
         );
@@ -267,10 +267,10 @@ final class CommandTest extends CommonCommandTest
         $db = $this->getConnection(true);
 
         $command = $db->createCommand();
-        $oldRow = $command->insertEx('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+        $oldRow = $command->insertWithReturningPks('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
         $command->delete('{{item}}', ['id' => $oldRow['id']])->execute();
         $command->resetSequence('{{item}}')->execute();
-        $newRow = $command->insertEx('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+        $newRow = $command->insertWithReturningPks('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
 
         $this->assertEquals($oldRow['id'], $newRow['id']);
     }
