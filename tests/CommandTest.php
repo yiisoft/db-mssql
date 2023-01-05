@@ -144,7 +144,7 @@ final class CommandTest extends CommonCommandTest
      * @throws InvalidConfigException
      * @throws Throwable
      */
-    public function testInsertEx(): void
+    public function testInsertWithReturningPks(): void
     {
         $db = $this->getConnection(true);
 
@@ -170,7 +170,7 @@ final class CommandTest extends CommonCommandTest
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testInsertExWithComputedColumn(): void
+    public function testInsertWithReturningPksWithComputedColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -211,7 +211,7 @@ final class CommandTest extends CommonCommandTest
      * @throws InvalidConfigException
      * @throws Throwable
      */
-    public function testInsertExWithRowVersionColumn(): void
+    public function testInsertWithReturningPksWithRowVersionColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -235,7 +235,7 @@ final class CommandTest extends CommonCommandTest
      * @throws InvalidConfigException
      * @throws Throwable
      */
-    public function testInsertExWithRowVersionNullColumn(): void
+    public function testInsertWithReturningPksWithRowVersionNullColumn(): void
     {
         $db = $this->getConnection(true);
 

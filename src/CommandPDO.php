@@ -23,7 +23,7 @@ final class CommandPDO extends AbstractCommandPDO
     {
         $params = [];
 
-        $sql = $this->queryBuilder()->insertEx($table, $columns, $params);
+        $sql = $this->queryBuilder()->insertWithReturningPks($table, $columns, $params);
 
         $this->setSql($sql)->bindValues($params);
         $this->prepare(false);
