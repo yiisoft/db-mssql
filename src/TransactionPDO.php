@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use Throwable;
+use Yiisoft\Db\Driver\PDO\AbstractTransactionPDO;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Driver\PDO\TransactionPDO as AbstractTransactionPDO;
 
 final class TransactionPDO extends AbstractTransactionPDO
 {
