@@ -15,6 +15,7 @@ IF OBJECT_ID('[dbo].[test_trigger_alert]', 'U') IS NOT NULL DROP TABLE [dbo].[te
 IF OBJECT_ID('[dbo].[negative_default_values]', 'U') IS NOT NULL DROP TABLE [dbo].[negative_default_values];
 IF OBJECT_ID('[dbo].[animal]', 'U') IS NOT NULL DROP TABLE [dbo].[animal];
 IF OBJECT_ID('[dbo].[default_pk]', 'U') IS NOT NULL DROP TABLE [dbo].[default_pk];
+IF OBJECT_ID('[dbo].[notauto_pk]', 'U') IS NOT NULL DROP TABLE [dbo].[notauto_pk];
 IF OBJECT_ID('[dbo].[document]', 'U') IS NOT NULL DROP TABLE [dbo].[document];
 IF OBJECT_ID('[dbo].[dossier]', 'U') IS NOT NULL DROP TABLE [dbo].[dossier];
 IF OBJECT_ID('[dbo].[employee]', 'U') IS NOT NULL DROP TABLE [dbo].[employee];
@@ -171,6 +172,16 @@ CREATE TABLE [dbo].[default_pk] (
     [type] [varchar](255) NOT NULL,
     CONSTRAINT [PK_default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
+    ) ON [PRIMARY]
+);
+
+CREATE TABLE [dbo].[notauto_pk] (
+    [id_1] [INT],
+    [id_2] [INT],
+    [type] [VARCHAR](255) NOT NULL,
+    CONSTRAINT [PK_notauto_pk] PRIMARY KEY CLUSTERED (
+        [id_1] ASC,
+        [id_2] ASC
     ) ON [PRIMARY]
 );
 
