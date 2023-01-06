@@ -16,24 +16,6 @@ use function is_array;
 
 final class CommandPDO extends AbstractCommandPDO
 {
-    /**
-     * @inheritDoc
-    */
-    public function insertWithReturningPks(string $table, array $columns): bool|array
-    {
-        $params = [];
-
-        $sql = $this->queryBuilder()->insertWithReturningPks($table, $columns, $params);
-
-        $this->setSql($sql)->bindValues($params);
-        $this->prepare(false);
-
-        /** @psalm-var array|bool $result */
-        $result = $this->queryOne();
-
-        return is_array($result) ? $result : false;
-    }
-
     public function queryBuilder(): QueryBuilderInterface
     {
         return $this->db->getQueryBuilder();
