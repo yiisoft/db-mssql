@@ -9,7 +9,7 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
-use Yiisoft\Db\QueryBuilder\DQLQueryBuilder as AbstractDQLQueryBuilder;
+use Yiisoft\Db\QueryBuilder\AbstractDQLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\Condition\InCondition;
 use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
 
@@ -45,16 +45,17 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
     /**
      * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2012 or newer.
      *
-     * @param string $sql the existing SQL (without ORDER BY/LIMIT/OFFSET).
-     * @param array $orderBy the order by columns. See {@see Query::orderBy} for more details on how to specify
+     * @param string $sql The existing SQL (without ORDER BY/LIMIT/OFFSET).
+     * @param array $orderBy The order by columns. See {@see Query::orderBy} for more details on how to specify
      * this parameter.
-     * @param Expression|int|null $limit the limit number. See {@see Query::limit} for more details.
-     * @param Expression|int|null $offset the offset number. See {@see Query::offset} for more details.
-     * @param array $params the binding parameters to be populated.
+     * @param Expression|int|null $limit The limit number. See {@see Query::limit} for more details.
+     * @param Expression|int|null $offset The offset number. See {@see Query::offset} for more details.
+     * @param array $params The binding parameters to be populated.
      *
-     * @throws Exception|InvalidArgumentException
+     * @throws Exception
+     * @throws InvalidArgumentException
      *
-     * @return string the SQL completed with ORDER BY/LIMIT/OFFSET (if any).
+     * @return string The SQL completed with ORDER BY/LIMIT/OFFSET (if any).
      */
     protected function newBuildOrderByAndLimit(
         string $sql,

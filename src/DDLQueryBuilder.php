@@ -9,7 +9,7 @@ use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\QueryBuilder\DDLQueryBuilder as AbstractDDLQueryBuilder;
+use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\QuoterInterface;
@@ -67,7 +67,10 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     }
 
     /**
-     * @throws InvalidConfigException|NotSupportedException|Throwable|\Yiisoft\Db\Exception\Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws Throwable
+     * @throws \Yiisoft\Db\Exception\Exception
      */
     public function checkIntegrity(string $schema = '', string $table = '', bool $check = true): string
     {
@@ -134,15 +137,16 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      * Builds a SQL command for adding or updating a comment to a table or a column. The command built will check if a
      * comment already exists. If so, it will be updated, otherwise, it will be added.
      *
-     * @param string $comment the text of the comment to be added. The comment will be properly quoted by the method.
-     * @param string $table the table to be commented or whose column is to be commented. The table name will be
+     * @param string $comment The text of the comment to be added. The comment will be properly quoted by the method.
+     * @param string $table The table to be commented or whose column is to be commented. The table name will be
      * properly quoted by the method.
-     * @param string|null $column optional. The name of the column to be commented. If empty, the command will add the
+     * @param string|null $column Optional, the name of the column to be commented. If empty, the command will add the
      * comment to the table instead. The column name will be properly quoted by the method.
      *
-     * @throws Exception|InvalidArgumentException if the table does not exist.
+     * @throws Exception
+     * @throws InvalidArgumentException If the table does not exist.
      *
-     * @return string the SQL statement for adding a comment.
+     * @return string The SQL statement for adding a comment.
      */
     private function buildAddCommentSql(string $comment, string $table, string $column = null): string
     {
@@ -184,14 +188,15 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      * Builds a SQL command for removing a comment from a table or a column. The command built will check if a comment
      * already exists before trying to perform the removal.
      *
-     * @param string $table the table that will have the comment removed or whose column will have the comment removed.
+     * @param string $table The table that will have the comment removed or whose column will have the comment removed.
      * The table name will be properly quoted by the method.
-     * @param string|null $column optional. The name of the column whose comment will be removed. If empty, the command
+     * @param string|null $column Optional, the name of the column whose comment will be removed. If empty, the command
      * will remove the comment from the table instead. The column name will be properly quoted by the method.
      *
-     * @throws Exception|InvalidArgumentException if the table does not exist.
+     * @throws Exception
+     * @throws InvalidArgumentException If the table does not exist.
      *
-     * @return string the SQL statement for removing the comment.
+     * @return string The SQL statement for removing the comment.
      */
     private function buildRemoveCommentSql(string $table, string $column = null): string
     {
