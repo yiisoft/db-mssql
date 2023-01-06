@@ -12,8 +12,6 @@ use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 
-use function is_array;
-
 final class CommandPDO extends AbstractCommandPDO
 {
     public function queryBuilder(): QueryBuilderInterface
