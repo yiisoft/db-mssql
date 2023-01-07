@@ -24,8 +24,7 @@ trait TestTrait
     {
         $db = new ConnectionPDO(
             new PDODriver($this->getDsn(), 'SA', 'YourStrong!Passw0rd'),
-            DbHelper::getQueryCache(),
-            DbHelper::getSchemaCache(),
+            DbHelper::getSchemaCache()
         );
 
         if ($fixture) {
