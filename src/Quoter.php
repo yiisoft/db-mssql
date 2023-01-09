@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use Yiisoft\Db\Schema\Quoter as BaseQuoter;
+use Yiisoft\Db\Schema\AbstractQuoter;
 
 use function preg_match;
 use function preg_match_all;
 
-final class Quoter extends BaseQuoter
+final class Quoter extends AbstractQuoter
 {
     public function quoteColumnName(string $name): string
     {

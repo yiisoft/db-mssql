@@ -6,8 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Command\ParamInterface;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Schema\ColumnSchema as AbstractColumnSchema;
-use Yiisoft\Db\Schema\Schema;
+use Yiisoft\Db\Schema\AbstractColumnSchema;
 
 use function bin2hex;
 use function is_string;

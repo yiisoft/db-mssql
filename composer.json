@@ -22,7 +22,7 @@
         "php": "^8.0",
         "ext-pdo": "*",
         "yiisoft/arrays": "^2.0",
-        "yiisoft/db": "^3.0@dev"
+        "yiisoft/db": "dev-better-naming-schema as 3.0@dev"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
