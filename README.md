@@ -5,15 +5,15 @@
     <a href="https://www.microsoft.com/sql-server" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/6154722" height="100px">
     </a>
-    <h1 align="center">Yii DataBase MSSQL Extension</h1>
+    <h1 align="center">Yii Database MSSQL Extension</h1>
     <br>
 </p>
 
-Yii DataBase MSSQL Extension is a package for working with [MSSQL] databases in PHP. It is a part of the [Yii Framework], a high-performance, open-source PHP framework for web application development.
+Yii Database MSSQL Extension is a package for working with [MSSQL] databases in PHP. It is a part of the [Yii Framework], a high-performance, open-source PHP framework for web application development.
 
-Yii DataBase MSSQL Extension package provides a set of classes for connecting to a [MSSQL] database, creating and executing commands, and working with data. It also includes a set of tools for building and executing queries, including support for parameter binding, as well as tools for working with transactions.
+The package provides a set of classes for connecting to a [MSSQL] database, creating and executing commands, and working with data. It also includes a set of tools for building and executing queries, including support for parameter binding, as well as tools for working with transactions.
 
-To use Yii DataBase MSSQL Extension, you will need to have the PHP [MSSQL extension] installed and enabled on your server. You will also need to have access to a SQL Server database and the necessary credentials to connect to it.
+To use Yii Database MSSQL Extension, you will need to have the PHP [MSSQL extension] installed and enabled on your server. You will also need to have access to a SQL Server database and the necessary credentials to connect to it.
 
 It is used in [Yii Framework] but can be used separately.
 
@@ -43,9 +43,9 @@ composer require yiisoft/db-mssql
 
 ### Config with [Yii Framework]
 
-The configuration with [container di](https://github.com/yiisoft/di) of [YiiFramework].
+The configuration with [DI container](https://github.com/yiisoft/di) of [YiiFramework].
 
-Also you can use any container di which implements [PSR-11](https://www.php-fig.org/psr/psr-11/).
+Also you can use any DI container which implements [PSR-11](https://www.php-fig.org/psr/psr-11/).
 
 db.php
 
