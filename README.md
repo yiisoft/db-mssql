@@ -9,13 +9,13 @@
     <br>
 </p>
 
-Yii DataBase MSSQL Extension is a package for working with [MSSQL] databases in PHP. It is a part of the [YiiFramework], a high-performance, open-source PHP framework for web application development.
+Yii DataBase MSSQL Extension is a package for working with [MSSQL] databases in PHP. It is a part of the [Yii Framework], a high-performance, open-source PHP framework for web application development.
 
 Yii DataBase MSSQL Extension package provides a set of classes for connecting to a [MSSQL] database, creating and executing commands, and working with data. It also includes a set of tools for building and executing queries, including support for parameter binding, as well as tools for working with transactions.
 
 To use Yii DataBase MSSQL Extension, you will need to have the PHP [MSSQL extension] installed and enabled on your server. You will also need to have access to a SQL Server database and the necessary credentials to connect to it.
 
-It is used in [YiiFramework] but can be used separately.
+It is used in [Yii Framework] but can be used separately.
 
 [MSSQL]: https://www.microsoft.com/sql-server
 [MSSQL extension]: https://pecl.php.net/package/sqlsrv
@@ -41,7 +41,7 @@ The package could be installed via composer:
 composer require yiisoft/db-mssql
 ```
 
-### Config with [YiiFramework]
+### Config with [Yii Framework]
 
 The configuration with [container di](https://github.com/yiisoft/di) of [YiiFramework].
 
@@ -86,7 +86,7 @@ return [
 ];
 ```
 
-### Config without [YiiFramework]
+### Config without [Yii Framework]
 
 ```php
 <?php
