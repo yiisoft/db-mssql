@@ -19,7 +19,7 @@ It is used in [Yii Framework] but can be used separately.
 
 [MSSQL]: https://www.microsoft.com/sql-server
 [MSSQL extension]: https://pecl.php.net/package/sqlsrv
-[YiiFramework]: https://www.yiiframework.com/
+[Yii Framework]: https://www.yiiframework.com/
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/db-mssql/v/stable.png)](https://packagist.org/packages/yiisoft/db-mssql)
 [![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads.png)](https://packagist.org/packages/yiisoft/db-mssql)
