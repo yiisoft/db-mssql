@@ -64,7 +64,11 @@ return [
     ConnectionInterface::class => [
         'class' => ConnectionPDO::class,
         '__construct()' => [
-            'driver' => new PDODriver($params['yiisoft/db-mssql']['dsn']),
+            'driver' => new PDODriver(
+                $params['yiisoft/db-mssql']['dsn'],
+                $params['yiisoft/db-mssql']['username'],
+                $params['yiisoft/db-mssql']['password'],
+            ),
         ]
     ]
 ];
@@ -82,6 +86,8 @@ use Yiisoft\Db\Mssql\Dsn;
 return [
     'yiisoft/db-mssql' => [
         'dsn' => (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString(),
+        'username' => 'user',
+        'password' => 'password',
     ]
 ];
 ```
