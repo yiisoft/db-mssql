@@ -114,7 +114,7 @@ $cache = new Cache($arrayCache);
 $dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
 
 // Or any other PDO driver.
-$pdoDriver = new PDODriver($dsn); 
+$pdoDriver = new PDODriver($dsn, 'user', 'password'); 
 $schemaCache = new SchemaCache($cache);
 $db = new ConnectionPDO($pdoDriver, $schemaCache);
 ```
