@@ -14,7 +14,7 @@ use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\AbstractSchema;
-use Yiisoft\Db\Schema\ColumnSchemaBuilder;
+use Yiisoft\Db\Schema\ColumnSchemaBuilderInterface;
 use Yiisoft\Db\Schema\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
@@ -853,20 +853,10 @@ final class Schema extends AbstractSchema
         return $result[$returnType];
     }
 
-    /**
-     * Create a column schema builder instance giving the type and value precision.
-     *
-     * This method may be overridden by child classes to create a DBMS-specific column schema builder.
-     *
-     * @param string $type type of the column. See {@see ColumnSchemaBuilder::$type}.
-     * @param array|int|string|null $length length or precision of the column. See {@see ColumnSchemaBuilder::$length}.
-     *
-     * @return ColumnSchemaBuilder column schema builder instance
-     *
-     * @psalm-param string[]|int[]|int|null|string $length
-     */
-    public function createColumnSchemaBuilder(string $type, array|int|string $length = null): ColumnSchemaBuilder
-    {
+    public function createColumnSchemaBuilder(
+        string $type,
+        array|int|string $length = null
+    ): ColumnSchemaBuilderInterface {
         return new ColumnSchemaBuilder($type, $length);
     }
 
