@@ -7,7 +7,7 @@ namespace Yiisoft\Db\Mssql;
 use Yiisoft\Db\Command\ParamInterface;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\AbstractColumnSchema;
-use Yiisoft\Db\Schema\Schema;
+use Yiisoft\Db\Schema\SchemaInterface;
 
 use function bin2hex;
 use function is_string;
@@ -37,7 +37,7 @@ final class ColumnSchema extends AbstractColumnSchema
 
     public function dbTypecast(mixed $value): mixed
     {
-        if ($this->getType() === Schema::TYPE_BINARY && $this->getDbType() === 'varbinary') {
+        if ($this->getType() === SchemaInterface::TYPE_BINARY && $this->getDbType() === 'varbinary') {
             if ($value instanceof ParamInterface && is_string($value->getValue())) {
                 $value = (string) $value->getValue();
             }

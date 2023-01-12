@@ -7,7 +7,6 @@ namespace Yiisoft\Db\Mssql;
 use Yiisoft\Db\QueryBuilder\AbstractQueryBuilder;
 use Yiisoft\Db\Schema\ColumnSchemaBuilder;
 use Yiisoft\Db\Schema\QuoterInterface;
-use Yiisoft\Db\Schema\Schema;
 use Yiisoft\Db\Schema\SchemaInterface;
 
 use function preg_replace;
@@ -28,27 +27,27 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @psalm-var string[] $typeMap Mapping from abstract column types (keys) to physical column types (values).
      */
     protected array $typeMap = [
-        Schema::TYPE_PK => 'int IDENTITY PRIMARY KEY',
-        Schema::TYPE_UPK => 'int IDENTITY PRIMARY KEY',
-        Schema::TYPE_BIGPK => 'bigint IDENTITY PRIMARY KEY',
-        Schema::TYPE_UBIGPK => 'bigint IDENTITY PRIMARY KEY',
-        Schema::TYPE_CHAR => 'nchar(1)',
-        Schema::TYPE_STRING => 'nvarchar(255)',
-        Schema::TYPE_TEXT => 'nvarchar(max)',
-        Schema::TYPE_TINYINT => 'tinyint',
-        Schema::TYPE_SMALLINT => 'smallint',
-        Schema::TYPE_INTEGER => 'int',
-        Schema::TYPE_BIGINT => 'bigint',
-        Schema::TYPE_FLOAT => 'float',
-        Schema::TYPE_DOUBLE => 'float',
-        Schema::TYPE_DECIMAL => 'decimal(18,0)',
-        Schema::TYPE_DATETIME => 'datetime',
-        Schema::TYPE_TIMESTAMP => 'datetime',
-        Schema::TYPE_TIME => 'time',
-        Schema::TYPE_DATE => 'date',
-        Schema::TYPE_BINARY => 'varbinary(max)',
-        Schema::TYPE_BOOLEAN => 'bit',
-        Schema::TYPE_MONEY => 'decimal(19,4)',
+        SchemaInterface::TYPE_PK => 'int IDENTITY PRIMARY KEY',
+        SchemaInterface::TYPE_UPK => 'int IDENTITY PRIMARY KEY',
+        SchemaInterface::TYPE_BIGPK => 'bigint IDENTITY PRIMARY KEY',
+        SchemaInterface::TYPE_UBIGPK => 'bigint IDENTITY PRIMARY KEY',
+        SchemaInterface::TYPE_CHAR => 'nchar(1)',
+        SchemaInterface::TYPE_STRING => 'nvarchar(255)',
+        SchemaInterface::TYPE_TEXT => 'nvarchar(max)',
+        SchemaInterface::TYPE_TINYINT => 'tinyint',
+        SchemaInterface::TYPE_SMALLINT => 'smallint',
+        SchemaInterface::TYPE_INTEGER => 'int',
+        SchemaInterface::TYPE_BIGINT => 'bigint',
+        SchemaInterface::TYPE_FLOAT => 'float',
+        SchemaInterface::TYPE_DOUBLE => 'float',
+        SchemaInterface::TYPE_DECIMAL => 'decimal(18,0)',
+        SchemaInterface::TYPE_DATETIME => 'datetime',
+        SchemaInterface::TYPE_TIMESTAMP => 'datetime',
+        SchemaInterface::TYPE_TIME => 'time',
+        SchemaInterface::TYPE_DATE => 'date',
+        SchemaInterface::TYPE_BINARY => 'varbinary(max)',
+        SchemaInterface::TYPE_BOOLEAN => 'bit',
+        SchemaInterface::TYPE_MONEY => 'decimal(19,4)',
     ];
     private DDLQueryBuilder $ddlBuilder;
     private DMLQueryBuilder $dmlBuilder;
