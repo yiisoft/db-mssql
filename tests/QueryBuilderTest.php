@@ -736,7 +736,7 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
 
-        $this->assertEquals("varchar(255)", $schema->getColumn('bar')->getDbType());
+        $this->assertEquals('varchar(255)', $schema->getColumn('bar')->getDbType());
         $this->assertEquals(true, $schema->getColumn('bar')->isAllowNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
@@ -746,7 +746,7 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals("nvarchar(128)", $schema->getColumn('bar')->getDbType());
+        $this->assertEquals('nvarchar(128)', $schema->getColumn('bar')->getDbType());
         $this->assertEquals(false, $schema->getColumn('bar')->isAllowNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(

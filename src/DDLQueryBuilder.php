@@ -83,7 +83,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             if ($checkValue !== null) {
                 $sqlAfter[] = "ALTER TABLE {$tableName} ADD CONSTRAINT " .
                     $this->quoter->quoteColumnName("CK_{$constraintBase}") .
-                    " CHECK (" . ($defaultValue instanceof Expression ? $checkValue : new Expression($checkValue)) . ")";
+                    ' CHECK (' . ($defaultValue instanceof Expression ? $checkValue : new Expression($checkValue)) . ')';
             }
 
             if ($type->isUnique()) {
