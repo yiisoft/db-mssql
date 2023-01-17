@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\IntegrityException;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Mssql\ColumnSchemaBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
+use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Tests\Common\CommonQueryBuilderTest;
 
 use function json_encode;
@@ -110,21 +113,6 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
             ALTER TABLE [T_constraints_1] ADD CONSTRAINT [CN_pk] DEFAULT 1 FOR [C_default]
             SQL,
             $qb->addDefaultValue('CN_pk', 'T_constraints_1', 'C_default', 1),
-        );
-    }
-
-    public function testAlterColumn(): void
-    {
-        $db = $this->getConnection();
-
-        $qb = $db->getQueryBuilder();
-        $schema = $db->getSchema();
-
-        $this->assertSame(
-            <<<SQL
-            ALTER TABLE [customer] ALTER COLUMN [email] nvarchar(255)
-            SQL,
-            $qb->alterColumn('customer', 'email', (string) $schema::TYPE_STRING),
         );
     }
 
@@ -528,5 +516,341 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
 
         $this->assertIsArray($resultData);
         $this->assertSame($testData, $resultData['blob_col']);
+    }
+
+    public function testAlterColumn(): void
+    {
+        $db = $this->getConnection(true);
+        $qb = $db->getQueryBuilder();
+
+        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] varchar(255)
+DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+DECLARE @columnName VARCHAR(MAX) = 'bar'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+         WHERE so.[type]='D')
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END";
+        $sql = $qb->alterColumn('foo1', 'bar', 'varchar(255)');
+        $this->assertEquals($expected, $sql);
+
+        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255) NOT NULL
+DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+DECLARE @columnName VARCHAR(MAX) = 'bar'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+         WHERE so.[type]='D')
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END";
+        $sql = $qb->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->notNull());
+        $this->assertEquals($expected, $sql);
+
+        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+DECLARE @columnName VARCHAR(MAX) = 'bar'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+         WHERE so.[type]='D')
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END
+ALTER TABLE [foo1] ADD CONSTRAINT [CK_foo1_bar] CHECK (LEN(bar) > 5)";
+        $sql = $qb->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->check('LEN(bar) > 5'));
+        $this->assertEquals($expected, $sql);
+
+        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+DECLARE @columnName VARCHAR(MAX) = 'bar'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+         WHERE so.[type]='D')
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END
+ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT '' FOR [bar]";
+        $sql = $qb->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->defaultValue(''));
+        $this->assertEquals($expected, $sql);
+
+        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+DECLARE @columnName VARCHAR(MAX) = 'bar'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+         WHERE so.[type]='D')
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END
+ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT 'AbCdE' FOR [bar]";
+        $sql = $qb->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->defaultValue('AbCdE'));
+        $this->assertEquals($expected, $sql);
+
+        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] datetime
+DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+DECLARE @columnName VARCHAR(MAX) = 'bar'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+         WHERE so.[type]='D')
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END
+ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT CURRENT_TIMESTAMP FOR [bar]";
+        $sql = $qb->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP'));
+        $this->assertEquals($expected, $sql);
+
+        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(30)
+DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+DECLARE @columnName VARCHAR(MAX) = 'bar'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+         WHERE so.[type]='D')
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END
+ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
+        $sql = $qb->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 30))->unique());
+        $this->assertEquals($expected, $sql);
+    }
+
+    public function testAlterColumnOnDb(): void
+    {
+        $db = $this->getConnection(true);
+
+        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar', 'varchar(255)');
+        $db->createCommand($sql)->execute();
+        $schema = $db->getTableSchema('[foo1]', true);
+
+        $this->assertEquals("varchar(255)", $schema->getColumn('bar')->getDbType());
+        $this->assertEquals(true, $schema->getColumn('bar')->isAllowNull());
+
+        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 128))->notNull());
+        $db->createCommand($sql)->execute();
+        $schema = $db->getTableSchema('[foo1]', true);
+        $this->assertEquals("nvarchar(128)", $schema->getColumn('bar')->getDbType());
+        $this->assertEquals(false, $schema->getColumn('bar')->isAllowNull());
+
+        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP'));
+        $db->createCommand($sql)->execute();
+        $schema = $db->getTableSchema('[foo1]', true);
+        $this->assertEquals(SchemaInterface::TYPE_DATETIME, $schema->getColumn('bar')->getDbType());
+        $this->assertEquals('getdate()', $schema->getColumn('bar')->getDefaultValue());
+    }
+
+    public function testAlterColumnWithCheckConstraintOnDb(): void
+    {
+        $db = $this->getConnection(true);
+
+        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 128))->null()->check('LEN(bar) > 5'));
+        $db->createCommand($sql)->execute();
+        $schema = $db->getTableSchema('[foo1]', true);
+        $this->assertEquals("nvarchar(128)", $schema->getColumn('bar')->getDbType());
+        $this->assertEquals(true, $schema->getColumn('bar')->isAllowNull());
+
+        $sql = "INSERT INTO [foo1]([bar]) values('abcdef')";
+        $this->assertEquals(1, $db->createCommand($sql)->execute());
+    }
+
+    public function testAlterColumnWithCheckConstraintOnDbWithException(): void
+    {
+        $db = $this->getConnection(true);
+
+        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 64))->check('LEN(bar) > 5'));
+        $db->createCommand($sql)->execute();
+
+        $sql = "INSERT INTO [foo1]([bar]) values('abcde')";
+        $this->expectException(IntegrityException::class);
+        $this->assertEquals(1, $db->createCommand($sql)->execute());
+    }
+
+    public function testAlterColumnWithUniqueConstraintOnDbWithException(): void
+    {
+        $db = $this->getConnection(true);
+
+        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 64))->unique());
+        $db->createCommand($sql)->execute();
+
+        $sql = "INSERT INTO [foo1]([bar]) values('abcdef')";
+        $this->assertEquals(1, $db->createCommand($sql)->execute());
+
+        $this->expectException(IntegrityException::class);
+        $this->assertEquals(1, $db->createCommand($sql)->execute());
+    }
+
+    public function testDropColumn(): void
+    {
+        $db = $this->getConnection(true);
+        $qb = $db->getQueryBuilder();
+
+        $expected = "DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+DECLARE @columnName VARCHAR(MAX) = 'bar'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+        )
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END
+ALTER TABLE [foo1] DROP COLUMN [bar]";
+        $sql = $qb->dropColumn('foo1', 'bar');
+        $this->assertEquals($expected, $sql);
+
+        $expected = "DECLARE @tableName VARCHAR(MAX) = '[customer]'
+DECLARE @columnName VARCHAR(MAX) = 'id'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+        )
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END
+ALTER TABLE [customer] DROP COLUMN [id]";
+        $sql = $qb->dropColumn('customer', 'id');
+        $this->assertEquals($expected, $sql);
+    }
+
+    public function testDropColumnOnDb(): void
+    {
+        $db = $this->getConnection(true);
+
+        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 64))
+                ->defaultValue("")
+                ->check('LEN(bar) < 5')
+                ->unique()
+        );
+        $db->createCommand($sql)->execute();
+
+        $sql = $db->getQueryBuilder()->dropColumn('foo1', 'bar');
+        $this->assertEquals(0, $db->createCommand($sql)->execute());
+
+        $schema = $db->getTableSchema('[foo1]', true);
+        $this->assertEquals(NULL, $schema->getColumn('bar'));
     }
 }
