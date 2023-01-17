@@ -66,8 +66,9 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         $constraintBase = preg_replace('/[^a-z0-9_]/i', '', $table . '_' . $column);
 
         if ($type instanceof ColumnSchemaBuilderInterface) {
-            $type->setAlterColumnFormat();
+            $type->setFormat('{type}{length}{notnull}{append}');
 
+            /** @psalm-var mixed $defaultValue */
             $defaultValue = $type->getDefault();
             if ($defaultValue !== null) {
                 $sqlAfter[] = $this->addDefaultValue(
