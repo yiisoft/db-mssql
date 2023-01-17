@@ -570,8 +570,11 @@ WHILE 1=1 BEGIN
     IF @constraintName IS NULL BREAK
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END";
-        $sql = $qb->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->notNull());
+        $sql = $qb->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->notNull()
+        );
         $this->assertEquals($expected, $sql);
 
         $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
@@ -597,8 +600,11 @@ WHILE 1=1 BEGIN
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END
 ALTER TABLE [foo1] ADD CONSTRAINT [CK_foo1_bar] CHECK (LEN(bar) > 5)";
-        $sql = $qb->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->check('LEN(bar) > 5'));
+        $sql = $qb->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->check('LEN(bar) > 5')
+        );
         $this->assertEquals($expected, $sql);
 
         $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
@@ -624,8 +630,11 @@ WHILE 1=1 BEGIN
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END
 ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT '' FOR [bar]";
-        $sql = $qb->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->defaultValue(''));
+        $sql = $qb->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->defaultValue('')
+        );
         $this->assertEquals($expected, $sql);
 
         $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
@@ -651,8 +660,11 @@ WHILE 1=1 BEGIN
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END
 ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT 'AbCdE' FOR [bar]";
-        $sql = $qb->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->defaultValue('AbCdE'));
+        $sql = $qb->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 255))->defaultValue('AbCdE')
+        );
         $this->assertEquals($expected, $sql);
 
         $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] datetime
@@ -678,8 +690,11 @@ WHILE 1=1 BEGIN
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END
 ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT CURRENT_TIMESTAMP FOR [bar]";
-        $sql = $qb->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP'));
+        $sql = $qb->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP')
+        );
         $this->assertEquals($expected, $sql);
 
         $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(30)
@@ -705,8 +720,11 @@ WHILE 1=1 BEGIN
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END
 ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
-        $sql = $qb->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 30))->unique());
+        $sql = $qb->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 30))->unique()
+        );
         $this->assertEquals($expected, $sql);
     }
 
@@ -721,15 +739,21 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         $this->assertEquals("varchar(255)", $schema->getColumn('bar')->getDbType());
         $this->assertEquals(true, $schema->getColumn('bar')->isAllowNull());
 
-        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 128))->notNull());
+        $sql = $db->getQueryBuilder()->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 128))->notNull()
+        );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
         $this->assertEquals("nvarchar(128)", $schema->getColumn('bar')->getDbType());
         $this->assertEquals(false, $schema->getColumn('bar')->isAllowNull());
 
-        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP'));
+        $sql = $db->getQueryBuilder()->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP')
+        );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
         $this->assertEquals(SchemaInterface::TYPE_DATETIME, $schema->getColumn('bar')->getDbType());
@@ -740,8 +764,11 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
     {
         $db = $this->getConnection(true);
 
-        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 128))->null()->check('LEN(bar) > 5'));
+        $sql = $db->getQueryBuilder()->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 128))->null()->check('LEN(bar) > 5')
+        );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
         $this->assertEquals("nvarchar(128)", $schema->getColumn('bar')->getDbType());
@@ -755,8 +782,11 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
     {
         $db = $this->getConnection(true);
 
-        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 64))->check('LEN(bar) > 5'));
+        $sql = $db->getQueryBuilder()->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 64))->check('LEN(bar) > 5')
+        );
         $db->createCommand($sql)->execute();
 
         $sql = "INSERT INTO [foo1]([bar]) values('abcde')";
@@ -768,8 +798,11 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
     {
         $db = $this->getConnection(true);
 
-        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 64))->unique());
+        $sql = $db->getQueryBuilder()->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 64))->unique()
+        );
         $db->createCommand($sql)->execute();
 
         $sql = "INSERT INTO [foo1]([bar]) values('abcdef')";
@@ -839,9 +872,11 @@ ALTER TABLE [customer] DROP COLUMN [id]";
     {
         $db = $this->getConnection(true);
 
-        $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar',
+        $sql = $db->getQueryBuilder()->alterColumn(
+            'foo1',
+            'bar',
             (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 64))
-                ->defaultValue("")
+                ->defaultValue('')
                 ->check('LEN(bar) < 5')
                 ->unique()
         );
@@ -851,6 +886,6 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $this->assertEquals(0, $db->createCommand($sql)->execute());
 
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals(NULL, $schema->getColumn('bar'));
+        $this->assertEquals(null, $schema->getColumn('bar'));
     }
 }

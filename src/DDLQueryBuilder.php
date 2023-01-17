@@ -82,7 +82,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             if ($checkValue !== null) {
                 $sqlAfter[] = "ALTER TABLE {$tableName} ADD CONSTRAINT " .
                     $this->quoter->quoteColumnName("CK_{$constraintBase}") .
-                    " CHECK (" . ($defaultValue instanceof Expression ?  $checkValue : new Expression($checkValue)) . ")";
+                    " CHECK (" . ($defaultValue instanceof Expression ? $checkValue : new Expression($checkValue)) . ")";
             }
 
             if ($type->isUnique()) {
@@ -274,10 +274,12 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      * @param string $table the table whose constraint is to be dropped. The name will be properly quoted by the method.
      * @param string $column the column whose constraint is to be dropped. The name will be properly quoted by the method.
      * @param string $type type of constraint, leave empty for all type of constraints(for example: D - default, 'UQ' - unique, 'C' - check)
+     *
      * @return string the DROP CONSTRAINTS SQL
-     *@see https://docs.microsoft.com/sql/relational-databases/system-catalog-views/sys-objects-transact-sql
+     *
+     * @see https://docs.microsoft.com/sql/relational-databases/system-catalog-views/sys-objects-transact-sql
      */
-    private function dropConstraintsForColumn(string $table, string $column, string $type=''): string
+    private function dropConstraintsForColumn(string $table, string $column, string $type = ''): string
     {
         return "DECLARE @tableName VARCHAR(MAX) = '" . $this->quoter->quoteTableName($table) . "'
 DECLARE @columnName VARCHAR(MAX) = '{$column}'
@@ -296,7 +298,7 @@ WHILE 1=1 BEGIN
             WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
         ) cons
         JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-        " . (!empty($type) ? " WHERE so.[type]='{$type}'" : "") . ")
+        " . (!empty($type) ? " WHERE so.[type]='{$type}'" : '') . ")
     IF @constraintName IS NULL BREAK
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END";
