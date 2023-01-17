@@ -9,6 +9,7 @@ use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Schema\ColumnSchemaBuilderInterface;
@@ -58,12 +59,43 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
     public function alterColumn(string $table, string $column, ColumnSchemaBuilderInterface|string $type): string
     {
-        return 'ALTER TABLE '
-            . $this->quoter->quoteTableName($table)
+        $sqlAfter = [$this->dropConstraintsForColumn($table, $column, 'D')];
+
+        $columnName = $this->quoter->quoteColumnName($column);
+        $tableName = $this->quoter->quoteTableName($table);
+        $constraintBase = preg_replace('/[^a-z0-9_]/i', '', $table . '_' . $column);
+
+        if ($type instanceof ColumnSchemaBuilderInterface) {
+            $type->setFormat('{type}{length}{notnull}{append}');
+
+            /** @psalm-var mixed $defaultValue */
+            $defaultValue = $type->getDefault();
+            if ($defaultValue !== null) {
+                $sqlAfter[] = $this->addDefaultValue(
+                    "DF_{$constraintBase}",
+                    $table,
+                    $column,
+                    $defaultValue
+                );
+            }
+
+            $checkValue = $type->getCheck();
+            if ($checkValue !== null) {
+                $sqlAfter[] = "ALTER TABLE {$tableName} ADD CONSTRAINT " .
+                    $this->quoter->quoteColumnName("CK_{$constraintBase}") .
+                    ' CHECK (' . ($defaultValue instanceof Expression ? $checkValue : new Expression($checkValue)) . ')';
+            }
+
+            if ($type->isUnique()) {
+                $sqlAfter[] = "ALTER TABLE {$tableName} ADD CONSTRAINT " . $this->quoter->quoteColumnName("UQ_{$constraintBase}") . " UNIQUE ({$columnName})";
+            }
+        }
+
+        return 'ALTER TABLE ' . $tableName
             . ' ALTER COLUMN '
-            . $this->quoter->quoteColumnName($column)
-            . ' '
-            . $this->queryBuilder->getColumnType($type);
+            . $columnName . ' '
+            . $this->queryBuilder->getColumnType($type) . "\n"
+            . implode("\n", $sqlAfter);
     }
 
     /**
@@ -116,6 +148,15 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . $this->quoter->quoteTableName($table)
             . ' DROP CONSTRAINT '
             . $this->quoter->quoteColumnName($name);
+    }
+
+    public function dropColumn(string $table, string $column): string
+    {
+        return $this->dropConstraintsForColumn($table, $column)
+            . "\nALTER TABLE "
+            . $this->quoter->quoteTableName($table)
+            . ' DROP COLUMN '
+            . $this->quoter->quoteColumnName($column);
     }
 
     public function renameTable(string $oldName, string $newName): string
@@ -226,5 +267,41 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
                     @level0type = N'SCHEMA', @level0name = $schemaName,
                     @level1type = N'TABLE', @level1name = $tableName"
                     . ($column ? ", @level2type = N'COLUMN', @level2name = $columnName" : '') . ';';
+    }
+
+    /**
+     * Builds a SQL statement for dropping constraints for column of table.
+     *
+     * @param string $table the table whose constraint is to be dropped. The name will be properly quoted by the method.
+     * @param string $column the column whose constraint is to be dropped. The name will be properly quoted by the method.
+     * @param string $type type of constraint, leave empty for all type of constraints(for example: D - default, 'UQ' - unique, 'C' - check)
+     *
+     * @return string the DROP CONSTRAINTS SQL
+     *
+     * @see https://docs.microsoft.com/sql/relational-databases/system-catalog-views/sys-objects-transact-sql
+     */
+    private function dropConstraintsForColumn(string $table, string $column, string $type = ''): string
+    {
+        return "DECLARE @tableName VARCHAR(MAX) = '" . $this->quoter->quoteTableName($table) . "'
+DECLARE @columnName VARCHAR(MAX) = '{$column}'
+WHILE 1=1 BEGIN
+    DECLARE @constraintName NVARCHAR(128)
+    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+        FROM (
+            SELECT sc.[constid] object_id
+            FROM [sys].[sysconstraints] sc
+            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+            WHERE sc.[id] = OBJECT_ID(@tableName)
+            UNION
+            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+        ) cons
+        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+        " . (!empty($type) ? " WHERE so.[type]='{$type}'" : '') . ")
+    IF @constraintName IS NULL BREAK
+    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+END";
     }
 }
