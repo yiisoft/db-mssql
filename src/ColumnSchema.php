@@ -11,7 +11,6 @@ use Yiisoft\Db\Schema\SchemaInterface;
 
 use function bin2hex;
 use function is_string;
-use function substr;
 
 /**
  * Class ColumnSchema for MSSQL database
