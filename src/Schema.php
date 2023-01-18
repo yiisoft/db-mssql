@@ -455,7 +455,17 @@ final class Schema extends AbstractSchema
         }
 
         if (!$column->isPrimaryKey() && ($column->getType() !== 'timestamp' || $info['column_default'] !== 'CURRENT_TIMESTAMP')) {
-            $column->defaultValue($column->defaultPhpTypecast($info['column_default']));
+            $value = $info['column_default'];
+            if ($info['column_default'] !== null) {
+                $value = (string) $value;
+                /**
+                 * convert from MSSQL column_default format, e.g. ('1') -> 1, ('string') -> string
+                 * exclude cases for functions as default value. Example: (getdate())
+                 */
+                $offset = (str_starts_with($value, "('") && str_ends_with($value, "')")) ? 2 : 1;
+                $value = substr($value, $offset, -$offset);
+            }
+            $column->defaultValue($column->phpTypecast($value));
         }
 
         return $column;
