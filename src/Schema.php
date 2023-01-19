@@ -455,6 +455,7 @@ final class Schema extends AbstractSchema
         }
 
         if (!$column->isPrimaryKey() && ($column->getType() !== 'timestamp' || $info['column_default'] !== 'CURRENT_TIMESTAMP')) {
+            /** @var mixed $value */
             $value = $info['column_default'];
             if ($info['column_default'] !== null) {
                 $value = (string) $value;
