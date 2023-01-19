@@ -18,7 +18,6 @@ use Yiisoft\Db\Schema\ColumnSchemaBuilderInterface;
 use Yiisoft\Db\Schema\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
-use function array_map;
 use function explode;
 use function is_array;
 use function md5;
