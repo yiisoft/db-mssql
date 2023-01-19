@@ -18,7 +18,6 @@ use Yiisoft\Db\Schema\ColumnSchemaBuilderInterface;
 use Yiisoft\Db\Schema\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
-use function array_map;
 use function explode;
 use function is_array;
 use function md5;
@@ -223,9 +222,7 @@ final class Schema extends AbstractSchema
         ORDER BY [t].[table_name]
         SQL;
 
-        $tables = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
-
-        return array_map(static fn (string $item): string => '[' . $item . ']', $tables);
+        return $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
     }
 
     /**
@@ -703,9 +700,7 @@ final class Schema extends AbstractSchema
         ORDER BY [t].[table_name]
         SQL;
 
-        $views = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
-
-        return array_map(static fn (string $item): string => '[' . $item . ']', $views);
+        return $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
     }
 
     /**
