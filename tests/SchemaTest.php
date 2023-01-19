@@ -84,45 +84,15 @@ final class SchemaTest extends CommonSchemaTest
         parent::testGetStringFieldsSize($columnName, $columnType, $columnSize, $columnDbType);
     }
 
-    /**
-     * @dataProvider \Yiisoft\Db\Tests\Provider\SchemaProvider::pdoAttributes()
-     *
-     * @throws NotSupportedException
-     */
-    public function testGetTableNames(array $pdoAttributes): void
-    {
-        $db = $this->getConnection(true);
-
-        foreach ($pdoAttributes as $name => $value) {
-            if ($name === PDO::ATTR_EMULATE_PREPARES) {
-                continue;
-            }
-
-            $db->getPDO()?->setAttribute($name, $value);
-        }
-
-        $schema = $db->getSchema();
-        $tablesNames = $schema->getTableNames();
-
-        $this->assertContains('[customer]', $tablesNames);
-        $this->assertContains('[category]', $tablesNames);
-        $this->assertContains('[item]', $tablesNames);
-        $this->assertContains('[order]', $tablesNames);
-        $this->assertContains('[order_item]', $tablesNames);
-        $this->assertContains('[type]', $tablesNames);
-        $this->assertContains('[animal]', $tablesNames);
-        $this->assertContains('[animal_view]', $tablesNames);
-    }
-
     public function testGetViewNames(): void
     {
         $db = $this->getConnection(true);
 
         $schema = $db->getSchema();
 
-        $this->assertSame(['[animal_view]'], $schema->getViewNames());
-        $this->assertSame(['[animal_view]'], $schema->getViewNames('dbo'));
-        $this->assertSame(['[animal_view]'], $schema->getViewNames('dbo', true));
+        $this->assertSame(['animal_view'], $schema->getViewNames());
+        $this->assertSame(['animal_view'], $schema->getViewNames('dbo'));
+        $this->assertSame(['animal_view'], $schema->getViewNames('dbo', true));
     }
 
     /**

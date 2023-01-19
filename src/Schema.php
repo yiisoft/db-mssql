@@ -223,9 +223,7 @@ final class Schema extends AbstractSchema
         ORDER BY [t].[table_name]
         SQL;
 
-        $tables = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
-
-        return array_map(static fn (string $item): string => '[' . $item . ']', $tables);
+        return $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
     }
 
     /**
@@ -703,9 +701,7 @@ final class Schema extends AbstractSchema
         ORDER BY [t].[table_name]
         SQL;
 
-        $views = $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
-
-        return array_map(static fn (string $item): string => '[' . $item . ']', $views);
+        return $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
     }
 
     /**
