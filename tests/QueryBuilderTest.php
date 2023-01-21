@@ -916,13 +916,12 @@ WHILE 1=1 BEGIN
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END
 ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]";
-        $sql = $qb->alterColumn('foo1', 'bar', (new ColumnSchemaBuilder(SchemaInterface::TYPE_INTEGER))->null()->defaultValue(NULL));
+        $sql = $qb->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_INTEGER))->null()->defaultValue(null)
+        );
         $this->assertEquals($expected, $sql);
-    }
-
-    public function testAlterColumnWithNull2()
-    {
-        $qb = $this->getConnection()->getQueryBuilder();
 
         $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] int NULL
 DECLARE @tableName VARCHAR(MAX) = '[foo1]'
@@ -950,7 +949,7 @@ ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]";
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new ColumnSchemaBuilder(SchemaInterface::TYPE_INTEGER))->defaultValue(NULL)
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_INTEGER))->defaultValue(null)
         );
         $this->assertEquals($expected, $sql);
     }
