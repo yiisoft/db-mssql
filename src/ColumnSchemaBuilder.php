@@ -11,7 +11,8 @@ final class ColumnSchemaBuilder extends AbstractColumnSchemaBuilder
 {
     /**
      * Getting the `Default` value for constraint
-     * @return string|Expression|null
+     *
+     * @return Expression|string|null
      */
     public function getDefault(): Expression|string|null
     {
