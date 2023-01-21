@@ -75,7 +75,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
                     "DF_{$constraintBase}",
                     $table,
                     $column,
-                    $defaultValue instanceof Expression ? $defaultValue : new Expression($defaultValue)
+                    $defaultValue instanceof Expression ? $defaultValue : new Expression((string) $defaultValue)
                 );
             }
 
