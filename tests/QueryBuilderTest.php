@@ -947,7 +947,11 @@ WHILE 1=1 BEGIN
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END
 ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]";
-        $sql = $qb->alterColumn('foo1', 'bar', (new ColumnSchemaBuilder(SchemaInterface::TYPE_INTEGER))->defaultValue(NULL));
+        $sql = $qb->alterColumn(
+            'foo1',
+            'bar',
+            (new ColumnSchemaBuilder(SchemaInterface::TYPE_INTEGER))->defaultValue(NULL)
+        );
         $this->assertEquals($expected, $sql);
     }
 }
