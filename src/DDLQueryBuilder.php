@@ -53,7 +53,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . $this->quoter->quoteTableName($table)
             . ' ADD CONSTRAINT '
             . $this->quoter->quoteColumnName($name)
-            . ' DEFAULT ' . (string) $this->quoter->quoteValue($value)
+            . ' DEFAULT ' . ($value === null ? 'NULL' : (string) $this->quoter->quoteValue($value))
             . ' FOR ' . $this->quoter->quoteColumnName($column);
     }
 
@@ -70,7 +70,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
             /** @psalm-var mixed $defaultValue */
             $defaultValue = $type->getDefault();
-            if ($defaultValue !== null) {
+            if ($defaultValue !== null || $type->isNotNull() === false) {
                 $sqlAfter[] = $this->addDefaultValue(
                     "DF_{$constraintBase}",
                     $table,
