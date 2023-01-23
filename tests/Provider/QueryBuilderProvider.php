@@ -66,7 +66,6 @@ final class QueryBuilderProvider extends AbstractQueryBuilderProvider
             ],
             '((id = :qp0 AND name = :qp1))',
             [':qp0' => 1, ':qp1' => 'oy'],
-
         ];
         $buildCondition['composite in using array objects'] = [
             [
