@@ -59,6 +59,14 @@ final class QueryBuilderProvider extends AbstractQueryBuilderProvider
             '(([id] = :qp0 AND [name] = :qp1))',
             [':qp0' => 1, ':qp1' => 'oy'],
         ];
+        $buildCondition['composite in with Expression'] = [
+            ['in',
+                [new Expression('id'), new Expression('name')],
+                [['id' => 1, 'name' => 'oy']],
+            ],
+            '((id = :qp0 AND name = :qp1))',
+            [':qp0' => 1, ':qp1' => 'oy'],
+        ];
         $buildCondition['composite in using array objects'] = [
             [
                 'in',
@@ -74,7 +82,7 @@ final class QueryBuilderProvider extends AbstractQueryBuilderProvider
             [':qp0' => 1, ':qp1' => 'oy', ':qp2' => 2, ':qp3' => 'yo'],
         ];
 
-        unset($buildCondition['inCondition-custom-2']);
+        unset($buildCondition['inCondition-custom-2'], $buildCondition['inCondition-custom-6']);
 
         return $buildCondition;
     }
