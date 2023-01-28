@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Builder;
 
 use Iterator;
+use Stringable;
 use Traversable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -57,8 +58,7 @@ final class InConditionBuilder extends AbstractInConditionBuilder
         /** @psalm-var string[] $columns */
         foreach ($columns as $i => $column) {
             if ($column instanceof ExpressionInterface) {
-                /** @psalm-suppress InvalidCast */
-                $quotedColumns[$i] = $columns[$i] = (string) $column;
+                $quotedColumns[$i] = $columns[$i] = $this->queryBuilder->buildExpression($column);
                 continue;
             }
 
