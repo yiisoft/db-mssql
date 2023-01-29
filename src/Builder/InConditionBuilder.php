@@ -57,8 +57,7 @@ final class InConditionBuilder extends AbstractInConditionBuilder
         /** @psalm-var string[] $columns */
         foreach ($columns as $i => $column) {
             if ($column instanceof ExpressionInterface) {
-                /** @psalm-suppress InvalidCast */
-                $quotedColumns[$i] = $columns[$i] = (string) $column;
+                $quotedColumns[$i] = $columns[$i] = $this->queryBuilder->buildExpression($column);
                 continue;
             }
 

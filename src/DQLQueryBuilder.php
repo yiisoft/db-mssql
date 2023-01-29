@@ -6,7 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
 use Yiisoft\Db\QueryBuilder\AbstractDQLQueryBuilder;
@@ -18,8 +18,13 @@ use function preg_match;
 
 final class DQLQueryBuilder extends AbstractDQLQueryBuilder
 {
-    public function buildOrderByAndLimit(string $sql, array $orderBy, $limit, $offset, array &$params = []): string
-    {
+    public function buildOrderByAndLimit(
+        string $sql,
+        array $orderBy,
+        ExpressionInterface|int|null $limit,
+        ExpressionInterface|int|null $offset,
+        array &$params = []
+    ): string {
         if (!$this->hasOffset($offset) && !$this->hasLimit($limit)) {
             $orderByString = $this->buildOrderBy($orderBy, $params);
 
@@ -48,8 +53,8 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
      * @param string $sql The existing SQL (without ORDER BY/LIMIT/OFFSET).
      * @param array $orderBy The order by columns. See {@see Query::orderBy} for more details on how to specify
      * this parameter.
-     * @param Expression|int|null $limit The limit number. See {@see Query::limit} for more details.
-     * @param Expression|int|null $offset The offset number. See {@see Query::offset} for more details.
+     * @param ExpressionInterface|int|null $limit The limit number. See {@see Query::limit} for more details.
+     * @param ExpressionInterface|int|null $offset The offset number. See {@see Query::offset} for more details.
      * @param array $params The binding parameters to be populated.
      *
      * @throws Exception
@@ -60,8 +65,8 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
     protected function newBuildOrderByAndLimit(
         string $sql,
         array $orderBy,
-        Expression|int|null $limit,
-        Expression|int|null $offset,
+        ExpressionInterface|int|null $limit,
+        ExpressionInterface|int|null $offset,
         array &$params = []
     ): string {
         $orderByString = $this->buildOrderBy($orderBy, $params);
@@ -76,11 +81,13 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         /**
          * {@see http://technet.microsoft.com/en-us/library/gg699618.aspx}
          */
-        $offsetString = $this->hasOffset($offset) ? (string) $offset : '0';
+        $offsetString = $this->hasOffset($offset) ?
+            ($offset instanceof ExpressionInterface ? $this->buildExpression($offset) : (string)$offset) : '0';
         $sql .= $this->separator . 'OFFSET ' . $offsetString . ' ROWS';
 
         if ($this->hasLimit($limit)) {
-            $sql .= $this->separator . 'FETCH NEXT ' . (string) $limit . ' ROWS ONLY';
+            $sql .= $this->separator . 'FETCH NEXT ' .
+                ($limit instanceof ExpressionInterface ? $this->buildExpression($limit) : (string)$limit) . ' ROWS ONLY';
         }
 
         return $sql;
