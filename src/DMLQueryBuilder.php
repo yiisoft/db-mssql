@@ -61,7 +61,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'])) {
                 $dbType .= '(MAX)';
             }
-            if ($returnColumn->getDbType() === Schema::TYPE_TIMESTAMP) {
+            if ($returnColumn->getDbType() === SchemaInterface::TYPE_TIMESTAMP) {
                 $dbType = $returnColumn->isAllowNull() ? 'varbinary(8)' : 'binary(8)';
             }
 
