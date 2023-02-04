@@ -14,16 +14,6 @@ use function preg_replace;
 final class QueryBuilder extends AbstractQueryBuilder
 {
     /**
-     * Defines a CLUSTERED index type for {@see createIndex()}.
-     */
-    public const INDEX_CLUSTERED = 'CLUSTERED';
-
-    /**
-     * Defines a CLUSTERED index type for {@see createIndex()}.
-     */
-    public const INDEX_NONCLUSTERED = 'NONCLUSTERED';
-
-    /**
      * @psalm-var string[] $typeMap Mapping from abstract column types (keys) to physical column types (values).
      */
     protected array $typeMap = [

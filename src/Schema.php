@@ -58,8 +58,6 @@ use function stripos;
  */
 final class Schema extends AbstractSchema
 {
-    public const DEFAULTS = 'defaults';
-
     /**
      * @var string|null the default schema used for the current session.
      */

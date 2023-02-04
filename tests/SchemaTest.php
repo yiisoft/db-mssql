@@ -10,9 +10,9 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\QueryBuilder;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\Tests\Common\CommonSchemaTest;
 use Yiisoft\Db\Tests\Support\DbHelper;
@@ -156,12 +156,12 @@ final class SchemaTest extends CommonSchemaTest
     {
         return array_merge(parent::withIndexDataProvider(), [
             [
-                'indexType' => QueryBuilder::INDEX_CLUSTERED,
+                'indexType' => SchemaInterface::INDEX_CLUSTERED,
                 'indexMethod' => null,
                 'columnType' => 'varchar(16)',
             ],
             [
-                'indexType' => QueryBuilder::INDEX_NONCLUSTERED,
+                'indexType' => SchemaInterface::INDEX_NONCLUSTERED,
                 'indexMethod' => null,
                 'columnType' => 'varchar(16)',
             ],
