@@ -24,6 +24,8 @@ final class QueryBuilder extends AbstractQueryBuilder
         SchemaInterface::TYPE_CHAR => 'nchar(1)',
         SchemaInterface::TYPE_STRING => 'nvarchar(255)',
         SchemaInterface::TYPE_TEXT => 'nvarchar(max)',
+        SchemaInterface::TYPE_MEDIUMTEXT => 'nvarchar(max)',
+        SchemaInterface::TYPE_LONGTEXT => 'nvarchar(max)',
         SchemaInterface::TYPE_TINYINT => 'tinyint',
         SchemaInterface::TYPE_SMALLINT => 'smallint',
         SchemaInterface::TYPE_INTEGER => 'int',
