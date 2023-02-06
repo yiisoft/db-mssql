@@ -192,7 +192,7 @@ final class QueryBuilderProvider extends AbstractQueryBuilderProvider
                 <<<SQL
                 SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([order_id] int , [item_id] int , [quantity] int , [subtotal] decimal );INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[order_id],INSERTED.[item_id],INSERTED.[quantity],INSERTED.[subtotal] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3);SELECT * FROM @temporary_inserted;
                 SQL,
-                [':qp0' => 1, ':qp1' => 1, ':qp2' => 1, ':qp3' => '1',],
+                [':qp0' => 1, ':qp1' => 1, ':qp2' => 1, ':qp3' => 1.0,],
             ],
         ];
     }

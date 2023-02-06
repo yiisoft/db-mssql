@@ -20,18 +20,13 @@ final class CommandProvider extends AbstractCommandProvider
     {
         $batchInsert = parent::batchInsert();
 
-        $batchInsert['multirow']['expectedParams'][':qp1'] = '0.0';
         $batchInsert['multirow']['expectedParams'][':qp3'] = 1;
-        $batchInsert['multirow']['expectedParams'][':qp5'] = '0';
         $batchInsert['multirow']['expectedParams'][':qp7'] = 0;
 
-        $batchInsert['issue11242']['expectedParams'][':qp1'] = '1.1';
         $batchInsert['issue11242']['expectedParams'][':qp3'] = 1;
 
-        $batchInsert['wrongBehavior']['expectedParams'][':qp1'] = '0.0';
         $batchInsert['wrongBehavior']['expectedParams'][':qp3'] = 0;
 
-        $batchInsert['batchInsert binds params from expression']['expectedParams'][':qp1'] = '1';
         $batchInsert['batchInsert binds params from expression']['expectedParams'][':qp3'] = 0;
 
         return $batchInsert;
