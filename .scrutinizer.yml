@@ -50,7 +50,8 @@ build:
           - sudo apt-get install apt-transport-https ca-certificates -y
           - sudo apt-get install make -y
           - sudo apt-get update -y
-          - sudo ACCEPT_EULA=Y apt-get install mssql-tools unixodbc-dev -y
+          - sudo apt-get install unixodbc-dev=2.3.7 unixodbc=2.3.7 odbcinst1debian2=2.3.7 odbcinst=2.3.7 -y
+          - sudo ACCEPT_EULA=Y apt-get install mssql-tools -y
           - sudo ls /opt/mssql-tools/bin/sqlcmd*
           - /opt/mssql-tools/bin/sqlcmd -S 127.0.0.1 -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
           - pecl channel-update pecl.php.net
