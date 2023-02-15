@@ -6,8 +6,6 @@ filter:
     - src/
 
 build:
-  image: default-bionic
-
   environment:
     php:
       version: 8.0.18
@@ -51,16 +49,6 @@ build:
           - sudo ACCEPT_EULA=Y apt-get install mssql-tools unixodbc-dev -y
           - sudo ls /opt/mssql-tools/bin/sqlcmd*
           - /opt/mssql-tools/bin/sqlcmd -S 127.0.0.1 -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
-          - sudo make uninstall
-          - sudo apt-get install make
-          - wget https://ftp.openssl.org/source/old/1.0.2/openssl-1.0.2u.tar.gz
-          - tar -xzvf openssl-1.0.2u.tar.gz
-          - cd openssl-1.0.2u
-          - sudo ./config
-          - sudo make install
-          - sudo ln -sf /usr/local/ssl/bin/openssl `which openssl`
-          - cd ..
-          - openssl version -v
           - pecl -q install pdo_sqlsrv
           - composer config preferred-install.yiisoft/db source
           - composer update --no-interaction --no-progress --optimize-autoloader --ansi
