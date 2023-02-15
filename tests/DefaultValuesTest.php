@@ -89,7 +89,6 @@ final class DefaultValuesTest extends TestCase
                 'Mybit1' => '0',
                 'Mybit2' => '1',
                 'Mybit3' => '1',
-
             ],
             $command->setSql(
                 <<<SQL
@@ -159,7 +158,6 @@ final class DefaultValuesTest extends TestCase
                 'Mytext' => 'text',
                 'Myntext' => 'ntext',
                 'Myimage' => 'image',
-
             ],
             $command->setSql(
                 <<<SQL
@@ -214,7 +212,6 @@ final class DefaultValuesTest extends TestCase
                 'id' => '1',
                 'Myfloat' => '123.45',
                 'Myreal' => '38.502998',
-
             ],
             $command->setSql(
                 <<<SQL
@@ -240,7 +237,6 @@ final class DefaultValuesTest extends TestCase
                 'id' => '1',
                 'Mymoney' => '922337203685477.5807',
                 'Mysmallmoney' => '123.4500',
-
             ],
             $command->setSql(
                 <<<SQL
