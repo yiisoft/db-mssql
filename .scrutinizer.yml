@@ -45,6 +45,7 @@ build:
         override:
           - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           - curl https://packages.microsoft.com/config/ubuntu/18.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          - sudo apt-get install apt-transport-https ca-certificates -y
           - sudo apt-get update -y
           - sudo ACCEPT_EULA=Y apt-get install mssql-tools unixodbc-dev -y
           - sudo ls /opt/mssql-tools/bin/sqlcmd*
