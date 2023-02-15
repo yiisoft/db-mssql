@@ -318,7 +318,7 @@ final class Schema extends AbstractSchema
          *   string,
          *   array<
          *     array-key,
-         *     array{array-key, name: string, column_name: string, index_is_unique: string, index_is_primary: string}
+         *     array{name: string, column_name: string, index_is_unique: string, index_is_primary: string}
          *   >
          * > $indexes
          */
