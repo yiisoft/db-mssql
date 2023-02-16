@@ -8,7 +8,7 @@ use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Tests\Provider\AbstractSchemaProvider;
 use Yiisoft\Db\Tests\Support\AnyValue;
 
-final class SchemaProvider extends AbstractSchemaProvider
+final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
 {
     public function columns(): array
     {
