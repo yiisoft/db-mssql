@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
-use Yiisoft\Db\Tests\Provider\AbstractSchemaProvider;
 use Yiisoft\Db\Tests\Support\AnyValue;
 
 final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
