@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Closure;
 use JsonException;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -129,7 +128,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
      * @throws Throwable
      */
     public function testBuildCondition(
-        array|ExpressionInterface|string|Closure $condition,
+        array|ExpressionInterface|string $condition,
         string|null $expected,
         array $expectedParams
     ): void {
