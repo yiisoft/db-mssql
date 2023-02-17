@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use Closure;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\IntegrityException;
@@ -48,7 +49,7 @@ final class CommandTest extends CommonCommandTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::batchInsert()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::batchInsert
      *
      * @throws Throwable
      */
@@ -56,7 +57,7 @@ final class CommandTest extends CommonCommandTest
         string $table,
         array $columns,
         array $values,
-        string $expected,
+        Closure $expected,
         array $expectedParams = [],
         int $insertedRow = 1
     ): void {
@@ -107,19 +108,19 @@ final class CommandTest extends CommonCommandTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql
      *
      * @throws Exception
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
-    public function testGetRawSql(string $sql, array $params, string $expectedRawSql): void
+    public function testGetRawSql(string $sql, array $params, Closure $expectedRawSql): void
     {
         parent::testGetRawSql($sql, $params, $expectedRawSql);
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::dataInsertVarbinary()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::dataInsertVarbinary
      *
      * @throws Throwable
      */
@@ -276,20 +277,20 @@ final class CommandTest extends CommonCommandTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::update()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::update
      */
     public function testUpdate(
         string $table,
         array $columns,
         array|string $conditions,
         array $params,
-        string $expected
+        Closure $expected
     ): void {
         parent::testUpdate($table, $columns, $conditions, $params, $expected);
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::upsert()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::upsert
      */
     public function testUpsert(array $firstData, array $secondData): void
     {
