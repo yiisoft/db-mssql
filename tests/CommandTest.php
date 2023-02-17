@@ -107,6 +107,18 @@ final class CommandTest extends CommonCommandTest
     }
 
     /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
+    public function testGetRawSql(string $sql, array $params, string $expectedRawSql): void
+    {
+        parent::testGetRawSql($sql, $params, $expectedRawSql);
+    }
+
+    /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::dataInsertVarbinary
      *
      * @throws Throwable
@@ -261,6 +273,27 @@ final class CommandTest extends CommonCommandTest
         $newRow = $command->insertWithReturningPks('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
 
         $this->assertEquals($oldRow['id'], $newRow['id']);
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::update
+     */
+    public function testUpdate(
+        string $table,
+        array $columns,
+        array|string $conditions,
+        array $params,
+        string $expected
+    ): void {
+        parent::testUpdate($table, $columns, $conditions, $params, $expected);
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::upsert
+     */
+    public function testUpsert(array $firstData, array $secondData): void
+    {
+        parent::testUpsert($firstData, $secondData);
     }
 
     /**
