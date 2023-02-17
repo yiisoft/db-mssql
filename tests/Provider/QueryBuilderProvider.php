@@ -16,15 +16,17 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 {
     use TestTrait;
 
+    protected static string $driverName = 'sqlsrv';
+
     /**
      * @var string ` ESCAPE 'char'` part of a LIKE condition SQL.
      */
-    protected string $likeEscapeCharSql = '';
+    protected static string $likeEscapeCharSql = '';
 
     /**
      * @var array map of values to their replacements in LIKE query params.
      */
-    protected array $likeParameterReplacements = [
+    protected static array $likeParameterReplacements = [
         '\%' => '[%]',
         '\_' => '[_]',
         '[' => '[[]',
@@ -32,7 +34,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         '\\\\' => '[\\]',
     ];
 
-    public function buildCondition(): array
+    public static function buildCondition(): array
     {
         $buildCondition = parent::buildCondition();
 
@@ -86,7 +88,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         return $buildCondition;
     }
 
-    public function insert(): array
+    public static function insert(): array
     {
         $insert = parent::insert();
 
@@ -97,10 +99,8 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         return $insert;
     }
 
-    public function insertWithReturningPks(): array
+    public static function insertWithReturningPks(): array
     {
-        $db = $this->getConnection();
-
         return [
             'regular-values' => [
                 'customer',
@@ -158,7 +158,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
             'carry passed params (query)' => [
                 'customer',
-                (new Query($db))
+                (new Query(self::getDb()))
                     ->select(['email', 'name', 'address', 'is_active', 'related_id'])
                     ->from('customer')
                     ->where(
@@ -196,7 +196,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         ];
     }
 
-    public function selectExist(): array
+    public static function selectExist(): array
     {
         $selectExist = parent::selectExist();
 
@@ -207,10 +207,8 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         return $selectExist;
     }
 
-    public function upsert(): array
+    public static function upsert(): array
     {
-        $db = $this->getConnection();
-
         $concreteData = [
             'regular values' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ' .
@@ -283,13 +281,13 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
 
             'query, values and expressions with update part' => [
-                1 => (new Query($db))
-                    ->select(
-                        [
-                            'email' => new Expression(':phEmail', [':phEmail' => 'dynamic@example.com']),
-                            '[[ts]]' => new Expression('CONVERT(bigint, CURRENT_TIMESTAMP)'),
-                        ],
-                    ),
+                1 => (new Query(self::getDb()))
+                        ->select(
+                            [
+                                'email' => new Expression(':phEmail', [':phEmail' => 'dynamic@example.com']),
+                                '[[ts]]' => new Expression('CONVERT(bigint, CURRENT_TIMESTAMP)'),
+                            ],
+                        ),
                 3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], CONVERT(bigint, CURRENT_TIMESTAMP) AS [[ts]]) ' .
                     'AS [EXCLUDED] ([email], [[ts]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) ' .
                     'WHEN MATCHED THEN UPDATE SET [ts]=:qp1, [orders]=T_upsert.orders + 1 ' .
@@ -297,13 +295,13 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
 
             'query, values and expressions without update part' => [
-                1 => (new Query($db))
-                    ->select(
-                        [
-                            'email' => new Expression(':phEmail', [':phEmail' => 'dynamic@example.com']),
-                            '[[ts]]' => new Expression('CONVERT(bigint, CURRENT_TIMESTAMP)'),
-                        ],
-                    ),
+                1 => (new Query(self::getDb()))
+                        ->select(
+                            [
+                                'email' => new Expression(':phEmail', [':phEmail' => 'dynamic@example.com']),
+                                '[[ts]]' => new Expression('CONVERT(bigint, CURRENT_TIMESTAMP)'),
+                            ],
+                        ),
                 3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], CONVERT(bigint, CURRENT_TIMESTAMP) AS [[ts]]) ' .
                     'AS [EXCLUDED] ([email], [[ts]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) ' .
                     'WHEN NOT MATCHED THEN INSERT ([email], [[ts]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[ts]]);',

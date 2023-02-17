@@ -34,6 +34,16 @@ trait TestTrait
         return $db;
     }
 
+    protected static function getDb(): ConnectionPDOInterface
+    {
+        $dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
+
+        return new ConnectionPDO(
+            new PDODriver($dsn, 'SA', 'YourStrong!Passw0rd'),
+            DbHelper::getSchemaCache(),
+        );
+    }
+
     protected function getDsn(): string
     {
         if ($this->dsn === '') {

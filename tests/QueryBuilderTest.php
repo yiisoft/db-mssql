@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use JsonException;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\IntegrityException;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -118,7 +120,12 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildCondition()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildCondition
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testBuildCondition(
         array|ExpressionInterface|string $condition,
@@ -128,6 +135,11 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testBuildCondition($condition, $expected, $expectedParams);
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     */
     public function testBuildFrom(): void
     {
         $db = $this->getConnection();
@@ -154,7 +166,12 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildLikeCondition()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildLikeCondition
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testBuildLikeCondition(
         array|ExpressionInterface $condition,
@@ -166,8 +183,8 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
 
     /**
      * @throws Exception
-     * @throws InvalidConfigException
      * @throws InvalidArgumentException
+     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function testBuildWithLimit(): void
@@ -190,8 +207,8 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
 
     /**
      * @throws Exception
-     * @throws InvalidConfigException
      * @throws InvalidArgumentException
+     * @throws InvalidConfigException
      * @throws NotSupportedException
      */
     public function testBuildWithOffset(): void
@@ -261,6 +278,10 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testCreateTable(): void
     {
         $db = $this->getConnection();
@@ -290,6 +311,10 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testDropCommentFromColumn(): void
     {
         $db = $this->getConnection(true);
@@ -308,6 +333,10 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $this->assertStringContainsString($sql, $qb->dropCommentFromColumn('customer', 'id'));
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testDropCommentFromColumnException(): void
     {
         $db = $this->getConnection();
@@ -320,6 +349,10 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $qb->dropCommentFromColumn('noExist', 'id');
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testDropCommentFromTable(): void
     {
         $db = $this->getConnection();
@@ -338,6 +371,10 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $this->assertStringContainsString($sql, $qb->dropCommentFromTable('customer'));
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testDropCommentFromTableException(): void
     {
         $db = $this->getConnection();
@@ -368,6 +405,10 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testDropUnique(): void
     {
         $db = $this->getConnection();
@@ -378,12 +419,17 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
             <<<SQL
             ALTER TABLE [test_uq] DROP CONSTRAINT [test_uq_constraint]
             SQL,
-            $qb->dropUnique('test_uq_constraint', 'test_uq', ['int1']),
+            $qb->dropUnique('test_uq_constraint', 'test_uq'),
         );
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insert()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insert
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testInsert(
         string $table,
@@ -396,7 +442,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertWithReturningPks()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::insertWithReturningPks
      */
     public function testInsertWithReturningPks(
         string $table,
@@ -408,6 +454,10 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testInsertWithReturningPks($table, $columns, $params, $expectedSQL, $expectedParams);
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testRenameColumn(): void
     {
         $db = $this->getConnection();
@@ -422,6 +472,10 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testRenameTable(): void
     {
         $db = $this->getConnection();
@@ -462,7 +516,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::selectExist()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::selectExist
      */
     public function testSelectExists(string $sql, string $expected): void
     {
@@ -470,7 +524,13 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::upsert()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::upsert
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws JsonException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testUpsert(
         string $table,
@@ -483,7 +543,13 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::upsert()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::upsert
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws JsonException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testUpsertExecute(
         string $table,
@@ -493,12 +559,19 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testUpsertExecute($table, $insertColumns, $updateColumns);
     }
 
-    public function testUpsertVarbinary()
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws JsonException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testUpsertVarbinary(): void
     {
         $db = $this->getConnection();
 
         $qb = $db->getQueryBuilder();
-        $testData = json_encode(['test' => 'string', 'test2' => 'integer']);
+        $testData = json_encode(['test' => 'string', 'test2' => 'integer'], JSON_THROW_ON_ERROR);
         $params = [];
         $result = $db->createCommand(
             $qb->upsert(
@@ -519,9 +592,14 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $this->assertSame($testData, $resultData['blob_col']);
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testAlterColumn(): void
     {
         $db = $this->getConnection(true);
+
         $qb = $db->getQueryBuilder();
 
         $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] varchar(255)
@@ -729,6 +807,11 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         $this->assertEquals($expected, $sql);
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testAlterColumnOnDb(): void
     {
         $db = $this->getConnection(true);
@@ -737,8 +820,8 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
 
-        $this->assertEquals('varchar(255)', $schema->getColumn('bar')->getDbType());
-        $this->assertEquals(true, $schema->getColumn('bar')->isAllowNull());
+        $this->assertEquals('varchar(255)', $schema?->getColumn('bar')->getDbType());
+        $this->assertEquals(true, $schema?->getColumn('bar')->isAllowNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
@@ -747,8 +830,8 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals('nvarchar(128)', $schema->getColumn('bar')->getDbType());
-        $this->assertEquals(false, $schema->getColumn('bar')->isAllowNull());
+        $this->assertEquals('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
+        $this->assertEquals(false, $schema?->getColumn('bar')->isAllowNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
@@ -757,10 +840,15 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals(SchemaInterface::TYPE_DATETIME, $schema->getColumn('bar')->getDbType());
-        $this->assertEquals('getdate()', $schema->getColumn('bar')->getDefaultValue());
+        $this->assertEquals(SchemaInterface::TYPE_DATETIME, $schema?->getColumn('bar')->getDbType());
+        $this->assertEquals('getdate()', $schema?->getColumn('bar')->getDefaultValue());
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testAlterColumnWithCheckConstraintOnDb(): void
     {
         $db = $this->getConnection(true);
@@ -772,13 +860,18 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals('nvarchar(128)', $schema->getColumn('bar')->getDbType());
-        $this->assertEquals(true, $schema->getColumn('bar')->isAllowNull());
+        $this->assertEquals('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
+        $this->assertEquals(true, $schema?->getColumn('bar')->isAllowNull());
 
         $sql = "INSERT INTO [foo1]([bar]) values('abcdef')";
         $this->assertEquals(1, $db->createCommand($sql)->execute());
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testAlterColumnWithCheckConstraintOnDbWithException(): void
     {
         $db = $this->getConnection(true);
@@ -795,6 +888,11 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         $this->assertEquals(1, $db->createCommand($sql)->execute());
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testAlterColumnWithUniqueConstraintOnDbWithException(): void
     {
         $db = $this->getConnection(true);
@@ -813,9 +911,14 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         $this->assertEquals(1, $db->createCommand($sql)->execute());
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
     public function testDropColumn(): void
     {
         $db = $this->getConnection(true);
+
         $qb = $db->getQueryBuilder();
 
         $expected = "DECLARE @tableName VARCHAR(MAX) = '[foo1]'
@@ -869,6 +972,11 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $this->assertEquals($expected, $sql);
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function testDropColumnOnDb(): void
     {
         $db = $this->getConnection(true);
@@ -887,10 +995,14 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $this->assertEquals(0, $db->createCommand($sql)->execute());
 
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals(null, $schema->getColumn('bar'));
+        $this->assertEquals(null, $schema?->getColumn('bar'));
     }
 
-    public function testAlterColumnWithNull()
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testAlterColumnWithNull(): void
     {
         $qb = $this->getConnection()->getQueryBuilder();
 
@@ -955,7 +1067,11 @@ ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]";
         $this->assertEquals($expected, $sql);
     }
 
-    public function testAlterColumnWithExpression()
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function testAlterColumnWithExpression(): void
     {
         $qb = $this->getConnection()->getQueryBuilder();
 
