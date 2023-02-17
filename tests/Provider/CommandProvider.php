@@ -15,7 +15,7 @@ final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
 {
     use TestTrait;
 
-    public function batchInsert(): array
+    public static function batchInsert(): array
     {
         $batchInsert = parent::batchInsert();
 
@@ -31,7 +31,7 @@ final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
         return $batchInsert;
     }
 
-    public function dataInsertVarbinary(): array
+    public static function dataInsertVarbinary(): array
     {
         return [
             [
