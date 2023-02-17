@@ -21,7 +21,7 @@
     "require": {
         "php": "^8.0",
         "ext-pdo": "*",
-        "yiisoft/db": "^3.0@dev"
+        "yiisoft/db": "dev-update-phpunit-10 as 3.0@dev"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
@@ -32,7 +32,8 @@
         "vimeo/psalm": "^4.3|^5.6",
         "yiisoft/aliases": "^2.0",
         "yiisoft/cache": "^2.0",
-        "yiisoft/cache-file": "^2.0"
+        "yiisoft/cache-file": "^2.0",
+        "yiisoft/var-dumper": "^1.5"
     },
     "autoload": {
         "psr-4": {
