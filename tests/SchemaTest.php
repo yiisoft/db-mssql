@@ -27,7 +27,7 @@ final class SchemaTest extends CommonSchemaTest
     use TestTrait;
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::columns()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::columns
      */
     public function testColumnSchema(array $columns, string $tableName): void
     {
@@ -72,7 +72,7 @@ final class SchemaTest extends CommonSchemaTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::columnsTypeChar()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::columnsTypeChar
      */
     public function testGetStringFieldsSize(
         string $columnName,
@@ -95,7 +95,7 @@ final class SchemaTest extends CommonSchemaTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::constraints()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::constraints
      *
      * @throws Exception
      */
@@ -105,7 +105,7 @@ final class SchemaTest extends CommonSchemaTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::constraints()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::constraints
      *
      * @throws Exception
      */
@@ -115,7 +115,7 @@ final class SchemaTest extends CommonSchemaTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::constraints()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::constraints
      *
      * @throws Exception
      */
@@ -125,7 +125,7 @@ final class SchemaTest extends CommonSchemaTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::tableSchemaWithDbSchemes()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::tableSchemaWithDbSchemes
      */
     public function testTableSchemaWithDbSchemes(string $tableName, string $expectedTableName): void
     {
