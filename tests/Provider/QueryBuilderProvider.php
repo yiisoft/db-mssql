@@ -158,7 +158,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
             'carry passed params (query)' => [
                 'customer',
-                (new Query(static::getDb()))
+                (new Query(self::getDb()))
                     ->select(['email', 'name', 'address', 'is_active', 'related_id'])
                     ->from('customer')
                     ->where(
@@ -281,7 +281,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
 
             'query, values and expressions with update part' => [
-                1 => (new Query(static::getDb()))
+                1 => (new Query(self::getDb()))
                         ->select(
                             [
                                 'email' => new Expression(':phEmail', [':phEmail' => 'dynamic@example.com']),
@@ -295,7 +295,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
 
             'query, values and expressions without update part' => [
-                1 => (new Query(static::getDb()))
+                1 => (new Query(self::getDb()))
                         ->select(
                             [
                                 'email' => new Expression(':phEmail', [':phEmail' => 'dynamic@example.com']),
