@@ -17,7 +17,7 @@ final class QuoterTest extends AbstractQuoterTest
     use TestTrait;
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::columnNames()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::columnNames
      */
     public function testQuoteColumnName(string $columnName, string $expected): void
     {
@@ -25,7 +25,7 @@ final class QuoterTest extends AbstractQuoterTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::tableNameParts()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::tableNameParts
      */
     public function testGetTableNameParts(string $tableName, string ...$expected): void
     {
@@ -33,7 +33,7 @@ final class QuoterTest extends AbstractQuoterTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::simpleTableNames()
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QuoterProvider::simpleTableNames
      */
     public function testQuoteTableName(string $tableName, string $expected): void
     {
