@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Closure;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\IntegrityException;
@@ -57,7 +56,7 @@ final class CommandTest extends CommonCommandTest
         string $table,
         array $columns,
         array $values,
-        Closure $expected,
+        string $expected,
         array $expectedParams = [],
         int $insertedRow = 1
     ): void {
@@ -105,18 +104,6 @@ final class CommandTest extends CommonCommandTest
         $this->expectException(IntegrityException::class);
 
         $command->setSql($sql)->execute();
-    }
-
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     */
-    public function testGetRawSql(string $sql, array $params, Closure $expectedRawSql): void
-    {
-        parent::testGetRawSql($sql, $params, $expectedRawSql);
     }
 
     /**
@@ -277,27 +264,6 @@ final class CommandTest extends CommonCommandTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::update
-     */
-    public function testUpdate(
-        string $table,
-        array $columns,
-        array|string $conditions,
-        array $params,
-        Closure $expected
-    ): void {
-        parent::testUpdate($table, $columns, $conditions, $params, $expected);
-    }
-
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::upsert
-     */
-    public function testUpsert(array $firstData, array $secondData): void
-    {
-        parent::testUpsert($firstData, $secondData);
-    }
-
-    /**
      * @throws InvalidConfigException
      * @throws InvalidArgumentException
      * @throws NotSupportedException
@@ -308,7 +274,7 @@ final class CommandTest extends CommonCommandTest
     {
         $db = $this->getConnection(true);
 
-        $value = json_encode(['test']);
+        $value = json_encode(['test'], JSON_THROW_ON_ERROR);
         $db->createCommand()->insert('{{%T_upsert_varbinary}}', ['id' => 1, 'blob_col' => $value])->execute();
 
         $scalarValue = $db->createCommand('SELECT [[blob_col]] FROM {{%T_upsert_varbinary}}')->queryScalar();
