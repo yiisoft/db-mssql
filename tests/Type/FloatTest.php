@@ -64,7 +64,6 @@ final class FloatTest extends TestCase
                 'id' => '1',
                 'Myfloat1' => '1.79E+308',
                 'Myfloat2' => '0.0',
-
             ],
             $command->setSql(
                 <<<SQL
