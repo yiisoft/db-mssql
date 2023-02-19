@@ -31,11 +31,6 @@ IF OBJECT_ID('[T_upsert_varbinary]', 'U') IS NOT NULL DROP TABLE [T_upsert_varbi
 IF OBJECT_ID('[table.with.special.characters]', 'U') IS NOT NULL DROP TABLE [table.with.special.characters];
 IF OBJECT_ID('[foo1]', 'U') IS NOT NULL DROP TABLE [foo1];
 IF OBJECT_ID('[stranger ''table]', 'U') IS NOT NULL DROP TABLE [stranger 'table];
-IF OBJECT_ID('[bigint_default]', 'U') IS NOT NULL DROP TABLE [bigint_default];
-IF OBJECT_ID('[numeric_default]', 'U') IS NOT NULL DROP TABLE [numeric_default];
-IF OBJECT_ID('[bit_default]', 'U') IS NOT NULL DROP TABLE [bit_default];
-IF OBJECT_ID('[money_small_money_default]', 'U') IS NOT NULL DROP TABLE [money_small_money_default];
-IF OBJECT_ID('[float_real_default]', 'U') IS NOT NULL DROP TABLE [float_real_default];
 IF OBJECT_ID('[date_default]', 'U') IS NOT NULL DROP TABLE [date_default];
 IF OBJECT_ID('[char_varchar_default]', 'U') IS NOT NULL DROP TABLE [char_varchar_default];
 IF OBJECT_ID('[ntext_text_image_default]', 'U') IS NOT NULL DROP TABLE [ntext_text_image_default];
@@ -231,54 +226,6 @@ CREATE TABLE [dbo].[dossier] (
     [employee_id] [int] NOT NULL,
     [summary] [varchar](255) NOT NULL,
     CONSTRAINT [PK_dossier_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
-CREATE TABLE [dbo].[bigint_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Mybigint] [bigint] NOT NULL DEFAULT 9223372036854775807,
-    [Myint] [int] NOT NULL DEFAULT 2147483647,
-    [Mysmallint] [smallint] NOT NULL DEFAULT 32767,
-    [Mytinyint] [tinyint] NOT NULL DEFAULT 255,
-    CONSTRAINT [PK_bigint_default_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
-CREATE TABLE [dbo].[numeric_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Mydecimal] [decimal](5,2) NOT NULL DEFAULT 123,
-    [Mynumeric] [numeric](10,5) NOT NULL DEFAULT 12345.12,
-    CONSTRAINT [PK_numeric_default_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
-CREATE TABLE [dbo].[bit_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Mybit1] [bit] NOT NULL DEFAULT 0,
-    [Mybit2] [bit] NOT NULL DEFAULT 1,
-    [Mybit3] [bit] NOT NULL DEFAULT 0.5,
-    CONSTRAINT [PK_bit_default_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
-CREATE TABLE [dbo].[money_small_money_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Mymoney] [money] NOT NULL DEFAULT 922337203685477.5807,
-    [Mysmallmoney] [smallmoney] NOT NULL DEFAULT 123.4500,
-    CONSTRAINT [PK_money_small_money_default_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
-CREATE TABLE [dbo].[float_real_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Myfloat] [float] NOT NULL DEFAULT 123.45,
-    [Myreal] [real] NOT NULL DEFAULT 38.503,
-    CONSTRAINT [PK_float_real_default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
 );
