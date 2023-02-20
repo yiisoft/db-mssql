@@ -37,7 +37,6 @@ final class ImageTest extends TestCase
             [
                 'id' => '1',
                 'Myimage' => 'image',
-
             ],
             $command->setSql(
                 <<<SQL

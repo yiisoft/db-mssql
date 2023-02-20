@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -58,7 +57,6 @@ final class TextTest extends TestCase
                 'id' => '1',
                 'Mytext1' => '0123456789',
                 'Mytext2' => null,
-
             ],
             $command->setSql(
                 <<<SQL
