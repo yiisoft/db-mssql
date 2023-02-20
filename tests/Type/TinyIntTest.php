@@ -24,7 +24,6 @@ final class TinyIntTest extends TestCase
         $this->setFixture('tinyint.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('tinyint_default');
 
         $this->assertSame('tinyint', $tableSchema->getColumn('Mytinyint')->getDbType());
@@ -54,7 +53,6 @@ final class TinyIntTest extends TestCase
         $this->setFixture('tinyint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('tinyint', ['Mytinyint1' => 255, 'Mytinyint2' => 0])->execute();
 
@@ -107,7 +105,6 @@ final class TinyIntTest extends TestCase
         $this->setFixture('tinyint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -126,7 +123,6 @@ final class TinyIntTest extends TestCase
         $this->setFixture('tinyint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('tinyint', ['Mytinyint1' => 0, 'Mytinyint2' => null])->execute();
 
@@ -164,7 +160,6 @@ final class TinyIntTest extends TestCase
         $this->setFixture('tinyint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

@@ -24,7 +24,6 @@ final class SmallMoneyTest extends TestCase
         $this->setFixture('smallmoney.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('smallmoney_default');
 
         $this->assertSame('smallmoney', $tableSchema->getColumn('Mysmallmoney')->getDbType());
@@ -54,7 +53,6 @@ final class SmallMoneyTest extends TestCase
         $this->setFixture('smallmoney.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('smallmoney', ['Mysmallmoney1' => '214748.3647', 'Mysmallmoney2' => '0'])->execute();
 
@@ -92,7 +90,6 @@ final class SmallMoneyTest extends TestCase
         $this->setFixture('smallmoney.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -111,7 +108,6 @@ final class SmallMoneyTest extends TestCase
         $this->setFixture('smallmoney.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('smallmoney', ['Mysmallmoney1' => '-214748.3648', 'Mysmallmoney2' => 0])->execute();
 
@@ -149,7 +145,6 @@ final class SmallMoneyTest extends TestCase
         $this->setFixture('smallmoney.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

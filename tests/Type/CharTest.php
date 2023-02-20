@@ -93,7 +93,7 @@ final class CharTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22001]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]String or binary data would be truncated'
+            '[ODBC Driver 17 for SQL Server][SQL Server]String or binary data would be truncated'
         );
 
         $command->insert('char', ['Mychar1' => '01234567891'])->execute();

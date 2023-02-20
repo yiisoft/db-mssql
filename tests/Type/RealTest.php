@@ -25,7 +25,6 @@ final class RealTest extends TestCase
         $this->setFixture('real.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('real_default');
 
         $this->assertSame('real', $tableSchema->getColumn('Myreal')->getDbType());
@@ -55,7 +54,6 @@ final class RealTest extends TestCase
         $this->setFixture('real.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('real', ['Myreal1' => '3.4E+38', 'Myreal2' => '0'])->execute();
 
@@ -93,7 +91,6 @@ final class RealTest extends TestCase
         $this->setFixture('float.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -112,7 +109,6 @@ final class RealTest extends TestCase
         $this->setFixture('real.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('real', ['Myreal1' => '-3.4E+38', 'Myreal2' => '0'])->execute();
 
@@ -150,7 +146,6 @@ final class RealTest extends TestCase
         $this->setFixture('real.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

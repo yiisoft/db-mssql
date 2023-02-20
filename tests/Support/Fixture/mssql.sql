@@ -31,7 +31,6 @@ IF OBJECT_ID('[T_upsert_varbinary]', 'U') IS NOT NULL DROP TABLE [T_upsert_varbi
 IF OBJECT_ID('[table.with.special.characters]', 'U') IS NOT NULL DROP TABLE [table.with.special.characters];
 IF OBJECT_ID('[foo1]', 'U') IS NOT NULL DROP TABLE [foo1];
 IF OBJECT_ID('[stranger ''table]', 'U') IS NOT NULL DROP TABLE [stranger 'table];
-IF OBJECT_ID('[ntext_text_image_default]', 'U') IS NOT NULL DROP TABLE [ntext_text_image_default];
 
 CREATE TABLE [dbo].[profile] (
     [id] [int] IDENTITY NOT NULL,
@@ -222,16 +221,6 @@ CREATE TABLE [dbo].[dossier] (
     [employee_id] [int] NOT NULL,
     [summary] [varchar](255) NOT NULL,
     CONSTRAINT [PK_dossier_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
-CREATE TABLE [dbo].[ntext_text_image_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Mytext] [text] NOT NULL DEFAULT 'text',
-    [Myntext] [ntext] NOT NULL DEFAULT 'ntext',
-    [Myimage] [image] NOT NULL DEFAULT 'image',
-    CONSTRAINT [PK_ntext_text_image__default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
 );

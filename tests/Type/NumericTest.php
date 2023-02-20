@@ -25,7 +25,6 @@ final class NumericTest extends TestCase
         $this->setFixture('numeric.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('numeric_default');
 
         $this->assertSame('numeric', $tableSchema->getColumn('Mynumeric')->getDbType());
@@ -55,7 +54,6 @@ final class NumericTest extends TestCase
         $this->setFixture('numeric.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert(
             'numeric',
@@ -102,7 +100,6 @@ final class NumericTest extends TestCase
         $this->setFixture('numeric.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert(
             'numeric',
@@ -146,7 +143,6 @@ final class NumericTest extends TestCase
         $this->setFixture('numeric.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

@@ -26,7 +26,6 @@ final class VarBinaryTest extends TestCase
         $this->setFixture('varbinary.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('varbinary_default');
 
         $this->assertSame('varbinary(10)', $tableSchema->getColumn('Myvarbinary1')->getDbType());
@@ -59,7 +58,6 @@ final class VarBinaryTest extends TestCase
         $this->setFixture('varbinary.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('varbinary', [
             'Myvarbinary1' => new Expression('CONVERT(varbinary(10), \'binary_default_value\')'),
@@ -87,9 +85,7 @@ final class VarBinaryTest extends TestCase
         $this->setFixture('binary.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-
         $command->insert('binary', [
             'Mybinary1' => new Expression('CONVERT(binary(10), \'binary\')'),
             'Mybinary2' => new Expression('CONVERT(binary(10), null)'),

@@ -24,7 +24,6 @@ final class MoneyTest extends TestCase
         $this->setFixture('money.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('money_default');
 
         $this->assertSame('money', $tableSchema->getColumn('Mymoney')->getDbType());
@@ -54,7 +53,6 @@ final class MoneyTest extends TestCase
         $this->setFixture('money.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('money', ['Mymoney1' => '922337203685477.5807', 'Mymoney2' => '0'])->execute();
 
@@ -92,7 +90,6 @@ final class MoneyTest extends TestCase
         $this->setFixture('money.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -111,7 +108,6 @@ final class MoneyTest extends TestCase
         $this->setFixture('money.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('money', ['Mymoney1' => '-922337203685477.5808', 'Mymoney2' => 0])->execute();
 
@@ -149,7 +145,6 @@ final class MoneyTest extends TestCase
         $this->setFixture('money.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

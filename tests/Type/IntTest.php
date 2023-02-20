@@ -24,7 +24,6 @@ final class IntTest extends TestCase
         $this->setFixture('int.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('int_default');
 
         $this->assertSame('int', $tableSchema->getColumn('Myint')->getDbType());
@@ -54,7 +53,6 @@ final class IntTest extends TestCase
         $this->setFixture('int.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('int', ['Myint1' => 2147483647, 'Myint2' => 0])->execute();
 
@@ -92,7 +90,6 @@ final class IntTest extends TestCase
         $this->setFixture('int.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -111,7 +108,6 @@ final class IntTest extends TestCase
         $this->setFixture('int.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('int', ['Myint1' => -2147483648, 'Myint2' => 0])->execute();
 
@@ -149,7 +145,6 @@ final class IntTest extends TestCase
         $this->setFixture('int.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

@@ -24,7 +24,6 @@ final class VarCharTest extends TestCase
         $this->setFixture('varchar.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('varchar_default');
 
         $this->assertSame('varchar(10)', $tableSchema->getColumn('Myvarchar1')->getDbType());
@@ -54,9 +53,7 @@ final class VarCharTest extends TestCase
         $this->setFixture('varchar.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-
         $command->insert(
             'varchar',
             [
@@ -88,12 +85,11 @@ final class VarCharTest extends TestCase
         $this->setFixture('varchar.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22001]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]String or binary data would be truncated'
+            '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]String or binary data would be truncated'
         );
 
         $command->insert('varchar', ['Myvarchar1' => '01234567891'])->execute();

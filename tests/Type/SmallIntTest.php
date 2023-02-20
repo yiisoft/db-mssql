@@ -24,7 +24,6 @@ final class SmallIntTest extends TestCase
         $this->setFixture('smallint.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('smallint_default');
 
         $this->assertSame('smallint', $tableSchema->getColumn('Mysmallint')->getDbType());
@@ -54,7 +53,6 @@ final class SmallIntTest extends TestCase
         $this->setFixture('smallint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('smallint', ['Mysmallint1' => 32767, 'Mysmallint2' => 0])->execute();
 
@@ -92,7 +90,6 @@ final class SmallIntTest extends TestCase
         $this->setFixture('smallint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -111,7 +108,6 @@ final class SmallIntTest extends TestCase
         $this->setFixture('smallint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('smallint', ['Mysmallint1' => -32768, 'Mysmallint2' => 0])->execute();
 
@@ -149,7 +145,6 @@ final class SmallIntTest extends TestCase
         $this->setFixture('smallint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

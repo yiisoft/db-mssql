@@ -23,7 +23,6 @@ final class JsonTest extends TestCase
         $this->setFixture('json.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('json_default');
 
         $this->assertSame('nvarchar', $tableSchema->getColumn('Myjson')->getDbType());
@@ -50,7 +49,6 @@ final class JsonTest extends TestCase
         $this->setFixture('json.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => 'invalid'])->execute();
 
@@ -69,7 +67,6 @@ final class JsonTest extends TestCase
         $this->setFixture('json.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => '{"a":1,"b":2,"c":3,"d":4,"e":5}'])->execute();
 
@@ -88,7 +85,6 @@ final class JsonTest extends TestCase
         $this->setFixture('json.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => '{"a":1,"b":2,"c":3,"d":4,"e":5}'])->execute();
 

@@ -24,7 +24,6 @@ final class UniqueidentifierTest extends TestCase
         $this->setFixture('uniqueidentifier.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('uniqueidentifier_default');
 
         $this->assertSame('uniqueidentifier', $tableSchema->getColumn('Myuniqueidentifier')->getDbType());
@@ -54,7 +53,6 @@ final class UniqueidentifierTest extends TestCase
         $this->setFixture('uniqueidentifier.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert(
             'uniqueidentifier',
@@ -98,7 +96,6 @@ final class UniqueidentifierTest extends TestCase
         $this->setFixture('uniqueidentifier.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert(
             'uniqueidentifier',
