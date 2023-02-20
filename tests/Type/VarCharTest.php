@@ -63,7 +63,7 @@ final class VarCharTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            date("M j Y"),
+            date('M j Y'),
             $command->setSql(
                 <<<SQL
                 SELECT Myvarchar3 FROM varchar_default WHERE id = 1
