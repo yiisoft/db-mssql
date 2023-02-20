@@ -135,7 +135,7 @@ final class JsonTest extends TestCase
         $command->insert(
             'json',
             [
-                'Myjson' => '{"info": {"type": 1,"address": {"town": "Cheltenham","country": "England"},"tags": ["Sport", "Water polo"]},"type": "Basic"}'
+                'Myjson' => '{"info": {"type": 1,"address": {"town": "Cheltenham","country": "England"},"tags": ["Sport", "Water polo"]},"type": "Basic"}',
             ]
         )->execute();
 
