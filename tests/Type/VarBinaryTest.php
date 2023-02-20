@@ -42,7 +42,6 @@ final class VarBinaryTest extends TestCase
                 'id' => '1',
                 'Myvarbinary1' => 'varbinary',
                 'Myvarbinary2' => 'v',
-
             ],
             $command->setSql(
                 <<<SQL

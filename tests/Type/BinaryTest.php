@@ -40,7 +40,6 @@ final class BinaryTest extends TestCase
                 'id' => '1',
                 'Mybinary1' => '0x62696E61727900000000',
                 'Mybinary2' => 'b',
-
             ],
             $command->setSql(
                 <<<SQL
@@ -73,7 +72,6 @@ final class BinaryTest extends TestCase
                 'Mybinary2' => null,
                 'Mybinary3' => 'b',
                 'Mybinary4' => null,
-
             ],
             $command->setSql(
                 <<<SQL
