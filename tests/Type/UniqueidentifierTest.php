@@ -6,7 +6,6 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -67,7 +66,6 @@ final class UniqueidentifierTest extends TestCase
                 'id' => '1',
                 'Myuniqueidentifier1' => '12345678-1234-1234-1234-123456789012',
                 'Myuniqueidentifier2' => null,
-
             ],
             $command->setSql(
                 <<<SQL
