@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
@@ -20,6 +24,13 @@ final class DecimalTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/decimal.sql');
@@ -27,8 +38,8 @@ final class DecimalTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('decimal_default');
 
-        $this->assertSame('decimal', $tableSchema->getColumn('Mydecimal')->getDbType());
-        $this->assertSame('double', $tableSchema->getColumn('Mydecimal')->getPhpType());
+        $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Mydecimal')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('decimal_default', [])->execute();
@@ -48,6 +59,12 @@ final class DecimalTest extends TestCase
 
     /**
      * Max value is `99999999999999997748809823456034029568`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -92,6 +109,13 @@ final class DecimalTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMaxValueException(): void
     {
         $this->setFixture('Type/decimal.sql');
@@ -112,6 +136,12 @@ final class DecimalTest extends TestCase
 
     /**
      * Min value is `-99999999999999997748809823456034029569`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMinValue(): void
     {
@@ -156,6 +186,13 @@ final class DecimalTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMinValueException(): void
     {
         $this->setFixture('Type/decimal.sql');

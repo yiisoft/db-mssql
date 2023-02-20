@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
@@ -19,6 +24,13 @@ final class BinaryTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/binary.sql');
@@ -26,10 +38,11 @@ final class BinaryTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('binary_default');
 
-        $this->assertSame('binary(10)', $tableSchema->getColumn('Mybinary1')->getDbType());
-        $this->assertSame('resource', $tableSchema->getColumn('Mybinary1')->getPhpType());
-        $this->assertSame('binary(1)', $tableSchema->getColumn('Mybinary2')->getDbType());
-        $this->assertSame('resource', $tableSchema->getColumn('Mybinary2')->getPhpType());
+        $this->assertSame('binary(10)', $tableSchema?->getColumn('Mybinary1')->getDbType());
+        $this->assertSame('resource', $tableSchema?->getColumn('Mybinary1')->getPhpType());
+
+        $this->assertSame('binary(1)', $tableSchema?->getColumn('Mybinary2')->getDbType());
+        $this->assertSame('resource', $tableSchema?->getColumn('Mybinary2')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('binary_default', [])->execute();
@@ -50,6 +63,12 @@ final class BinaryTest extends TestCase
 
     /**
      * When the value is greater than the maximum value, the value is truncated.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -78,6 +97,13 @@ final class BinaryTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValue(): void
     {
         $this->setFixture('Type/binary.sql');

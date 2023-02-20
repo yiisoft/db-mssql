@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -18,6 +23,13 @@ final class JsonTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/json.sql');
@@ -25,8 +37,8 @@ final class JsonTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('json_default');
 
-        $this->assertSame('nvarchar', $tableSchema->getColumn('Myjson')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Myjson')->getPhpType());
+        $this->assertSame('nvarchar', $tableSchema?->getColumn('Myjson')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myjson')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('json_default', [])->execute();
@@ -44,6 +56,13 @@ final class JsonTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testInvalidValue(): void
     {
         $this->setFixture('Type/json.sql');
@@ -62,6 +81,13 @@ final class JsonTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValidValue(): void
     {
         $this->setFixture('Type/json.sql');
@@ -80,6 +106,13 @@ final class JsonTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValue(): void
     {
         $this->setFixture('Type/json.sql');

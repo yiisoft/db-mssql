@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -19,6 +23,13 @@ final class UniqueidentifierTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/uniqueidentifier.sql');
@@ -26,8 +37,8 @@ final class UniqueidentifierTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('uniqueidentifier_default');
 
-        $this->assertSame('uniqueidentifier', $tableSchema->getColumn('Myuniqueidentifier')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Myuniqueidentifier')->getPhpType());
+        $this->assertSame('uniqueidentifier', $tableSchema?->getColumn('Myuniqueidentifier')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myuniqueidentifier')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('uniqueidentifier_default', [])->execute();
@@ -47,6 +58,12 @@ final class UniqueidentifierTest extends TestCase
 
     /**
      * Max value is 36 characters.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testValue(): void
     {
@@ -73,6 +90,13 @@ final class UniqueidentifierTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValueException(): void
     {
         $this->setFixture('Type/uniqueidentifier.sql');
@@ -90,6 +114,12 @@ final class UniqueidentifierTest extends TestCase
 
     /**
      * When you insert a value that is longer than 36 characters, the value is truncated to 36 characters.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testValueLength(): void
     {

@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
@@ -20,6 +24,13 @@ final class NumericTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/numeric.sql');
@@ -27,8 +38,8 @@ final class NumericTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('numeric_default');
 
-        $this->assertSame('numeric', $tableSchema->getColumn('Mynumeric')->getDbType());
-        $this->assertSame('double', $tableSchema->getColumn('Mynumeric')->getPhpType());
+        $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Mynumeric')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('numeric_default', [])->execute();
@@ -48,6 +59,12 @@ final class NumericTest extends TestCase
 
     /**
      * Max value is `99999999999999997748809823456034029568`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -94,6 +111,12 @@ final class NumericTest extends TestCase
 
     /**
      * Min value is `-99999999999999997748809823456034029569`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMinValue(): void
     {
@@ -138,6 +161,13 @@ final class NumericTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMinValueException(): void
     {
         $this->setFixture('Type/numeric.sql');

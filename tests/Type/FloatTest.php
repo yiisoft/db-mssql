@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
@@ -20,6 +24,13 @@ final class FloatTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/float.sql');
@@ -27,8 +38,8 @@ final class FloatTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('float_default');
 
-        $this->assertSame('float', $tableSchema->getColumn('Myfloat')->getDbType());
-        $this->assertSame('double', $tableSchema->getColumn('Myfloat')->getPhpType());
+        $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Myfloat')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('float_default', [])->execute();
@@ -48,6 +59,12 @@ final class FloatTest extends TestCase
 
     /**
      * Max value is `1.79E+308`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -86,6 +103,13 @@ final class FloatTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMaxValueException(): void
     {
         $this->setFixture('Type/float.sql');
@@ -103,6 +127,12 @@ final class FloatTest extends TestCase
 
     /**
      * Min value is `-1.79E+308`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMinValue(): void
     {
@@ -141,6 +171,13 @@ final class FloatTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMinValueException(): void
     {
         $this->setFixture('Type/float.sql');

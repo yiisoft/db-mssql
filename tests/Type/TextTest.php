@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -18,6 +23,13 @@ final class TextTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/text.sql');
@@ -25,8 +37,8 @@ final class TextTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('text_default');
 
-        $this->assertSame('text', $tableSchema->getColumn('Mytext')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mytext')->getPhpType());
+        $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mytext')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('text_default', [])->execute();
@@ -44,6 +56,13 @@ final class TextTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValue(): void
     {
         $this->setFixture('Type/text.sql');

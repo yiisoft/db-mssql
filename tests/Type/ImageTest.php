@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
@@ -19,6 +24,13 @@ final class ImageTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/image.sql');
@@ -26,8 +38,8 @@ final class ImageTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('image_default');
 
-        $this->assertSame('image', $tableSchema->getColumn('Myimage')->getDbType());
-        $this->assertSame('resource', $tableSchema->getColumn('Myimage')->getPhpType());
+        $this->assertSame('image', $tableSchema?->getColumn('Myimage')->getDbType());
+        $this->assertSame('resource', $tableSchema?->getColumn('Myimage')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('image_default', [])->execute();
@@ -45,6 +57,13 @@ final class ImageTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValue(): void
     {
         $this->setFixture('Type/image.sql');

@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -19,6 +23,13 @@ final class TinyIntTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/tinyint.sql');
@@ -26,8 +37,8 @@ final class TinyIntTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('tinyint_default');
 
-        $this->assertSame('tinyint', $tableSchema->getColumn('Mytinyint')->getDbType());
-        $this->assertSame('integer', $tableSchema->getColumn('Mytinyint')->getPhpType());
+        $this->assertSame('tinyint', $tableSchema?->getColumn('Mytinyint')->getDbType());
+        $this->assertSame('integer', $tableSchema?->getColumn('Mytinyint')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('tinyint_default', [])->execute();
@@ -47,6 +58,12 @@ final class TinyIntTest extends TestCase
 
     /**
      * Max value is `255`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -100,6 +117,13 @@ final class TinyIntTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMaxValueException(): void
     {
         $this->setFixture('Type/tinyint.sql');
@@ -117,6 +141,12 @@ final class TinyIntTest extends TestCase
 
     /**
      * Min value is `0`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMinValue(): void
     {
@@ -155,6 +185,13 @@ final class TinyIntTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMinValueException(): void
     {
         $this->setFixture('Type/tinyint.sql');

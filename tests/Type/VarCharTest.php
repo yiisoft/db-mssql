@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -19,6 +23,13 @@ final class VarCharTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/varchar.sql');
@@ -26,10 +37,14 @@ final class VarCharTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('varchar_default');
 
-        $this->assertSame('varchar(10)', $tableSchema->getColumn('Myvarchar1')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Myvarchar1')->getPhpType());
-        $this->assertSame('varchar(100)', $tableSchema->getColumn('Myvarchar2')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Myvarchar2')->getPhpType());
+        $this->assertSame('varchar(10)', $tableSchema?->getColumn('Myvarchar1')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myvarchar1')->getPhpType());
+
+        $this->assertSame('varchar(100)', $tableSchema?->getColumn('Myvarchar2')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myvarchar2')->getPhpType());
+
+        $this->assertSame('varchar(20)', $tableSchema?->getColumn('Myvarchar3')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myvarchar3')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('varchar_default', [])->execute();
@@ -42,12 +57,28 @@ final class VarCharTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM varchar_default WHERE id = 1
+                SELECT id, Myvarchar1, Myvarchar2 FROM varchar_default WHERE id = 1
                 SQL
             )->queryOne()
         );
+
+        $this->assertStringContainsString(
+            date("M j Y"),
+            $command->setSql(
+                <<<SQL
+                SELECT Myvarchar3 FROM varchar_default WHERE id = 1
+                SQL
+            )->queryScalar(),
+        );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValue(): void
     {
         $this->setFixture('Type/varchar.sql');
@@ -80,6 +111,13 @@ final class VarCharTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValueException(): void
     {
         $this->setFixture('Type/varchar.sql');

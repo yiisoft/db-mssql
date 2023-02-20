@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -19,6 +23,13 @@ final class IntTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/int.sql');
@@ -26,8 +37,8 @@ final class IntTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('int_default');
 
-        $this->assertSame('int', $tableSchema->getColumn('Myint')->getDbType());
-        $this->assertSame('integer', $tableSchema->getColumn('Myint')->getPhpType());
+        $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
+        $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('int_default', [])->execute();
@@ -47,6 +58,12 @@ final class IntTest extends TestCase
 
     /**
      * Max value is `2147483647`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -85,6 +102,13 @@ final class IntTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMaxValueException(): void
     {
         $this->setFixture('Type/int.sql');
@@ -102,6 +126,12 @@ final class IntTest extends TestCase
 
     /**
      * Min value is `-2147483648`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMinValue(): void
     {
@@ -140,6 +170,13 @@ final class IntTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMinValueException(): void
     {
         $this->setFixture('Type/int.sql');

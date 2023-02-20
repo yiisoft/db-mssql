@@ -33,6 +33,7 @@ CREATE TABLE [dbo].[date_default_expressions] (
     [id] [int] IDENTITY NOT NULL,
     [Mydate1] [date] NOT NULL DEFAULT GETUTCDATE(),
     [Mydate2] [date] NOT NULL DEFAULT GETDATE(),
+    [Mydate3] [date] NOT NULL DEFAULT DATEADD(month, 1, '2006-08-31'),
     [Mydatetime1] [datetime] NOT NULL DEFAULT SYSDATETIME(),
     [Mydatetime2] [datetime] NOT NULL DEFAULT SYSDATETIMEOFFSET(),
     [Mydatetimeoffset] [datetimeoffset] NOT NULL DEFAULT SYSUTCDATETIME(),

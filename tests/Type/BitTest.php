@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -18,6 +23,13 @@ final class BitTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/bit.sql');
@@ -27,8 +39,10 @@ final class BitTest extends TestCase
 
         $this->assertSame('bit', $tableSchema->getColumn('Mybit1')->getDbType());
         $this->assertSame('integer', $tableSchema->getColumn('Mybit1')->getPhpType());
+
         $this->assertSame('bit', $tableSchema->getColumn('Mybit2')->getDbType());
         $this->assertSame('integer', $tableSchema->getColumn('Mybit2')->getPhpType());
+
         $this->assertSame('bit', $tableSchema->getColumn('Mybit3')->getDbType());
         $this->assertSame('integer', $tableSchema->getColumn('Mybit3')->getPhpType());
 
@@ -50,6 +64,13 @@ final class BitTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testBoolean(): void
     {
         $this->setFixture('Type/bit.sql');
@@ -75,6 +96,12 @@ final class BitTest extends TestCase
 
     /**
      * Max value is `1`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -117,6 +144,12 @@ final class BitTest extends TestCase
 
     /**
      * Min value is `0`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      *
      * @https://learn.microsoft.com/en-us/sql/t-sql/data-types/bit-transact-sql?view=sql-server-ver16#remarks
      */

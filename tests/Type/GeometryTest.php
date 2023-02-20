@@ -5,6 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
@@ -19,6 +24,13 @@ final class GeometryTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/geometry.sql');
@@ -26,10 +38,11 @@ final class GeometryTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('geometry_default');
 
-        $this->assertSame('geometry', $tableSchema->getColumn('Mygeometry1')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mygeometry1')->getPhpType());
-        $this->assertSame('nvarchar', $tableSchema->getColumn('Mygeometry2')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mygeometry2')->getPhpType());
+        $this->assertSame('geometry', $tableSchema?->getColumn('Mygeometry1')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mygeometry1')->getPhpType());
+
+        $this->assertSame('nvarchar', $tableSchema?->getColumn('Mygeometry2')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mygeometry2')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('geometry_default', [])->execute();
@@ -48,18 +61,18 @@ final class GeometryTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValue(): void
     {
         $this->setFixture('Type/geometry.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('geometry');
-
-        $this->assertSame('geometry', $tableSchema->getColumn('Mygeometry1')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mygeometry1')->getPhpType());
-        $this->assertSame('nvarchar', $tableSchema->getColumn('Mygeometry2')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mygeometry2')->getPhpType());
-
         $command = $db->createCommand();
         $command->insert(
             'geometry',

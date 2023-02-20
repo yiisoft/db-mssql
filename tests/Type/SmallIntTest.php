@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -19,6 +23,13 @@ final class SmallIntTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/smallint.sql');
@@ -26,8 +37,8 @@ final class SmallIntTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('smallint_default');
 
-        $this->assertSame('smallint', $tableSchema->getColumn('Mysmallint')->getDbType());
-        $this->assertSame('integer', $tableSchema->getColumn('Mysmallint')->getPhpType());
+        $this->assertSame('smallint', $tableSchema?->getColumn('Mysmallint')->getDbType());
+        $this->assertSame('integer', $tableSchema?->getColumn('Mysmallint')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('smallint_default', [])->execute();
@@ -47,6 +58,12 @@ final class SmallIntTest extends TestCase
 
     /**
      * Max value is `32767`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -85,6 +102,13 @@ final class SmallIntTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMaxValueException(): void
     {
         $this->setFixture('Type/smallint.sql');
@@ -102,6 +126,12 @@ final class SmallIntTest extends TestCase
 
     /**
      * Min value is `-32768`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
      */
     public function testMinValue(): void
     {
@@ -140,6 +170,13 @@ final class SmallIntTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testMinValueException(): void
     {
         $this->setFixture('Type/smallint.sql');

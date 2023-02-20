@@ -16,6 +16,7 @@ CREATE TABLE [dbo].[varbinary_default] (
     [id] [int] IDENTITY NOT NULL,
     [Myvarbinary1] [varbinary](10) NOT NULL DEFAULT CONVERT(varbinary(10), 'varbinary'),
     [Myvarbinary2] [varbinary](100) NOT NULL DEFAULT CONVERT(varbinary(100), 'v'),
+    [Myvarbinary3] [varbinary](20) NOT NULL default (hashbytes('MD5', 'test string')),
     CONSTRAINT [PK_varbinary_default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]

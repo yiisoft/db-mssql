@@ -6,7 +6,11 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -20,6 +24,13 @@ final class DateTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/date.sql');
@@ -27,16 +38,20 @@ final class DateTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('date_default');
 
-        $this->assertSame('date', $tableSchema->getColumn('Mydate')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mydate')->getPhpType());
-        $this->assertSame('datetime', $tableSchema->getColumn('Mydatetime')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mydatetime')->getPhpType());
-        $this->assertSame('datetime2', $tableSchema->getColumn('Mydatetime2')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mydatetime2')->getPhpType());
-        $this->assertSame('datetimeoffset', $tableSchema->getColumn('Mydatetimeoffset')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mydatetimeoffset')->getPhpType());
-        $this->assertSame('time', $tableSchema->getColumn('Mytime')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mytime')->getPhpType());
+        $this->assertSame('date', $tableSchema?->getColumn('Mydate')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mydate')->getPhpType());
+
+        $this->assertSame('datetime', $tableSchema?->getColumn('Mydatetime')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mydatetime')->getPhpType());
+
+        $this->assertSame('datetime2', $tableSchema?->getColumn('Mydatetime2')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mydatetime2')->getPhpType());
+
+        $this->assertSame('datetimeoffset', $tableSchema?->getColumn('Mydatetimeoffset')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mydatetimeoffset')->getPhpType());
+
+        $this->assertSame('time', $tableSchema?->getColumn('Mytime')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mytime')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('date_default', [])->execute();
@@ -58,6 +73,13 @@ final class DateTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValueExpressions(): void
     {
         $this->setFixture('Type/date.sql');
@@ -71,10 +93,11 @@ final class DateTest extends TestCase
                 'id' => '1',
                 'Mydate1' => date('Y-m-d'),
                 'Mydate2' => date('Y-m-d'),
+                'Mydate3' => '2006-09-30',
             ],
             $command->setSql(
                 <<<SQL
-                SELECT id, Mydate1, Mydate2 FROM date_default_expressions WHERE id = 1
+                SELECT id, Mydate1, Mydate2, Mydate3 FROM date_default_expressions WHERE id = 1
                 SQL
             )->queryOne()
         );
@@ -82,7 +105,7 @@ final class DateTest extends TestCase
             DateTime::class,
             DateTime::createFromFormat(
                 'Y-m-d H:i:s.u',
-                $command->setSql(
+                (string) $command->setSql(
                     <<<SQL
                     SELECT Mydatetime1 FROM date_default_expressions WHERE id = 1
                     SQL,
@@ -93,7 +116,7 @@ final class DateTest extends TestCase
             DateTime::class,
             DateTime::createFromFormat(
                 'Y-m-d H:i:s.uv P',
-                $command->setSql(
+                (string) $command->setSql(
                     <<<SQL
                     SELECT Mydatetimeoffset FROM date_default_expressions WHERE id = 1
                     SQL,
@@ -104,7 +127,7 @@ final class DateTest extends TestCase
             DateTime::class,
             DateTime::createFromFormat(
                 'H:i:s.uv',
-                $command->setSql(
+                (string) $command->setSql(
                     <<<SQL
                     SELECT Mytime FROM date_default_expressions WHERE id = 1
                     SQL,
@@ -113,6 +136,13 @@ final class DateTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValue(): void
     {
         $this->setFixture('Type/date.sql');
@@ -150,6 +180,13 @@ final class DateTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValueException(): void
     {
         $this->setFixture('Type/date.sql');

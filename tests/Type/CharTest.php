@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -19,6 +23,13 @@ final class CharTest extends TestCase
 {
     use TestTrait;
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/char.sql');
@@ -26,10 +37,11 @@ final class CharTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('char_default');
 
-        $this->assertSame('char(10)', $tableSchema->getColumn('Mychar1')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mychar1')->getPhpType());
-        $this->assertSame('char(1)', $tableSchema->getColumn('Mychar2')->getDbType());
-        $this->assertSame('string', $tableSchema->getColumn('Mychar2')->getPhpType());
+        $this->assertSame('char(10)', $tableSchema?->getColumn('Mychar1')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mychar1')->getPhpType());
+
+        $this->assertSame('char(1)', $tableSchema?->getColumn('Mychar2')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mychar2')->getPhpType());
 
         $command = $db->createCommand();
         $command->insert('char_default', [])->execute();
@@ -48,6 +60,13 @@ final class CharTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValue(): void
     {
         $this->setFixture('Type/char.sql');
@@ -80,6 +99,13 @@ final class CharTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testValueException(): void
     {
         $this->setFixture('Type/char.sql');
