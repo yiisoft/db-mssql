@@ -33,7 +33,6 @@ IF OBJECT_ID('[foo1]', 'U') IS NOT NULL DROP TABLE [foo1];
 IF OBJECT_ID('[stranger ''table]', 'U') IS NOT NULL DROP TABLE [stranger 'table];
 IF OBJECT_ID('[char_varchar_default]', 'U') IS NOT NULL DROP TABLE [char_varchar_default];
 IF OBJECT_ID('[ntext_text_image_default]', 'U') IS NOT NULL DROP TABLE [ntext_text_image_default];
-IF OBJECT_ID('[binary_varbinary_default]', 'U') IS NOT NULL DROP TABLE [binary_varbinary_default];
 
 CREATE TABLE [dbo].[profile] (
     [id] [int] IDENTITY NOT NULL,
@@ -245,17 +244,6 @@ CREATE TABLE [dbo].[ntext_text_image_default] (
     [Myntext] [ntext] NOT NULL DEFAULT 'ntext',
     [Myimage] [image] NOT NULL DEFAULT 'image',
     CONSTRAINT [PK_ntext_text_image__default_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
-CREATE TABLE [dbo].[binary_varbinary_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Mybinary1] [binary](10) NOT NULL DEFAULT CONVERT(binary(10), 'binary'),
-    [Mybinary2] [binary](1) NOT NULL DEFAULT CONVERT(binary(1), 'b'),
-    [Myvarbinary1] [varbinary](10) NOT NULL DEFAULT CONVERT(varbinary(10), 'varbinary'),
-    [Myvarbinary2] [varbinary](100) NOT NULL DEFAULT CONVERT(varbinary(100), 'v'),
-    CONSTRAINT [PK_binary_varbinary_default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
 );

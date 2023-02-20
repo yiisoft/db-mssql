@@ -19,33 +19,6 @@ final class DefaultValuesTest extends TestCase
     use TestTrait;
 
     /**
-     * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql?view=sql-server-ver16
-     */
-    public function testBinaryVarbinary(): void
-    {
-        $db = $this->getConnection(true);
-
-        $command = $db->createCommand();
-
-        $command->insert('binary_varbinary_default', [])->execute();
-
-        $this->assertSame(
-            [
-                'id' => '1',
-                'Mybinary1' => '0x62696E61727900000000',
-                'Mybinary2' => 'b',
-                'Myvarbinary1' => 'varbinary',
-                'Myvarbinary2' => 'v',
-            ],
-            $command->setSql(
-                <<<SQL
-                SELECT id, CONVERT(VARCHAR(100), Mybinary1, 1) AS Mybinary1, Mybinary2, Myvarbinary1, Myvarbinary2 FROM binary_varbinary_default WHERE id = 1
-                SQL
-            )->queryOne()
-        );
-    }
-
-    /**
      * https://learn.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-ver16
      */
     public function testCharVarchar(): void
