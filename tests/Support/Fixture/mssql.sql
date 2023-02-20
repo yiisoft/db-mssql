@@ -31,11 +31,9 @@ IF OBJECT_ID('[T_upsert_varbinary]', 'U') IS NOT NULL DROP TABLE [T_upsert_varbi
 IF OBJECT_ID('[table.with.special.characters]', 'U') IS NOT NULL DROP TABLE [table.with.special.characters];
 IF OBJECT_ID('[foo1]', 'U') IS NOT NULL DROP TABLE [foo1];
 IF OBJECT_ID('[stranger ''table]', 'U') IS NOT NULL DROP TABLE [stranger 'table];
-IF OBJECT_ID('[date_default]', 'U') IS NOT NULL DROP TABLE [date_default];
 IF OBJECT_ID('[char_varchar_default]', 'U') IS NOT NULL DROP TABLE [char_varchar_default];
 IF OBJECT_ID('[ntext_text_image_default]', 'U') IS NOT NULL DROP TABLE [ntext_text_image_default];
 IF OBJECT_ID('[binary_varbinary_default]', 'U') IS NOT NULL DROP TABLE [binary_varbinary_default];
-IF OBJECT_ID('[uniqueidentifier_default]', 'U') IS NOT NULL DROP TABLE [uniqueidentifier_default];
 
 CREATE TABLE [dbo].[profile] (
     [id] [int] IDENTITY NOT NULL,
@@ -230,19 +228,6 @@ CREATE TABLE [dbo].[dossier] (
     ) ON [PRIMARY]
 );
 
-CREATE TABLE [dbo].[date_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Mydate1] [date] NOT NULL DEFAULT '2007-05-08 12:35:29. 1234567 +12:15',
-    [Mydate2] [date] NOT NULL DEFAULT getdate(),
-    [Mydatetime] [datetime] NOT NULL DEFAULT '2007-05-08 12:35:29.123',
-    [Mydatetime2] [datetime2] NOT NULL DEFAULT '2007-05-08 12:35:29. 1234567 +12:15',
-    [Mydatetimeoffset] [datetimeoffset] NOT NULL DEFAULT '2007-05-08 12:35:29.1234567 +12:15',
-    [Mytime] [time] NOT NULL DEFAULT '2007-05-08 12:35:29. 1234567 +12:15',
-    CONSTRAINT [PK_date_default_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
 CREATE TABLE [dbo].[char_varchar_default] (
     [id] [int] IDENTITY NOT NULL,
     [Mychar1] [char](10) NOT NULL DEFAULT 'char',
@@ -271,14 +256,6 @@ CREATE TABLE [dbo].[binary_varbinary_default] (
     [Myvarbinary1] [varbinary](10) NOT NULL DEFAULT CONVERT(varbinary(10), 'varbinary'),
     [Myvarbinary2] [varbinary](100) NOT NULL DEFAULT CONVERT(varbinary(100), 'v'),
     CONSTRAINT [PK_binary_varbinary_default_pk] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
-);
-
-CREATE TABLE [dbo].[uniqueidentifier_default] (
-    [id] [int] IDENTITY NOT NULL,
-    [Myuniqueidentifier] [uniqueidentifier] NOT NULL DEFAULT '12345678-1234-1234-1234-123456789012',
-    CONSTRAINT [PK_uniqueidentifier_default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
 );

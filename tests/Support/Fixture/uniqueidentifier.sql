@@ -10,7 +10,6 @@ CREATE TABLE [dbo].[uniqueidentifier] (
     ) ON [PRIMARY]
 );
 
-
 CREATE TABLE [dbo].[uniqueidentifier_default] (
     [id] [int] IDENTITY NOT NULL,
     [Myuniqueidentifier] [uniqueidentifier] NOT NULL DEFAULT '12345678-1234-1234-1234-123456789012',
