@@ -19,33 +19,6 @@ final class DefaultValuesTest extends TestCase
     use TestTrait;
 
     /**
-     * https://learn.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-ver16
-     */
-    public function testCharVarchar(): void
-    {
-        $db = $this->getConnection(true);
-
-        $command = $db->createCommand();
-
-        $command->insert('char_varchar_default', [])->execute();
-
-        $this->assertSame(
-            [
-                'id' => '1',
-                'Mychar1' => 'char      ',
-                'Mychar2' => 'c',
-                'Myvarchar1' => 'varchar',
-                'Myvarchar2' => 'v',
-            ],
-            $command->setSql(
-                <<<SQL
-                SELECT * FROM char_varchar_default WHERE id = 1
-                SQL
-            )->queryOne()
-        );
-    }
-
-    /**
      * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/ntext-text-and-image-transact-sql?view=sql-server-ver16
      */
     public function testNtextTextImage(): void

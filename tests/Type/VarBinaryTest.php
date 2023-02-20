@@ -71,7 +71,7 @@ final class VarBinaryTest extends TestCase
                 'id' => '1',
                 'Myvarbinary1' => 'binary_def',
                 'Myvarbinary2' => null,
-                'Myvarbinary3' => 'vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv',
+                'Myvarbinary3' => str_repeat('v', 100),
                 'Myvarbinary4' => null,
             ],
             $command->setSql(
