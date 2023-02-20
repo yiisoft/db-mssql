@@ -21,7 +21,7 @@ final class SmallMoneyTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('smallmoney.sql');
+        $this->setFixture('Type/smallmoney.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('smallmoney_default');
@@ -50,7 +50,7 @@ final class SmallMoneyTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('smallmoney.sql');
+        $this->setFixture('Type/smallmoney.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -87,7 +87,7 @@ final class SmallMoneyTest extends TestCase
 
     public function testMaxValueException(): void
     {
-        $this->setFixture('smallmoney.sql');
+        $this->setFixture('Type/smallmoney.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -105,7 +105,7 @@ final class SmallMoneyTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('smallmoney.sql');
+        $this->setFixture('Type/smallmoney.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -142,7 +142,7 @@ final class SmallMoneyTest extends TestCase
 
     public function testMinValueException(): void
     {
-        $this->setFixture('smallmoney.sql');
+        $this->setFixture('Type/smallmoney.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

@@ -21,7 +21,7 @@ final class TinyIntTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('tinyint.sql');
+        $this->setFixture('Type/tinyint.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('tinyint_default');
@@ -50,7 +50,7 @@ final class TinyIntTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('tinyint.sql');
+        $this->setFixture('Type/tinyint.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -102,7 +102,7 @@ final class TinyIntTest extends TestCase
 
     public function testMaxValueException(): void
     {
-        $this->setFixture('tinyint.sql');
+        $this->setFixture('Type/tinyint.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -120,7 +120,7 @@ final class TinyIntTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('tinyint.sql');
+        $this->setFixture('Type/tinyint.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -157,7 +157,7 @@ final class TinyIntTest extends TestCase
 
     public function testMinValueException(): void
     {
-        $this->setFixture('tinyint.sql');
+        $this->setFixture('Type/tinyint.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

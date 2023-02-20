@@ -21,7 +21,7 @@ final class IntTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('int.sql');
+        $this->setFixture('Type/int.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('int_default');
@@ -50,7 +50,7 @@ final class IntTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('int.sql');
+        $this->setFixture('Type/int.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -87,7 +87,7 @@ final class IntTest extends TestCase
 
     public function testMaxValueException(): void
     {
-        $this->setFixture('int.sql');
+        $this->setFixture('Type/int.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -105,7 +105,7 @@ final class IntTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('int.sql');
+        $this->setFixture('Type/int.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -142,7 +142,7 @@ final class IntTest extends TestCase
 
     public function testMinValueException(): void
     {
-        $this->setFixture('int.sql');
+        $this->setFixture('Type/int.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

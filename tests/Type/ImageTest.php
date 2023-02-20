@@ -21,10 +21,9 @@ final class ImageTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('image.sql');
+        $this->setFixture('Type/image.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('image_default');
 
         $this->assertSame('image', $tableSchema->getColumn('Myimage')->getDbType());
@@ -48,12 +47,10 @@ final class ImageTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('image.sql');
+        $this->setFixture('Type/image.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-
         $command->insert(
             'image',
             ['Myimage1' => new Expression('CONVERT(image, 0x30313233343536373839)'), 'Myimage2' => null]

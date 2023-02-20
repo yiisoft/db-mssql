@@ -21,10 +21,9 @@ final class BinaryTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('binary.sql');
+        $this->setFixture('Type/binary.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('binary_default');
 
         $this->assertSame('binary(10)', $tableSchema->getColumn('Mybinary1')->getDbType());
@@ -54,12 +53,10 @@ final class BinaryTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('binary.sql');
+        $this->setFixture('Type/binary.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-
         $command->insert('binary', [
             'Mybinary1' => new Expression('CONVERT(binary(10), \'binary_default_value\')'),
             'Mybinary3' => new Expression('CONVERT(binary(1), \'bb\')'),
@@ -83,12 +80,10 @@ final class BinaryTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('binary.sql');
+        $this->setFixture('Type/binary.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-
         $command->insert('binary', [
             'Mybinary1' => new Expression('CONVERT(binary(10), \'binary\')'),
             'Mybinary2' => new Expression('CONVERT(binary(10), null)'),

@@ -21,10 +21,9 @@ final class GeometryTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('geometry.sql');
+        $this->setFixture('Type/geometry.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('geometry_default');
 
         $this->assertSame('geometry', $tableSchema->getColumn('Mygeometry1')->getDbType());
@@ -51,10 +50,9 @@ final class GeometryTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('geometry.sql');
+        $this->setFixture('Type/geometry.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('geometry');
 
         $this->assertSame('geometry', $tableSchema->getColumn('Mygeometry1')->getDbType());

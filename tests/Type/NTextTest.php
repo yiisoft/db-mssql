@@ -20,10 +20,9 @@ final class NTextTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('ntext.sql');
+        $this->setFixture('Type/ntext.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('ntext_default');
 
         $this->assertSame('ntext', $tableSchema->getColumn('Myntext')->getDbType());
@@ -47,7 +46,7 @@ final class NTextTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('ntext.sql');
+        $this->setFixture('Type/ntext.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

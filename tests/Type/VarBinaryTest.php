@@ -23,7 +23,7 @@ final class VarBinaryTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('varbinary.sql');
+        $this->setFixture('Type/varbinary.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('varbinary_default');
@@ -55,7 +55,7 @@ final class VarBinaryTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('varbinary.sql');
+        $this->setFixture('Type/varbinary.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -82,7 +82,7 @@ final class VarBinaryTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('binary.sql');
+        $this->setFixture('Type/binary.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

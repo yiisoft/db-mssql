@@ -21,7 +21,7 @@ final class UniqueidentifierTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('uniqueidentifier.sql');
+        $this->setFixture('Type/uniqueidentifier.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('uniqueidentifier_default');
@@ -50,7 +50,7 @@ final class UniqueidentifierTest extends TestCase
      */
     public function testValue(): void
     {
-        $this->setFixture('uniqueidentifier.sql');
+        $this->setFixture('Type/uniqueidentifier.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -75,7 +75,7 @@ final class UniqueidentifierTest extends TestCase
 
     public function testValueException(): void
     {
-        $this->setFixture('uniqueidentifier.sql');
+        $this->setFixture('Type/uniqueidentifier.sql');
 
         $db = $this->getConnection(true);
 
@@ -93,7 +93,7 @@ final class UniqueidentifierTest extends TestCase
      */
     public function testValueLength(): void
     {
-        $this->setFixture('uniqueidentifier.sql');
+        $this->setFixture('Type/uniqueidentifier.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

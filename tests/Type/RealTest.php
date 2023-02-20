@@ -22,7 +22,7 @@ final class RealTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('real.sql');
+        $this->setFixture('Type/real.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('real_default');
@@ -51,7 +51,7 @@ final class RealTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('real.sql');
+        $this->setFixture('Type/real.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -88,7 +88,7 @@ final class RealTest extends TestCase
 
     public function testMaxValueException(): void
     {
-        $this->setFixture('float.sql');
+        $this->setFixture('Type/float.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -106,7 +106,7 @@ final class RealTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('real.sql');
+        $this->setFixture('Type/real.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -143,7 +143,7 @@ final class RealTest extends TestCase
 
     public function testMinValueException(): void
     {
-        $this->setFixture('real.sql');
+        $this->setFixture('Type/real.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

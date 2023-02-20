@@ -22,10 +22,9 @@ final class FloatTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('float.sql');
+        $this->setFixture('Type/float.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('float_default');
 
         $this->assertSame('float', $tableSchema->getColumn('Myfloat')->getDbType());
@@ -52,10 +51,9 @@ final class FloatTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('float.sql');
+        $this->setFixture('Type/float.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('float', ['Myfloat1' => '1.79E+308', 'Myfloat2' => '0'])->execute();
 
@@ -90,10 +88,9 @@ final class FloatTest extends TestCase
 
     public function testMaxValueException(): void
     {
-        $this->setFixture('float.sql');
+        $this->setFixture('Type/float.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -109,10 +106,9 @@ final class FloatTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('float.sql');
+        $this->setFixture('Type/float.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('float', ['Myfloat1' => '-1.79E+308', 'Myfloat2' => '0'])->execute();
 
@@ -147,10 +143,9 @@ final class FloatTest extends TestCase
 
     public function testMinValueException(): void
     {
-        $this->setFixture('float.sql');
+        $this->setFixture('Type/float.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

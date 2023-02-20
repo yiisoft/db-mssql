@@ -21,10 +21,9 @@ final class CharTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('char.sql');
+        $this->setFixture('Type/char.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('char_default');
 
         $this->assertSame('char(10)', $tableSchema->getColumn('Mychar1')->getDbType());
@@ -51,12 +50,10 @@ final class CharTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('char.sql');
+        $this->setFixture('Type/char.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-
         $command->insert(
             'char',
             [
@@ -85,10 +82,9 @@ final class CharTest extends TestCase
 
     public function testValueException(): void
     {
-        $this->setFixture('char.sql');
+        $this->setFixture('Type/char.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

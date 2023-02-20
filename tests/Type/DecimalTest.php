@@ -22,10 +22,9 @@ final class DecimalTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('decimal.sql');
+        $this->setFixture('Type/decimal.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('decimal_default');
 
         $this->assertSame('decimal', $tableSchema->getColumn('Mydecimal')->getDbType());
@@ -52,10 +51,9 @@ final class DecimalTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('decimal.sql');
+        $this->setFixture('Type/decimal.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert(
             'decimal',
@@ -96,10 +94,9 @@ final class DecimalTest extends TestCase
 
     public function testMaxValueException(): void
     {
-        $this->setFixture('decimal.sql');
+        $this->setFixture('Type/decimal.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -118,10 +115,9 @@ final class DecimalTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('decimal.sql');
+        $this->setFixture('Type/decimal.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert(
             'decimal',
@@ -162,10 +158,9 @@ final class DecimalTest extends TestCase
 
     public function testMinValueException(): void
     {
-        $this->setFixture('decimal.sql');
+        $this->setFixture('Type/decimal.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);

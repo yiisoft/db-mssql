@@ -20,7 +20,7 @@ final class JsonTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('json.sql');
+        $this->setFixture('Type/json.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('json_default');
@@ -46,7 +46,7 @@ final class JsonTest extends TestCase
 
     public function testInvalidValue(): void
     {
-        $this->setFixture('json.sql');
+        $this->setFixture('Type/json.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -64,7 +64,7 @@ final class JsonTest extends TestCase
 
     public function testValidValue(): void
     {
-        $this->setFixture('json.sql');
+        $this->setFixture('Type/json.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -82,7 +82,7 @@ final class JsonTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('json.sql');
+        $this->setFixture('Type/json.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

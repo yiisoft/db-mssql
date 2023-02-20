@@ -20,10 +20,9 @@ final class RowversionTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('rowversion.sql');
+        $this->setFixture('Type/rowversion.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('rowversion');
 
         $this->assertSame('timestamp', $tableSchema->getColumn('Myrowversion')->getDbType());

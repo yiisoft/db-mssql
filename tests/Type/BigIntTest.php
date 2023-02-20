@@ -20,17 +20,15 @@ final class BigIntTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('bigint.sql');
+        $this->setFixture('Type/bigint.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('bigint_default');
 
         $this->assertSame('bigint', $tableSchema->getColumn('Mybigint')->getDbType());
         $this->assertSame('integer', $tableSchema->getColumn('Mybigint')->getPhpType());
 
         $command = $db->createCommand();
-
         $command->insert('bigint_default', [])->execute();
 
         $this->assertSame(
@@ -52,10 +50,9 @@ final class BigIntTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('bigint.sql');
+        $this->setFixture('Type/bigint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('bigint', ['Mybigint1' => '9223372036854775807', 'Mybigint2' => '0'])->execute();
 
@@ -94,10 +91,9 @@ final class BigIntTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('bigint.sql');
+        $this->setFixture('Type/bigint.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('bigint', ['Mybigint1' => '-9223372036854775808', 'Mybigint2' => '0'])->execute();
 

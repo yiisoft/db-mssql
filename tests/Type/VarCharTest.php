@@ -21,7 +21,7 @@ final class VarCharTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('varchar.sql');
+        $this->setFixture('Type/varchar.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('varchar_default');
@@ -50,7 +50,7 @@ final class VarCharTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('varchar.sql');
+        $this->setFixture('Type/varchar.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -82,7 +82,7 @@ final class VarCharTest extends TestCase
 
     public function testValueException(): void
     {
-        $this->setFixture('varchar.sql');
+        $this->setFixture('Type/varchar.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

@@ -22,7 +22,7 @@ final class NumericTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('numeric.sql');
+        $this->setFixture('Type/numeric.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('numeric_default');
@@ -51,7 +51,7 @@ final class NumericTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('numeric.sql');
+        $this->setFixture('Type/numeric.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -97,7 +97,7 @@ final class NumericTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('numeric.sql');
+        $this->setFixture('Type/numeric.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -140,7 +140,7 @@ final class NumericTest extends TestCase
 
     public function testMinValueException(): void
     {
-        $this->setFixture('numeric.sql');
+        $this->setFixture('Type/numeric.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

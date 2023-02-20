@@ -20,7 +20,7 @@ final class TextTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('text.sql');
+        $this->setFixture('Type/text.sql');
 
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('text_default');
@@ -46,7 +46,7 @@ final class TextTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('text.sql');
+        $this->setFixture('Type/text.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();

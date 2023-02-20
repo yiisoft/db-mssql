@@ -22,10 +22,9 @@ final class DateTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('date.sql');
+        $this->setFixture('Type/date.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('date_default');
 
         $this->assertSame('date', $tableSchema->getColumn('Mydate')->getDbType());
@@ -61,10 +60,9 @@ final class DateTest extends TestCase
 
     public function testDefaultValueExpressions(): void
     {
-        $this->setFixture('date.sql');
+        $this->setFixture('Type/date.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('date_default_expressions', [])->execute();
 
@@ -117,10 +115,9 @@ final class DateTest extends TestCase
 
     public function testValue(): void
     {
-        $this->setFixture('date.sql');
+        $this->setFixture('Type/date.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
         $command->insert('date', [
             'Mydate1' => '2007-05-08',
@@ -155,7 +152,7 @@ final class DateTest extends TestCase
 
     public function testValueException(): void
     {
-        $this->setFixture('date.sql');
+        $this->setFixture('Type/date.sql');
 
         $db = $this->getConnection(true);
 
@@ -163,6 +160,7 @@ final class DateTest extends TestCase
         $this->expectExceptionMessage(
             'SQLSTATE[22007]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting date and/or time from character string.'
         );
+
         $db->createCommand()->insert('date', ['Mydate1' => '0000-00-00'])->execute();
     }
 }

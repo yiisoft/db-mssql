@@ -20,10 +20,9 @@ final class BitTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('bit.sql');
+        $this->setFixture('Type/bit.sql');
 
         $db = $this->getConnection(true);
-
         $tableSchema = $db->getSchema()->getTableSchema('bit_default');
 
         $this->assertSame('bit', $tableSchema->getColumn('Mybit1')->getDbType());
@@ -53,15 +52,11 @@ final class BitTest extends TestCase
 
     public function testBoolean(): void
     {
-        $this->setFixture('bit.sql');
+        $this->setFixture('Type/bit.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-        $command->insert(
-            'bit',
-            ['Mybit1' => true, 'Mybit2' => false, 'Mybit3' => true]
-        )->execute();
+        $command->insert('bit', ['Mybit1' => true, 'Mybit2' => false, 'Mybit3' => true])->execute();
 
         $this->assertSame(
             [
@@ -83,15 +78,11 @@ final class BitTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('bit.sql');
+        $this->setFixture('Type/bit.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-        $command->insert(
-            'bit',
-            ['Mybit1' => 1, 'Mybit2' => 1, 'Mybit3' => 1]
-        )->execute();
+        $command->insert('bit', ['Mybit1' => 1, 'Mybit2' => 1, 'Mybit3' => 1])->execute();
 
         $this->assertSame(
             [
@@ -107,10 +98,7 @@ final class BitTest extends TestCase
             )->queryOne()
         );
 
-        $command->insert(
-            'bit',
-            ['Mybit1' => 0.5, 'Mybit2' => 3, 'Mybit3' => 4]
-        )->execute();
+        $command->insert('bit', ['Mybit1' => 0.5, 'Mybit2' => 3, 'Mybit3' => 4])->execute();
 
         $this->assertSame(
             [
@@ -134,15 +122,11 @@ final class BitTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('bit.sql');
+        $this->setFixture('Type/bit.sql');
 
         $db = $this->getConnection(true);
-
         $command = $db->createCommand();
-        $command->insert(
-            'bit',
-            ['Mybit1' => 0, 'Mybit2' => 0, 'Mybit3' => 0]
-        )->execute();
+        $command->insert('bit', ['Mybit1' => 0, 'Mybit2' => 0, 'Mybit3' => 0])->execute();
 
         $this->assertSame(
             [
@@ -158,10 +142,7 @@ final class BitTest extends TestCase
             )->queryOne()
         );
 
-        $command->insert(
-            'bit',
-            ['Mybit1' => null, 'Mybit2' => 0.8, 'Mybit3' => -3]
-        )->execute();
+        $command->insert('bit', ['Mybit1' => null, 'Mybit2' => 0.8, 'Mybit3' => -3])->execute();
 
         $this->assertSame(
             [
