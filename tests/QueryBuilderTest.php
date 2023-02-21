@@ -818,10 +818,10 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
 
         $sql = $db->getQueryBuilder()->alterColumn('foo1', 'bar', 'varchar(255)');
         $db->createCommand($sql)->execute();
-        $schema = $db->getTableSchema('[foo1]', true);
+        $tableSchema = $db->getTableSchema('[foo1]', true);
 
-        $this->assertEquals('varchar(255)', $schema?->getColumn('bar')->getDbType());
-        $this->assertEquals(true, $schema?->getColumn('bar')->isAllowNull());
+        $this->assertSame('varchar(255)', $tableSchema?->getColumn('bar')->getDbType());
+        $this->assertSame(true, $tableSchema?->getColumn('bar')->isAllowNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
@@ -829,19 +829,22 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
             (new ColumnSchemaBuilder(SchemaInterface::TYPE_STRING, 128))->notNull()
         );
         $db->createCommand($sql)->execute();
-        $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
-        $this->assertEquals(false, $schema?->getColumn('bar')->isAllowNull());
+        $tableSchema = $db->getTableSchema('[foo1]', true);
+
+        $this->assertSame('nvarchar(128)', $tableSchema?->getColumn('bar')->getDbType());
+        $this->assertSame(false, $tableSchema?->getColumn('bar')->isAllowNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
             (new ColumnSchemaBuilder(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP')
         );
+
         $db->createCommand($sql)->execute();
-        $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals(SchemaInterface::TYPE_DATETIME, $schema?->getColumn('bar')->getDbType());
-        $this->assertEquals('getdate()', $schema?->getColumn('bar')->getDefaultValue());
+        $tableSchema = $db->getTableSchema('[foo1]', true);
+
+        $this->assertSame(SchemaInterface::TYPE_DATETIME, $tableSchema?->getColumn('bar')->getDbType());
+        $this->assertSame('getdate()', $tableSchema?->getColumn('bar')->getDefaultValue());
     }
 
     /**

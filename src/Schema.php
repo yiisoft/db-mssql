@@ -12,6 +12,7 @@ use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Helper\ArrayHelper;
 use Yiisoft\Db\Schema\AbstractSchema;
 use Yiisoft\Db\Schema\ColumnSchemaBuilderInterface;
@@ -26,6 +27,7 @@ use function serialize;
 use function str_replace;
 use function strcasecmp;
 use function stripos;
+use function strtoupper;
 
 /**
  * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
@@ -58,6 +60,29 @@ use function stripos;
  */
 final class Schema extends AbstractSchema
 {
+    private $allowedFunctions = [
+        // aggregate string functions
+        'ASCII',
+        'CHAR',
+        'CHARINDEX',
+        'CONCAT',
+        'CONCAT_WS',
+        'CONVERT',
+        'DATALENGTH',
+        'LEFT',
+        'LEN',
+        'LOWER',
+        'LTRIM',
+        'PATINDEX',
+        'REPLACE',
+        'RIGHT',
+        'RTRIM',
+        'STR',
+        'STUFF',
+        'SUBSTRING',
+        'UPPER',
+    ];
+
     /**
      * @var string|null the default schema used for the current session.
      */
@@ -449,18 +474,14 @@ final class Schema extends AbstractSchema
             $info['column_default'] = null;
         }
 
-        if (!$column->isPrimaryKey() && ($column->getType() !== 'timestamp' || $info['column_default'] !== 'CURRENT_TIMESTAMP')) {
+        if (!$column->isPrimaryKey()) {
             /** @var mixed $value */
             $value = $info['column_default'];
+
             if ($info['column_default'] !== null) {
-                $value = (string) $value;
-                /**
-                 * convert from MSSQL column_default format, e.g. ('1') -> 1, ('string') -> string
-                 * exclude cases for functions as default value. Example: (getdate())
-                 */
-                $offset = (str_starts_with($value, "('") && str_ends_with($value, "')")) ? 2 : 1;
-                $value = substr($value, $offset, -$offset);
+                $value = $this->parseDefaultValue($value);
             }
+
             $column->defaultValue($column->phpTypecast($value));
         }
 
@@ -886,5 +907,26 @@ final class Schema extends AbstractSchema
     protected function getCacheTag(): string
     {
         return md5(serialize(array_merge([self::class], $this->db->getCacheKey())));
+    }
+
+    private function parseDefaultValue(mixed $value): mixed
+    {
+        if (is_string($value)) {
+            if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
+                return $matches[1];
+            }
+
+            if (preg_match('/^\((.*)\)$/', $value, $matches)) {
+                return $this->parseDefaultValue($matches[1]);
+            }
+        }
+
+        foreach ($this->allowedFunctions as $function) {
+            if (str_contains(strtoupper($value), $function)) {
+                return new Expression($value);
+            }
+        }
+
+        return $value;
     }
 }
