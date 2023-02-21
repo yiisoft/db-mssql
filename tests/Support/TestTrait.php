@@ -15,6 +15,7 @@ use Yiisoft\Db\Tests\Support\DbHelper;
 trait TestTrait
 {
     private string $dsn = '';
+    private string $fixture = 'mssql.sql';
 
     /**
      * @throws Exception
@@ -28,7 +29,7 @@ trait TestTrait
         );
 
         if ($fixture) {
-            DbHelper::loadFixture($db, __DIR__ . '/Fixture/mssql.sql');
+            DbHelper::loadFixture($db, __DIR__ . "/Fixture/$this->fixture");
         }
 
         return $db;
@@ -61,5 +62,10 @@ trait TestTrait
     protected function setDsn(string $dsn): void
     {
         $this->dsn = $dsn;
+    }
+
+    protected function setFixture(string $fixture): void
+    {
+        $this->fixture = $fixture;
     }
 }
