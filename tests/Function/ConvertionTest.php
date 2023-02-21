@@ -48,7 +48,7 @@ final class ConvertionTest extends TestCase
 
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mycast2')->getDefaultValue());
         $this->assertSame(
-            "CONVERT([int],(14.85))",
+            'CONVERT([int],(14.85))',
             $tableSchema?->getColumn('Mycast2')->getDefaultValue()->__toString(),
         );
 
@@ -60,7 +60,7 @@ final class ConvertionTest extends TestCase
 
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mycast4')->getDefaultValue());
         $this->assertSame(
-            "CONVERT([varchar](4),(15.6))",
+            'CONVERT([varchar](4),(15.6))',
             $tableSchema?->getColumn('Mycast4')->getDefaultValue()->__toString(),
         );
 
@@ -120,7 +120,7 @@ final class ConvertionTest extends TestCase
 
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myconvert2')->getDefaultValue());
         $this->assertSame(
-            "CONVERT([int],(14.85))",
+            'CONVERT([int],(14.85))',
             $tableSchema?->getColumn('Myconvert2')->getDefaultValue()->__toString(),
         );
 
@@ -132,7 +132,7 @@ final class ConvertionTest extends TestCase
 
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myconvert4')->getDefaultValue());
         $this->assertSame(
-            "CONVERT([varchar](4),(15.6))",
+            'CONVERT([varchar](4),(15.6))',
             $tableSchema?->getColumn('Myconvert4')->getDefaultValue()->__toString(),
         );
 
@@ -156,7 +156,7 @@ final class ConvertionTest extends TestCase
                 'Myconvert3' => '14.85',
                 'Myconvert4' => '15.6',
                 'Myconvert5' => '2023-02-21 00:00:00.000',
-                'Myconvert6' => '0x74657374'
+                'Myconvert6' => '0x74657374',
             ],
             $command->setSql(
                 <<<SQL
@@ -192,7 +192,7 @@ final class ConvertionTest extends TestCase
 
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mytrycast2')->getDefaultValue());
         $this->assertSame(
-            "TRY_CAST((14.85) AS [int])",
+            'TRY_CAST((14.85) AS [int])',
             $tableSchema?->getColumn('Mytrycast2')->getDefaultValue()->__toString(),
         );
 
@@ -204,7 +204,7 @@ final class ConvertionTest extends TestCase
 
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mytrycast4')->getDefaultValue());
         $this->assertSame(
-            "TRY_CAST((15.6) AS [varchar](4))",
+            'TRY_CAST((15.6) AS [varchar](4))',
             $tableSchema?->getColumn('Mytrycast4')->getDefaultValue()->__toString(),
         );
 
@@ -264,7 +264,7 @@ final class ConvertionTest extends TestCase
 
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mytryconvert2')->getDefaultValue());
         $this->assertSame(
-            "TRY_CAST((14.85) AS [int])",
+            'TRY_CAST((14.85) AS [int])',
             $tableSchema?->getColumn('Mytryconvert2')->getDefaultValue()->__toString(),
         );
 
@@ -276,7 +276,7 @@ final class ConvertionTest extends TestCase
 
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mytryconvert4')->getDefaultValue());
         $this->assertSame(
-            "TRY_CAST((15.6) AS [varchar](4))",
+            'TRY_CAST((15.6) AS [varchar](4))',
             $tableSchema?->getColumn('Mytryconvert4')->getDefaultValue()->__toString(),
         );
 
