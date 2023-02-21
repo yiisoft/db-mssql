@@ -10,7 +10,7 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -40,134 +40,194 @@ final class StringTest extends TestCase
         $tableSchema = $db->getTableSchema('string');
 
         /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/ascii-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myascii')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myascii')->getDefaultValue(),
+        );
         $this->assertSame("ascii('a')", $tableSchema?->getColumn('Myascii')->getDefaultValue()->__toString());
 
         /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/char-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mychar')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mychar')->getDefaultValue(),
+        );
         $this->assertSame('char((97))', $tableSchema?->getColumn('Mychar')->getDefaultValue()->__toString());
 
         /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/charindex-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mycharindex')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mycharindex')->getDefaultValue(),
+        );
         $this->assertSame(
             "charindex('B','aBc')",
             $tableSchema?->getColumn('Mycharindex')->getDefaultValue()->__toString(),
         );
 
         /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/concat-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myconcat')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myconcat')->getDefaultValue(),
+        );
         $this->assertSame(
             "concat('a','b','c')",
             $tableSchema?->getColumn('Myconcat')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/concat-ws-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myconcatws')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myconcatws')->getDefaultValue(),
+        );
         $this->assertSame(
             "concat_ws('a','b','C')",
             $tableSchema?->getColumn('Myconcatws')->getDefaultValue()->__toString(),
         );
 
         /* edge case */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mycomplex')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mycomplex')->getDefaultValue(),
+        );
         $this->assertSame(
             "substring(stuff(concat('a','b','c'),(3),(1),concat_ws('f','g','h')),(5),(1))",
             $tableSchema?->getColumn('Mycomplex')->getDefaultValue()->__toString(),
         );
 
         /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/data-length-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mydatalength')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mydatalength')->getDefaultValue(),
+        );
         $this->assertSame(
             "datalength('abc')",
             $tableSchema?->getColumn('Mydatalength')->getDefaultValue()->__toString(),
         );
 
         /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/left-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myleft')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myleft')->getDefaultValue(),
+        );
         $this->assertSame(
             "left('abc',(1))",
             $tableSchema?->getColumn('Myleft')->getDefaultValue()->__toString(),
         );
 
         /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mylen')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mylen')->getDefaultValue(),
+        );
         $this->assertSame(
             "len('abc')",
             $tableSchema?->getColumn('Mylen')->getDefaultValue()->__toString(),
         );
 
         /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/lower-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mylower')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mylower')->getDefaultValue(),
+        );
         $this->assertSame(
             "lower('ABC')",
             $tableSchema?->getColumn('Mylower')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/ltrim-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myltrim')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myltrim')->getDefaultValue(),
+        );
         $this->assertSame(
             "ltrim(' abc')",
             $tableSchema?->getColumn('Myltrim')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/nchar-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mynchar')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mynchar')->getDefaultValue(),
+        );
         $this->assertSame(
             'nchar((50))',
             $tableSchema?->getColumn('Mynchar')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/patindex-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mypatindex')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mypatindex')->getDefaultValue(),
+        );
         $this->assertSame(
             "patindex('a','abc')",
             $tableSchema?->getColumn('Mypatindex')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/replace-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myreplace')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myreplace')->getDefaultValue(),
+        );
         $this->assertSame(
             "replace('abc','a','d')",
             $tableSchema?->getColumn('Myreplace')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/right-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myright')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myright')->getDefaultValue(),
+        );
         $this->assertSame(
             "right('abc',(1))",
             $tableSchema?->getColumn('Myright')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/rtrim-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myrtrim')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myrtrim')->getDefaultValue(),
+        );
         $this->assertSame(
             "rtrim('abc ')",
             $tableSchema?->getColumn('Myrtrim')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/str-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mystr')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mystr')->getDefaultValue(),
+        );
         $this->assertSame(
             'str((1.234),(5),(2))',
             $tableSchema?->getColumn('Mystr')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/stuff-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mystuff')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mystuff')->getDefaultValue(),
+        );
         $this->assertSame(
             "stuff('abc',(1),(1),'d')",
             $tableSchema?->getColumn('Mystuff')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/substring-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mysubstring')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mysubstring')->getDefaultValue(),
+        );
         $this->assertSame(
             "substring('abc',(1),(1))",
             $tableSchema?->getColumn('Mysubstring')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/upper-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Myupper')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Myupper')->getDefaultValue(),
+        );
         $this->assertSame(
             "upper('abc')",
             $tableSchema?->getColumn('Myupper')->getDefaultValue()->__toString(),
@@ -201,7 +261,7 @@ final class StringTest extends TestCase
                 <<<SQL
                 SELECT * FROM [string] WHERE [id] = 1
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
     }
 }

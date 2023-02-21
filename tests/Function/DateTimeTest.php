@@ -10,7 +10,7 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -39,42 +39,60 @@ final class DateTimeTest extends TestCase
         $tableSchema = $db->getTableSchema('datetime');
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/datediff-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mydatetime1')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mydatetime1')->getDefaultValue(),
+        );
         $this->assertSame(
             "CONVERT([varchar](10),datediff(day,'2005-12-31','2006-01-01'))+' days'",
             $tableSchema?->getColumn('Mydatetime1')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/datediff-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mydatetime2')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mydatetime2')->getDefaultValue(),
+        );
         $this->assertSame(
             "datename(month,'2023-02-21')",
             $tableSchema?->getColumn('Mydatetime2')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/datepart-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mydatetime3')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mydatetime3')->getDefaultValue(),
+        );
         $this->assertSame(
             "datepart(month,'2023-02-21')",
             $tableSchema?->getColumn('Mydatetime3')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/day-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mydatetime4')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mydatetime4')->getDefaultValue(),
+        );
         $this->assertSame(
             "datepart(day,'2023-02-21')",
             $tableSchema?->getColumn('Mydatetime4')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/month-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mydatetime5')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mydatetime5')->getDefaultValue(),
+        );
         $this->assertSame(
             "datepart(month,'2023-02-21')",
             $tableSchema?->getColumn('Mydatetime5')->getDefaultValue()->__toString(),
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/year-transact-sql?view=sql-server-ver16 */
-        $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mydatetime6')->getDefaultValue());
+        $this->assertInstanceOf(
+            ExpressionInterface::class,
+            $tableSchema?->getColumn('Mydatetime6')->getDefaultValue(),
+        );
         $this->assertSame(
             "datepart(year,'2023-02-21')",
             $tableSchema?->getColumn('Mydatetime6')->getDefaultValue()->__toString(),
@@ -94,7 +112,7 @@ final class DateTimeTest extends TestCase
                 <<<SQL
                 SELECT * FROM [datetime] WHERE [id] = 1
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
     }
 }
