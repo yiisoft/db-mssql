@@ -60,7 +60,8 @@ use function strtoupper;
  */
 final class Schema extends AbstractSchema
 {
-    private $allowedFunctions = [
+    /** @psalm-var string[] */
+    private array $allowedFunctions = [
         // aggregate string functions
         'ASCII',
         'CHAR',
@@ -479,6 +480,7 @@ final class Schema extends AbstractSchema
             $value = $info['column_default'];
 
             if ($info['column_default'] !== null) {
+                /** @psalm-var mixed $value */
                 $value = $this->parseDefaultValue($value);
             }
 
@@ -911,14 +913,14 @@ final class Schema extends AbstractSchema
 
     private function parseDefaultValue(mixed $value): mixed
     {
-        if (is_string($value)) {
-            if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
-                return $matches[1];
-            }
+        $value = (string) $value;
 
-            if (preg_match('/^\((.*)\)$/', $value, $matches)) {
-                return $this->parseDefaultValue($matches[1]);
-            }
+        if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
+            return $matches[1];
+        }
+
+        if (preg_match('/^\((.*)\)$/', $value, $matches)) {
+            return $this->parseDefaultValue($matches[1]);
         }
 
         foreach ($this->allowedFunctions as $function) {
