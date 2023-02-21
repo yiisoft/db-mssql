@@ -844,7 +844,8 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         $tableSchema = $db->getTableSchema('[foo1]', true);
 
         $this->assertSame(SchemaInterface::TYPE_DATETIME, $tableSchema?->getColumn('bar')->getDbType());
-        $this->assertSame('getdate()', $tableSchema?->getColumn('bar')->getDefaultValue());
+        $this->assertInstanceOf(ExpressionInterface::class, $tableSchema?->getColumn('bar')->getDefaultValue());
+        $this->assertSame('getdate()', $tableSchema?->getColumn('bar')->getDefaultValue()->__toString());
     }
 
     /**
