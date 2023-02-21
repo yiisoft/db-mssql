@@ -59,7 +59,6 @@ final class StringTest extends TestCase
         $this->assertSame(
             "concat('a','b','c')",
             $tableSchema?->getColumn('Myconcat')->getDefaultValue()->__toString(),
-
         );
 
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/concat-ws-transact-sql?view=sql-server-ver16 */
@@ -114,7 +113,7 @@ final class StringTest extends TestCase
         /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/nchar-transact-sql?view=sql-server-ver16 */
         $this->assertInstanceOf(Expression::class, $tableSchema?->getColumn('Mynchar')->getDefaultValue());
         $this->assertSame(
-            "nchar((50))",
+            'nchar((50))',
             $tableSchema?->getColumn('Mynchar')->getDefaultValue()->__toString(),
         );
 
