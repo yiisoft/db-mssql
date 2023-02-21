@@ -86,6 +86,20 @@ final class Schema extends AbstractSchema
         'CONVERT',
         'TRY_CAST',
         'TRY_CONVERT',
+        // aggregate date functions
+        'CURRENT_TIMESTAMP',
+        'DATEADD',
+        'DATEDIFF',
+        'DATENAME',
+        'DATEPART',
+        'DAY',
+        'GETDATE',
+        'GETUTCDATE',
+        'MONTH',
+        'SYSDATETIME',
+        'SYSDATETIMEOFFSET',
+        'SYSUTCDATETIME',
+        'YEAR',
     ];
 
     /**
