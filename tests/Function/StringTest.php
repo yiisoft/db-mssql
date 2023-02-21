@@ -199,7 +199,7 @@ final class StringTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM string WHERE id = 1
+                SELECT * FROM [string] WHERE [id] = 1
                 SQL
             )->queryOne()
         );

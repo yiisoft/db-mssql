@@ -68,7 +68,6 @@ final class Schema extends AbstractSchema
         'CHARINDEX',
         'CONCAT',
         'CONCAT_WS',
-        'CONVERT',
         'DATALENGTH',
         'LEFT',
         'LEN',
@@ -82,6 +81,11 @@ final class Schema extends AbstractSchema
         'STUFF',
         'SUBSTRING',
         'UPPER',
+        // aggregate convertion functions
+        'CAST',
+        'CONVERT',
+        'TRY_CAST',
+        'TRY_CONVERT',
     ];
 
     /**
