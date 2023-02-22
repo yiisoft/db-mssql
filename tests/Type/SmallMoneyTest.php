@@ -30,6 +30,39 @@ final class SmallMoneyTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('smallmoney_default') !== null) {
+            $command->dropTable('smallmoney_default')->execute();
+        }
+
+        $command->createTable(
+            'smallmoney_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mysmallmoney' => 'SMALLMONEY DEFAULT \'214748.3647\'', // Max value is `214748.3647`.
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('smallmoney_default');
+
+        $this->assertSame('smallmoney', $tableSchema?->getColumn('Mysmallmoney')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mysmallmoney')->getPhpType());
+        $this->assertSame('214748.3647', $tableSchema?->getColumn('Mysmallmoney')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/smallmoney.sql');

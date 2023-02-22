@@ -30,6 +30,39 @@ final class IntTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('int_default') !== null) {
+            $command->dropTable('int_default')->execute();
+        }
+
+        $command->createTable(
+            'int_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myint' => 'INT DEFAULT 2147483647', // Max value is `2147483647`.
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('int_default');
+
+        $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
+        $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
+        $this->assertSame(2147483647, $tableSchema?->getColumn('Myint')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/int.sql');

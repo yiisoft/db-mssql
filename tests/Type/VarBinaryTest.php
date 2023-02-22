@@ -33,6 +33,58 @@ final class VarBinaryTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('varbinary_default') !== null) {
+            $command->dropTable('varbinary_default')->execute();
+        }
+
+        $command->createTable(
+            'varbinary_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myvarbinary1' => 'VARBINARY(10) DEFAULT CONVERT(varbinary(10), \'varbinary\')',
+                'Myvarbinary2' => 'VARBINARY(100) DEFAULT CONVERT(varbinary(100), \'v\')',
+                'Myvarbinary3' => 'VARBINARY(20) DEFAULT hashbytes(\'MD5\',\'test string\')',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('varbinary_default');
+
+        $this->assertSame('varbinary(10)', $tableSchema?->getColumn('Myvarbinary1')->getDbType());
+        $this->assertSame('resource', $tableSchema?->getColumn('Myvarbinary1')->getPhpType());
+        $this->assertSame(
+            'CONVERT([varbinary](10),\'varbinary\')',
+            $tableSchema?->getColumn('Myvarbinary1')->getDefaultValue(),
+        );
+
+        $this->assertSame('varbinary(100)', $tableSchema?->getColumn('Myvarbinary2')->getDbType());
+        $this->assertSame('resource', $tableSchema?->getColumn('Myvarbinary2')->getPhpType());
+        $this->assertSame(
+            'CONVERT([varbinary](100),\'v\')',
+            $tableSchema?->getColumn('Myvarbinary2')->getDefaultValue(),
+        );
+
+        $this->assertSame('varbinary(20)', $tableSchema?->getColumn('Myvarbinary3')->getDbType());
+        $this->assertSame('resource', $tableSchema?->getColumn('Myvarbinary3')->getPhpType());
+        $this->assertSame(
+            'hashbytes(\'MD5\',\'test string\')',
+            $tableSchema?->getColumn('Myvarbinary3')->getDefaultValue(),
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/varbinary.sql');

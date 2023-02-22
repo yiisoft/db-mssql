@@ -30,6 +30,39 @@ final class BigIntTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('bigint_default') !== null) {
+            $command->dropTable('bigint_default')->execute();
+        }
+
+        $command->createTable(
+            'bigint_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mybigint' => 'BIGINT DEFAULT 9223372036854775807', // Max value
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('bigint_default');
+
+        $this->assertSame('bigint', $tableSchema?->getColumn('Mybigint')->getDbType());
+        $this->assertSame('integer', $tableSchema?->getColumn('Mybigint')->getPhpType());
+        $this->assertSame(9223372036854775807, $tableSchema?->getColumn('Mybigint')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/bigint.sql');

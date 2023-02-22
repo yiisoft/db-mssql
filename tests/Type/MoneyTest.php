@@ -30,6 +30,40 @@ final class MoneyTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('money_default') !== null) {
+            $command->dropTable('money_default')->execute();
+        }
+
+        $command->createTable(
+            'money_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mymoney' => 'MONEY DEFAULT \'922337203685477.5807\'', // Max value is `922337203685477.5807`.
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('money_default');
+
+        $this->assertSame('money', $tableSchema?->getColumn('Mymoney')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mymoney')->getPhpType());
+        $this->assertSame('922337203685477.5807', $tableSchema?->getColumn('Mymoney')->getDefaultValue());
+    }
+
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/money.sql');

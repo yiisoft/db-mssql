@@ -31,6 +31,39 @@ final class FloatTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('float_default') !== null) {
+            $command->dropTable('float_default')->execute();
+        }
+
+        $command->createTable(
+            'float_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myfloat' => 'FLOAT DEFAULT 2.2300000000000001e-308',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('float_default');
+
+        $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Myfloat')->getPhpType());
+        $this->assertSame(2.2300000000000001e-308, $tableSchema?->getColumn('Myfloat')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/float.sql');

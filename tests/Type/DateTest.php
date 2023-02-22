@@ -30,6 +30,62 @@ final class DateTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('date_default') !== null) {
+            $command->dropTable('date_default')->execute();
+        }
+
+        $command->createTable(
+            'date_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mydate' => 'DATE DEFAULT \'2007-05-08\'',
+                'Mydatetime' => 'DATETIME DEFAULT \'2007-05-08 12:35:29.123\'',
+                'Mydatetime2' => 'DATETIME2 DEFAULT \'2007-05-08 12:35:29.1234567\'',
+                'Mydatetimeoffset' => 'DATETIMEOFFSET DEFAULT \'2007-05-08 12:35:29.1234567 +12:15\'',
+                'Mytime' => 'TIME DEFAULT \'12:35:29.1234567\'',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('date_default');
+
+        $this->assertSame('date', $tableSchema?->getColumn('Mydate')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mydate')->getPhpType());
+        $this->assertSame('2007-05-08', $tableSchema?->getColumn('Mydate')->getDefaultValue());
+
+        $this->assertSame('datetime', $tableSchema?->getColumn('Mydatetime')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mydatetime')->getPhpType());
+        $this->assertSame('2007-05-08 12:35:29.123', $tableSchema?->getColumn('Mydatetime')->getDefaultValue());
+
+        $this->assertSame('datetime2', $tableSchema?->getColumn('Mydatetime2')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mydatetime2')->getPhpType());
+        $this->assertSame('2007-05-08 12:35:29.1234567', $tableSchema?->getColumn('Mydatetime2')->getDefaultValue());
+
+        $this->assertSame('datetimeoffset', $tableSchema?->getColumn('Mydatetimeoffset')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mydatetimeoffset')->getPhpType());
+        $this->assertSame(
+            '2007-05-08 12:35:29.1234567 +12:15',
+            $tableSchema?->getColumn('Mydatetimeoffset')->getDefaultValue(),
+        );
+
+        $this->assertSame('time', $tableSchema?->getColumn('Mytime')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mytime')->getPhpType());
+        $this->assertSame('12:35:29.1234567', $tableSchema?->getColumn('Mytime')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/date.sql');

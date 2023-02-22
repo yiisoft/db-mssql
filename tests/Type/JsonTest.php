@@ -30,6 +30,39 @@ final class JsonTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('json_default') !== null) {
+            $command->dropTable('json_default')->execute();
+        }
+
+        $command->createTable(
+            'json_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myjson' => 'NVARCHAR(MAX) DEFAULT \'{}\'',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('json_default');
+
+        $this->assertSame('nvarchar', $tableSchema?->getColumn('Myjson')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myjson')->getPhpType());
+        $this->assertSame('{}', $tableSchema?->getColumn('Myjson')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/json.sql');

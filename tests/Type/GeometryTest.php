@@ -31,6 +31,47 @@ final class GeometryTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('geometry_default') !== null) {
+            $command->dropTable('geometry_default')->execute();
+        }
+
+        $command->createTable(
+            'geometry_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mygeometry1' => 'GEOMETRY DEFAULT [geometry]::STGeomFromText(\'POINT(0 0)\',(0))',
+                'Mygeometry2' => 'GEOMETRY',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('geometry_default');
+
+        $this->assertSame('geometry', $tableSchema?->getColumn('Mygeometry1')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mygeometry1')->getPhpType());
+        $this->assertSame(
+            '[geometry]::STGeomFromText(\'POINT(0 0)\',(0))',
+            $tableSchema?->getColumn('Mygeometry1')->getDefaultValue(),
+        );
+
+        $this->assertSame('geometry', $tableSchema?->getColumn('Mygeometry2')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mygeometry2')->getPhpType());
+        $this->assertNull($tableSchema?->getColumn('Mygeometry2')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/geometry.sql');

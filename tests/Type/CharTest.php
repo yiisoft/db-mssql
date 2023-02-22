@@ -30,6 +30,44 @@ final class CharTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('char_default') !== null) {
+            $command->dropTable('char_default')->execute();
+        }
+
+        $command->createTable(
+            'char_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mychar1' => 'CHAR(10) DEFAULT \'char\'', // Max value
+                'Mychar2' => 'CHAR(1) DEFAULT \'c\'', // Max value
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('char_default');
+
+        $this->assertSame('char(10)', $tableSchema?->getColumn('Mychar1')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mychar1')->getPhpType());
+        $this->assertSame('char', $tableSchema?->getColumn('Mychar1')->getDefaultValue());
+
+        $this->assertSame('char(1)', $tableSchema?->getColumn('Mychar2')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mychar2')->getPhpType());
+        $this->assertSame('c', $tableSchema?->getColumn('Mychar2')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/char.sql');

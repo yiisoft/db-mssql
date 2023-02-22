@@ -30,6 +30,42 @@ final class UniqueidentifierTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('uniqueidentifier_default') !== null) {
+            $command->dropTable('uniqueidentifier_default')->execute();
+        }
+
+        $command->createTable(
+            'uniqueidentifier_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myuniqueidentifier' => 'UNIQUEIDENTIFIER DEFAULT \'12345678-1234-1234-1234-123456789012\'',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('uniqueidentifier_default');
+
+        $this->assertSame('uniqueidentifier', $tableSchema?->getColumn('Myuniqueidentifier')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myuniqueidentifier')->getPhpType());
+        $this->assertSame(
+            '12345678-1234-1234-1234-123456789012',
+            $tableSchema?->getColumn('Myuniqueidentifier')->getDefaultValue(),
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/uniqueidentifier.sql');

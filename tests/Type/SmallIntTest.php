@@ -30,6 +30,39 @@ final class SmallIntTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('smallint_default') !== null) {
+            $command->dropTable('smallint_default')->execute();
+        }
+
+        $command->createTable(
+            'smallint_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mysmallint' => 'SMALLINT DEFAULT 32767', // Max value is `32767`.
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('smallint_default');
+
+        $this->assertSame('smallint', $tableSchema?->getColumn('Mysmallint')->getDbType());
+        $this->assertSame('integer', $tableSchema?->getColumn('Mysmallint')->getPhpType());
+        $this->assertSame(32767, $tableSchema?->getColumn('Mysmallint')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/smallint.sql');

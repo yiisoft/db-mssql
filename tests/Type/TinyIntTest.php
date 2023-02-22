@@ -30,6 +30,39 @@ final class TinyIntTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('tinyint_default') !== null) {
+            $command->dropTable('tinyint_default')->execute();
+        }
+
+        $command->createTable(
+            'tinyint_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mytinyint' => 'TINYINT DEFAULT 255', // Max value is `255`.
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('tinyint_default');
+
+        $this->assertSame('tinyint', $tableSchema?->getColumn('Mytinyint')->getDbType());
+        $this->assertSame('integer', $tableSchema?->getColumn('Mytinyint')->getPhpType());
+        $this->assertSame(255, $tableSchema?->getColumn('Mytinyint')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/tinyint.sql');

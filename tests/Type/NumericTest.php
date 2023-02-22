@@ -31,6 +31,39 @@ final class NumericTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('numeric_default') !== null) {
+            $command->dropTable('numeric_default')->execute();
+        }
+
+        $command->createTable(
+            'numeric_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mynumeric' => 'NUMERIC(38, 0) DEFAULT \'99999999999999997748809823456034029568\'', // Max value is `99999999999999997748809823456034029568`.
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('numeric_default');
+
+        $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Mynumeric')->getPhpType());
+        $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mynumeric')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/numeric.sql');

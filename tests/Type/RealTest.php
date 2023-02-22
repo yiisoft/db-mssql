@@ -31,6 +31,39 @@ final class RealTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('real_default') !== null) {
+            $command->dropTable('real_default')->execute();
+        }
+
+        $command->createTable(
+            'real_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myreal' => 'REAL DEFAULT 3.4000000000000000e+038',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('real_default');
+
+        $this->assertSame('real', $tableSchema?->getColumn('Myreal')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Myreal')->getPhpType());
+        $this->assertSame(3.4000000000000000e+038, $tableSchema?->getColumn('Myreal')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/real.sql');

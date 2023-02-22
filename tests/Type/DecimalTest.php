@@ -31,6 +31,39 @@ final class DecimalTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('decimal_default') !== null) {
+            $command->dropTable('decimal_default')->execute();
+        }
+
+        $command->createTable(
+            'decimal_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mydecimal' => 'DECIMAL(38, 0) DEFAULT 99999999999999997748809823456034029568', // Max value
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('decimal_default');
+
+        $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Mydecimal')->getPhpType());
+        $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/decimal.sql');

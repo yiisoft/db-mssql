@@ -30,6 +30,39 @@ final class NTextTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('ntext_default') !== null) {
+            $command->dropTable('ntext_default')->execute();
+        }
+
+        $command->createTable(
+            'ntext_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myntext' => 'NTEXT DEFAULT \'ntext\'',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('ntext_default');
+
+        $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myntext')->getPhpType());
+        $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/ntext.sql');

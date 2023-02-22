@@ -30,6 +30,39 @@ final class TextTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('text_default') !== null) {
+            $command->dropTable('text_default')->execute();
+        }
+
+        $command->createTable(
+            'text_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mytext' => 'TEXT DEFAULT \'text\'',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('text_default');
+
+        $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mytext')->getPhpType());
+        $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDefaultValue());
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/text.sql');
