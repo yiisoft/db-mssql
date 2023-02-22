@@ -449,18 +449,15 @@ final class Schema extends AbstractSchema
             $info['column_default'] = null;
         }
 
-        if (!$column->isPrimaryKey() && ($column->getType() !== 'timestamp' || $info['column_default'] !== 'CURRENT_TIMESTAMP')) {
+        if (!$column->isPrimaryKey()) {
             /** @var mixed $value */
             $value = $info['column_default'];
+
             if ($info['column_default'] !== null) {
-                $value = (string) $value;
-                /**
-                 * convert from MSSQL column_default format, e.g. ('1') -> 1, ('string') -> string
-                 * exclude cases for functions as default value. Example: (getdate())
-                 */
-                $offset = (str_starts_with($value, "('") && str_ends_with($value, "')")) ? 2 : 1;
-                $value = substr($value, $offset, -$offset);
+                /** @psalm-var mixed $value */
+                $value = $this->parseDefaultValue($value);
             }
+
             $column->defaultValue($column->phpTypecast($value));
         }
 
@@ -886,5 +883,20 @@ final class Schema extends AbstractSchema
     protected function getCacheTag(): string
     {
         return md5(serialize(array_merge([self::class], $this->db->getCacheKey())));
+    }
+
+    private function parseDefaultValue(mixed $value): mixed
+    {
+        $value = (string) $value;
+
+        if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
+            return $matches[1];
+        }
+
+        if (preg_match('/^\((.*)\)$/', $value, $matches)) {
+            return $this->parseDefaultValue($matches[1]);
+        }
+
+        return $value;
     }
 }

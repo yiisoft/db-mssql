@@ -35,10 +35,11 @@ final class NTextTest extends TestCase
         $this->setFixture('Type/ntext.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('ntext_default');
+        $tableSchema = $db->getTableSchema('ntext_default');
 
         $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myntext')->getPhpType());
+        $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('ntext_default', [])->execute();

@@ -36,10 +36,11 @@ final class RealTest extends TestCase
         $this->setFixture('Type/real.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('real_default');
+        $tableSchema = $db->getTableSchema('real_default');
 
         $this->assertSame('real', $tableSchema?->getColumn('Myreal')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Myreal')->getPhpType());
+        $this->assertSame(3.4000000000000000e+038, $tableSchema?->getColumn('Myreal')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('real_default', [])->execute();

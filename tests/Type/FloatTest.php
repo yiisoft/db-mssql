@@ -36,10 +36,11 @@ final class FloatTest extends TestCase
         $this->setFixture('Type/float.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('float_default');
+        $tableSchema = $db->getTableSchema('float_default');
 
         $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Myfloat')->getPhpType());
+        $this->assertSame(2.2300000000000001e-308, $tableSchema?->getColumn('Myfloat')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('float_default', [])->execute();

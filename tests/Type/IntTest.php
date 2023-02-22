@@ -35,10 +35,11 @@ final class IntTest extends TestCase
         $this->setFixture('Type/int.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('int_default');
+        $tableSchema = $db->getTableSchema('int_default');
 
         $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
         $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
+        $this->assertSame(2147483647, $tableSchema?->getColumn('Myint')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('int_default', [])->execute();

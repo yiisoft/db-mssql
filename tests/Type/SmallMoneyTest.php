@@ -35,10 +35,11 @@ final class SmallMoneyTest extends TestCase
         $this->setFixture('Type/smallmoney.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('smallmoney_default');
+        $tableSchema = $db->getTableSchema('smallmoney_default');
 
         $this->assertSame('smallmoney', $tableSchema?->getColumn('Mysmallmoney')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mysmallmoney')->getPhpType());
+        $this->assertSame('214748.3647', $tableSchema?->getColumn('Mysmallmoney')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('smallmoney_default', [])->execute();

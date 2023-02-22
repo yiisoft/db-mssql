@@ -35,10 +35,11 @@ final class JsonTest extends TestCase
         $this->setFixture('Type/json.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('json_default');
+        $tableSchema = $db->getTableSchema('json_default');
 
         $this->assertSame('nvarchar', $tableSchema?->getColumn('Myjson')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myjson')->getPhpType());
+        $this->assertSame('{}', $tableSchema?->getColumn('Myjson')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('json_default', [])->execute();

@@ -35,16 +35,19 @@ final class BitTest extends TestCase
         $this->setFixture('Type/bit.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('bit_default');
+        $tableSchema = $db->getTableSchema('bit_default');
 
         $this->assertSame('bit', $tableSchema->getColumn('Mybit1')->getDbType());
         $this->assertSame('integer', $tableSchema->getColumn('Mybit1')->getPhpType());
+        $this->assertSame(0, $tableSchema->getColumn('Mybit1')->getDefaultValue());
 
         $this->assertSame('bit', $tableSchema->getColumn('Mybit2')->getDbType());
         $this->assertSame('integer', $tableSchema->getColumn('Mybit2')->getPhpType());
+        $this->assertSame(1, $tableSchema->getColumn('Mybit2')->getDefaultValue());
 
         $this->assertSame('bit', $tableSchema->getColumn('Mybit3')->getDbType());
         $this->assertSame('integer', $tableSchema->getColumn('Mybit3')->getPhpType());
+        $this->assertSame(2, $tableSchema->getColumn('Mybit3')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('bit_default', [])->execute();

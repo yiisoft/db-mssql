@@ -35,16 +35,22 @@ final class VarCharTest extends TestCase
         $this->setFixture('Type/varchar.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('varchar_default');
+        $tableSchema = $db->getTableSchema('varchar_default');
 
         $this->assertSame('varchar(10)', $tableSchema?->getColumn('Myvarchar1')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myvarchar1')->getPhpType());
+        $this->assertSame('varchar', $tableSchema?->getColumn('Myvarchar1')->getDefaultValue());
 
         $this->assertSame('varchar(100)', $tableSchema?->getColumn('Myvarchar2')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myvarchar2')->getPhpType());
+        $this->assertSame('v', $tableSchema?->getColumn('Myvarchar2')->getDefaultValue());
 
         $this->assertSame('varchar(20)', $tableSchema?->getColumn('Myvarchar3')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myvarchar3')->getPhpType());
+        $this->assertSame(
+            'TRY_CAST(getdate() AS [varchar](20))',
+            $tableSchema?->getColumn('Myvarchar3')->getDefaultValue(),
+        );
 
         $command = $db->createCommand();
         $command->insert('varchar_default', [])->execute();

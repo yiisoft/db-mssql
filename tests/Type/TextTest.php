@@ -35,10 +35,11 @@ final class TextTest extends TestCase
         $this->setFixture('Type/text.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('text_default');
+        $tableSchema = $db->getTableSchema('text_default');
 
         $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mytext')->getPhpType());
+        $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('text_default', [])->execute();

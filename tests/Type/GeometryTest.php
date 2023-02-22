@@ -36,13 +36,18 @@ final class GeometryTest extends TestCase
         $this->setFixture('Type/geometry.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('geometry_default');
+        $tableSchema = $db->getTableSchema('geometry_default');
 
         $this->assertSame('geometry', $tableSchema?->getColumn('Mygeometry1')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mygeometry1')->getPhpType());
+        $this->assertSame(
+            '[geometry]::STGeomFromText(\'POINT(0 0)\',(0))',
+            $tableSchema?->getColumn('Mygeometry1')->getDefaultValue(),
+        );
 
         $this->assertSame('nvarchar', $tableSchema?->getColumn('Mygeometry2')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mygeometry2')->getPhpType());
+        $this->assertNull($tableSchema?->getColumn('Mygeometry2')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('geometry_default', [])->execute();

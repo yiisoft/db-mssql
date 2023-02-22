@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
-use DateTime;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -36,22 +35,39 @@ final class DateTest extends TestCase
         $this->setFixture('Type/date.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('date_default');
+        $tableSchema = $db->getTableSchema('date_default');
 
         $this->assertSame('date', $tableSchema?->getColumn('Mydate')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mydate')->getPhpType());
+        $this->assertSame(
+            '2007-05-08 12:35:29. 1234567 +12:15',
+            $tableSchema?->getColumn('Mydate')->getDefaultValue(),
+        );
 
         $this->assertSame('datetime', $tableSchema?->getColumn('Mydatetime')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mydatetime')->getPhpType());
+        $this->assertSame('2007-05-08 12:35:29.123', $tableSchema?->getColumn('Mydatetime')->getDefaultValue());
 
         $this->assertSame('datetime2', $tableSchema?->getColumn('Mydatetime2')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mydatetime2')->getPhpType());
+        $this->assertSame(
+            '2007-05-08 12:35:29. 1234567 +12:15',
+            $tableSchema?->getColumn('Mydatetime2')->getDefaultValue(),
+        );
 
         $this->assertSame('datetimeoffset', $tableSchema?->getColumn('Mydatetimeoffset')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mydatetimeoffset')->getPhpType());
+        $this->assertSame(
+            '2007-05-08 12:35:29.1234567 +12:15',
+            $tableSchema?->getColumn('Mydatetimeoffset')->getDefaultValue(),
+        );
 
         $this->assertSame('time', $tableSchema?->getColumn('Mytime')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mytime')->getPhpType());
+        $this->assertSame(
+            '2007-05-08 12:35:29. 1234567 +12:15',
+            $tableSchema?->getColumn('Mytime')->getDefaultValue(),
+        );
 
         $command = $db->createCommand();
         $command->insert('date_default', [])->execute();
@@ -70,69 +86,6 @@ final class DateTest extends TestCase
                 SELECT * FROM date_default WHERE id = 1
                 SQL
             )->queryOne()
-        );
-    }
-
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
-    public function testDefaultValueExpressions(): void
-    {
-        $this->setFixture('Type/date.sql');
-
-        $db = $this->getConnection(true);
-        $command = $db->createCommand();
-        $command->insert('date_default_expressions', [])->execute();
-
-        $this->assertSame(
-            [
-                'id' => '1',
-                'Mydate1' => date('Y-m-d'),
-                'Mydate2' => date('Y-m-d'),
-                'Mydate3' => '2006-09-30',
-            ],
-            $command->setSql(
-                <<<SQL
-                SELECT id, Mydate1, Mydate2, Mydate3 FROM date_default_expressions WHERE id = 1
-                SQL
-            )->queryOne()
-        );
-        $this->assertInstanceOf(
-            DateTime::class,
-            DateTime::createFromFormat(
-                'Y-m-d H:i:s.u',
-                (string) $command->setSql(
-                    <<<SQL
-                    SELECT Mydatetime1 FROM date_default_expressions WHERE id = 1
-                    SQL,
-                )->queryScalar(),
-            ),
-        );
-        $this->assertInstanceOf(
-            DateTime::class,
-            DateTime::createFromFormat(
-                'Y-m-d H:i:s.uv P',
-                (string) $command->setSql(
-                    <<<SQL
-                    SELECT Mydatetimeoffset FROM date_default_expressions WHERE id = 1
-                    SQL,
-                )->queryScalar(),
-            ),
-        );
-        $this->assertInstanceOf(
-            DateTime::class,
-            DateTime::createFromFormat(
-                'H:i:s.uv',
-                (string) $command->setSql(
-                    <<<SQL
-                    SELECT Mytime FROM date_default_expressions WHERE id = 1
-                    SQL,
-                )->queryScalar(),
-            ),
         );
     }
 

@@ -36,13 +36,18 @@ final class BinaryTest extends TestCase
         $this->setFixture('Type/binary.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('binary_default');
+        $tableSchema = $db->getTableSchema('binary_default');
 
         $this->assertSame('binary(10)', $tableSchema?->getColumn('Mybinary1')->getDbType());
         $this->assertSame('resource', $tableSchema?->getColumn('Mybinary1')->getPhpType());
+        $this->assertSame(
+            'CONVERT([binary](10),\'binary\')',
+            $tableSchema?->getColumn('Mybinary1')->getDefaultValue(),
+        );
 
         $this->assertSame('binary(1)', $tableSchema?->getColumn('Mybinary2')->getDbType());
         $this->assertSame('resource', $tableSchema?->getColumn('Mybinary2')->getPhpType());
+        $this->assertSame('CONVERT([binary](1),\'b\')', $tableSchema?->getColumn('Mybinary2')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('binary_default', [])->execute();

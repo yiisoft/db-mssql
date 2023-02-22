@@ -38,16 +38,28 @@ final class VarBinaryTest extends TestCase
         $this->setFixture('Type/varbinary.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('varbinary_default');
+        $tableSchema = $db->getTableSchema('varbinary_default');
 
         $this->assertSame('varbinary(10)', $tableSchema?->getColumn('Myvarbinary1')->getDbType());
         $this->assertSame('resource', $tableSchema?->getColumn('Myvarbinary1')->getPhpType());
+        $this->assertSame(
+            'CONVERT([varbinary](10),\'varbinary\')',
+            $tableSchema?->getColumn('Myvarbinary1')->getDefaultValue(),
+        );
 
         $this->assertSame('varbinary(100)', $tableSchema?->getColumn('Myvarbinary2')->getDbType());
         $this->assertSame('resource', $tableSchema?->getColumn('Myvarbinary2')->getPhpType());
+        $this->assertSame(
+            'CONVERT([varbinary](100),\'v\')',
+            $tableSchema?->getColumn('Myvarbinary2')->getDefaultValue(),
+        );
 
         $this->assertSame('varbinary(20)', $tableSchema?->getColumn('Myvarbinary3')->getDbType());
         $this->assertSame('resource', $tableSchema?->getColumn('Myvarbinary3')->getPhpType());
+        $this->assertSame(
+            'hashbytes(\'MD5\',\'test string\')',
+            $tableSchema?->getColumn('Myvarbinary3')->getDefaultValue(),
+        );
 
         $command = $db->createCommand();
         $command->insert('varbinary_default', [])->execute();

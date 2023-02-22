@@ -36,10 +36,11 @@ final class DecimalTest extends TestCase
         $this->setFixture('Type/decimal.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('decimal_default');
+        $tableSchema = $db->getTableSchema('decimal_default');
 
         $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Mydecimal')->getPhpType());
+        $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('decimal_default', [])->execute();

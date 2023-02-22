@@ -35,10 +35,11 @@ final class BigIntTest extends TestCase
         $this->setFixture('Type/bigint.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('bigint_default');
+        $tableSchema = $db->getTableSchema('bigint_default');
 
         $this->assertSame('bigint', $tableSchema?->getColumn('Mybigint')->getDbType());
         $this->assertSame('integer', $tableSchema?->getColumn('Mybigint')->getPhpType());
+        $this->assertSame(9223372036854775807, $tableSchema?->getColumn('Mybigint')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('bigint_default', [])->execute();

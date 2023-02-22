@@ -35,10 +35,11 @@ final class MoneyTest extends TestCase
         $this->setFixture('Type/money.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('money_default');
+        $tableSchema = $db->getTableSchema('money_default');
 
         $this->assertSame('money', $tableSchema->getColumn('Mymoney')->getDbType());
         $this->assertSame('string', $tableSchema->getColumn('Mymoney')->getPhpType());
+        $this->assertSame('922337203685477.5807', $tableSchema->getColumn('Mymoney')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('money_default', [])->execute();

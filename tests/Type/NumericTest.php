@@ -36,10 +36,11 @@ final class NumericTest extends TestCase
         $this->setFixture('Type/numeric.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('numeric_default');
+        $tableSchema = $db->getTableSchema('numeric_default');
 
         $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Mynumeric')->getPhpType());
+        $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mynumeric')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('numeric_default', [])->execute();

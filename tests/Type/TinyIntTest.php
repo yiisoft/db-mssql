@@ -35,10 +35,11 @@ final class TinyIntTest extends TestCase
         $this->setFixture('Type/tinyint.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('tinyint_default');
+        $tableSchema = $db->getTableSchema('tinyint_default');
 
         $this->assertSame('tinyint', $tableSchema?->getColumn('Mytinyint')->getDbType());
         $this->assertSame('integer', $tableSchema?->getColumn('Mytinyint')->getPhpType());
+        $this->assertSame(255, $tableSchema?->getColumn('Mytinyint')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('tinyint_default', [])->execute();

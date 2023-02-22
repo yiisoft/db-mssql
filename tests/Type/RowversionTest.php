@@ -35,10 +35,11 @@ final class RowversionTest extends TestCase
         $this->setFixture('Type/rowversion.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('rowversion');
+        $tableSchema = $db->getTableSchema('rowversion');
 
         $this->assertSame('timestamp', $tableSchema?->getColumn('Myrowversion')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myrowversion')->getPhpType());
+        $this->assertNull($tableSchema?->getColumn('Myrowversion')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('rowversion', [])->execute();

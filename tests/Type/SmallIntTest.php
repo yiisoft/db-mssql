@@ -35,10 +35,11 @@ final class SmallIntTest extends TestCase
         $this->setFixture('Type/smallint.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('smallint_default');
+        $tableSchema = $db->getTableSchema('smallint_default');
 
         $this->assertSame('smallint', $tableSchema?->getColumn('Mysmallint')->getDbType());
         $this->assertSame('integer', $tableSchema?->getColumn('Mysmallint')->getPhpType());
+        $this->assertSame(32767, $tableSchema?->getColumn('Mysmallint')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('smallint_default', [])->execute();

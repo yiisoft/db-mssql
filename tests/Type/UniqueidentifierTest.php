@@ -35,10 +35,14 @@ final class UniqueidentifierTest extends TestCase
         $this->setFixture('Type/uniqueidentifier.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('uniqueidentifier_default');
+        $tableSchema = $db->getTableSchema('uniqueidentifier_default');
 
         $this->assertSame('uniqueidentifier', $tableSchema?->getColumn('Myuniqueidentifier')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myuniqueidentifier')->getPhpType());
+        $this->assertSame(
+            '12345678-1234-1234-1234-123456789012',
+            $tableSchema?->getColumn('Myuniqueidentifier')->getDefaultValue(),
+        );
 
         $command = $db->createCommand();
         $command->insert('uniqueidentifier_default', [])->execute();

@@ -36,10 +36,11 @@ final class ImageTest extends TestCase
         $this->setFixture('Type/image.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('image_default');
+        $tableSchema = $db->getTableSchema('image_default');
 
         $this->assertSame('image', $tableSchema?->getColumn('Myimage')->getDbType());
         $this->assertSame('resource', $tableSchema?->getColumn('Myimage')->getPhpType());
+        $this->assertSame('image', $tableSchema?->getColumn('Myimage')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('image_default', [])->execute();

@@ -35,13 +35,15 @@ final class CharTest extends TestCase
         $this->setFixture('Type/char.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('char_default');
+        $tableSchema = $db->getTableSchema('char_default');
 
         $this->assertSame('char(10)', $tableSchema?->getColumn('Mychar1')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mychar1')->getPhpType());
+        $this->assertSame('char', $tableSchema?->getColumn('Mychar1')->getDefaultValue());
 
         $this->assertSame('char(1)', $tableSchema?->getColumn('Mychar2')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mychar2')->getPhpType());
+        $this->assertSame('c', $tableSchema?->getColumn('Mychar2')->getDefaultValue());
 
         $command = $db->createCommand();
         $command->insert('char_default', [])->execute();
