@@ -56,7 +56,6 @@ final class MoneyTest extends TestCase
         $this->assertSame('922337203685477.5807', $tableSchema?->getColumn('Mymoney')->getDefaultValue());
     }
 
-
     /**
      * @throws Exception
      * @throws InvalidConfigException
