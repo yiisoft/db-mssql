@@ -446,19 +446,19 @@ final class Schema extends AbstractSchema
         $column->phpType($this->getColumnPhpType($column));
 
         if ($info['column_default'] === '(NULL)') {
-            $info['column_default'] = null;
+            $column->defaultValue(null);
         }
 
-        if (!$column->isPrimaryKey()) {
-            /** @var mixed $value */
-            $value = $info['column_default'];
+        if (!$column->isPrimaryKey() && !$column->isComputed() && $info['column_default'] !== null) {
+            /** @psalm-var mixed $value */
+            $value = $this->parseDefaultValue($info['column_default']);
 
-            if ($info['column_default'] !== null) {
+            if (is_numeric($value)) {
                 /** @psalm-var mixed $value */
-                $value = $this->parseDefaultValue($value);
+                $value = $column->phpTypeCast($value);
             }
 
-            $column->defaultValue($column->phpTypecast($value));
+            $column->defaultValue($value);
         }
 
         return $column;
