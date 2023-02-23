@@ -9,22 +9,22 @@ final class StringProvider
     public static function columns(): array
     {
         return [
-            /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/ascii-transact-sql?view=sql-server-ver16 */
+            /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/ascii-transact-sql?view=sql-server-ver16 */
             ['Myascii', 'int', 'integer', 'ascii(\'a\')'],
 
-            /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/char-transact-sql?view=sql-server-ver16 */
+            /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/char-transact-sql?view=sql-server-ver16 */
             ['Mychar', 'char(1)', 'string', 'char((97))'],
 
-            /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/charindex-transact-sql?view=sql-server-ver16 */
+            /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/charindex-transact-sql?view=sql-server-ver16 */
             ['Mycharindex', 'int', 'integer', 'charindex(\'B\',\'aBc\')'],
 
-            /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/concat-transact-sql?view=sql-server-ver16 */
+            /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/concat-transact-sql?view=sql-server-ver16 */
             ['Myconcat', 'varchar(3)', 'string', 'concat(\'a\',\'b\',\'c\')'],
 
             /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/concat-ws-transact-sql?view=sql-server-ver16 */
             ['Myconcatws', 'varchar(3)', 'string', 'concat_ws(\'a\',\'b\',\'C\')'],
 
-            /* edge case */
+            /** edge case */
             [
                 'Mycomplex',
                 'varchar(10)',
@@ -32,16 +32,16 @@ final class StringProvider
                 'substring(stuff(concat(\'a\',\'b\',\'c\'),(3),(1),concat_ws(\'f\',\'g\',\'h\')),(5),(1))',
             ],
 
-            /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/data-length-transact-sql?view=sql-server-ver16 */
+            /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/data-length-transact-sql?view=sql-server-ver16 */
             ['Mydatalength', 'int', 'integer', 'datalength(\'abc\')'],
 
-            /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/left-transact-sql?view=sql-server-ver16 */
+            /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/left-transact-sql?view=sql-server-ver16 */
             ['Myleft', 'varchar(1)', 'string', 'left(\'abc\',(1))'],
 
-            /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver16 */
+            /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/len-transact-sql?view=sql-server-ver16 */
             ['Mylen', 'int', 'integer', 'len(\'abc\')'],
 
-            /* @link https://learn.microsoft.com/en-us/sql/t-sql/functions/lower-transact-sql?view=sql-server-ver16 */
+            /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/lower-transact-sql?view=sql-server-ver16 */
             ['Mylower', 'varchar(3)', 'string', 'lower(\'ABC\')'],
 
             /** @link https://learn.microsoft.com/en-us/sql/t-sql/functions/ltrim-transact-sql?view=sql-server-ver16 */
