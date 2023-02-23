@@ -73,7 +73,6 @@ final class StringTest extends TestCase
         $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('string')->execute();
-
     }
 
     private function buildTable(): ConnectionInterface
