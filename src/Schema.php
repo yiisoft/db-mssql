@@ -505,6 +505,12 @@ final class Schema extends AbstractSchema
         ELSE
             [t1].[data_type] + '(' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[character_maximum_length]))) + ')'
         END
+        WHEN [t1].[data_type] IN ('decimal','numeric') THEN
+        CASE WHEN [t1].[numeric_precision] = NULL OR [t1].[numeric_precision] = -1 THEN
+            [t1].[data_type]
+        ELSE
+            [t1].[data_type] + '(' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[numeric_precision]))) + ',' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[numeric_scale]))) + ')'
+        END
         ELSE
             [t1].[data_type]
         END AS 'data_type',
