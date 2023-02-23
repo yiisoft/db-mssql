@@ -38,7 +38,7 @@ final class DecimalTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('decimal_default');
 
-        $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
+        $this->assertSame('decimal(38,0)', $tableSchema?->getColumn('Mydecimal')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Mydecimal')->getPhpType());
 
         $command = $db->createCommand();
