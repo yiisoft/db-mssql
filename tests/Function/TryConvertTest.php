@@ -33,7 +33,7 @@ final class TryConvertTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testCreateTable(
+    public function testCreateTableWithDefaultValue(
         string $column,
         string $dbType,
         string $phpType,

@@ -30,6 +30,52 @@ final class VarCharTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
+    public function testCreateTableWithDefaultValue(): void
+    {
+        $db = $this->getConnection();
+
+        $schema = $db->getSchema();
+        $command = $db->createCommand();
+
+        if ($schema->getTableSchema('varchar_default') !== null) {
+            $command->dropTable('varchar_default')->execute();
+        }
+
+        $command->createTable(
+            'varchar_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myvarchar1' => 'VARCHAR(10) DEFAULT \'varchar\'',
+                'Myvarchar2' => 'VARCHAR(100) DEFAULT \'v\'',
+                'Myvarchar3' => 'VARCHAR(20) DEFAULT TRY_CONVERT(varchar(20), getdate())',
+            ],
+        )->execute();
+
+        $tableSchema = $db->getTableSchema('varchar_default');
+
+        $this->assertSame('varchar(10)', $tableSchema?->getColumn('Myvarchar1')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myvarchar1')->getPhpType());
+        $this->assertSame('varchar', $tableSchema?->getColumn('Myvarchar1')->getDefaultValue());
+
+        $this->assertSame('varchar(100)', $tableSchema?->getColumn('Myvarchar2')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myvarchar2')->getPhpType());
+        $this->assertSame('v', $tableSchema?->getColumn('Myvarchar2')->getDefaultValue());
+
+        $this->assertSame('varchar(20)', $tableSchema?->getColumn('Myvarchar3')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myvarchar3')->getPhpType());
+        $this->assertSame(
+            'TRY_CAST(getdate() AS [varchar](20))',
+            $tableSchema?->getColumn('Myvarchar3')->getDefaultValue(),
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/varchar.sql');

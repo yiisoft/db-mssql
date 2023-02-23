@@ -30,7 +30,7 @@ final class BigIntTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testCreateTableDefaultValue(): void
+    public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->getConnection();
 
