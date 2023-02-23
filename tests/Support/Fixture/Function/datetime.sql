@@ -13,8 +13,8 @@ CREATE TABLE [dbo].[datetime] (
     [Mydatetime5] [int] NOT NULL DEFAULT MONTH('2023-02-21'),
     [Mydatetime6] [int] NOT NULL DEFAULT YEAR('2023-02-21'),
     [Mydatetime7] [datetime] NOT NULL DEFAULT SYSDATETIME(),
-    [Mydatetime8] [datetime] NOT NULL DEFAULT SYSDATETIMEOFFSET(),
-    [Mydatetimeoffset] [datetimeoffset] NOT NULL DEFAULT SYSUTCDATETIME(),
+    [Mydatetimeoffset1] [datetimeoffset] NOT NULL DEFAULT SYSDATETIMEOFFSET(),
+    [Mydatetimeoffset2] [datetimeoffset] NOT NULL DEFAULT SYSUTCDATETIME(),
     [Mytime] [time] NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT [PK_datetime_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
