@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -24,41 +25,31 @@ final class CharTest extends TestCase
     use TestTrait;
 
     /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\CharProvider::columns
+     *
      * @throws Exception
      * @throws InvalidConfigException
      * @throws InvalidArgumentException
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testCreateTableWithDefaultValue(): void
-    {
-        $db = $this->getConnection();
-
-        $schema = $db->getSchema();
-        $command = $db->createCommand();
-
-        if ($schema->getTableSchema('char_default') !== null) {
-            $command->dropTable('char_default')->execute();
-        }
-
-        $command->createTable(
-            'char_default',
-            [
-                'id' => 'INT IDENTITY NOT NULL',
-                'Mychar1' => 'CHAR(10) DEFAULT \'char\'', // Max value
-                'Mychar2' => 'CHAR(1) DEFAULT \'c\'', // Max value
-            ],
-        )->execute();
+    public function testCreateTableWithDefaultValue(
+        string $column,
+        string $dbType,
+        string $phpType,
+        int $size,
+        string $defaultValue
+    ): void {
+        $db = $this->buildTable();
 
         $tableSchema = $db->getTableSchema('char_default');
 
-        $this->assertSame('char(10)', $tableSchema?->getColumn('Mychar1')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mychar1')->getPhpType());
-        $this->assertSame('char', $tableSchema?->getColumn('Mychar1')->getDefaultValue());
+        $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
+        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
+        $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
+        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
-        $this->assertSame('char(1)', $tableSchema?->getColumn('Mychar2')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mychar2')->getPhpType());
-        $this->assertSame('c', $tableSchema?->getColumn('Mychar2')->getDefaultValue());
+        $db->createCommand()->dropTable('char_default')->execute();
     }
 
     /**
@@ -68,36 +59,79 @@ final class CharTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithInsert(): void
     {
-        $this->setFixture('Type/char.sql');
-
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getTableSchema('char_default');
-
-        $this->assertSame('char(10)', $tableSchema?->getColumn('Mychar1')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mychar1')->getPhpType());
-        $this->assertSame('char', $tableSchema?->getColumn('Mychar1')->getDefaultValue());
-
-        $this->assertSame('char(1)', $tableSchema?->getColumn('Mychar2')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mychar2')->getPhpType());
-        $this->assertSame('c', $tableSchema?->getColumn('Mychar2')->getDefaultValue());
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('char_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Mychar1' => 'char      ',
-                'Mychar2' => 'c',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM char_default WHERE id = 1
+                SELECT * FROM [[char_default]] WHERE [[id]] = 1
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('char_default')->execute();
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\CharProvider::columns
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(
+        string $column,
+        string $dbType,
+        string $phpType,
+        int $size,
+        string $defaultValue
+    ): void {
+        $this->setFixture('Type/char.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('char_default');
+
+        $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
+        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
+        $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
+        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+
+        $db->createCommand()->dropTable('char_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/char.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('char_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[char_default]] WHERE [[id]] = 1
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('char_default')->execute();
     }
 
     /**
@@ -137,6 +171,8 @@ final class CharTest extends TestCase
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('char')->execute();
     }
 
     /**
@@ -159,5 +195,36 @@ final class CharTest extends TestCase
         );
 
         $command->insert('char', ['Mychar1' => '01234567891'])->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('char_default') !== null) {
+            $command->dropTable('char_default')->execute();
+        }
+
+        $command->createTable(
+            'char_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mychar1' => 'CHAR(10) DEFAULT \'char\'', // Max value
+                'Mychar2' => 'CHAR(1) DEFAULT \'c\'', // Max value
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Mychar1' => 'char      ',
+            'Mychar2' => 'c',
+        ];
     }
 }

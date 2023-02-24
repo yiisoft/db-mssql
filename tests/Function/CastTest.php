@@ -133,6 +133,7 @@ final class CastTest extends TestCase
     private function buildTable(): ConnectionInterface
     {
         $db = $this->getConnection();
+
         $command = $db->createCommand();
 
         if ($db->getSchema()->getTableSchema('cast') !== null) {

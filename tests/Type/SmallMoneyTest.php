@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -32,28 +33,41 @@ final class SmallMoneyTest extends TestCase
      */
     public function testCreateTableWithDefaultValue(): void
     {
-        $db = $this->getConnection();
-
-        $schema = $db->getSchema();
-        $command = $db->createCommand();
-
-        if ($schema->getTableSchema('smallmoney_default') !== null) {
-            $command->dropTable('smallmoney_default')->execute();
-        }
-
-        $command->createTable(
-            'smallmoney_default',
-            [
-                'id' => 'INT IDENTITY NOT NULL',
-                'Mysmallmoney' => 'SMALLMONEY DEFAULT \'214748.3647\'', // Max value is `214748.3647`.
-            ],
-        )->execute();
+        $db = $this->buildTable();
 
         $tableSchema = $db->getTableSchema('smallmoney_default');
 
         $this->assertSame('smallmoney', $tableSchema?->getColumn('Mysmallmoney')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mysmallmoney')->getPhpType());
         $this->assertSame('214748.3647', $tableSchema?->getColumn('Mysmallmoney')->getDefaultValue());
+
+        $db->createCommand()->dropTable('smallmoney_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
+
+        $command = $db->createCommand();
+        $command->insert('smallmoney_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[smallmoney_default]]
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('smallmoney_default')->execute();
     }
 
     /**
@@ -74,20 +88,34 @@ final class SmallMoneyTest extends TestCase
         $this->assertSame('string', $tableSchema?->getColumn('Mysmallmoney')->getPhpType());
         $this->assertSame('214748.3647', $tableSchema?->getColumn('Mysmallmoney')->getDefaultValue());
 
+        $db->createCommand()->dropTable('smallmoney_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/smallmoney.sql');
+
+        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('smallmoney_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Mysmallmoney' => '214748.3647',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM smallmoney_default WHERE id = 1
+                SELECT * FROM [[smallmoney_default]]
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('smallmoney_default')->execute();
     }
 
     /**
@@ -115,7 +143,7 @@ final class SmallMoneyTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM smallmoney WHERE id = 1
+                SELECT * FROM [[smallmoney]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -130,10 +158,12 @@ final class SmallMoneyTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM smallmoney WHERE id = 2
+                SELECT * FROM [[smallmoney]] WHERE [[id]] = 2
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('smallmoney')->execute();
     }
 
     /**
@@ -183,7 +213,7 @@ final class SmallMoneyTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM smallmoney WHERE id = 1
+                SELECT * FROM [[smallmoney]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -198,10 +228,12 @@ final class SmallMoneyTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM smallmoney WHERE id = 2
+                SELECT * FROM [[smallmoney]] WHERE [[id]] = 2
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('smallmoney')->execute();
     }
 
     /**
@@ -224,5 +256,34 @@ final class SmallMoneyTest extends TestCase
         );
 
         $command->insert('smallmoney', ['Mysmallmoney1' => '-214749.3648'])->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('smallmoney_default') !== null) {
+            $command->dropTable('smallmoney_default')->execute();
+        }
+
+        $command->createTable(
+            'smallmoney_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mysmallmoney' => 'SMALLMONEY DEFAULT \'214748.3647\'', // Max value is `214748.3647`.
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Mysmallmoney' => '214748.3647',
+        ];
     }
 }

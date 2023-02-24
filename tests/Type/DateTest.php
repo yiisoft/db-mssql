@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -24,59 +25,29 @@ final class DateTest extends TestCase
     use TestTrait;
 
     /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\DateProvider::columns
+     *
      * @throws Exception
      * @throws InvalidConfigException
      * @throws InvalidArgumentException
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testCreateTableWithDefaultValue(): void
-    {
-        $db = $this->getConnection();
-
-        $schema = $db->getSchema();
-        $command = $db->createCommand();
-
-        if ($schema->getTableSchema('date_default') !== null) {
-            $command->dropTable('date_default')->execute();
-        }
-
-        $command->createTable(
-            'date_default',
-            [
-                'id' => 'INT IDENTITY NOT NULL',
-                'Mydate' => 'DATE DEFAULT \'2007-05-08\'',
-                'Mydatetime' => 'DATETIME DEFAULT \'2007-05-08 12:35:29.123\'',
-                'Mydatetime2' => 'DATETIME2 DEFAULT \'2007-05-08 12:35:29.1234567\'',
-                'Mydatetimeoffset' => 'DATETIMEOFFSET DEFAULT \'2007-05-08 12:35:29.1234567 +12:15\'',
-                'Mytime' => 'TIME DEFAULT \'12:35:29.1234567\'',
-            ],
-        )->execute();
+    public function testCreateTableWithDefaultValue(
+        string $column,
+        string $dbType,
+        string $phpType,
+        string $defaultValue
+    ): void {
+        $db = $this->buildTable();
 
         $tableSchema = $db->getTableSchema('date_default');
 
-        $this->assertSame('date', $tableSchema?->getColumn('Mydate')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mydate')->getPhpType());
-        $this->assertSame('2007-05-08', $tableSchema?->getColumn('Mydate')->getDefaultValue());
+        $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
+        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
+        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
-        $this->assertSame('datetime', $tableSchema?->getColumn('Mydatetime')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mydatetime')->getPhpType());
-        $this->assertSame('2007-05-08 12:35:29.123', $tableSchema?->getColumn('Mydatetime')->getDefaultValue());
-
-        $this->assertSame('datetime2', $tableSchema?->getColumn('Mydatetime2')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mydatetime2')->getPhpType());
-        $this->assertSame('2007-05-08 12:35:29.1234567', $tableSchema?->getColumn('Mydatetime2')->getDefaultValue());
-
-        $this->assertSame('datetimeoffset', $tableSchema?->getColumn('Mydatetimeoffset')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mydatetimeoffset')->getPhpType());
-        $this->assertSame(
-            '2007-05-08 12:35:29.1234567 +12:15',
-            $tableSchema?->getColumn('Mydatetimeoffset')->getDefaultValue(),
-        );
-
-        $this->assertSame('time', $tableSchema?->getColumn('Mytime')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mytime')->getPhpType());
-        $this->assertSame('12:35:29.1234567', $tableSchema?->getColumn('Mytime')->getDefaultValue());
+        $db->createCommand()->insert('date_default', [])->execute();
     }
 
     /**
@@ -86,63 +57,77 @@ final class DateTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithInsert(): void
     {
-        $this->setFixture('Type/date.sql');
-
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getTableSchema('date_default');
-
-        $this->assertSame('date', $tableSchema?->getColumn('Mydate')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mydate')->getPhpType());
-        $this->assertSame(
-            '2007-05-08 12:35:29. 1234567 +12:15',
-            $tableSchema?->getColumn('Mydate')->getDefaultValue(),
-        );
-
-        $this->assertSame('datetime', $tableSchema?->getColumn('Mydatetime')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mydatetime')->getPhpType());
-        $this->assertSame('2007-05-08 12:35:29.123', $tableSchema?->getColumn('Mydatetime')->getDefaultValue());
-
-        $this->assertSame('datetime2', $tableSchema?->getColumn('Mydatetime2')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mydatetime2')->getPhpType());
-        $this->assertSame(
-            '2007-05-08 12:35:29. 1234567 +12:15',
-            $tableSchema?->getColumn('Mydatetime2')->getDefaultValue(),
-        );
-
-        $this->assertSame('datetimeoffset', $tableSchema?->getColumn('Mydatetimeoffset')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mydatetimeoffset')->getPhpType());
-        $this->assertSame(
-            '2007-05-08 12:35:29.1234567 +12:15',
-            $tableSchema?->getColumn('Mydatetimeoffset')->getDefaultValue(),
-        );
-
-        $this->assertSame('time', $tableSchema?->getColumn('Mytime')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mytime')->getPhpType());
-        $this->assertSame(
-            '2007-05-08 12:35:29. 1234567 +12:15',
-            $tableSchema?->getColumn('Mytime')->getDefaultValue(),
-        );
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('date_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Mydate' => '2007-05-08',
-                'Mydatetime' => '2007-05-08 12:35:29.123',
-                'Mydatetime2' => '2007-05-08 12:35:29.1234567',
-                'Mydatetimeoffset' => '2007-05-08 12:35:29.1234567 +12:15',
-                'Mytime' => '12:35:29.1234567',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM date_default WHERE id = 1
+                SELECT * FROM [[date_default]] WHERE [[id]] = 1
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('date_default')->execute();
+    }
+
+    /**
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\DateProvider::columns
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(
+        string $column,
+        string $dbType,
+        string $phpType,
+        string $defaultValue
+    ): void {
+        $this->setFixture('Type/date.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('date_default');
+
+        $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
+        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
+        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+
+        $db->createCommand()->dropTable('date_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/date.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('date_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[date_default]] WHERE [[id]] = 1
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('date_default')->execute();
     }
 
     /**
@@ -183,10 +168,12 @@ final class DateTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM date WHERE id = 1
+                SELECT * FROM [[date]] WHERE [[id]] = 1
                 SQL
-            )->queryOne(),
+            )->queryOne()
         );
+
+        $db->createCommand()->dropTable('date')->execute();
     }
 
     /**
@@ -208,5 +195,42 @@ final class DateTest extends TestCase
         );
 
         $db->createCommand()->insert('date', ['Mydate1' => '0000-00-00'])->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('date_default') !== null) {
+            $command->dropTable('date_default')->execute();
+        }
+
+        $command->createTable(
+            'date_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mydate' => 'DATE DEFAULT \'2007-05-08\'',
+                'Mydatetime' => 'DATETIME DEFAULT \'2007-05-08 12:35:29.123\'',
+                'Mydatetime2' => 'DATETIME2 DEFAULT \'2007-05-08 12:35:29.1234567\'',
+                'Mydatetimeoffset' => 'DATETIMEOFFSET DEFAULT \'2007-05-08 12:35:29.1234567 +12:15\'',
+                'Mytime' => 'TIME DEFAULT \'12:35:29.1234567\'',
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Mydate' => '2007-05-08',
+            'Mydatetime' => '2007-05-08 12:35:29.123',
+            'Mydatetime2' => '2007-05-08 12:35:29.1234567',
+            'Mydatetimeoffset' => '2007-05-08 12:35:29.1234567 +12:15',
+            'Mytime' => '12:35:29.1234567',
+        ];
     }
 }

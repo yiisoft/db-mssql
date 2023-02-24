@@ -14,7 +14,7 @@ CREATE TABLE [dbo].[geometry] (
 CREATE TABLE [dbo].[geometry_default] (
     [id] [int] IDENTITY NOT NULL,
     [Mygeometry1] [geometry] NOT NULL DEFAULT geometry::STGeomFromText('POINT(0 0)', 0),
-    [Mygeometry2] AS Mygeometry1.STAsText(),
+    [Mygeometry2] [geometry],
     CONSTRAINT [PK_geometry_default_pk] PRIMARY KEY CLUSTERED
     (
         [id] ASC

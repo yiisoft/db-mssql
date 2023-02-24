@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -32,28 +33,41 @@ final class IntTest extends TestCase
      */
     public function testCreateTableWithDefaultValue(): void
     {
-        $db = $this->getConnection();
-
-        $schema = $db->getSchema();
-        $command = $db->createCommand();
-
-        if ($schema->getTableSchema('int_default') !== null) {
-            $command->dropTable('int_default')->execute();
-        }
-
-        $command->createTable(
-            'int_default',
-            [
-                'id' => 'INT IDENTITY NOT NULL',
-                'Myint' => 'INT DEFAULT 2147483647', // Max value is `2147483647`.
-            ],
-        )->execute();
+        $db = $this->buildTable();
 
         $tableSchema = $db->getTableSchema('int_default');
 
         $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
         $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
         $this->assertSame(2147483647, $tableSchema?->getColumn('Myint')->getDefaultValue());
+
+        $db->createCommand()->dropTable('int_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
+
+        $command = $db->createCommand();
+        $command->insert('int_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[int_default]]
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('int_default')->execute();
     }
 
     /**
@@ -74,20 +88,34 @@ final class IntTest extends TestCase
         $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
         $this->assertSame(2147483647, $tableSchema?->getColumn('Myint')->getDefaultValue());
 
+        $db->createCommand()->dropTable('int_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/int.sql');
+
+        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('int_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Myint' => '2147483647',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM int_default WHERE id = 1
+                SELECT * FROM [[int_default]]
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('int_default')->execute();
     }
 
     /**
@@ -115,7 +143,7 @@ final class IntTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM int WHERE id = 1
+                SELECT * FROM [[int]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -130,10 +158,12 @@ final class IntTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM int WHERE id = 2
+                SELECT * FROM [[int]] WHERE [[id]]= 2
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('int')->execute();
     }
 
     /**
@@ -183,7 +213,7 @@ final class IntTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM int WHERE id = 1
+                SELECT * FROM [[int]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -198,10 +228,12 @@ final class IntTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM int WHERE id = 2
+                SELECT * FROM [[int]] WHERE [[id]] = 2
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('int')->execute();
     }
 
     /**
@@ -224,5 +256,34 @@ final class IntTest extends TestCase
         );
 
         $command->insert('int', ['Myint1' => -2147483649])->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('int_default') !== null) {
+            $command->dropTable('int_default')->execute();
+        }
+
+        $command->createTable(
+            'int_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myint' => 'INT DEFAULT 2147483647', // Max value is `2147483647`.
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Myint' => '2147483647',
+        ];
     }
 }

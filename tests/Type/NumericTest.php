@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -33,28 +34,42 @@ final class NumericTest extends TestCase
      */
     public function testCreateTableWithDefaultValue(): void
     {
-        $db = $this->getConnection();
-
-        $schema = $db->getSchema();
-        $command = $db->createCommand();
-
-        if ($schema->getTableSchema('numeric_default') !== null) {
-            $command->dropTable('numeric_default')->execute();
-        }
-
-        $command->createTable(
-            'numeric_default',
-            [
-                'id' => 'INT IDENTITY NOT NULL',
-                'Mynumeric' => 'NUMERIC(38, 0) DEFAULT \'99999999999999997748809823456034029568\'', // Max value is `99999999999999997748809823456034029568`.
-            ],
-        )->execute();
+        $db = $this->buildTable();
 
         $tableSchema = $db->getTableSchema('numeric_default');
 
-        $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
+        $this->assertSame('numeric(38,0)', $tableSchema?->getColumn('Mynumeric')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Mynumeric')->getPhpType());
+        $this->assertSame(38, $tableSchema?->getColumn('Mynumeric')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mynumeric')->getDefaultValue());
+
+        $db->createCommand()->dropTable('numeric_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
+
+        $command = $db->createCommand();
+        $command->insert('numeric_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[numeric_default]]
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('numeric_default')->execute();
     }
 
     /**
@@ -73,22 +88,37 @@ final class NumericTest extends TestCase
 
         $this->assertSame('numeric(38,0)', $tableSchema?->getColumn('Mynumeric')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Mynumeric')->getPhpType());
+        $this->assertSame(38, $tableSchema?->getColumn('Mynumeric')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mynumeric')->getDefaultValue());
 
+        $db->createCommand()->dropTable('numeric_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/numeric.sql');
+
+        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('numeric_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Mynumeric' => '99999999999999997748809823456034029568',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM numeric_default WHERE id = 1
+                SELECT * FROM [[numeric_default]]
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('numeric_default')->execute();
     }
 
     /**
@@ -119,7 +149,7 @@ final class NumericTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM numeric WHERE id = 1
+                SELECT * FROM [[numeric]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -137,10 +167,12 @@ final class NumericTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM numeric WHERE id = 2
+                SELECT * FROM [[numeric]] WHERE [[id]] = 2
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('numeric')->execute();
     }
 
     /**
@@ -171,7 +203,7 @@ final class NumericTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM numeric WHERE id = 1
+                SELECT * FROM [[numeric]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -189,10 +221,12 @@ final class NumericTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM numeric WHERE id = 2
+                SELECT * FROM [[numeric]] WHERE [[id]] = 2
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('numeric')->execute();
     }
 
     /**
@@ -218,5 +252,34 @@ final class NumericTest extends TestCase
             'decimal',
             ['Mynumeric1' => new Expression('-199999999999999997748809823456034029570')],
         )->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('numeric_default') !== null) {
+            $command->dropTable('numeric_default')->execute();
+        }
+
+        $command->createTable(
+            'numeric_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mynumeric' => 'NUMERIC(38, 0) DEFAULT \'99999999999999997748809823456034029568\'', // Max value is `99999999999999997748809823456034029568`.
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Mynumeric' => '99999999999999997748809823456034029568',
+        ];
     }
 }

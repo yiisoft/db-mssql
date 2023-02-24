@@ -134,6 +134,7 @@ final class ConvertTest extends TestCase
     private function buildTable(): ConnectionInterface
     {
         $db = $this->getConnection();
+
         $command = $db->createCommand();
 
         if ($db->getSchema()->getTableSchema('convert') !== null) {

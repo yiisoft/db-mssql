@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -32,22 +33,7 @@ final class UniqueidentifierTest extends TestCase
      */
     public function testCreateTableWithDefaultValue(): void
     {
-        $db = $this->getConnection();
-
-        $schema = $db->getSchema();
-        $command = $db->createCommand();
-
-        if ($schema->getTableSchema('uniqueidentifier_default') !== null) {
-            $command->dropTable('uniqueidentifier_default')->execute();
-        }
-
-        $command->createTable(
-            'uniqueidentifier_default',
-            [
-                'id' => 'INT IDENTITY NOT NULL',
-                'Myuniqueidentifier' => 'UNIQUEIDENTIFIER DEFAULT \'12345678-1234-1234-1234-123456789012\'',
-            ],
-        )->execute();
+        $db = $this->buildTable();
 
         $tableSchema = $db->getTableSchema('uniqueidentifier_default');
 
@@ -57,6 +43,34 @@ final class UniqueidentifierTest extends TestCase
             '12345678-1234-1234-1234-123456789012',
             $tableSchema?->getColumn('Myuniqueidentifier')->getDefaultValue(),
         );
+
+        $db->createCommand()->dropTable('uniqueidentifier_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
+
+        $command = $db->createCommand();
+        $command->insert('uniqueidentifier_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[uniqueidentifier_default]]
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('uniqueidentifier_default')->execute();
     }
 
     /**
@@ -80,20 +94,34 @@ final class UniqueidentifierTest extends TestCase
             $tableSchema?->getColumn('Myuniqueidentifier')->getDefaultValue(),
         );
 
+        $db->createCommand()->dropTable('uniqueidentifier_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/uniqueidentifier.sql');
+
+        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('uniqueidentifier_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Myuniqueidentifier' => '12345678-1234-1234-1234-123456789012',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM uniqueidentifier_default WHERE id = 1
+                SELECT * FROM [[uniqueidentifier_default]]
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('uniqueidentifier_default')->execute();
     }
 
     /**
@@ -124,10 +152,12 @@ final class UniqueidentifierTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM uniqueidentifier WHERE id = 1
+                SELECT * FROM [[uniqueidentifier]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('uniqueidentifier')->execute();
     }
 
     /**
@@ -180,9 +210,40 @@ final class UniqueidentifierTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM uniqueidentifier WHERE id = 1
+                SELECT * FROM [[uniqueidentifier]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('uniqueidentifier')->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('uniqueidentifier_default') !== null) {
+            $command->dropTable('uniqueidentifier_default')->execute();
+        }
+
+        $command->createTable(
+            'uniqueidentifier_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myuniqueidentifier' => 'UNIQUEIDENTIFIER DEFAULT \'12345678-1234-1234-1234-123456789012\'',
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Myuniqueidentifier' => '12345678-1234-1234-1234-123456789012',
+        ];
     }
 }

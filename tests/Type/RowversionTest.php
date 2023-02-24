@@ -47,7 +47,7 @@ final class RowversionTest extends TestCase
         $this->assertIsNumeric(
             $command->setSql(
                 <<<SQL
-                SELECT CONVERT(BIGINT, Myrowversion, 1) as Myrowversion FROM rowversion WHERE id = 1
+                SELECT CONVERT(BIGINT, [[Myrowversion]], 1) as [[Myrowversion]] FROM [[rowversion]] WHERE [[id]] = 1
                 SQL
             )->queryScalar()
         );

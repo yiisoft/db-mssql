@@ -16,7 +16,7 @@ CREATE TABLE [dbo].[varchar_default] (
     [id] [int] IDENTITY NOT NULL,
     [Myvarchar1] [varchar](10) NOT NULL DEFAULT 'varchar',
     [Myvarchar2] [varchar](100) NOT NULL DEFAULT 'v',
-    [Myvarchar3] [varchar](20) NOT NULL DEFAULT try_convert(varchar(20), getdate()),
+    [Myvarchar3] [varchar](20) NOT NULL DEFAULT TRY_CONVERT(varchar(20), year(getdate())),
     CONSTRAINT [PK_varchar_default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]

@@ -18,11 +18,11 @@ CREATE TABLE [dbo].[date] (
 
 CREATE TABLE [dbo].[date_default] (
     [id] [int] IDENTITY NOT NULL,
-    [Mydate] [date] NOT NULL DEFAULT '2007-05-08 12:35:29. 1234567 +12:15',
+    [Mydate] [date] NOT NULL DEFAULT '2007-05-08',
     [Mydatetime] [datetime] NOT NULL DEFAULT '2007-05-08 12:35:29.123',
-    [Mydatetime2] [datetime2] NOT NULL DEFAULT '2007-05-08 12:35:29. 1234567 +12:15',
+    [Mydatetime2] [datetime2] NOT NULL DEFAULT '2007-05-08 12:35:29.1234567',
     [Mydatetimeoffset] [datetimeoffset] NOT NULL DEFAULT '2007-05-08 12:35:29.1234567 +12:15',
-    [Mytime] [time] NOT NULL DEFAULT '2007-05-08 12:35:29. 1234567 +12:15',
+    [Mytime] [time] NOT NULL DEFAULT '12:35:29.1234567',
     CONSTRAINT [PK_date_default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
