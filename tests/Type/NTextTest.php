@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -30,30 +31,91 @@ final class NTextTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithDefaultValue(): void
     {
-        $this->setFixture('Type/ntext.sql');
+        $db = $this->buildTable();
 
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('ntext_default');
+        $tableSchema = $db->getTableSchema('ntext_default');
 
         $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myntext')->getPhpType());
+        $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDefaultValue());
+
+        $db->createCommand()->dropTable('ntext_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('ntext_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Myntext' => 'ntext',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM ntext_default WHERE id = 1
+                SELECT * FROM [[ntext_default]]
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('ntext_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(): void
+    {
+        $this->setFixture('Type/ntext.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('ntext_default');
+
+        $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myntext')->getPhpType());
+        $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDefaultValue());
+
+        $db->createCommand()->dropTable('ntext_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/ntext.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('ntext_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[ntext_default]]
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('ntext_default')->execute();
     }
 
     /**
@@ -79,9 +141,40 @@ final class NTextTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM ntext WHERE id = 1
+                SELECT * FROM [[ntext]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('ntext')->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('ntext_default') !== null) {
+            $command->dropTable('ntext_default')->execute();
+        }
+
+        $command->createTable(
+            'ntext_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myntext' => 'NTEXT DEFAULT \'ntext\'',
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Myntext' => 'ntext',
+        ];
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql\Tests\Type;
+namespace Yiisoft\Db\Mssql\Tests\Function;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
@@ -11,7 +11,6 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -19,14 +18,14 @@ use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
  *
  * @psalm-suppress PropertyNotSetInConstructor
  *
- * @link https://learn.microsoft.com/en-us/sql/t-sql/spatial-geometry/spatial-types-geometry-transact-sql?view=sql-server-ver16
+ * @link https://learn.microsoft.com/es-es/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-ver16
  */
-final class GeometryTest extends TestCase
+final class CastTest extends TestCase
 {
     use TestTrait;
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\GeometryProvider::columns
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Function\ConvertionProvider::castColumns
      *
      * @throws Exception
      * @throws InvalidConfigException
@@ -38,17 +37,17 @@ final class GeometryTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string|null $defaultValue
+        string $defaultValue
     ): void {
         $db = $this->buildTable();
 
-        $tableSchema = $db->getTableSchema('geometry_default');
+        $tableSchema = $db->getTableSchema('cast');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
-        $db->createCommand()->dropTable('geometry_default')->execute();
+        $db->createCommand()->dropTable('cast')->execute();
     }
 
     /**
@@ -63,22 +62,22 @@ final class GeometryTest extends TestCase
         $db = $this->buildTable();
 
         $command = $db->createCommand();
-        $command->insert('geometry_default', [])->execute();
+        $command->insert('cast', [])->execute();
 
         $this->assertSame(
             $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT [[id]], CAST([[Mygeometry1]] AS NVARCHAR(MAX)) AS [[Mygeometry1]], [[Mygeometry2]] FROM [[geometry_default]] WHERE [[id]] = 1
+                SELECT [id], [Mycast1], [Mycast2], [Mycast3], [Mycast4], [Mycast5], CONVERT(VARCHAR(10), [Mycast6], 1) [Mycast6] FROM [cast] WHERE [id] = 1
                 SQL
             )->queryOne(),
         );
 
-        $db->createCommand()->dropTable('geometry_default')->execute();
+        $db->createCommand()->dropTable('cast')->execute();
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\GeometryProvider::columns
+     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Function\ConvertionProvider::castColumns
      *
      * @throws Exception
      * @throws InvalidConfigException
@@ -90,18 +89,18 @@ final class GeometryTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string|null $defaultValue
+        string $defaultValue
     ): void {
-        $this->setFixture('Type/geometry.sql');
+        $this->setFixture('Function/convertion.sql');
 
         $db = $this->getConnection(true);
-        $tableSchema = $db->getTableSchema('geometry_default');
+        $tableSchema = $db->getTableSchema('cast');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
-        $db->createCommand()->dropTable('geometry_default')->execute();
+        $db->createCommand()->dropTable('cast')->execute();
     }
 
     /**
@@ -113,58 +112,22 @@ final class GeometryTest extends TestCase
      */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/geometry.sql');
+        $this->setFixture('Function/convertion.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
-        $command->insert('geometry_default', [])->execute();
+        $command->insert('cast', [])->execute();
 
         $this->assertSame(
             $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT [[id]], CAST([[Mygeometry1]] AS NVARCHAR(MAX)) AS [[Mygeometry1]], [[Mygeometry2]] FROM [[geometry_default]] WHERE [[id]] = 1
+                SELECT [id], [Mycast1], [Mycast2], [Mycast3], [Mycast4], [Mycast5], CONVERT(VARCHAR(10), [Mycast6], 1) [Mycast6] FROM [cast] WHERE [id] = 1
                 SQL
             )->queryOne(),
         );
 
-        $db->createCommand()->dropTable('geometry_default')->execute();
-    }
-
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
-    public function testValue(): void
-    {
-        $this->setFixture('Type/geometry.sql');
-
-        $db = $this->getConnection(true);
-        $command = $db->createCommand();
-        $command->insert(
-            'geometry',
-            [
-                'Mygeometry1' => new Expression('geometry::STGeomFromText(\'LINESTRING(100 100,20 180,180 180)\', 0)'),
-            ],
-        )->execute();
-
-        $this->assertSame(
-            [
-                'id' => '1',
-                'Mygeometry1' => 'LINESTRING (100 100, 20 180, 180 180)',
-                'Mygeometry2' => 'LINESTRING (100 100, 20 180, 180 180)',
-            ],
-            $command->setSql(
-                <<<SQL
-                SELECT [[id]], CAST([[Mygeometry1]] AS NVARCHAR(MAX)) AS [[Mygeometry1]], [[Mygeometry2]] FROM [[geometry]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
-        );
-
-        $db->createCommand()->dropTable('geometry')->execute();
+        $db->createCommand()->dropTable('cast')->execute();
     }
 
     private function buildTable(): ConnectionInterface
@@ -173,16 +136,20 @@ final class GeometryTest extends TestCase
 
         $command = $db->createCommand();
 
-        if ($db->getSchema()->getTableSchema('geometry_default') !== null) {
-            $command->dropTable('geometry_default')->execute();
+        if ($db->getSchema()->getTableSchema('cast') !== null) {
+            $command->dropTable('cast')->execute();
         }
 
         $command->createTable(
-            'geometry_default',
+            'cast',
             [
                 'id' => 'INT IDENTITY NOT NULL',
-                'Mygeometry1' => 'GEOMETRY DEFAULT [geometry]::STGeomFromText(\'POINT(0 0)\',(0))',
-                'Mygeometry2' => 'GEOMETRY',
+                'Mycast1' => 'INT NOT NULL DEFAULT CAST(\'1\' AS INT)',
+                'Mycast2' => 'INT NOT NULL DEFAULT CAST(14.85 AS INT)',
+                'Mycast3' => 'FLOAT NOT NULL DEFAULT CAST(\'14.85\' AS FLOAT)',
+                'Mycast4' => 'VARCHAR(4) NOT NULL DEFAULT CAST(15.6 AS VARCHAR(4))',
+                'Mycast5' => 'DATETIME NOT NULL DEFAULT CAST(\'2023-02-21\' AS DATETIME)',
+                'Mycast6' => 'BINARY(10) NOT NULL DEFAULT CAST(\'testme\' AS BINARY(10))',
             ],
         )->execute();
 
@@ -193,8 +160,12 @@ final class GeometryTest extends TestCase
     {
         return [
             'id' => '1',
-            'Mygeometry1' => 'POINT (0 0)',
-            'Mygeometry2' => null,
+            'Mycast1' => '1',
+            'Mycast2' => '14',
+            'Mycast3' => '14.85',
+            'Mycast4' => '15.6',
+            'Mycast5' => '2023-02-21 00:00:00.000',
+            'Mycast6' => '0x74657374',
         ];
     }
 }

@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -30,30 +31,91 @@ final class JsonTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithDefaultValue(): void
     {
-        $this->setFixture('Type/json.sql');
+        $db = $this->buildTable();
 
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('json_default');
+        $tableSchema = $db->getTableSchema('json_default');
 
         $this->assertSame('nvarchar', $tableSchema?->getColumn('Myjson')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Myjson')->getPhpType());
+        $this->assertSame('{}', $tableSchema?->getColumn('Myjson')->getDefaultValue());
+
+        $db->createCommand()->dropTable('json_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('json_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Myjson' => '{}',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM json_default WHERE id = 1
+                SELECT * FROM [[json_default]]
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('json_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(): void
+    {
+        $this->setFixture('Type/json.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('json_default');
+
+        $this->assertSame('nvarchar', $tableSchema?->getColumn('Myjson')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Myjson')->getPhpType());
+        $this->assertSame('{}', $tableSchema?->getColumn('Myjson')->getDefaultValue());
+
+        $db->createCommand()->dropTable('json_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/json.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('json_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[json_default]]
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('json_default')->execute();
     }
 
     /**
@@ -75,7 +137,7 @@ final class JsonTest extends TestCase
             '0',
             $command->setSql(
                 <<<SQL
-                SELECT ISJSON(Myjson) AS Myjson FROM json WHERE id = 1
+                SELECT ISJSON([[Myjson]]) AS [[Myjson]] FROM [[json]] WHERE id = 1
                 SQL
             )->queryScalar(),
         );
@@ -100,7 +162,7 @@ final class JsonTest extends TestCase
             '1',
             $command->setSql(
                 <<<SQL
-                SELECT ISJSON(Myjson) AS Myjson FROM json WHERE id = 1
+                SELECT ISJSON([[Myjson]]) AS [[Myjson]] FROM [[json]] WHERE [[id]] = 1
                 SQL
             )->queryScalar(),
         );
@@ -128,7 +190,7 @@ final class JsonTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM json WHERE id = 1
+                SELECT * FROM [[json]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -142,7 +204,7 @@ final class JsonTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM json WHERE id = 2
+                SELECT * FROM [[json]] WHERE [[id]] = 2
                 SQL
             )->queryOne()
         );
@@ -156,7 +218,7 @@ final class JsonTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT JSON_VALUE(Myjson, '$.a') AS a, JSON_VALUE(Myjson, '$.b') AS b, JSON_VALUE(Myjson, '$.c') AS c, JSON_VALUE(Myjson, '$.d') AS d, JSON_VALUE(Myjson, '$.e') AS e FROM json WHERE id = 1
+                SELECT JSON_VALUE([[Myjson]], '$.a') AS [[a]], JSON_VALUE([[Myjson]], '$.b') AS [[b]], JSON_VALUE([[Myjson]], '$.c') AS [[c]], JSON_VALUE([[Myjson]], '$.d') AS [[d]], JSON_VALUE([[Myjson]], '$.e') AS [[e]] FROM [[json]] WHERE [[id]] = 1
                 SQL
             )->queryOne(),
         );
@@ -174,9 +236,38 @@ final class JsonTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT JSON_QUERY(Myjson, '$.info.address') AS address FROM json WHERE id = 3
+                SELECT JSON_QUERY([[Myjson]], '$.info.address') AS address FROM [[json]] WHERE [[id]] = 3
                 SQL
             )->queryOne(),
         );
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('json_default') !== null) {
+            $command->dropTable('json_default')->execute();
+        }
+
+        $command->createTable(
+            'json_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myjson' => 'NVARCHAR(MAX) DEFAULT \'{}\'',
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Myjson' => '{}',
+        ];
     }
 }

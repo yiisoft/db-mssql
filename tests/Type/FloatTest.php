@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -31,30 +32,94 @@ final class FloatTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithDefaultValue(): void
     {
-        $this->setFixture('Type/float.sql');
+        $db = $this->buildTable();
 
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('float_default');
+        $tableSchema = $db->getTableSchema('float_default');
 
         $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Myfloat')->getPhpType());
+        $this->assertSame(2.2300000000000001e-308, $tableSchema?->getColumn('Myfloat')->getDefaultValue());
+
+        $db->createCommand()->insert('float_default', [])->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('float_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Myfloat' => '2.2300000000000001E-308',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM float_default WHERE id = 1
+                SELECT * FROM [[float_default]] WHERE [[id]] = 1
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('float_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(): void
+    {
+        $this->setFixture('Type/float.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('float_default');
+
+        $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Myfloat')->getPhpType());
+        $this->assertSame(2.2300000000000001e-308, $tableSchema?->getColumn('Myfloat')->getDefaultValue());
+
+        $command = $db->createCommand();
+        $command->insert('float_default', [])->execute();
+
+        $db->createCommand()->insert('float_default', [])->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/float.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('float_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[float_default]] WHERE [[id]] = 1
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('float_default')->execute();
     }
 
     /**
@@ -101,6 +166,8 @@ final class FloatTest extends TestCase
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('float')->execute();
     }
 
     /**
@@ -169,6 +236,8 @@ final class FloatTest extends TestCase
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('float')->execute();
     }
 
     /**
@@ -191,5 +260,34 @@ final class FloatTest extends TestCase
         );
 
         $command->insert('float', ['Myfloat1' => new Expression('-1.80E+308')])->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('float_default') !== null) {
+            $command->dropTable('float_default')->execute();
+        }
+
+        $command->createTable(
+            'float_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myfloat' => 'FLOAT DEFAULT 2.2300000000000001e-308',
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Myfloat' => '2.2300000000000001E-308',
+        ];
     }
 }

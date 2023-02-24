@@ -820,8 +820,8 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
 
-        $this->assertEquals('varchar(255)', $schema?->getColumn('bar')->getDbType());
-        $this->assertEquals(true, $schema?->getColumn('bar')->isAllowNull());
+        $this->assertSame('varchar(255)', $schema?->getColumn('bar')->getDbType());
+        $this->assertSame(true, $schema?->getColumn('bar')->isAllowNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
@@ -830,8 +830,9 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
-        $this->assertEquals(false, $schema?->getColumn('bar')->isAllowNull());
+
+        $this->assertSame('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
+        $this->assertSame(false, $schema?->getColumn('bar')->isAllowNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
@@ -840,8 +841,8 @@ ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals(SchemaInterface::TYPE_DATETIME, $schema?->getColumn('bar')->getDbType());
-        $this->assertEquals('getdate()', $schema?->getColumn('bar')->getDefaultValue());
+        $this->assertSame(SchemaInterface::TYPE_DATETIME, $schema?->getColumn('bar')->getDbType());
+        $this->assertSame('getdate()', $schema?->getColumn('bar')->getDefaultValue());
     }
 
     /**

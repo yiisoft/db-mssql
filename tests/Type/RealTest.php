@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -31,30 +32,91 @@ final class RealTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithDefaultValue(): void
     {
-        $this->setFixture('Type/real.sql');
+        $db = $this->buildtable();
 
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('real_default');
+        $tableSchema = $db->getTableSchema('real_default');
 
         $this->assertSame('real', $tableSchema?->getColumn('Myreal')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Myreal')->getPhpType());
+        $this->assertSame(3.4000000000000000e+038, $tableSchema?->getColumn('Myreal')->getDefaultValue());
+
+        $db->createCommand()->dropTable('real_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('real_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Myreal' => '3.4E+38',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM real_default WHERE id = 1
+                SELECT * FROM [[real_default]]
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('real_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(): void
+    {
+        $this->setFixture('Type/real.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('real_default');
+
+        $this->assertSame('real', $tableSchema?->getColumn('Myreal')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Myreal')->getPhpType());
+        $this->assertSame(3.4000000000000000e+038, $tableSchema?->getColumn('Myreal')->getDefaultValue());
+
+        $db->createCommand()->dropTable('real_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/real.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('real_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[real_default]]
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('real_default')->execute();
     }
 
     /**
@@ -101,6 +163,8 @@ final class RealTest extends TestCase
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('real')->execute();
     }
 
     /**
@@ -112,7 +176,7 @@ final class RealTest extends TestCase
      */
     public function testMaxValueException(): void
     {
-        $this->setFixture('Type/float.sql');
+        $this->setFixture('Type/real.sql');
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
@@ -169,6 +233,8 @@ final class RealTest extends TestCase
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('real')->execute();
     }
 
     /**
@@ -191,5 +257,34 @@ final class RealTest extends TestCase
         );
 
         $command->insert('real', ['Myreal1' => new Expression('-4.4E+38')])->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('real_default') !== null) {
+            $command->dropTable('real_default')->execute();
+        }
+
+        $command->createTable(
+            'real_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Myreal' => 'REAL DEFAULT 3.4000000000000000e+038',
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Myreal' => '3.4E+38',
+        ];
     }
 }

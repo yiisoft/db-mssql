@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -30,30 +31,91 @@ final class TextTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithDefaultValue(): void
     {
-        $this->setFixture('Type/text.sql');
+        $db = $this->buildTable();
 
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('text_default');
+        $tableSchema = $db->getTableSchema('text_default');
 
         $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDbType());
         $this->assertSame('string', $tableSchema?->getColumn('Mytext')->getPhpType());
+        $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDefaultValue());
+
+        $db->createCommand()->dropTable('text_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('text_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Mytext' => 'text',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM text_default WHERE id = 1
+                SELECT * FROM [[text_default]]
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('text_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(): void
+    {
+        $this->setFixture('Type/text.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('text_default');
+
+        $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDbType());
+        $this->assertSame('string', $tableSchema?->getColumn('Mytext')->getPhpType());
+        $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDefaultValue());
+
+        $db->createCommand()->dropTable('text_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/text.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('text_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[text_default]]
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('text_default')->execute();
     }
 
     /**
@@ -79,9 +141,40 @@ final class TextTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM text WHERE id = 1
+                SELECT * FROM [[text]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('text')->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('text_default') !== null) {
+            $command->dropTable('text_default')->execute();
+        }
+
+        $command->createTable(
+            'text_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mytext' => 'TEXT DEFAULT \'text\'',
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Mytext' => 'text',
+        ];
     }
 }

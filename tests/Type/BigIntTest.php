@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -30,30 +31,91 @@ final class BigIntTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithDefaultValue(): void
     {
-        $this->setFixture('Type/bigint.sql');
+        $db = $this->buildTable();
 
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('bigint_default');
+        $tableSchema = $db->getTableSchema('bigint_default');
 
         $this->assertSame('bigint', $tableSchema?->getColumn('Mybigint')->getDbType());
         $this->assertSame('integer', $tableSchema?->getColumn('Mybigint')->getPhpType());
+        $this->assertSame(9223372036854775807, $tableSchema?->getColumn('Mybigint')->getDefaultValue());
+
+        $db->createCommand()->dropTable('bigint_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('bigint_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Mybigint' => '9223372036854775807',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM bigint_default WHERE id = 1
+                SELECT * FROM [[bigint_default]] WHERE [[id]] = 1
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('bigint_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(): void
+    {
+        $this->setFixture('Type/bigint.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('bigint_default');
+
+        $this->assertSame('bigint', $tableSchema?->getColumn('Mybigint')->getDbType());
+        $this->assertSame('integer', $tableSchema?->getColumn('Mybigint')->getPhpType());
+        $this->assertSame(9223372036854775807, $tableSchema?->getColumn('Mybigint')->getDefaultValue());
+
+        $db->createCommand()->dropTable('bigint_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/bigint.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('bigint_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[bigint_default]] WHERE [[id]] = 1
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('bigint_default')->execute();
     }
 
     /**
@@ -101,6 +163,8 @@ final class BigIntTest extends TestCase
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('bigint')->execute();
     }
 
     /**
@@ -148,5 +212,36 @@ final class BigIntTest extends TestCase
                 SQL
             )->queryOne()
         );
+
+        $db->createCommand()->dropTable('bigint')->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('bigint_default') !== null) {
+            $command->dropTable('bigint_default')->execute();
+        }
+
+        $command->createTable(
+            'bigint_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mybigint' => 'BIGINT DEFAULT 9223372036854775807', // Max value
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Mybigint' => '9223372036854775807',
+        ];
     }
 }

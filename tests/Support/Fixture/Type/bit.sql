@@ -15,7 +15,7 @@ CREATE TABLE [dbo].[bit_default] (
     [id] [int] IDENTITY NOT NULL,
     [Mybit1] [bit] NOT NULL DEFAULT 0,
     [Mybit2] [bit] NOT NULL DEFAULT 1,
-    [Mybit3] [bit] NOT NULL DEFAULT 0.5,
+    [Mybit3] [bit] NOT NULL DEFAULT 2,
     CONSTRAINT [PK_bit_default_pk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]

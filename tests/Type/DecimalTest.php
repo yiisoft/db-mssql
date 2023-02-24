@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -31,30 +32,93 @@ final class DecimalTest extends TestCase
      * @throws NotSupportedException
      * @throws Throwable
      */
-    public function testDefaultValue(): void
+    public function testCreateTableWithDefaultValue(): void
     {
-        $this->setFixture('Type/decimal.sql');
+        $db = $this->buildTable();
 
-        $db = $this->getConnection(true);
-        $tableSchema = $db->getSchema()->getTableSchema('decimal_default');
+        $tableSchema = $db->getTableSchema('decimal_default');
 
         $this->assertSame('decimal(38,0)', $tableSchema?->getColumn('Mydecimal')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Mydecimal')->getPhpType());
+        $this->assertSame(38, $tableSchema?->getColumn('Mydecimal')->getSize());
+        $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
+
+        $db->createCommand()->insert('decimal_default', [])->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testCreateTableWithInsert(): void
+    {
+        $db = $this->buildTable();
 
         $command = $db->createCommand();
         $command->insert('decimal_default', [])->execute();
 
         $this->assertSame(
-            [
-                'id' => '1',
-                'Mydecimal' => '99999999999999997748809823456034029568',
-            ],
+            $this->getColumns(),
             $command->setSql(
                 <<<SQL
-                SELECT * FROM decimal_default WHERE id = 1
+                SELECT * FROM [[decimal_default]] WHERE [[id]] = 1
                 SQL
-            )->queryOne()
+            )->queryOne(),
         );
+
+        $db->createCommand()->dropTable('decimal_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValue(): void
+    {
+        $this->setFixture('Type/decimal.sql');
+
+        $db = $this->getConnection(true);
+        $tableSchema = $db->getTableSchema('decimal_default');
+
+        $this->assertSame('decimal(38,0)', $tableSchema?->getColumn('Mydecimal')->getDbType());
+        $this->assertSame('double', $tableSchema?->getColumn('Mydecimal')->getPhpType());
+        $this->assertSame(38, $tableSchema?->getColumn('Mydecimal')->getSize());
+        $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
+
+        $db->createCommand()->dropTable('decimal_default')->execute();
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    public function testDefaultValueWithInsert(): void
+    {
+        $this->setFixture('Type/decimal.sql');
+
+        $db = $this->getConnection(true);
+        $command = $db->createCommand();
+        $command->insert('decimal_default', [])->execute();
+
+        $this->assertSame(
+            $this->getColumns(),
+            $command->setSql(
+                <<<SQL
+                SELECT * FROM [[decimal_default]] WHERE [[id]] = 1
+                SQL
+            )->queryOne(),
+        );
+
+        $db->createCommand()->dropTable('decimal_default')->execute();
     }
 
     /**
@@ -85,7 +149,7 @@ final class DecimalTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM decimal WHERE id = 1
+                SELECT * FROM [[decimal]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -103,7 +167,7 @@ final class DecimalTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM decimal WHERE id = 2
+                SELECT * FROM [[decimal]] WHERE [[id]] = 2
                 SQL
             )->queryOne()
         );
@@ -162,7 +226,7 @@ final class DecimalTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM decimal WHERE id = 1
+                SELECT * FROM [[decimal]] WHERE [[id]] = 1
                 SQL
             )->queryOne()
         );
@@ -180,7 +244,7 @@ final class DecimalTest extends TestCase
             ],
             $command->setSql(
                 <<<SQL
-                SELECT * FROM decimal WHERE id = 2
+                SELECT * FROM [[decimal]] WHERE [[id]] = 2
                 SQL
             )->queryOne()
         );
@@ -209,5 +273,34 @@ final class DecimalTest extends TestCase
             'decimal',
             ['Mydecimal1' => new Expression('-199999999999999997748809823456034029570')],
         )->execute();
+    }
+
+    private function buildTable(): ConnectionInterface
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+
+        if ($db->getSchema()->getTableSchema('decimal_default') !== null) {
+            $command->dropTable('decimal_default')->execute();
+        }
+
+        $command->createTable(
+            'decimal_default',
+            [
+                'id' => 'INT IDENTITY NOT NULL',
+                'Mydecimal' => 'DECIMAL(38, 0) DEFAULT 99999999999999997748809823456034029568', // Max value
+            ],
+        )->execute();
+
+        return $db;
+    }
+
+    private function getColumns(): array
+    {
+        return [
+            'id' => '1',
+            'Mydecimal' => '99999999999999997748809823456034029568',
+        ];
     }
 }
