@@ -38,7 +38,7 @@ final class NumericTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getSchema()->getTableSchema('numeric_default');
 
-        $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
+        $this->assertSame('numeric(38,0)', $tableSchema?->getColumn('Mynumeric')->getDbType());
         $this->assertSame('double', $tableSchema?->getColumn('Mynumeric')->getPhpType());
 
         $command = $db->createCommand();
