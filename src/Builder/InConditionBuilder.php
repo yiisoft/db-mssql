@@ -23,11 +23,6 @@ use function str_contains;
  */
 final class InConditionBuilder extends AbstractInConditionBuilder
 {
-    public function __construct(private QueryBuilderInterface $queryBuilder)
-    {
-        parent::__construct($queryBuilder);
-    }
-
     /**
      * Builds SQL for IN condition.
      *
