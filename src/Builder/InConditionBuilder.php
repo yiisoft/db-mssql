@@ -10,7 +10,6 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
-use Yiisoft\Db\QueryBuilder\Condition\Builder\InConditionBuilder as AbstractInConditionBuilder;
 
 use function implode;
 use function is_array;
@@ -20,7 +19,7 @@ use function str_contains;
  * InConditionBuilder builds conditions for {@see `\Yiisoft\Db\QueryBuilder\Condition\InCondition`} IN operator for
  * MSSQL Server.
  */
-final class InConditionBuilder extends AbstractInConditionBuilder
+final class InConditionBuilder extends \Yiisoft\Db\QueryBuilder\Condition\Builder\InConditionBuilder
 {
     /**
      * Builds SQL for IN condition.
