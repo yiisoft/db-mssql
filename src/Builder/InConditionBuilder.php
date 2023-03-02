@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Builder;
 
 use Iterator;
-use Traversable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -18,6 +17,10 @@ use function implode;
 use function is_array;
 use function str_contains;
 
+/**
+ * InConditionBuilder builds conditions for {@see `\Yiisoft\Db\QueryBuilder\Condition\InCondition`} IN operator for
+ * MSSQL Server.
+ */
 final class InConditionBuilder extends AbstractInConditionBuilder
 {
     public function __construct(private QueryBuilderInterface $queryBuilder)
@@ -45,10 +48,15 @@ final class InConditionBuilder extends AbstractInConditionBuilder
 
     /**
      * Builds SQL for IN condition.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     protected function buildCompositeInCondition(
         string|null $operator,
-        array|Traversable $columns,
+        iterable $columns,
         iterable|Iterator $values,
         array &$params = []
     ): string {
