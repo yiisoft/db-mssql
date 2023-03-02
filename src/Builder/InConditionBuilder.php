@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Builder;
 
 use Iterator;
-use Traversable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -48,7 +47,7 @@ final class InConditionBuilder extends AbstractInConditionBuilder
      */
     protected function buildCompositeInCondition(
         string|null $operator,
-        array|Traversable $columns,
+        iterable $columns,
         iterable|Iterator $values,
         array &$params = []
     ): string {
