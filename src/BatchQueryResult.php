@@ -35,7 +35,7 @@ final class BatchQueryResult extends BaseBatchQueryResult
                 $row = $this->dataReader?->current();
             } while ($row && ($rows[] = $row) && ++$count < $this->batchSize);
         } catch (PDOException $e) {
-            if (!in_array($this->mssqlNoMoreRowsErrorCode, (array) $e->errorInfo)) {
+            if (!in_array($this->mssqlNoMoreRowsErrorCode, (array)$e->errorInfo, true)) {
                 throw $e;
             }
         }
