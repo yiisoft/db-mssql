@@ -17,6 +17,10 @@ use function implode;
 use function is_array;
 use function str_contains;
 
+/**
+ * InConditionBuilder builds conditions for {@see `\Yiisoft\Db\QueryBuilder\Condition\InCondition`} IN operator for
+ * MSSQL Server.
+ */
 final class InConditionBuilder extends AbstractInConditionBuilder
 {
     public function __construct(private QueryBuilderInterface $queryBuilder)
@@ -27,7 +31,10 @@ final class InConditionBuilder extends AbstractInConditionBuilder
     /**
      * Builds SQL for IN condition.
      *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     protected function buildSubqueryInCondition(
         string $operator,
@@ -44,6 +51,11 @@ final class InConditionBuilder extends AbstractInConditionBuilder
 
     /**
      * Builds SQL for IN condition.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     protected function buildCompositeInCondition(
         string|null $operator,
