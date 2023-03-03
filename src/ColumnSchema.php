@@ -13,11 +13,11 @@ use function bin2hex;
 use function is_string;
 
 /**
- * The ColumnSchema represents the metadata of a column in a database table for MSSQL Server. It provides information
- * about the column's name, type, size, precision, and other details.
+ * Represents the metadata of a column in a database table for MSSQL Server. It provides information about the column's
+ * name, type, size, precision, and other details.
  *
- * The ColumnSchema is used to store and retrieve metadata about a column in a database table. It is typically used in
- * conjunction with the TableSchema class, which represents the metadata of a database table as a whole.
+ * Is used to store and retrieve metadata about a column in a database table. It is typically used in conjunction with
+ * the TableSchema class, which represents the metadata of a database table as a whole.
  *
  * Here is an example of how the ColumnSchema class might be used:
  *
