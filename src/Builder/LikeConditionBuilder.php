@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Builder;
 
 /**
- * LikeConditionBuilder builds conditions for {@see `\Yiisoft\Db\QueryBuilder\Condition\LikeCondition`} LIKE operator
- * for MSSQL Server.
+ * Builds conditions for {@see `\Yiisoft\Db\QueryBuilder\Condition\LikeCondition`} LIKE operator for MSSQL Server.
  */
 final class LikeConditionBuilder extends \Yiisoft\Db\QueryBuilder\Condition\Builder\LikeConditionBuilder
 {
