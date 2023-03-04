@@ -32,5 +32,4 @@ final class BatchQueryResultTest extends CommonBatchQueryResultTest
         $this->assertEquals('user2', $customers[1]['name']);
         $this->assertEquals('user3', $customers[2]['name']);
     }
-
 }
