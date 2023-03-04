@@ -33,7 +33,7 @@ use function is_string;
  * $column->defaultValue(0);
  * $column->autoIncrement(true);
  * $column->primaryKey(true);
- * ``
+ * ```
  */
 final class ColumnSchema extends AbstractColumnSchema
 {
