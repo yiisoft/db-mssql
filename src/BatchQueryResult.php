@@ -15,7 +15,7 @@ use function in_array;
 final class BatchQueryResult extends \Yiisoft\Db\Query\BatchQueryResult
 {
     /**
-     * @var int MSSQL error code for exception that is thrown when last batch is size less than specified batch size
+     * @var int MSSQL error code for exception that is thrown when the last batch is size less than specified batch size
      *
      * @link https://github.com/yiisoft/yii2/issues/10023
      */
