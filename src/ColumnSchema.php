@@ -17,9 +17,9 @@ use function is_string;
  * name, type, size, precision, and other details.
  *
  * Is used to store and retrieve metadata about a column in a database table. It is typically used in conjunction with
- * the TableSchema class, which represents the metadata of a database table as a whole.
+ * the {@see TableSchema}, which represents the metadata of a database table as a whole.
  *
- * Here is an example of how the ColumnSchema class might be used:
+ * The following code shows how to use:
  *
  * ```php
  * use Yiisoft\Db\Mssql\ColumnSchema;
@@ -27,7 +27,7 @@ use function is_string;
  * $column = new ColumnSchema();
  * $column->name('id');
  * $column->allowNull(false);
- * $column->dbType('int(11)');
+ * $column->dbType('int');
  * $column->phpType('integer');
  * $column->type('integer');
  * $column->defaultValue(0);
