@@ -9,13 +9,14 @@ use PDOException;
 use function in_array;
 
 /**
- * The BatchQueryResult represents the result of a batch query execution. A batch query is a group of multiple SQL
- * statements that are executed together as a single unit for MSSQL Server.
+ * The BatchQueryResult represents the result of a batch query execution.
+ *
+ * A batch query is a group of many SQL statements that are executed together as a single unit for MSSQL Server.
  */
 final class BatchQueryResult extends \Yiisoft\Db\Query\BatchQueryResult
 {
     /**
-     * @var int MSSQL error code for exception that is thrown when the last batch is size less than specified batch size
+     * @var int MSSQL error code for exception that's thrown when the last batch is size less than specified batch size
      *
      * @link https://github.com/yiisoft/yii2/issues/10023
      */
