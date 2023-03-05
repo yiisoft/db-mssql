@@ -21,7 +21,7 @@ use Yiisoft\Db\Schema\AbstractColumnSchemaBuilder;
  * ```
  *
  * Provides a fluent interface, which means that the methods can be chained together to create a column schema with
- * multiple properties in a single line of code.
+ * many properties in a single line of code.
  */
 final class ColumnSchemaBuilder extends AbstractColumnSchemaBuilder
 {
