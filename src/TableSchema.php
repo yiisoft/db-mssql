@@ -7,7 +7,7 @@ namespace Yiisoft\Db\Mssql;
 use Yiisoft\Db\Schema\AbstractTableSchema;
 
 /**
- * TableSchema represents the metadata of a database table.
+ * Implements the MSSQL Server specific table schema.
  */
 final class TableSchema extends AbstractTableSchema
 {

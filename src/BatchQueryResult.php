@@ -9,9 +9,7 @@ use PDOException;
 use function in_array;
 
 /**
- * The BatchQueryResult represents the result of a batch query execution.
- *
- * A batch query is a group of many SQL statements that are executed together as a single unit for MSSQL Server.
+ * Represents the result of a batch query execution for MSSQL Server.
  */
 final class BatchQueryResult extends \Yiisoft\Db\Query\BatchQueryResult
 {

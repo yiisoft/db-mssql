@@ -12,6 +12,10 @@ use Yiisoft\Db\Exception\ConvertException;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 
+/**
+ * Implements a database command that can be executed against a PDO (PHP Data Object) database connection for MSSQL
+ * Server.
+ */
 final class CommandPDO extends AbstractCommandPDO
 {
     public function queryBuilder(): QueryBuilderInterface
