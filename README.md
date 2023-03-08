@@ -41,83 +41,11 @@ The package could be installed via composer:
 composer require yiisoft/db-mssql
 ```
 
-### Config with [Yii Framework]
+## Usage 
 
-The configuration with [DI container](https://github.com/yiisoft/di) of [YiiFramework].
+For config connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
 
-Also you can use any DI container which implements [PSR-11](https://www.php-fig.org/psr/psr-11/).
-
-db.php
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Mssql\ConnectionPDO;
-use Yiisoft\Db\Mssql\PDODriver;
-
-/** @var array $params */
-
-return [
-    ConnectionInterface::class => [
-        'class' => ConnectionPDO::class,
-        '__construct()' => [
-            'driver' => new PDODriver(
-                $params['yiisoft/db-mssql']['dsn'],
-                $params['yiisoft/db-mssql']['username'],
-                $params['yiisoft/db-mssql']['password'],
-            ),
-        ]
-    ]
-];
-```
-
-params.php
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Yiisoft\Db\Mssql\Dsn;
-
-return [
-    'yiisoft/db-mssql' => [
-        'dsn' => (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString(),
-        'username' => 'user',
-        'password' => 'password',
-    ]
-];
-```
-
-### Config without [Yii Framework]
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Yiisoft\Cache\ArrayCache;
-use Yiisoft\Cache\Cache;
-use Yiisoft\Db\Cache\SchemaCache;
-use Yiisoft\Db\Mssql\ConnectionPDO;
-use Yiisoft\Db\Mssql\Dsn;
-use Yiisoft\Db\Mssql\PDODriver;
-
-// Or any other PSR-16 cache implementation.
-$arrayCache = new ArrayCache();
-
-// Or any other PSR-6 cache implementation.
-$cache = new Cache($arrayCache); 
-$dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
-
-// Or any other PDO driver.
-$pdoDriver = new PDODriver($dsn, 'user', 'password'); 
-$schemaCache = new SchemaCache($cache);
-$db = new ConnectionPDO($pdoDriver, $schemaCache);
-```
+[Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/getting-started.md) to learn about usage.
 
 ### Unit testing
 
