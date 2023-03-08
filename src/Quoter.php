@@ -9,6 +9,9 @@ use Yiisoft\Db\Schema\Quoter as BaseQuoter;
 use function preg_match;
 use function preg_match_all;
 
+/**
+ * Implements the MSSQL Server quoting and unquoting methods.
+ */
 final class Quoter extends BaseQuoter
 {
     public function quoteColumnName(string $name): string

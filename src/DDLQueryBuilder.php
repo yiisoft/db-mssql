@@ -7,7 +7,6 @@ namespace Yiisoft\Db\Mssql;
 use Exception;
 use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
@@ -18,6 +17,9 @@ use Yiisoft\Db\Schema\SchemaInterface;
 
 use function array_diff;
 
+/**
+ * Implements a (Data Definition Language) SQL statements for MSSQL Server.
+ */
 final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 {
     public function __construct(
@@ -57,6 +59,9 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . ' FOR ' . $this->quoter->quoteColumnName($column);
     }
 
+    /**
+     * @throws Exception
+     */
     public function alterColumn(string $table, string $column, ColumnSchemaBuilderInterface|string $type): string
     {
         $sqlAfter = [$this->dropConstraintsForColumn($table, $column, 'D')];
@@ -99,7 +104,6 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     }
 
     /**
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      * @throws Throwable
      * @throws \Yiisoft\Db\Exception\Exception
@@ -108,10 +112,10 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     {
         $enable = $check ? 'CHECK' : 'NOCHECK';
 
-        /** @var Schema */
+        /** @psalm-var Schema $schemaInstance */
         $schemaInstance = $this->schema;
         $defaultSchema = $schema ?: $schemaInstance->getDefaultSchema() ?? '';
-        /** @psalm-var string[] */
+        /** @psalm-var string[] $tableNames */
         $tableNames = $schemaInstance->getTableSchema($table)
              ? [$table] : $schemaInstance->getTableNames($defaultSchema);
         $viewNames = $schemaInstance->getViewNames($defaultSchema);
@@ -175,19 +179,21 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     }
 
     /**
-     * Builds a SQL command for adding or updating a comment to a table or a column. The command built will check if a
-     * comment already exists. If so, it will be updated, otherwise, it will be added.
+     * Builds an SQL command for adding or updating a comment to a table or a column.
      *
-     * @param string $comment The text of the comment to be added. The comment will be properly quoted by the method.
-     * @param string $table The table to be commented or whose column is to be commented. The table name will be
-     * properly quoted by the method.
-     * @param string|null $column Optional, the name of the column to be commented. If empty, the command will add the
-     * comment to the table instead. The column name will be properly quoted by the method.
+     * The command built will check if a comment already exists. If so, it will be updated, otherwise, it will be added.
+     *
+     * @param string $comment The text of the comment to be added.
+     * @param string $table The table to be commented or whose column is to be commented.
+     * @param string|null $column Optional, the name of the column to be commented.
+     * If empty, the command will add the comment to the table instead.
      *
      * @throws Exception
-     * @throws InvalidArgumentException If the table does not exist.
+     * @throws InvalidArgumentException If the table doesn't exist.
      *
      * @return string The SQL statement for adding a comment.
+     *
+     * Note: The method will quote the `comment`, `table`, `column` parameter before using it in the generated SQL.
      */
     private function buildAddCommentSql(string $comment, string $table, string $column = null): string
     {
@@ -226,18 +232,19 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     }
 
     /**
-     * Builds a SQL command for removing a comment from a table or a column. The command built will check if a comment
+     * Builds an SQL command for removing a comment from a table or a column. The command built will check if a comment
      * already exists before trying to perform the removal.
      *
      * @param string $table The table that will have the comment removed or whose column will have the comment removed.
-     * The table name will be properly quoted by the method.
      * @param string|null $column Optional, the name of the column whose comment will be removed. If empty, the command
-     * will remove the comment from the table instead. The column name will be properly quoted by the method.
+     * will remove the comment from the table instead.
      *
      * @throws Exception
-     * @throws InvalidArgumentException If the table does not exist.
+     * @throws InvalidArgumentException If the table doesn't exist.
      *
      * @return string The SQL statement for removing the comment.
+     *
+     * Note: The method will quote the `table`, `column` parameter before using it in the generated SQL.
      */
     private function buildRemoveCommentSql(string $table, string $column = null): string
     {
@@ -270,15 +277,18 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     }
 
     /**
-     * Builds a SQL statement for dropping constraints for column of table.
+     * Builds an SQL statement for dropping constraints for column of table.
      *
-     * @param string $table the table whose constraint is to be dropped. The name will be properly quoted by the method.
-     * @param string $column the column whose constraint is to be dropped. The name will be properly quoted by the method.
-     * @param string $type type of constraint, leave empty for all type of constraints(for example: D - default, 'UQ' - unique, 'C' - check)
+     * @param string $table The table whose constraint is to be dropped.
+     * @param string $column the column whose constraint is to be dropped.
+     * @param string $type type of constraint, leave empty for all types of constraints(for example: D - default,
+     * 'UQ' - unique, 'C' - check)
      *
      * @return string the DROP CONSTRAINTS SQL
      *
      * @see https://docs.microsoft.com/sql/relational-databases/system-catalog-views/sys-objects-transact-sql
+     *
+     * Note: The method will quote the `table`, `column` parameter before using it in the generated SQL.
      */
     private function dropConstraintsForColumn(string $table, string $column, string $type = ''): string
     {

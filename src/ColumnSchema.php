@@ -13,8 +13,9 @@ use function bin2hex;
 use function is_string;
 
 /**
- * Represents the metadata of a column in a database table for MSSQL Server. It provides information about the column's
- * name, type, size, precision, and other details.
+ * Represents the metadata of a column in a database table for MSSQL Server.
+ *
+ * It provides information about the column's name, type, size, precision, and other details.
  *
  * Is used to store and retrieve metadata about a column in a database table. It's typically used in conjunction with
  * the {@see TableSchema}, which represents the metadata of a database table as a whole.

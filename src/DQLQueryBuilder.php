@@ -16,6 +16,9 @@ use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
 use function array_merge;
 use function preg_match;
 
+/**
+ * Implements a DQL (Data Query Language) SQL statements for MSSQL Server.
+ */
 final class DQLQueryBuilder extends AbstractDQLQueryBuilder
 {
     public function buildOrderByAndLimit(

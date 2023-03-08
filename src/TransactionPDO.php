@@ -8,8 +8,10 @@ use Throwable;
 use Yiisoft\Db\Driver\PDO\AbstractTransactionPDO;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
 
+/**
+ * Implements the MSSQL Server specific transaction.
+ */
 final class TransactionPDO extends AbstractTransactionPDO
 {
     /**
@@ -28,16 +30,14 @@ final class TransactionPDO extends AbstractTransactionPDO
      * Releases an existing savepoint.
      *
      * @param string $name the savepoint name.
-     *
-     * @throws NotSupportedException
      */
     public function releaseSavepoint(string $name): void
     {
-        // does nothing as MSSQL does not support this
+        // does nothing as MSSQL doesn't support this
     }
 
     /**
-     * Rolls back to a previously created savepoint.
+     * Rolls back to a before created savepoint.
      *
      * @param string $name the savepoint name.
      *
