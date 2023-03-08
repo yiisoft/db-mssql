@@ -28,7 +28,7 @@ use function strcasecmp;
 use function stripos;
 
 /**
- * Schema is the class for retrieving metadata from MS SQL Server databases (version 2008 and above).
+ * Implements the MSSQL Server specific schema, supporting MSSQL Server 2017 and above.
  *
  * @psalm-type ColumnArray = array{
  *   column_name: string,
@@ -59,17 +59,17 @@ use function stripos;
 final class Schema extends AbstractSchema
 {
     /**
-     * @var string|null the default schema used for the current session.
+     * @var string|null The default schema used for the current session.
      */
     protected string|null $defaultSchema = 'dbo';
 
     /**
-     * @var array mapping from physical column types (keys) to abstract column types (values)
+     * @var array Mapping from physical column types (keys) to abstract column types (values).
      *
      * @psalm-var string[]
      */
     private array $typeMap = [
-        /** exact numbers */
+        /** Exact numbers */
         'bigint' => self::TYPE_BIGINT,
         'numeric' => self::TYPE_DECIMAL,
         'bit' => self::TYPE_SMALLINT,
@@ -80,12 +80,12 @@ final class Schema extends AbstractSchema
         'tinyint' => self::TYPE_TINYINT,
         'money' => self::TYPE_MONEY,
 
-        /** approximate numbers */
+        /** Approximate numbers */
         'float' => self::TYPE_FLOAT,
         'double' => self::TYPE_DOUBLE,
         'real' => self::TYPE_FLOAT,
 
-        /** date and time */
+        /** Date and time */
         'date' => self::TYPE_DATE,
         'datetimeoffset' => self::TYPE_DATETIME,
         'datetime2' => self::TYPE_DATETIME,
@@ -93,23 +93,23 @@ final class Schema extends AbstractSchema
         'datetime' => self::TYPE_DATETIME,
         'time' => self::TYPE_TIME,
 
-        /** character strings */
+        /** Character strings */
         'char' => self::TYPE_CHAR,
         'varchar' => self::TYPE_STRING,
         'text' => self::TYPE_TEXT,
 
-        /** unicode character strings */
+        /** Unicode character strings */
         'nchar' => self::TYPE_CHAR,
         'nvarchar' => self::TYPE_STRING,
         'ntext' => self::TYPE_TEXT,
 
-        /** binary strings */
+        /** Binary strings */
         'binary' => self::TYPE_BINARY,
         'varbinary' => self::TYPE_BINARY,
         'image' => self::TYPE_BINARY,
 
         /**
-         * other data types 'cursor' type cannot be used with tables
+         * Other data types 'cursor' type can't be used with tables
          */
         'timestamp' => self::TYPE_TIMESTAMP,
         'hierarchyid' => self::TYPE_STRING,
@@ -122,11 +122,9 @@ final class Schema extends AbstractSchema
     /**
      * Resolves the table name and schema name (if any).
      *
-     * @param string $name the table name.
+     * @param string $name The table name.
      *
-     * @return TableSchemaInterface resolved table, schema, etc. names.
-     *
-     * also see case `wrongBehaviour` in \Yiisoft\Db\TestSupport\TestCommandTrait::batchInsertSqlProviderTrait
+     * @return TableSchemaInterface The resolved table name.
      */
     protected function resolveTableName(string $name): TableSchemaInterface
     {
@@ -153,12 +151,14 @@ final class Schema extends AbstractSchema
     /**
      * Returns all schema names in the database, including the default one but not system schemas.
      *
-     * This method should be overridden by child classes in order to support this feature because the default
-     * implementation simply throws an exception.
+     * This method should be overridden by child classes to support this feature because the default implementation
+     * simply throws an exception.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
-     * @return array All schema names in the database, except system schemas.
+     * @return array All schemas name in the database, except system schemas.
      *
      * @link https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-principals-transact-sql
      */
@@ -175,6 +175,11 @@ final class Schema extends AbstractSchema
         return $this->db->createCommand($sql)->queryColumn();
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     protected function findTableComment(TableSchemaInterface $tableSchema): void
     {
         $schemaName = $tableSchema->getSchemaName()
@@ -198,14 +203,17 @@ final class Schema extends AbstractSchema
     /**
      * Returns all table names in the database.
      *
-     * This method should be overridden by child classes in order to support this feature because the default
-     * implementation simply throws an exception.
+     * This method should be overridden by child classes to support this feature because the default implementation
+     * simply throws an exception.
      *
-     * @param string $schema the schema of the tables. Defaults to empty string, meaning the current or default schema.
+     * @param string $schema The schema of the tables.
+     * Defaults to empty string, meaning the current or default schema.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
-     * @return array All table names in the database. The names have NO schema name prefix.
+     * @return array All tables name in the database. The names have NO schema name prefix.
      */
     protected function findTableNames(string $schema = ''): array
     {
@@ -226,11 +234,13 @@ final class Schema extends AbstractSchema
     /**
      * Loads the metadata for the specified table.
      *
-     * @param string $name table name.
+     * @param string $name The table name.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
-     * @return TableSchemaInterface|null DBMS-dependent table metadata, `null` if the table does not exist.
+     * @return TableSchemaInterface|null DBMS-dependent table metadata, `null` if the table doesn't exist.
      */
     protected function loadTableSchema(string $name): TableSchemaInterface|null
     {
@@ -249,15 +259,17 @@ final class Schema extends AbstractSchema
     /**
      * Loads a primary key for the given table.
      *
-     * @param string $tableName table name.
+     * @param string $tableName The table name.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
      * @return Constraint|null The primary key for the given table, `null` if the table has no primary key.
      */
     protected function loadTablePrimaryKey(string $tableName): Constraint|null
     {
-        /** @var mixed */
+        /** @psalm-var mixed $tablePrimaryKey */
         $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
         return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
@@ -265,27 +277,31 @@ final class Schema extends AbstractSchema
     /**
      * Loads all foreign keys for the given table.
      *
-     * @param string $tableName table name.
+     * @param string $tableName The table name.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
      * @return array The foreign keys for the given table.
      */
     protected function loadTableForeignKeys(string $tableName): array
     {
-        /** @var mixed */
-        $tableForeingKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
-        return is_array($tableForeingKeys) ? $tableForeingKeys : [];
+        /** @psalm-var mixed $tableForeignKeys */
+        $tableForeignKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
+        return is_array($tableForeignKeys) ? $tableForeignKeys : [];
     }
 
     /**
      * Loads all indexes for the given table.
      *
-     * @param string $tableName table name.
+     * @param string $tableName The table name.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
-     * @return array indexes for the given table.
+     * @return array Indexes for the given table.
      */
     protected function loadTableIndexes(string $tableName): array
     {
@@ -336,7 +352,7 @@ final class Schema extends AbstractSchema
     /**
      * Loads all unique constraints for the given table.
      *
-     * @param string $tableName table name.
+     * @param string $tableName The table name.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
@@ -344,7 +360,7 @@ final class Schema extends AbstractSchema
      */
     protected function loadTableUniques(string $tableName): array
     {
-        /** @var mixed */
+        /** @psalm-var mixed $tableUniques */
         $tableUniques = $this->loadTableConstraints($tableName, self::UNIQUES);
         return is_array($tableUniques) ? $tableUniques : [];
     }
@@ -352,15 +368,17 @@ final class Schema extends AbstractSchema
     /**
      * Loads all check constraints for the given table.
      *
-     * @param string $tableName table name.
+     * @param string $tableName The table name.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
      * @return array The check constraints for the given table.
      */
     protected function loadTableChecks(string $tableName): array
     {
-        /** @var mixed */
+        /** @psalm-var mixed $tableCheck */
         $tableCheck = $this->loadTableConstraints($tableName, self::CHECKS);
         return is_array($tableCheck) ? $tableCheck : [];
     }
@@ -368,15 +386,17 @@ final class Schema extends AbstractSchema
     /**
      * Loads all default value constraints for the given table.
      *
-     * @param string $tableName table name.
+     * @param string $tableName The table name.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
      * @return array The default value constraints for the given table.
      */
     protected function loadTableDefaultValues(string $tableName): array
     {
-        /** @var mixed */
+        /** @psalm-var mixed $tableDefault */
         $tableDefault = $this->loadTableConstraints($tableName, self::DEFAULTS);
         return is_array($tableDefault) ? $tableDefault : [];
     }
@@ -385,8 +405,6 @@ final class Schema extends AbstractSchema
      * Creates a column schema for the database.
      *
      * This method may be overridden by child classes to create a DBMS-specific column schema.
-     *
-     * @return ColumnSchema column schema instance.
      */
     protected function createColumnSchema(): ColumnSchema
     {
@@ -397,8 +415,6 @@ final class Schema extends AbstractSchema
      * Loads the column information into a {@see ColumnSchemaInterface} object.
      *
      * @psalm-param ColumnArray $info The column information.
-     *
-     * @return ColumnSchemaInterface the column schema object.
      */
     protected function loadColumnSchema(array $info): ColumnSchemaInterface
     {
@@ -407,8 +423,8 @@ final class Schema extends AbstractSchema
         $column->name($info['column_name']);
         $column->allowNull($info['is_nullable'] === 'YES');
         $column->dbType($info['data_type']);
-        $column->enumValues([]); // mssql has only vague equivalents to enum
-        $column->primaryKey(false); // primary key will be determined in findColumns() method
+        $column->enumValues([]); // MSSQL has only vague equivalents to enum.
+        $column->primaryKey(false); // The primary key will be determined in the `findColumns()` method.
         $column->autoIncrement($info['is_identity'] === '1');
         $column->computed($info['is_computed'] === '1');
         $column->unsigned(stripos($column->getDbType(), 'unsigned') !== false);
@@ -467,11 +483,11 @@ final class Schema extends AbstractSchema
     /**
      * Collects the metadata of table columns.
      *
-     * @param TableSchemaInterface $table the table metadata.
+     * @param TableSchemaInterface $table The table metadata.
      *
      * @throws Throwable
      *
-     * @return bool whether the table exists in the database.
+     * @return bool Whether the table exists in the database.
      */
     protected function findColumns(TableSchemaInterface $table): bool
     {
@@ -529,7 +545,7 @@ final class Schema extends AbstractSchema
         SQL;
 
         try {
-            /** @psalm-var ColumnArray[] */
+            /** @psalm-var ColumnArray[] $columns */
             $columns = $this->db->createCommand($sql, $whereParams)->queryAll();
 
             if (empty($columns)) {
@@ -561,11 +577,13 @@ final class Schema extends AbstractSchema
     /**
      * Collects the constraint details for the given table and constraint type.
      *
-     * @param string $type either PRIMARY KEY or UNIQUE.
+     * @param string $type Either PRIMARY KEY or UNIQUE.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
-     * @return array each entry contains index_name and field_name.
+     * @return array Each entry has index_name and field_name.
      */
     protected function findTableConstraints(TableSchemaInterface $table, string $type): array
     {
@@ -609,9 +627,11 @@ final class Schema extends AbstractSchema
     /**
      * Collects the primary key column details for the given table.
      *
-     * @param TableSchemaInterface $table the table metadata
+     * @param TableSchemaInterface $table The table metadata
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
     protected function findPrimaryKeys(TableSchemaInterface $table): void
     {
@@ -626,9 +646,11 @@ final class Schema extends AbstractSchema
     /**
      * Collects the foreign key column details for the given table.
      *
-     * @param TableSchemaInterface $table the table metadata
+     * @param TableSchemaInterface $table The table metadata
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
     protected function findForeignKeys(TableSchemaInterface $table): void
     {
@@ -645,10 +667,6 @@ final class Schema extends AbstractSchema
             $object = $catalogName . '.' . $object;
         }
 
-        /**
-         * Please refer to the following page for more details:
-         * {@see http://msdn2.microsoft.com/en-us/library/aa175805(SQL.80).aspx}
-         */
         $sql = <<<SQL
         SELECT
         [fk].[name] AS [fk_name],
@@ -686,7 +704,9 @@ final class Schema extends AbstractSchema
     }
 
     /**
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
     protected function findViewNames(string $schema = ''): array
     {
@@ -716,11 +736,13 @@ final class Schema extends AbstractSchema
      * ]
      * ```
      *
-     * @param TableSchemaInterface $table the table metadata.
+     * @param TableSchemaInterface $table The table metadata.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
-     * @return array all unique indexes for the given table.
+     * @return array All unique indexes for the given table.
      */
     public function findUniqueIndexes(TableSchemaInterface $table): array
     {
@@ -747,9 +769,11 @@ final class Schema extends AbstractSchema
      * - checks
      * - defaults
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
-     * @return mixed constraints.
+     * @return mixed Constraints of the specified type.
      */
     private function loadTableConstraints(string $tableName, string $returnType): mixed
     {
@@ -817,7 +841,7 @@ final class Schema extends AbstractSchema
             foreach ($names as $name => $constraint) {
                 switch ($type) {
                     case 'PK':
-                        /** @var Constraint */
+                        /** @psalm-var Constraint */
                         $result[self::PRIMARY_KEY] = (new Constraint())
                             ->columnNames(ArrayHelper::getColumn($constraint, 'column_name'))
                             ->name($name);
@@ -870,9 +894,9 @@ final class Schema extends AbstractSchema
     /**
      * Returns the cache key for the specified table name.
      *
-     * @param string $name the table name.
+     * @param string $name The table name.
      *
-     * @return array the cache key.
+     * @return array The cache key.
      */
     protected function getCacheKey(string $name): array
     {
@@ -884,7 +908,7 @@ final class Schema extends AbstractSchema
      *
      * This allows {@see refresh()} to invalidate all cached table schemas.
      *
-     * @return string the cache tag name.
+     * @return string The cache tag name.
      */
     protected function getCacheTag(): string
     {
