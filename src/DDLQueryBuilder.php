@@ -286,7 +286,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      *
      * @return string the DROP CONSTRAINTS SQL
      *
-     * @see https://docs.microsoft.com/sql/relational-databases/system-catalog-views/sys-objects-transact-sql
+     * @link https://docs.microsoft.com/sql/relational-databases/system-catalog-views/sys-objects-transact-sql
      *
      * Note: The method will quote the `table`, `column` parameter before using it in the generated SQL.
      */

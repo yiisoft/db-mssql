@@ -10,7 +10,7 @@ use Yiisoft\Db\Driver\PDO\AbstractPDODriver;
 /**
  * Implements the MSSQL Server driver based on the PDO (PHP Data Objects) extension.
  *
- * @see https://www.php.net/manual/en/ref.pdo-sqlsrv.php
+ * @link https://www.php.net/manual/en/ref.pdo-sqlsrv.php
  */
 final class PDODriver extends AbstractPDODriver
 {
