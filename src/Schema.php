@@ -119,7 +119,7 @@ final class Schema extends AbstractSchema
         'table' => self::TYPE_STRING,
     ];
 
-    public function createColumn(string $type, array|int|string $length = null): ColumnInterface
+    public function createColumn(string $type, array|int|string|null $length = null): ColumnInterface
     {
         return new Column($type, $length);
     }
