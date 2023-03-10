@@ -62,7 +62,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     /**
      * @throws Exception
      */
-    public function alterColumn(string $table, string $column, ColumnSchemaBuilderInterface|string $type): string
+    public function alterColumn(string $table, string $column, ColumnInterface|string $type): string
     {
         $sqlAfter = [$this->dropConstraintsForColumn($table, $column, 'D')];
 
