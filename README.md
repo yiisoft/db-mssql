@@ -27,13 +27,13 @@ It is used in [Yii Framework] but can be used separately.
 [![codecov](https://codecov.io/gh/yiisoft/db-mssql/branch/master/graph/badge.svg?token=UF9VERNMYU)](https://codecov.io/gh/yiisoft/db-mssql)
 [![StyleCI](https://github.styleci.io/repos/114756477/shield?branch=master)](https://github.styleci.io/repos/114756477?branch=master)
 
-### Support version
+## Support version
 
 |  PHP | Mssql Version            |  CI-Actions
 |:----:|:------------------------:|:---:|
 |**8.0 - 8.2**| **2017 - 2022**|[![build](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml) [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdb-mssql%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/db-mssql/master) [![static analysis](https://github.com/yiisoft/db-mssql/actions/workflows/static.yml/badge.svg?branch=dev)](https://github.com/yiisoft/db-mssql/actions/workflows/static.yml) [![type-coverage](https://shepherd.dev/github/yiisoft/db-mssql/coverage.svg)](https://shepherd.dev/github/yiisoft/db-mssql)
 
-### Installation
+## Installation
 
 The package could be installed via composer:
 
@@ -41,83 +41,13 @@ The package could be installed via composer:
 composer require yiisoft/db-mssql
 ```
 
-### Config with [Yii Framework]
+## Usage 
 
-The configuration with [DI container](https://github.com/yiisoft/di) of [YiiFramework].
+For config connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
 
-Also you can use any DI container which implements [PSR-11](https://www.php-fig.org/psr/psr-11/).
+[Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/getting-started.md) to learn about usage.
 
-db.php
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Mssql\ConnectionPDO;
-use Yiisoft\Db\Mssql\PDODriver;
-
-/** @var array $params */
-
-return [
-    ConnectionInterface::class => [
-        'class' => ConnectionPDO::class,
-        '__construct()' => [
-            'driver' => new PDODriver(
-                $params['yiisoft/db-mssql']['dsn'],
-                $params['yiisoft/db-mssql']['username'],
-                $params['yiisoft/db-mssql']['password'],
-            ),
-        ]
-    ]
-];
-```
-
-params.php
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Yiisoft\Db\Mssql\Dsn;
-
-return [
-    'yiisoft/db-mssql' => [
-        'dsn' => (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString(),
-        'username' => 'user',
-        'password' => 'password',
-    ]
-];
-```
-
-### Config without [Yii Framework]
-
-```php
-<?php
-
-declare(strict_types=1);
-
-use Yiisoft\Cache\ArrayCache;
-use Yiisoft\Cache\Cache;
-use Yiisoft\Db\Cache\SchemaCache;
-use Yiisoft\Db\Mssql\ConnectionPDO;
-use Yiisoft\Db\Mssql\Dsn;
-use Yiisoft\Db\Mssql\PDODriver;
-
-// Or any other PSR-16 cache implementation.
-$arrayCache = new ArrayCache();
-
-// Or any other PSR-6 cache implementation.
-$cache = new Cache($arrayCache); 
-$dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
-
-// Or any other PDO driver.
-$pdoDriver = new PDODriver($dsn, 'user', 'password'); 
-$schemaCache = new SchemaCache($cache);
-$db = new ConnectionPDO($pdoDriver, $schemaCache);
-```
+## Testing
 
 ### Unit testing
 
@@ -162,11 +92,11 @@ To run the checker, execute the following command:
 ./vendor/bin/composer-require-checker
 ```
 
-### Support the project
+## Support the project
 
 [![Open Collective](https://img.shields.io/badge/Open%20Collective-sponsor-7eadf1?logo=open%20collective&logoColor=7eadf1&labelColor=555555)](https://opencollective.com/yiisoft)
 
-### Follow updates
+## Follow updates
 
 [![Official website](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](https://www.yiiframework.com/)
 [![Twitter](https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter&logoColor=1DA1F2&labelColor=555555?style=flat)](https://twitter.com/yiiframework)
@@ -174,7 +104,7 @@ To run the checker, execute the following command:
 [![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
 [![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
 
-### License
+## License
 
 The MSSQL Server Extension for Yii 3 is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.

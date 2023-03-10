@@ -24,6 +24,9 @@ use function ltrim;
 use function strrpos;
 use function is_array;
 
+/**
+ * Implements a DML (Data Manipulation Language) SQL statements for MSSQL Server.
+ */
 final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 {
     public function __construct(

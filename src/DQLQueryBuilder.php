@@ -16,6 +16,9 @@ use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
 use function array_merge;
 use function preg_match;
 
+/**
+ * Implements a DQL (Data Query Language) SQL statements for MSSQL Server.
+ */
 final class DQLQueryBuilder extends AbstractDQLQueryBuilder
 {
     public function buildOrderByAndLimit(
@@ -79,7 +82,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         $sql .= $this->separator . $orderByString;
 
         /**
-         * {@see http://technet.microsoft.com/en-us/library/gg699618.aspx}
+         * @link http://technet.microsoft.com/en-us/library/gg699618.aspx
          */
         $offsetString = $this->hasOffset($offset) ?
             ($offset instanceof ExpressionInterface ? $this->buildExpression($offset) : (string)$offset) : '0';

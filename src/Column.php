@@ -8,7 +8,7 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Builder\AbstractColumn;
 
 /**
- * It's a utility that provides a convenient way to create column schema for use with {@see `\Yiisoft\Db\Mssql\Schema`}
+ * It's a utility that provides a convenient way to create column schema for use with {@see Schema}
  * for MSSQL Server.
  *
  * It provides methods for specifying the properties of a column, such as its type, size, default value, and whether it

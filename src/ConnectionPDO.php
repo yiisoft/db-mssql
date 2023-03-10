@@ -6,8 +6,6 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Driver\PDO\AbstractConnectionPDO;
 use Yiisoft\Db\Driver\PDO\CommandPDOInterface;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\BatchQueryResultInterface;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
@@ -16,8 +14,9 @@ use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Transaction\TransactionInterface;
 
 /**
- * Database connection class prefilled for Microsoft SQL Server.
- * The class Connection represents a connection to a database via [PDO](https://secure.php.net/manual/en/book.pdo.php).
+ * Implements a connection to a database via PDO (PHP Data Objects) for MSSQL Server.
+ *
+ * @link https://www.php.net/manual/en/ref.pdo-sqlsrv.php
  */
 final class ConnectionPDO extends AbstractConnectionPDO
 {
@@ -50,9 +49,6 @@ final class ConnectionPDO extends AbstractConnectionPDO
         return new TransactionPDO($this);
     }
 
-    /**
-     * @throws Exception|InvalidConfigException
-     */
     public function getQueryBuilder(): QueryBuilderInterface
     {
         if ($this->queryBuilder === null) {
