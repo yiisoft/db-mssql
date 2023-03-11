@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\QueryBuilder\AbstractQueryBuilder;
-use Yiisoft\Db\Schema\ColumnSchemaBuilderInterface;
+use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 
@@ -52,7 +52,7 @@ final class QueryBuilder extends AbstractQueryBuilder
         parent::__construct($quoter, $schema, $ddlBuilder, $dmlBuilder, $dqlBuilder);
     }
 
-    public function getColumnType(ColumnSchemaBuilderInterface|string $type): string
+    public function getColumnType(ColumnInterface|string $type): string
     {
         $columnType = parent::getColumnType($type);
 

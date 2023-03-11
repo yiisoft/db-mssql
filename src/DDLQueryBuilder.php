@@ -11,7 +11,7 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
-use Yiisoft\Db\Schema\ColumnSchemaBuilderInterface;
+use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 
@@ -62,7 +62,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     /**
      * @throws Exception
      */
-    public function alterColumn(string $table, string $column, ColumnSchemaBuilderInterface|string $type): string
+    public function alterColumn(string $table, string $column, ColumnInterface|string $type): string
     {
         $sqlAfter = [$this->dropConstraintsForColumn($table, $column, 'D')];
 
@@ -70,7 +70,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         $tableName = $this->quoter->quoteTableName($table);
         $constraintBase = preg_replace('/[^a-z0-9_]/i', '', $table . '_' . $column);
 
-        if ($type instanceof ColumnSchemaBuilderInterface) {
+        if ($type instanceof ColumnInterface) {
             $type->setFormat('{type}{length}{notnull}{append}');
 
             /** @psalm-var mixed $defaultValue */
