@@ -41,6 +41,9 @@ final class QueryBuilder extends AbstractQueryBuilder
         SchemaInterface::TYPE_BINARY => 'varbinary(max)',
         SchemaInterface::TYPE_BOOLEAN => 'bit',
         SchemaInterface::TYPE_MONEY => 'decimal(19,4)',
+        SchemaInterface::TYPE_UUID => 'UNIQUEIDENTIFIER',
+        SchemaInterface::TYPE_UUID_PK => 'UNIQUEIDENTIFIER PRIMARY KEY',
+        SchemaInterface::TYPE_UUID_PK_SEQ => 'UNIQUEIDENTIFIER PRIMARY KEY NOT NULL DEFAULT NEWID()',
     ];
 
     public function __construct(QuoterInterface $quoter, SchemaInterface $schema)
