@@ -28,49 +28,5 @@ final class ColumnSchemaBuilderProvider extends \Yiisoft\Db\Tests\Provider\Colum
         $types['uuid pk sequence'][0] = '[column] UNIQUEIDENTIFIER PRIMARY KEY NOT NULL DEFAULT NEWID()';
 
         return $types;
-        return $types + [
-                [
-                    '[column] UNIQUEIDENTIFIER',
-                    SchemaInterface::TYPE_UUID,
-                    null,
-                    []
-                ],
-                [
-                    '[column] UNIQUEIDENTIFIER NOT NULL',
-                    SchemaInterface::TYPE_UUID,
-                    null,
-                    [['notNull']]
-                ],
-                [
-                    '[column] UNIQUEIDENTIFIER DEFAULT \'875343b3-6bd0-4bec-81bb-aa68bb52d945\'',
-                    SchemaInterface::TYPE_UUID,
-                    null,
-                    [['defaultValue', '875343b3-6bd0-4bec-81bb-aa68bb52d945']]
-                ],
-                [
-                    '[column] UNIQUEIDENTIFIER PRIMARY KEY',
-                    SchemaInterface::TYPE_UUID_PK,
-                    null,
-                    []
-                ],
-                [
-                    '[column] UNIQUEIDENTIFIER PRIMARY KEY NOT NULL',
-                    SchemaInterface::TYPE_UUID_PK,
-                    null,
-                    [['notNull']]
-                ],
-                [
-                    '[column] UNIQUEIDENTIFIER PRIMARY KEY NOT NULL DEFAULT NEWID()',
-                    SchemaInterface::TYPE_UUID_PK,
-                    null,
-                    [['notNull'], ['defaultExpression', 'NEWID()']]
-                ],
-                [
-                    '[column] UNIQUEIDENTIFIER PRIMARY KEY NOT NULL DEFAULT NEWID()',
-                    SchemaInterface::TYPE_UUID_PK_SEQ,
-                    null,
-                    []
-                ],
-            ];
     }
 }
