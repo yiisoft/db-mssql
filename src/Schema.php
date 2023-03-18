@@ -409,7 +409,9 @@ final class Schema extends AbstractSchema
      * Creates a column schema for the database.
      *
      * This method may be overridden by child classes to create a DBMS-specific column schema.
+     *
      * @param string $name Name of the column.
+     *
      * @return ColumnSchema
      */
     protected function createColumnSchema(string $name): ColumnSchema
