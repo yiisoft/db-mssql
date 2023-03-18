@@ -204,6 +204,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
         /**
          * @var array $params
+         *
          * @psalm-var string[] $updates
          * @psalm-var array<string, ExpressionInterface|string> $updateColumns
          */

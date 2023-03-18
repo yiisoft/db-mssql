@@ -39,7 +39,6 @@ use function stripos;
  *   is_computed: string,
  *   comment: null|string
  * }
- *
  * @psalm-type ConstraintArray = array<
  *   array-key,
  *   array {
