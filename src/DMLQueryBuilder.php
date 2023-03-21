@@ -61,15 +61,20 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             }
 
             $dbType = $returnColumn->getDbType();
-            if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'])) {
+
+            if (
+                $dbType !== null &&
+                in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'])
+            ) {
                 $dbType .= '(MAX)';
             }
+
             if ($returnColumn->getDbType() === SchemaInterface::TYPE_TIMESTAMP) {
                 $dbType = $returnColumn->isAllowNull() ? 'varbinary(8)' : 'binary(8)';
             }
 
             $quotedName = $this->quoter->quoteColumnName($returnColumn->getName());
-            $createdCols[] = $quotedName . ' ' . $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
+            $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
             $insertedCols[] = 'INSERTED.' . $quotedName;
         }
 
