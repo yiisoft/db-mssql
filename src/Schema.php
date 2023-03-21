@@ -409,10 +409,14 @@ final class Schema extends AbstractSchema
      * Creates a column schema for the database.
      *
      * This method may be overridden by child classes to create a DBMS-specific column schema.
+     *
+     * @param string $name Name of the column.
+     *
+     * @return ColumnSchema
      */
-    protected function createColumnSchema(): ColumnSchema
+    protected function createColumnSchema(string $name): ColumnSchema
     {
-        return new ColumnSchema();
+        return new ColumnSchema($name);
     }
 
     /**
@@ -422,9 +426,7 @@ final class Schema extends AbstractSchema
      */
     protected function loadColumnSchema(array $info): ColumnSchemaInterface
     {
-        $column = $this->createColumnSchema();
-
-        $column->name($info['column_name']);
+        $column = $this->createColumnSchema($info['column_name']);
         $column->allowNull($info['is_nullable'] === 'YES');
         $column->dbType($info['data_type']);
         $column->enumValues([]); // MSSQL has only vague equivalents to enum.
