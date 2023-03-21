@@ -426,18 +426,20 @@ final class Schema extends AbstractSchema
      */
     protected function loadColumnSchema(array $info): ColumnSchemaInterface
     {
+        $dbType = $info['data_type'] ?? '';
+
         $column = $this->createColumnSchema($info['column_name']);
         $column->allowNull($info['is_nullable'] === 'YES');
-        $column->dbType($info['data_type']);
+        $column->dbType($dbType);
         $column->enumValues([]); // MSSQL has only vague equivalents to enum.
         $column->primaryKey(false); // The primary key will be determined in the `findColumns()` method.
         $column->autoIncrement($info['is_identity'] === '1');
         $column->computed($info['is_computed'] === '1');
-        $column->unsigned(stripos($column->getDbType(), 'unsigned') !== false);
+        $column->unsigned(stripos($dbType, 'unsigned') !== false);
         $column->comment($info['comment'] ?? '');
         $column->type(self::TYPE_STRING);
 
-        if (preg_match('/^(\w+)(?:\(([^)]+)\))?/', $column->getDbType(), $matches)) {
+        if (preg_match('/^(\w+)(?:\(([^)]+)\))?/', $dbType, $matches)) {
             $type = $matches[1];
 
             if (isset($this->typeMap[$type])) {
