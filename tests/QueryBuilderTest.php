@@ -115,7 +115,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
             <<<SQL
             ALTER TABLE [T_constraints_1] ADD CONSTRAINT [CN_pk] DEFAULT 1 FOR [C_default]
             SQL,
-            $qb->addDefaultValue('CN_pk', 'T_constraints_1', 'C_default', 1),
+            $qb->addDefaultValue('T_constraints_1', 'CN_pk', 'C_default', 1),
         );
     }
 
@@ -401,7 +401,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
             <<<SQL
             ALTER TABLE [T_constraints_1] DROP CONSTRAINT [CN_pk]
             SQL,
-            $qb->dropDefaultValue('CN_pk', 'T_constraints_1'),
+            $qb->dropDefaultValue('T_constraints_1', 'CN_pk'),
         );
     }
 
@@ -419,7 +419,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
             <<<SQL
             ALTER TABLE [test_uq] DROP CONSTRAINT [test_uq_constraint]
             SQL,
-            $qb->dropUnique('test_uq_constraint', 'test_uq'),
+            $qb->dropUnique('test_uq', 'test_uq_constraint'),
         );
     }
 

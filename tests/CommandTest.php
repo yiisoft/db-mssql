@@ -326,7 +326,7 @@ final class CommandTest extends CommonCommandTest
         $command = $db->createCommand();
 
         $this->assertEmpty($command->getRawSql());
-        $command->addDefaultValue('{{test_def_constraint}}', '{{test_def}}', 'int1', 41);
+        $command->addDefaultValue('{{test_def}}', '{{test_def_constraint}}', 'int1', 41);
         $this->assertEquals(
             'ALTER TABLE [test_def] ADD CONSTRAINT [test_def_constraint] DEFAULT 41 FOR [int1]',
             $command->getRawSql()
@@ -345,7 +345,7 @@ final class CommandTest extends CommonCommandTest
         $command = $db->createCommand();
 
         $this->assertEmpty($command->getRawSql());
-        $command->dropDefaultValue('{{test_def_constraint}}', '{{test_def}}');
+        $command->dropDefaultValue('{{test_def}}', '{{test_def_constraint}}');
         $this->assertEquals(
             'ALTER TABLE [test_def] DROP CONSTRAINT [test_def_constraint]',
             $command->getRawSql()
