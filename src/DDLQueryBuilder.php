@@ -49,7 +49,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     /**
      * @throws Exception
      */
-    public function addDefaultValue(string $name, string $table, string $column, mixed $value): string
+    public function addDefaultValue(string $table, string $name, string $column, mixed $value): string
     {
         return 'ALTER TABLE '
             . $this->quoter->quoteTableName($table)
@@ -77,10 +77,10 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             $defaultValue = $type->getDefault();
             if ($defaultValue !== null || $type->isNotNull() === false) {
                 $sqlAfter[] = $this->addDefaultValue(
-                    "DF_{$constraintBase}",
                     $table,
+                    "DF_{$constraintBase}",
                     $column,
-                    $defaultValue instanceof Expression ? $defaultValue : new Expression((string) $defaultValue)
+                    $defaultValue instanceof Expression ? $defaultValue : new Expression((string)$defaultValue)
                 );
             }
 
@@ -146,7 +146,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         return $this->buildRemoveCommentSql($table);
     }
 
-    public function dropDefaultValue(string $name, string $table): string
+    public function dropDefaultValue(string $table, string $name): string
     {
         return 'ALTER TABLE '
             . $this->quoter->quoteTableName($table)
