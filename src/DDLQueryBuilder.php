@@ -10,10 +10,7 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
-use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
-use Yiisoft\Db\Schema\QuoterInterface;
-use Yiisoft\Db\Schema\SchemaInterface;
 
 use function array_diff;
 
@@ -22,14 +19,6 @@ use function array_diff;
  */
 final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 {
-    public function __construct(
-        private QueryBuilderInterface $queryBuilder,
-        private QuoterInterface $quoter,
-        private SchemaInterface $schema
-    ) {
-        parent::__construct($queryBuilder, $quoter, $schema);
-    }
-
     /**
      * @throws InvalidArgumentException
      */
@@ -197,7 +186,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      */
     private function buildAddCommentSql(string $comment, string $table, string $column = null): string
     {
-        $tableSchema = $this->schema->getTableSchema($table);
+        $tableSchema = $this->schema?->getTableSchema($table);
 
         if ($tableSchema === null) {
             throw new InvalidArgumentException("Table not found: $table");
@@ -248,7 +237,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      */
     private function buildRemoveCommentSql(string $table, string $column = null): string
     {
-        $tableSchema = $this->schema->getTableSchema($table);
+        $tableSchema = $this->schema?->getTableSchema($table);
 
         if ($tableSchema === null) {
             throw new InvalidArgumentException("Table not found: $table");
