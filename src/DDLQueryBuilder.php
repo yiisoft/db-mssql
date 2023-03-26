@@ -186,7 +186,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      */
     private function buildAddCommentSql(string $comment, string $table, string $column = null): string
     {
-        $tableSchema = $this->schema?->getTableSchema($table);
+        $tableSchema = $this->schema->getTableSchema($table);
 
         if ($tableSchema === null) {
             throw new InvalidArgumentException("Table not found: $table");
@@ -237,7 +237,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      */
     private function buildRemoveCommentSql(string $table, string $column = null): string
     {
-        $tableSchema = $this->schema?->getTableSchema($table);
+        $tableSchema = $this->schema->getTableSchema($table);
 
         if ($tableSchema === null) {
             throw new InvalidArgumentException("Table not found: $table");
