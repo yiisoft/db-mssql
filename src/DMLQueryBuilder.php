@@ -51,10 +51,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
             $dbType = $returnColumn->getDbType();
 
-            if (
-                $dbType !== null &&
-                in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'])
-            ) {
+            if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'], true)) {
                 $dbType .= '(MAX)';
             }
 
