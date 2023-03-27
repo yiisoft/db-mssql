@@ -51,19 +51,19 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
     }
 
     /**
-     * Builds the ORDER BY/LIMIT/OFFSET clauses for SQL SERVER 2012 or newer.
+     * Builds the `ORDER BY`/`LIMIT`/`OFFSET` clauses for SQL SERVER 2012 or newer.
      *
-     * @param string $sql The existing SQL (without ORDER BY/LIMIT/OFFSET).
+     * @param string $sql The existing SQL (without `ORDER BY`/`LIMIT`/`OFFSET`).
      * @param array $orderBy The order by columns. See {@see Query::orderBy} for more details on how to specify
      * this parameter.
      * @param ExpressionInterface|int|null $limit The limit number. See {@see Query::limit} for more details.
      * @param ExpressionInterface|int|null $offset The offset number. See {@see Query::offset} for more details.
-     * @param array $params The binding parameters to be populated.
+     * @param array $params The binding parameters to populate.
      *
      * @throws Exception
      * @throws InvalidArgumentException
      *
-     * @return string The SQL completed with ORDER BY/LIMIT/OFFSET (if any).
+     * @return string The SQL completed with `ORDER BY`/`LIMIT`/`OFFSET` (if any).
      */
     protected function newBuildOrderByAndLimit(
         string $sql,
@@ -75,7 +75,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         $orderByString = $this->buildOrderBy($orderBy, $params);
 
         if ($orderByString === '') {
-            /** ORDER BY clause is required when FETCH and OFFSET are in the SQL */
+            /** `ORDER BY` clause is required when `FETCH` and `OFFSET` are in the SQL */
             $orderByString = 'ORDER BY (SELECT NULL)';
         }
 
@@ -97,7 +97,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
     }
 
     /**
-     * Extracts table alias if there is one or returns false
+     * Extracts table alias if there is one or returns `false`.
      *
      * @psalm-return string[]|bool
      */

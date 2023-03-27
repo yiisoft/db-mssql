@@ -162,7 +162,7 @@ final class Schema extends AbstractSchema
      * @throws InvalidConfigException
      * @throws Throwable
      *
-     * @return array All schema name in the database, except system schemas.
+     * @return array Schema names in the database, except system schemas.
      *
      * @link https://docs.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-database-principals-transact-sql
      */

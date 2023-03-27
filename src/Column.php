@@ -8,10 +8,9 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Builder\AbstractColumn;
 
 /**
- * It's a utility that provides a convenient way to create column schema for use with {@see Schema}
- * for MSSQL Server.
+ * Provides a convenient way to create column schema for use with {@see Schema} for MSSQL Server.
  *
- * It provides methods for specifying the properties of a column, such as its type, size, default value, and whether it
+ * It has methods for specifying the properties of a column, such as its type, size, default value, and whether it
  * is nullable or not. It also provides a method for creating a column schema based on the specified properties.
  *
  * For example, the following code creates a column schema for an integer column:
@@ -26,7 +25,7 @@ use Yiisoft\Db\Schema\Builder\AbstractColumn;
 final class Column extends AbstractColumn
 {
     /**
-     * @return Expression|string|null The default value of the column
+     * @return Expression|string|null The default value of the column.
      */
     public function getDefault(): Expression|string|null
     {

@@ -172,9 +172,9 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      *
      * The command built will check if a comment already exists. If so, it will be updated, otherwise, it will be added.
      *
-     * @param string $comment The text of the comment to be added.
-     * @param string $table The table to be commented or whose column is to be commented.
-     * @param string|null $column Optional, the name of the column to be commented.
+     * @param string $comment The text of the comment to add.
+     * @param string $table The table to comment or whose column is to comment.
+     * @param string|null $column Optional, the name of the column to comment.
      * If empty, the command will add the comment to the table instead.
      *
      * @throws Exception

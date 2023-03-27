@@ -10,7 +10,7 @@ namespace Yiisoft\Db\Mssql\Builder;
 final class LikeConditionBuilder extends \Yiisoft\Db\QueryBuilder\Condition\Builder\LikeConditionBuilder
 {
     /**
-     * @var array Map of chars to their replacements in LIKE conditions. By default, it's configured to escape
+     * @var array Map of chars to their replacements in `LIKE` conditions. By default, it's configured to escape
      * `%`, `_`, `[` with `]`, `\\`.
      */
     protected array $escapingReplacements = [
