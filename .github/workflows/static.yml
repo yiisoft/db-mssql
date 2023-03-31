@@ -25,9 +25,6 @@ jobs:
   psalm:
     name: PHP ${{ matrix.php }}
 
-    env:
-      EXTENSIONS: pdo, pdo_sqlsrv-5.10.1
-
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -49,7 +46,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: ${{ env.EXTENSIONS }}
           coverage: none
           tools: composer:v2, cs2pr
 
