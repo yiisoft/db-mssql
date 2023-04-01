@@ -24,3 +24,4 @@ name: build
 jobs:
   rector:
     uses: yiisoft/actions/.github/workflows/mssql.yml@add-reusable-mssql-action
+
