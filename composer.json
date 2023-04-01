@@ -21,7 +21,7 @@
     "require": {
         "php": "^8.0",
         "ext-pdo": "*",
-        "yiisoft/db": "^3.0@dev"
+        "yiisoft/db": "@dev"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
