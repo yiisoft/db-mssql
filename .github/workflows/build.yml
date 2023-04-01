@@ -22,6 +22,7 @@ on:
 name: build
 
 jobs:
-  rector:
+  phpunit:
     uses: yiisoft/actions/.github/workflows/mssql.yml@add-reusable-mssql-action
-
+    with:
+      install-package: db
