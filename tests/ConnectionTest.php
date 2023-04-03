@@ -25,16 +25,6 @@ final class ConnectionTest extends CommonConnectionTest
 
     /**
      * @throws Exception
-     */
-    public function testGetName(): void
-    {
-        $db = $this->getConnection();
-
-        $this->assertEquals('sqlsrv', $db->getName());
-    }
-
-    /**
-     * @throws Exception
      * @throws InvalidConfigException
      * @throws NotSupportedException
      * @throws Throwable
