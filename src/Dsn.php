@@ -38,7 +38,7 @@ final class Dsn extends AbstractDsn
      */
     public function asString(): string
     {
-        if ($this->port === '') {
+        if ($this->port !== '') {
             $server = "Server=$this->host,$this->port;";
         } else {
             $server = "Server=$this->host;";
