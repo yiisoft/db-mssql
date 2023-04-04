@@ -10,12 +10,10 @@ use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
-use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
+use Yiisoft\Db\Driver\PDO\PdoAbstractSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Helper\ArrayHelper;
-use Yiisoft\Db\Schema\AbstractSchema;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
@@ -57,7 +55,7 @@ use function stripos;
  *   }
  * >
  */
-final class Schema extends AbstractSchema
+final class Schema extends PdoAbstractSchema
 {
     /**
      * @var string|null The default schema used for the current session.
@@ -916,26 +914,6 @@ final class Schema extends AbstractSchema
     protected function getCacheTag(): string
     {
         return md5(serialize(array_merge([self::class], $this->generateCacheKey())));
-    }
-
-    /**
-     * Generates the cache key for the current connection.
-     *
-     * @throws NotSupportedException If the connection is not a PDO connection.
-     *
-     * @return array The cache key.
-     */
-    private function generateCacheKey(): array
-    {
-        $cacheKey = [];
-
-        if ($this->db instanceof ConnectionPDOInterface) {
-            $cacheKey = [$this->db->getDriver()->getDsn(), $this->db->getDriver()->getUsername()];
-        } else {
-            throw new NotSupportedException('Only PDO connections are supported.');
-        }
-
-        return $cacheKey;
     }
 
     private function parseDefaultValue(mixed $value): mixed
