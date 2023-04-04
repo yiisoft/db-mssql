@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
@@ -133,7 +134,7 @@ final class SchemaTest extends CommonSchemaTest
 
         $commandMock = $this->createMock(CommandInterface::class);
         $commandMock->method('queryAll')->willReturn([]);
-        $mockDb = $this->createMock(ConnectionInterface::class);
+        $mockDb = $this->createMock(ConnectionPDOInterface::class);
         $mockDb->method('getQuoter')->willReturn($db->getQuoter());
         $mockDb
             ->method('createCommand')
