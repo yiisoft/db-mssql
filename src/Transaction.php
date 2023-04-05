@@ -12,7 +12,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 /**
  * Implements the MSSQL Server specific transaction.
  */
-final class TransactionPDO extends AbstractTransactionPDO
+final class Transaction extends AbstractTransactionPDO
 {
     /**
      * Creates a new savepoint.

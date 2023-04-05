@@ -12,9 +12,9 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\ConnectionPDO;
+use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
-use Yiisoft\Db\Mssql\PDODriver;
+use Yiisoft\Db\Mssql\Driver;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
@@ -359,8 +359,8 @@ final class CommandTest extends CommonCommandTest
     public function testShowDatabases(): void
     {
         $dsn = new Dsn('sqlsrv', 'localhost');
-        $db = new ConnectionPDO(
-            new PDODriver($dsn->asString(), 'SA', 'YourStrong!Passw0rd'),
+        $db = new Connection(
+            new Driver($dsn->asString(), 'SA', 'YourStrong!Passw0rd'),
             DbHelper::getSchemaCache(),
         );
 

@@ -16,7 +16,7 @@ use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
  * Implements a database command that can be executed against a PDO (PHP Data Object) database connection for MSSQL
  * Server.
  */
-final class CommandPDO extends AbstractCommandPDO
+final class Command extends AbstractCommandPDO
 {
     public function showDatabases(): array
     {
