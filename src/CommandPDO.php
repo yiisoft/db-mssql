@@ -18,6 +18,15 @@ use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
  */
 final class CommandPDO extends AbstractCommandPDO
 {
+    public function showDatabases(): array
+    {
+        $sql = <<<SQL
+        SELECT [name] FROM [sys].[databases] WHERE [name] NOT IN ('master', 'tempdb', 'model', 'msdb')
+        SQL;
+
+        return $this->setSql($sql)->queryColumn();
+    }
+
     /**
      * @psalm-suppress UnusedClosureParam
      *

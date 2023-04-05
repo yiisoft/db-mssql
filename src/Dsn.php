@@ -16,7 +16,7 @@ final class Dsn extends AbstractDsn
     public function __construct(
         private string $driver,
         private string $host,
-        private string $databaseName,
+        private string|null $databaseName = null,
         private string $port = '1433'
     ) {
         parent::__construct($driver, $host, $databaseName, $port);
@@ -38,9 +38,18 @@ final class Dsn extends AbstractDsn
      */
     public function asString(): string
     {
-        return match ($this->port) {
-            '' => "$this->driver:" . "Server=$this->host;" . "Database=$this->databaseName",
-            default => "$this->driver:" . "Server=$this->host,$this->port;" . "Database=$this->databaseName",
-        };
+        if ($this->port !== '') {
+            $server = "Server=$this->host,$this->port;";
+        } else {
+            $server = "Server=$this->host;";
+        }
+
+        if (!empty($this->databaseName)) {
+            $dsn = "$this->driver:" . $server . "Database=$this->databaseName";
+        } else {
+            $dsn = "$this->driver:" . $server;
+        }
+
+        return $dsn;
     }
 }

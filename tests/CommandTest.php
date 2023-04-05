@@ -12,9 +12,13 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\ConnectionPDO;
+use Yiisoft\Db\Mssql\Dsn;
+use Yiisoft\Db\Mssql\PDODriver;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
+use Yiisoft\Db\Tests\Support\DbHelper;
 
 use function trim;
 
@@ -350,5 +354,19 @@ final class CommandTest extends CommonCommandTest
             'ALTER TABLE [test_def] DROP CONSTRAINT [test_def_constraint]',
             $command->getRawSql()
         );
+    }
+
+    public function testShowDatabases(): void
+    {
+        $dsn = new Dsn('sqlsrv', 'localhost');
+        $db = new ConnectionPDO(
+            new PDODriver($dsn->asString(), 'SA', 'YourStrong!Passw0rd'),
+            DbHelper::getSchemaCache(),
+        );
+
+        $command = $db->createCommand();
+
+        $this->assertSame('sqlsrv:Server=localhost,1433;', $db->getDriver()->getDsn());
+        $this->assertSame(['yiitest'], $command->showDatabases());
     }
 }
