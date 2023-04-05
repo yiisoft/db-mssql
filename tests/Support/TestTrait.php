@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Support;
 
-use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
+use Yiisoft\Db\Driver\Pdo\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Mssql\Connection;
-use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\Mssql\Driver;
+use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\Tests\Support\DbHelper;
 
 trait TestTrait
@@ -21,7 +21,7 @@ trait TestTrait
      * @throws Exception
      * @throws InvalidConfigException
      */
-    protected function getConnection(bool $fixture = false): ConnectionPDOInterface
+    protected function getConnection(bool $fixture = false): ConnectionInterface
     {
         $db = new Connection(
             new Driver($this->getDsn(), 'SA', 'YourStrong!Passw0rd'),
@@ -35,7 +35,7 @@ trait TestTrait
         return $db;
     }
 
-    protected static function getDb(): ConnectionPDOInterface
+    protected static function getDb(): ConnectionInterface
     {
         $dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
 

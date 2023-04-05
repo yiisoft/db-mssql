@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use Throwable;
-use Yiisoft\Db\Driver\PDO\AbstractTransactionPDO;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
 /**
  * Implements the MSSQL Server specific transaction.
  */
-final class Transaction extends AbstractTransactionPDO
+final class Transaction extends \Yiisoft\Db\Driver\Pdo\AbstractTransaction
 {
     /**
      * Creates a new savepoint.
