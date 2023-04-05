@@ -31,7 +31,7 @@ final class Dsn extends AbstractDsn
      *
      * ```php
      * $dsn = new Dsn('sqlsrv', 'localhost', 'yiitest', '1433');
-     * $db = new ConnectionPDO(new PDODriver($dsn->asString(), 'username', 'password'), $queryCache, $schemaCache);
+     * $db = new PdoConnection(new PdoDriver($dsn->asString(), 'username', 'password'), $schemaCache);
      * ```
      *
      * Will result in the DSN string `sqlsrv:Server=localhost,1433;Database=yiitest`.

@@ -18,7 +18,7 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  *
  * @link https://www.php.net/manual/en/ref.pdo-sqlsrv.php
  */
-final class ConnectionPDO extends AbstractConnectionPDO
+final class PdoConnection extends AbstractConnectionPDO
 {
     public function createBatchQueryResult(QueryInterface $query, bool $each = false): BatchQueryResultInterface
     {
@@ -27,7 +27,7 @@ final class ConnectionPDO extends AbstractConnectionPDO
 
     public function createCommand(string $sql = null, array $params = []): CommandPDOInterface
     {
-        $command = new CommandPDO($this);
+        $command = new PdoCommand($this);
 
         if ($sql !== null) {
             $command->setSql($sql);
@@ -46,7 +46,7 @@ final class ConnectionPDO extends AbstractConnectionPDO
 
     public function createTransaction(): TransactionInterface
     {
-        return new TransactionPDO($this);
+        return new PdoTransaction($this);
     }
 
     public function getQueryBuilder(): QueryBuilderInterface
