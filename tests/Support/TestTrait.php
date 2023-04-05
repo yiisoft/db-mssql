@@ -7,9 +7,9 @@ namespace Yiisoft\Db\Mssql\Tests\Support;
 use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Mssql\PdoConnection;
+use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
-use Yiisoft\Db\Mssql\PdoDriver;
+use Yiisoft\Db\Mssql\Driver;
 use Yiisoft\Db\Tests\Support\DbHelper;
 
 trait TestTrait
@@ -23,8 +23,8 @@ trait TestTrait
      */
     protected function getConnection(bool $fixture = false): ConnectionPDOInterface
     {
-        $db = new PdoConnection(
-            new PdoDriver($this->getDsn(), 'SA', 'YourStrong!Passw0rd'),
+        $db = new Connection(
+            new Driver($this->getDsn(), 'SA', 'YourStrong!Passw0rd'),
             DbHelper::getSchemaCache()
         );
 
@@ -39,8 +39,8 @@ trait TestTrait
     {
         $dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
 
-        return new PdoConnection(
-            new PdoDriver($dsn, 'SA', 'YourStrong!Passw0rd'),
+        return new Connection(
+            new Driver($dsn, 'SA', 'YourStrong!Passw0rd'),
             DbHelper::getSchemaCache(),
         );
     }
