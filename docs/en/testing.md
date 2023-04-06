@@ -2,7 +2,7 @@
 
 ## Github actions
 
-All our packages have github actions by default, so you can test your [contribution]() in the cloud.
+All our packages have github actions by default, so you can test your [contribution](https://github.com/yiisoft/db-mssql/blob/master/.github/CONTRIBUTING.md) in the cloud.
 
 **Note:** Recomended pull request in draft mode until all tests pass.
 
