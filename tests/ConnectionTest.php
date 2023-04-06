@@ -6,7 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
 use Throwable;
-use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
+use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
@@ -59,7 +59,7 @@ final class ConnectionTest extends CommonConnectionTest
         $db = $this->getConnection();
 
         $result = $db->transaction(
-            static function (ConnectionPDOInterface $db): bool {
+            static function (PdoConnectionInterface $db): bool {
                 $db->createCommand()->insert('profile', ['description' => 'test transaction shortcut'])->execute();
                 return true;
             },
