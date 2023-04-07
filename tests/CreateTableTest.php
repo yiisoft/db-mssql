@@ -56,7 +56,6 @@ final class CreateTableTest extends TestCase
         $schema = $db->getSchema();
 
         if ($schema->getTableSchema('test_create_table') !== null) {
-
             $db->createCommand()->dropTable('test_create_table')->execute();
         }
 
@@ -114,7 +113,7 @@ final class CreateTableTest extends TestCase
                 'DueDate' => $schema->createColumn(Schema::TYPE_DATETIME)->null(),
                 'rowguid' => $schema
                     ->createColumn(Schema::TYPE_UUID)
-                    ->append('ROWGUIDCOL NOT NULL CONSTRAINT DF_PurchaseOrderDetail_rowguid DEFAULT (NEWID())')
+                    ->append('ROWGUIDCOL NOT NULL CONSTRAINT DF_PurchaseOrderDetail_rowguid DEFAULT (NEWID())'),
             ]
         );
 
