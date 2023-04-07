@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use Yiisoft\Db\Driver\PDO\AbstractConnectionPDO;
-use Yiisoft\Db\Driver\PDO\CommandPDOInterface;
+use Yiisoft\Db\Driver\Pdo\AbstractPdoConnection;
+use Yiisoft\Db\Driver\Pdo\PdoCommandInterface;
 use Yiisoft\Db\Query\BatchQueryResultInterface;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
@@ -18,14 +18,14 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  *
  * @link https://www.php.net/manual/en/ref.pdo-sqlsrv.php
  */
-final class Connection extends AbstractConnectionPDO
+final class Connection extends AbstractPdoConnection
 {
     public function createBatchQueryResult(QueryInterface $query, bool $each = false): BatchQueryResultInterface
     {
         return new BatchQueryResult($query, $each);
     }
 
-    public function createCommand(string $sql = null, array $params = []): CommandPDOInterface
+    public function createCommand(string $sql = null, array $params = []): PdoCommandInterface
     {
         $command = new Command($this);
 
