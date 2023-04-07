@@ -576,7 +576,7 @@ final class Schema extends PdoAbstractSchema
                 $table->sequenceName('');
             }
 
-            $table->columns($column->getName(), $column);
+            $table->column($column->getName(), $column);
         }
 
         return true;
