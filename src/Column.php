@@ -24,6 +24,8 @@ use Yiisoft\Db\Schema\Builder\AbstractColumn;
  */
 final class Column extends AbstractColumn
 {
+    private bool $clustered = false;
+
     /**
      * @return Expression|string|null The default value of the column.
      */
@@ -34,5 +36,49 @@ final class Column extends AbstractColumn
         }
 
         return $this->buildDefaultValue();
+    }
+
+    public function clustered(): self
+    {
+        $this->format = '{type}{length}{notnull}{primarykey}{unique}{default}{check}{comment}{append}{clustered}';
+        $this->clustered = true;
+        return $this;
+    }
+
+    public function isClustered(): self
+    {
+        $this->clustered = true;
+        return $this;
+    }
+
+    /**
+     * Returns the complete column definition from input format.
+     *
+     * @param string $format The format of the definition.
+     *
+     * @return string A string containing the complete column definition.
+     */
+    protected function buildCompleteString(string $format): string
+    {
+        $placeholderValues = [
+            '{type}' => $this->type,
+            '{length}' => $this->buildLengthString(),
+            '{unsigned}' => $this->buildUnsignedString(),
+            '{notnull}' => $this->buildNotNullString(),
+            '{primarykey}' => $this->buildPrimaryKeyString(),
+            '{unique}' => $this->buildUniqueString(),
+            '{default}' => $this->buildDefaultString(),
+            '{check}' => $this->buildCheckString(),
+            '{comment}' => $this->buildCommentString(),
+            '{append}' => $this->buildAppendString(),
+            '{clustered}' => $this->buildClustered(),
+        ];
+
+        return strtr($format, $placeholderValues);
+    }
+
+    private function buildClustered(): string
+    {
+        return $this->clustered ? ' CLUSTERED' : '';
     }
 }
