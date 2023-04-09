@@ -68,5 +68,8 @@ jobs:
           FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
           WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
 
+      - name: Run tests with phpunit with code coverage.
+        run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always
+
       - name: Check dependencies.
         run: vendor/bin/composer-require-checker
