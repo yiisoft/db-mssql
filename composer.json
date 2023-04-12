@@ -1,10 +1,14 @@
 {
     "name": "yiisoft/db-mssql",
-    "description": "MSSQL Server extension for the Yii framework",
+    "description": "MSSQL Server driver for Yii Database",
     "keywords": [
         "yii",
         "mssql",
-        "sql server"
+        "sql server",
+        "database",
+        "sql",
+        "dbal",
+        "query-builder"
     ],
     "type": "library",
     "license": "BSD-3-Clause",
@@ -16,12 +20,10 @@
         "chat": "https://t.me/yii3en",
         "source": "https://github.com/yiisoft/db-mssql"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "php": "^8.0",
         "ext-pdo": "*",
-        "yiisoft/db": "@dev"
+        "yiisoft/db": "^1.0"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
@@ -44,11 +46,6 @@
         "psr-4": {
             "Yiisoft\\Db\\Mssql\\Tests\\": "tests",
             "Yiisoft\\Db\\Tests\\": "vendor/yiisoft/db/tests"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
         }
     },
     "config": {

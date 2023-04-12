@@ -5,21 +5,21 @@
     <a href="https://www.microsoft.com/sql-server" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/6154722" height="100px">
     </a>
-    <h1 align="center">Yii Database MSSQL Extension</h1>
+    <h1 align="center">MSSQL Server driver for Yii Database</h1>
     <br>
 </p>
 
-Yii Database MSSQL Extension is a package for working with [MSSQL] databases in PHP. It is a part of the [Yii Framework], a high-performance, open-source PHP framework for web application development.
+MSSQL Server driver for [Yii Database](https://github.com/yiisoft/db) is a package for working with [MSSQL] databases in PHP.
 
-The package provides a set of classes for connecting to a [MSSQL] database, creating and executing commands, and working with data. It also includes a set of tools for building and executing queries, including support for parameter binding, as well as tools for working with transactions.
+The package provides a set of classes for connecting to a [MSSQL] database, creating and executing commands, and working with data.
+It also includes a set of tools for building and executing queries, including support for parameter binding, as well
+as tools for working with transactions.
 
-To use Yii Database MSSQL Extension, you will need to have the PHP [MSSQL extension] installed and enabled on your server. You will also need to have access to a SQL Server database and the necessary credentials to connect to it.
-
-It is used in [Yii Framework] but can be used separately.
+To use it, you will need to have the PHP [MSSQL extension] installed and enabled on your server. You will also need to
+have access to a SQL Server database and the necessary credentials to connect to it.
 
 [MSSQL]: https://www.microsoft.com/sql-server
 [MSSQL extension]: https://pecl.php.net/package/sqlsrv
-[Yii Framework]: https://www.yiiframework.com/
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/db-mssql/v/stable.png)](https://packagist.org/packages/yiisoft/db-mssql)
 [![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads.png)](https://packagist.org/packages/yiisoft/db-mssql)
@@ -43,7 +43,7 @@ composer require yiisoft/db-mssql
 
 ## Usage 
 
-For config connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
+To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
 
 [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/getting-started.md) to learn about usage.
 
