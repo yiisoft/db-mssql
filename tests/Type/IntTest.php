@@ -39,7 +39,7 @@ final class IntTest extends TestCase
 
         $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
         $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
-        $this->assertSame(2147483647, $tableSchema?->getColumn('Myint')->getDefaultValue());
+        $this->assertSame(2_147_483_647, $tableSchema?->getColumn('Myint')->getDefaultValue());
 
         $db->createCommand()->dropTable('int_default')->execute();
     }
@@ -86,7 +86,7 @@ final class IntTest extends TestCase
 
         $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
         $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
-        $this->assertSame(2147483647, $tableSchema?->getColumn('Myint')->getDefaultValue());
+        $this->assertSame(2_147_483_647, $tableSchema?->getColumn('Myint')->getDefaultValue());
 
         $db->createCommand()->dropTable('int_default')->execute();
     }
@@ -133,7 +133,7 @@ final class IntTest extends TestCase
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
-        $command->insert('int', ['Myint1' => 2147483647, 'Myint2' => 0])->execute();
+        $command->insert('int', ['Myint1' => 2_147_483_647, 'Myint2' => 0])->execute();
 
         $this->assertSame(
             [
@@ -148,7 +148,7 @@ final class IntTest extends TestCase
             )->queryOne()
         );
 
-        $command->insert('int', ['Myint1' => 2147483647, 'Myint2' => null])->execute();
+        $command->insert('int', ['Myint1' => 2_147_483_647, 'Myint2' => null])->execute();
 
         $this->assertSame(
             [
@@ -185,7 +185,7 @@ final class IntTest extends TestCase
             'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow'
         );
 
-        $command->insert('int', ['Myint1' => 2147483648])->execute();
+        $command->insert('int', ['Myint1' => 2_147_483_648])->execute();
     }
 
     /**
@@ -203,7 +203,7 @@ final class IntTest extends TestCase
 
         $db = $this->getConnection(true);
         $command = $db->createCommand();
-        $command->insert('int', ['Myint1' => -2147483648, 'Myint2' => 0])->execute();
+        $command->insert('int', ['Myint1' => -2_147_483_648, 'Myint2' => 0])->execute();
 
         $this->assertSame(
             [
@@ -218,7 +218,7 @@ final class IntTest extends TestCase
             )->queryOne()
         );
 
-        $command->insert('int', ['Myint1' => -2147483648, 'Myint2' => null])->execute();
+        $command->insert('int', ['Myint1' => -2_147_483_648, 'Myint2' => null])->execute();
 
         $this->assertSame(
             [
@@ -255,7 +255,7 @@ final class IntTest extends TestCase
             'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow'
         );
 
-        $command->insert('int', ['Myint1' => -2147483649])->execute();
+        $command->insert('int', ['Myint1' => -2_147_483_649])->execute();
     }
 
     private function buildTable(): ConnectionInterface
