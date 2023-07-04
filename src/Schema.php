@@ -466,24 +466,36 @@ final class Schema extends AbstractPdoSchema
         }
 
         $column->phpType($this->getColumnPhpType($column));
-
-        if ($info['column_default'] === '(NULL)') {
-            $column->defaultValue(null);
-        }
-
-        if (!$column->isPrimaryKey() && !$column->isComputed() && $info['column_default'] !== null) {
-            /** @psalm-var mixed $value */
-            $value = $this->parseDefaultValue($info['column_default']);
-
-            if (is_numeric($value)) {
-                /** @psalm-var mixed $value */
-                $value = $column->phpTypeCast($value);
-            }
-
-            $column->defaultValue($value);
-        }
+        $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
 
         return $column;
+    }
+
+    /**
+     * Converts column's default value according to {@see ColumnSchema::phpType} after retrieval from the database.
+     *
+     * @param string|null $defaultValue The default value retrieved from the database.
+     * @param ColumnSchemaInterface $columnSchema The column schema object.
+     *
+     * @return mixed The normalized default value.
+     */
+    private function normalizeDefaultValue(?string $defaultValue, ColumnSchemaInterface $columnSchema): mixed
+    {
+        if (
+            $defaultValue === null
+            || $defaultValue === '(NULL)'
+            || $columnSchema->isPrimaryKey()
+            || $columnSchema->isComputed()
+        ) {
+            return null;
+        }
+
+        /** @psalm-var mixed $value */
+        $value = $this->parseDefaultValue($defaultValue);
+
+        return is_numeric($value)
+            ? $columnSchema->phpTypeCast($value)
+            : $value;
     }
 
     /**
