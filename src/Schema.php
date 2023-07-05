@@ -34,7 +34,7 @@ use function stripos;
  *   column_name: string,
  *   is_nullable: string,
  *   data_type: string,
- *   column_default: mixed,
+ *   column_default: string|null,
  *   is_identity: string,
  *   is_computed: string,
  *   comment: null|string
@@ -490,7 +490,6 @@ final class Schema extends AbstractPdoSchema
             return null;
         }
 
-        /** @psalm-var mixed $value */
         $value = $this->parseDefaultValue($defaultValue);
 
         return is_numeric($value)
@@ -926,10 +925,8 @@ final class Schema extends AbstractPdoSchema
         return md5(serialize(array_merge([self::class], $this->generateCacheKey())));
     }
 
-    private function parseDefaultValue(mixed $value): mixed
+    private function parseDefaultValue(string $value): string
     {
-        $value = (string) $value;
-
         if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
             return $matches[1];
         }
