@@ -424,7 +424,7 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadColumnSchema(array $info): ColumnSchemaInterface
     {
-        $dbType = $info['data_type'] ?? '';
+        $dbType = $info['data_type'];
 
         $column = $this->createColumnSchema($info['column_name']);
         $column->allowNull($info['is_nullable'] === 'YES');
@@ -475,17 +475,17 @@ final class Schema extends AbstractPdoSchema
      * Converts column's default value according to {@see ColumnSchema::phpType} after retrieval from the database.
      *
      * @param string|null $defaultValue The default value retrieved from the database.
-     * @param ColumnSchemaInterface $columnSchema The column schema object.
+     * @param ColumnSchemaInterface $column The column schema object.
      *
      * @return mixed The normalized default value.
      */
-    private function normalizeDefaultValue(?string $defaultValue, ColumnSchemaInterface $columnSchema): mixed
+    private function normalizeDefaultValue(?string $defaultValue, ColumnSchemaInterface $column): mixed
     {
         if (
             $defaultValue === null
             || $defaultValue === '(NULL)'
-            || $columnSchema->isPrimaryKey()
-            || $columnSchema->isComputed()
+            || $column->isPrimaryKey()
+            || $column->isComputed()
         ) {
             return null;
         }
@@ -493,7 +493,7 @@ final class Schema extends AbstractPdoSchema
         $value = $this->parseDefaultValue($defaultValue);
 
         return is_numeric($value)
-            ? $columnSchema->phpTypeCast($value)
+            ? $column->phpTypeCast($value)
             : $value;
     }
 
