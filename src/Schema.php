@@ -34,7 +34,7 @@ use function stripos;
  *   column_name: string,
  *   is_nullable: string,
  *   data_type: string,
- *   column_default: mixed,
+ *   column_default: string|null,
  *   is_identity: string,
  *   is_computed: string,
  *   comment: null|string
@@ -424,7 +424,7 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadColumnSchema(array $info): ColumnSchemaInterface
     {
-        $dbType = $info['data_type'] ?? '';
+        $dbType = $info['data_type'];
 
         $column = $this->createColumnSchema($info['column_name']);
         $column->allowNull($info['is_nullable'] === 'YES');
@@ -466,24 +466,35 @@ final class Schema extends AbstractPdoSchema
         }
 
         $column->phpType($this->getColumnPhpType($column));
-
-        if ($info['column_default'] === '(NULL)') {
-            $column->defaultValue(null);
-        }
-
-        if (!$column->isPrimaryKey() && !$column->isComputed() && $info['column_default'] !== null) {
-            /** @psalm-var mixed $value */
-            $value = $this->parseDefaultValue($info['column_default']);
-
-            if (is_numeric($value)) {
-                /** @psalm-var mixed $value */
-                $value = $column->phpTypeCast($value);
-            }
-
-            $column->defaultValue($value);
-        }
+        $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
 
         return $column;
+    }
+
+    /**
+     * Converts column's default value according to {@see ColumnSchema::phpType} after retrieval from the database.
+     *
+     * @param string|null $defaultValue The default value retrieved from the database.
+     * @param ColumnSchemaInterface $column The column schema object.
+     *
+     * @return mixed The normalized default value.
+     */
+    private function normalizeDefaultValue(?string $defaultValue, ColumnSchemaInterface $column): mixed
+    {
+        if (
+            $defaultValue === null
+            || $defaultValue === '(NULL)'
+            || $column->isPrimaryKey()
+            || $column->isComputed()
+        ) {
+            return null;
+        }
+
+        $value = $this->parseDefaultValue($defaultValue);
+
+        return is_numeric($value)
+            ? $column->phpTypeCast($value)
+            : $value;
     }
 
     /**
@@ -914,10 +925,8 @@ final class Schema extends AbstractPdoSchema
         return md5(serialize(array_merge([self::class], $this->generateCacheKey())));
     }
 
-    private function parseDefaultValue(mixed $value): mixed
+    private function parseDefaultValue(string $value): string
     {
-        $value = (string) $value;
-
         if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
             return $matches[1];
         }
