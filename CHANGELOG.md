@@ -1,6 +1,6 @@
 # MSSQL Server driver for Yii Database Change Log
 
-## 1.0.1 under development
+## 1.0.1 July 24, 2023
 
 - Enh #271: Typecast refactoring (@Tigrov)
 
