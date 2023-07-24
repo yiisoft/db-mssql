@@ -155,7 +155,7 @@ CREATE TABLE [dbo].[type] (
     [float_col2] [float] DEFAULT '1.23',
     [blob_col] [varbinary](MAX),
     [numeric_col] [decimal](5,2) DEFAULT '33.22',
-    [time] [datetime] NOT NULL DEFAULT '2002-01-01 00:00:00',
+    [datetime_col] [datetime] NOT NULL DEFAULT '2002-01-01 00:00:00',
     [bool_col] [tinyint] NOT NULL,
     [bool_col2] [tinyint] DEFAULT '1'
 );
