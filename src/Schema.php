@@ -13,6 +13,7 @@ use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\ColumnSchemaInterface;
@@ -108,9 +109,16 @@ final class Schema extends AbstractPdoSchema
         'image' => self::TYPE_BINARY,
 
         /**
-         * Other data types 'cursor' type can't be used with tables
+         * The Transact-SQL rowversion data type is not a date or time data type.
+         * timestamp is a deprecated synonym for rowversion.
+         * rowversion column is semantically equivalent to a binary(8)/varbinary(8) column.
+         *
+         * @link https://learn.microsoft.com/en-us/sql/t-sql/functions/date-and-time-data-types-and-functions-transact-sql
+         * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-ver16
          */
-        'timestamp' => self::TYPE_TIMESTAMP,
+        'timestamp' => self::TYPE_BINARY,
+
+        /** Other data types 'cursor' type can't be used with tables */
         'hierarchyid' => self::TYPE_STRING,
         'uniqueidentifier' => self::TYPE_STRING,
         'sql_variant' => self::TYPE_STRING,
@@ -466,6 +474,7 @@ final class Schema extends AbstractPdoSchema
         }
 
         $column->phpType($this->getColumnPhpType($column));
+        $column->dateTimeFormat($this->getDateTimeFormat($column));
         $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
 
         return $column;
@@ -479,7 +488,7 @@ final class Schema extends AbstractPdoSchema
      *
      * @return mixed The normalized default value.
      */
-    private function normalizeDefaultValue(?string $defaultValue, ColumnSchemaInterface $column): mixed
+    private function normalizeDefaultValue(string|null $defaultValue, ColumnSchemaInterface $column): mixed
     {
         if (
             $defaultValue === null
@@ -491,6 +500,10 @@ final class Schema extends AbstractPdoSchema
         }
 
         $value = $this->parseDefaultValue($defaultValue);
+
+        if ($column->getDateTimeFormat() !== null) {
+            return date_create_immutable($value) ?: new Expression($value);
+        }
 
         return is_numeric($value)
             ? $column->phpTypeCast($value)
@@ -540,6 +553,12 @@ final class Schema extends AbstractPdoSchema
             [t1].[data_type]
         ELSE
             [t1].[data_type] + '(' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[numeric_precision]))) + ',' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[numeric_scale]))) + ')'
+        END
+        WHEN [t1].[data_type] IN ('datetime2','datetimeoffset','time') THEN
+        CASE WHEN [t1].[datetime_precision] = NULL OR [t1].[datetime_precision] = -1 THEN
+            [t1].[data_type]
+        ELSE
+            [t1].[data_type] + '(' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[datetime_precision]))) + ')'
         END
         ELSE
             [t1].[data_type]
@@ -936,5 +955,16 @@ final class Schema extends AbstractPdoSchema
         }
 
         return $value;
+    }
+
+    protected function getMillisecondsFormat(ColumnSchemaInterface $column): string
+    {
+        $dbType = explode('(', (string) $column->getDbType(), 2)[0];
+
+        return match ($dbType) {
+            'date', 'smalldatetime' => '',
+            'datetime' => '.v',
+            default => parent::getMillisecondsFormat($column),
+        };
     }
 }

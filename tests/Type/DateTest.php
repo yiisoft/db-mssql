@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
+use DateTimeInterface;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -37,7 +38,7 @@ final class DateTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string $defaultValue
+        string|DateTimeInterface $defaultValue
     ): void {
         $db = $this->buildTable();
 
@@ -45,7 +46,11 @@ final class DateTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        if ($defaultValue instanceof DateTimeInterface) {
+            $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        } else {
+            $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        }
 
         $db->createCommand()->insert('date_default', [])->execute();
     }
@@ -89,7 +94,7 @@ final class DateTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string $defaultValue
+        string|DateTimeInterface $defaultValue
     ): void {
         $this->setFixture('Type/date.sql');
 
@@ -98,7 +103,11 @@ final class DateTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        if ($defaultValue instanceof DateTimeInterface) {
+            $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        } else {
+            $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        }
 
         $db->createCommand()->dropTable('date_default')->execute();
     }
@@ -150,7 +159,7 @@ final class DateTest extends TestCase
             'Mydatetime2' => null,
             'Mydatetimeoffset1' => '2007-05-08 12:35:29.1234567 +12:15',
             'Mydatetimeoffset2' => null,
-            'Mytime1' => '12:35:29.1234567',
+            'Mytime1' => '12:35:29.1234560',
             'Mytime2' => null,
         ])->execute();
 
@@ -163,7 +172,7 @@ final class DateTest extends TestCase
                 'Mydatetime2' => null,
                 'Mydatetimeoffset1' => '2007-05-08 12:35:29.1234567 +12:15',
                 'Mydatetimeoffset2' => null,
-                'Mytime1' => '12:35:29.1234567',
+                'Mytime1' => '12:35:29.1234560',
                 'Mytime2' => null,
             ],
             $command->setSql(
