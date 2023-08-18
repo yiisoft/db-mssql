@@ -27,7 +27,7 @@ final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
 
         $batchInsert['issue11242']['expectedParams'][':qp3'] = 1;
 
-        $batchInsert['wrongBehavior']['expectedParams'][':qp3'] = 0;
+        $batchInsert['table name with column name with brackets']['expectedParams'][':qp3'] = 0;
 
         $batchInsert['batchInsert binds params from expression']['expectedParams'][':qp3'] = 0;
 
