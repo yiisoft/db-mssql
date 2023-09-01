@@ -5,24 +5,22 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
-use PHPUnit\Framework\TestCase;
 use Yiisoft\Db\Command\Param;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\BinaryColumnSchema;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
-
 use Yiisoft\Db\Schema\Column\DoubleColumnSchema;
 use Yiisoft\Db\Schema\Column\IntegerColumnSchema;
 use Yiisoft\Db\Schema\Column\StringColumnSchema;
-use Yiisoft\Db\Schema\SchemaInterface;
-use function fopen;
+use Yiisoft\Db\Tests\Common\CommonColumnSchemaTest;
+
 use function str_repeat;
 
 /**
  * @group mssql
  */
-final class ColumnSchemaTest extends TestCase
+final class ColumnSchemaTest extends CommonColumnSchemaTest
 {
     use TestTrait;
 
@@ -82,27 +80,24 @@ final class ColumnSchemaTest extends TestCase
         $this->assertInstanceOf(BinaryColumnSchema::class, $tableSchema->getColumn('blob_col'));
     }
 
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnSchemaProvider::predefinedTypes */
+    public function testPredefinedType(string $className, string $type, string $phpType)
+    {
+        parent::testPredefinedType($className, $type, $phpType);
+    }
+
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnSchemaProvider::dbTypecastColumns */
+    public function testDbTypecastColumns(string $className, array $values)
+    {
+        parent::testDbTypecastColumns($className, $values);
+    }
+
     public function testBinaryColumnSchema()
     {
         $binaryCol = new BinaryColumnSchema('binary_col');
+        $binaryCol->dbType('varbinary');
 
         $this->assertSame('binary_col', $binaryCol->getName());
-        $this->assertSame(SchemaInterface::TYPE_BINARY, $binaryCol->getType());
-        $this->assertSame(SchemaInterface::PHP_TYPE_RESOURCE, $binaryCol->getPhpType());
-
-        $this->assertNull($binaryCol->dbTypecast(null));
-        $this->assertSame('1', $binaryCol->dbTypecast(1));
-        $this->assertSame('1', $binaryCol->dbTypecast(true));
-        $this->assertSame('0', $binaryCol->dbTypecast(false));
-        $this->assertSame($resource = fopen('php://memory', 'rb'), $binaryCol->dbTypecast($resource));
-        $this->assertEquals(new Param("\x10\x11\x12", PDO::PARAM_LOB), $binaryCol->dbTypecast("\x10\x11\x12"));
-        $this->assertSame($expression = new Expression('expression'), $binaryCol->dbTypecast($expression));
-
-        $this->assertNull($binaryCol->phpTypecast(null));
-        $this->assertSame("\x10\x11\x12", $binaryCol->phpTypecast("\x10\x11\x12"));
-        $this->assertSame($resource = fopen('php://memory', 'rb'), $binaryCol->phpTypecast($resource));
-
-        $binaryCol->dbType('varbinary');
         $this->assertEquals(
             new Expression('CONVERT(VARBINARY(MAX), 0x101112)'),
             $binaryCol->dbTypecast("\x10\x11\x12"),
