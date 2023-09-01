@@ -13,6 +13,10 @@ use function bin2hex;
 use function is_string;
 
 /**
+ * @deprecated Use the following class for specific type:
+ * `StringColumnSchema`, `IntegerColumnSchema`, `BigIntColumnSchema`, `DoubleColumnSchema`, `BooleanColumnSchema`,
+ * `BinaryColumnSchema`
+ *
  * Represents the metadata of a column in a database table for MSSQL Server.
  *
  * It provides information about the column's name, type, size, precision, and other details.
@@ -35,6 +39,9 @@ use function is_string;
  * $column->autoIncrement(true);
  * $column->primaryKey(true);
  * ```
+ *
+ * @psalm-suppress DeprecatedInterface
+ * @psalm-suppress DeprecatedClass
  */
 final class ColumnSchema extends AbstractColumnSchema
 {
@@ -49,6 +56,7 @@ final class ColumnSchema extends AbstractColumnSchema
             }
         }
 
+        /** @psalm-suppress DeprecatedClass */
         return parent::dbTypecast($value);
     }
 }
