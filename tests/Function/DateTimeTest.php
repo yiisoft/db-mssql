@@ -12,6 +12,7 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -36,7 +37,7 @@ final class DateTimeTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string $defaultValue
+        string|ExpressionInterface $defaultValue
     ): void {
         $db = $this->buildTable();
 
@@ -44,7 +45,11 @@ final class DateTimeTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        if ($defaultValue instanceof ExpressionInterface) {
+            $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        } else {
+            $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        }
 
         $db->createCommand()->dropTable('datetime')->execute();
     }
@@ -136,7 +141,7 @@ final class DateTimeTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string $defaultValue
+        string|ExpressionInterface $defaultValue
     ): void {
         $this->setFixture('Function/datetime.sql');
 
@@ -145,7 +150,11 @@ final class DateTimeTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        if ($defaultValue instanceof ExpressionInterface) {
+            $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        } else {
+            $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        }
 
         $db->createCommand()->dropTable('datetime')->execute();
     }

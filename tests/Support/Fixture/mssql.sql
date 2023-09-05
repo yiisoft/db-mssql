@@ -155,7 +155,13 @@ CREATE TABLE [dbo].[type] (
     [float_col2] [float] DEFAULT '1.23',
     [blob_col] [varbinary](MAX),
     [numeric_col] [decimal](5,2) DEFAULT '33.22',
-    [datetime_col] [datetime] NOT NULL DEFAULT '2002-01-01 00:00:00',
+    [smalldatetime_col] [smalldatetime] NOT NULL DEFAULT '2002-01-01 00:00:00',
+    [datetime_col] [datetime] NOT NULL DEFAULT '2023-06-11 15:24:11.123',
+    [datetime2_col] [datetime2](2) NOT NULL DEFAULT '2023-06-11 15:24:11.12',
+    [datetimeoffset_col] [datetimeoffset] NOT NULL DEFAULT '2023-06-11 15:24:11.1234567 +02:00',
+    [date_col] [date] NOT NULL DEFAULT '2023-06-11',
+    [time_col] [time](6) NOT NULL DEFAULT '15:24:11.123456',
+    [datetime2_default] [datetime2] NOT NULL DEFAULT sysdatetime(),
     [bool_col] [tinyint] NOT NULL,
     [bool_col2] [tinyint] DEFAULT '1'
 );

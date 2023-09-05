@@ -11,6 +11,7 @@ use Yiisoft\Db\Schema\SchemaInterface;
 
 use function bin2hex;
 use function is_string;
+use function str_starts_with;
 
 /**
  * Represents the metadata of a column in a database table for MSSQL Server.
@@ -50,5 +51,10 @@ final class ColumnSchema extends AbstractColumnSchema
         }
 
         return parent::dbTypecast($value);
+    }
+
+    public function hasTimezone(): bool
+    {
+        return str_starts_with((string) $this->getDbType(), 'datetimeoffset');
     }
 }
