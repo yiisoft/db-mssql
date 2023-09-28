@@ -109,4 +109,13 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
 
         return parent::extractAlias($table);
     }
+
+    public function buildWithQueries(array $withs, array &$params): string
+    {
+        foreach ($withs as &$with) {
+            $with['recursive'] = false;
+        }
+
+        return parent::buildWithQueries($withs, $params);
+    }
 }
