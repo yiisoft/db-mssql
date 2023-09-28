@@ -9,6 +9,7 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
+use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\AbstractDQLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\Condition\InCondition;
 use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
@@ -112,6 +113,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
 
     public function buildWithQueries(array $withs, array &$params): string
     {
+        /** @psalm-var array{query:string|Query, alias:ExpressionInterface|string, recursive:bool}[] $withs */
         foreach ($withs as &$with) {
             $with['recursive'] = false;
         }
