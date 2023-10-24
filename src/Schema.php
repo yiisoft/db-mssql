@@ -444,6 +444,10 @@ final class Schema extends AbstractPdoSchema
                 $column->type($this->typeMap[$type]);
             }
 
+            if ($type === 'bit') {
+                $column->type(self::TYPE_BOOLEAN);
+            }
+
             if (!empty($matches[2])) {
                 $values = explode(',', $matches[2]);
                 $column->precision((int) $values[0]);
@@ -451,16 +455,6 @@ final class Schema extends AbstractPdoSchema
 
                 if (isset($values[1])) {
                     $column->scale((int) $values[1]);
-                }
-
-                if ($column->getSize() === 1 && ($type === 'tinyint' || $type === 'bit')) {
-                    $column->type(self::TYPE_BOOLEAN);
-                } elseif ($type === 'bit') {
-                    if ($column->getSize() > 32) {
-                        $column->type(self::TYPE_BIGINT);
-                    } elseif ($column->getSize() === 32) {
-                        $column->type(self::TYPE_INTEGER);
-                    }
                 }
             }
         }

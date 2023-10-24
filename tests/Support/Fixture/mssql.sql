@@ -156,8 +156,8 @@ CREATE TABLE [dbo].[type] (
     [blob_col] [varbinary](MAX),
     [numeric_col] [decimal](5,2) DEFAULT '33.22',
     [datetime_col] [datetime] NOT NULL DEFAULT '2002-01-01 00:00:00',
-    [bool_col] [tinyint] NOT NULL,
-    [bool_col2] [tinyint] DEFAULT '1'
+    [bool_col] [bit] NOT NULL,
+    [bool_col2] [bit] DEFAULT '1'
 );
 
 CREATE TABLE [dbo].[animal] (
