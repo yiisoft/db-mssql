@@ -56,7 +56,7 @@ build:
           - /opt/mssql-tools/bin/sqlcmd -S 127.0.0.1 -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
           - pecl channel-update pecl.php.net
           - pecl install pdo_sqlsrv
-          - composer require yiisoft/db:"dev-master as 1.0" --ansi 
+          - composer require yiisoft/db:dev-master --ansi
 
       tests:
         override:
