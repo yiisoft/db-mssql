@@ -37,7 +37,7 @@ final class BitTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        int $defaultValue
+        bool $defaultValue
     ): void {
         $db = $this->buildTable();
 
@@ -89,7 +89,7 @@ final class BitTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        int $defaultValue
+        bool $defaultValue
     ): void {
         $this->setFixture('Type/bit.sql');
 
@@ -198,7 +198,7 @@ final class BitTest extends TestCase
         $this->assertSame(
             [
                 'id' => '2',
-                'Mybit1' => '0',
+                'Mybit1' => '1',
                 'Mybit2' => '1',
                 'Mybit3' => '1',
             ],
@@ -251,7 +251,7 @@ final class BitTest extends TestCase
             [
                 'id' => '2',
                 'Mybit1' => null,
-                'Mybit2' => '0',
+                'Mybit2' => '1',
                 'Mybit3' => '1',
             ],
             $command->setSql(

@@ -22,14 +22,14 @@ final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
     {
         $batchInsert = parent::batchInsert();
 
-        $batchInsert['multirow']['expectedParams'][':qp3'] = 1;
-        $batchInsert['multirow']['expectedParams'][':qp7'] = 0;
+        $batchInsert['multirow']['expectedParams'][':qp3'] = true;
+        $batchInsert['multirow']['expectedParams'][':qp7'] = false;
 
-        $batchInsert['issue11242']['expectedParams'][':qp3'] = 1;
+        $batchInsert['issue11242']['expectedParams'][':qp3'] = true;
 
-        $batchInsert['wrongBehavior']['expectedParams'][':qp3'] = 0;
+        $batchInsert['wrongBehavior']['expectedParams'][':qp3'] = false;
 
-        $batchInsert['batchInsert binds params from expression']['expectedParams'][':qp3'] = 0;
+        $batchInsert['batchInsert binds params from expression']['expectedParams'][':qp3'] = false;
 
         return $batchInsert;
     }
