@@ -2,6 +2,7 @@
 
 ## 1.0.2 under development
 
+- Bug #280: Fix type boolean (@terabytesoftw)
 - Bug #278: Remove `RECURSIVE` expression from CTE queries (@Tigrov)
 
 ## 1.0.1 July 24, 2023

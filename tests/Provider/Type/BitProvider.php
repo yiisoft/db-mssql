@@ -11,7 +11,6 @@ final class BitProvider
         return [
             ['Mybit1', 'bit', 'boolean', false],
             ['Mybit2', 'bit', 'boolean', true],
-            ['Mybit3', 'bit', 'boolean', true],
         ];
     }
 }

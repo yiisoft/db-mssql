@@ -18,22 +18,6 @@ final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
 
     protected static string $driverName = 'sqlsrv';
 
-    public static function batchInsert(): array
-    {
-        $batchInsert = parent::batchInsert();
-
-        $batchInsert['multirow']['expectedParams'][':qp3'] = true;
-        $batchInsert['multirow']['expectedParams'][':qp7'] = false;
-
-        $batchInsert['issue11242']['expectedParams'][':qp3'] = true;
-
-        $batchInsert['wrongBehavior']['expectedParams'][':qp3'] = false;
-
-        $batchInsert['batchInsert binds params from expression']['expectedParams'][':qp3'] = false;
-
-        return $batchInsert;
-    }
-
     /**
      * @throws JsonException
      */

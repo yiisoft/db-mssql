@@ -280,7 +280,6 @@ final class BitTest extends TestCase
                 'id' => 'INT IDENTITY NOT NULL',
                 'Mybit1' => 'BIT DEFAULT 0', // Min value
                 'Mybit2' => 'BIT DEFAULT 1', // Max value
-                'Mybit3' => 'BIT DEFAULT 2', // Max value
             ],
         )->execute();
 
@@ -293,7 +292,6 @@ final class BitTest extends TestCase
             'id' => '1',
             'Mybit1' => '0',
             'Mybit2' => '1',
-            'Mybit3' => '1',
         ];
     }
 }
