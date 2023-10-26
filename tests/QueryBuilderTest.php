@@ -602,53 +602,57 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
 
         $qb = $db->getQueryBuilder();
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] varchar(255)
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] varchar(255)
+            SQL;
         $sql = $qb->alterColumn('foo1', 'bar', 'varchar(255)');
         $this->assertEquals($expected, $sql);
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255) NOT NULL
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255) NOT NULL
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
@@ -656,29 +660,31 @@ END";
         );
         $this->assertEquals($expected, $sql);
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END
-ALTER TABLE [foo1] ADD CONSTRAINT [CK_foo1_bar] CHECK (LEN(bar) > 5)";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+            ALTER TABLE [foo1] ADD CONSTRAINT [CK_foo1_bar] CHECK (LEN(bar) > 5)
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
@@ -686,29 +692,31 @@ ALTER TABLE [foo1] ADD CONSTRAINT [CK_foo1_bar] CHECK (LEN(bar) > 5)";
         );
         $this->assertEquals($expected, $sql);
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END
-ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT '' FOR [bar]";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+            ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT '' FOR [bar]
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
@@ -716,29 +724,31 @@ ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT '' FOR [bar]";
         );
         $this->assertEquals($expected, $sql);
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END
-ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT 'AbCdE' FOR [bar]";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+            ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT 'AbCdE' FOR [bar]
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
@@ -746,29 +756,31 @@ ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT 'AbCdE' FOR [bar]";
         );
         $this->assertEquals($expected, $sql);
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] datetime
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END
-ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT CURRENT_TIMESTAMP FOR [bar]";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] datetime
+            ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT CURRENT_TIMESTAMP FOR [bar]
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
@@ -776,29 +788,31 @@ ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT CURRENT_TIMESTAMP FOR [b
         );
         $this->assertEquals($expected, $sql);
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(30)
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END
-ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(30)
+            ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
@@ -1007,29 +1021,31 @@ ALTER TABLE [customer] DROP COLUMN [id]";
     {
         $qb = $this->getConnection()->getQueryBuilder();
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] int NULL
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END
-ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] int NULL
+            ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
@@ -1037,29 +1053,31 @@ ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]";
         );
         $this->assertEquals($expected, $sql);
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] int NULL
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END
-ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] int NULL
+            ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
@@ -1076,29 +1094,31 @@ ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT NULL FOR [bar]";
     {
         $qb = $this->getConnection()->getQueryBuilder();
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] int NULL
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END
-ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT CAST(GETDATE() AS INT) FOR [bar]";
+        $expected = <<<SQL
+            DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+            DECLARE @columnName VARCHAR(MAX) = 'bar'
+            WHILE 1=1 BEGIN
+                DECLARE @constraintName NVARCHAR(128)
+                SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                    FROM (
+                        SELECT sc.[constid] object_id
+                        FROM [sys].[sysconstraints] sc
+                        JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                        WHERE sc.[id] = OBJECT_ID(@tableName)
+                        UNION
+                        SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                        JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                        JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                        WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                    ) cons
+                    JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                     WHERE so.[type]='D')
+                IF @constraintName IS NULL BREAK
+                EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+            END
+            ALTER TABLE [foo1] ALTER COLUMN [bar] int NULL
+            ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT CAST(GETDATE() AS INT) FOR [bar]
+            SQL;
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
