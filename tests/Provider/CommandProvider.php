@@ -7,7 +7,9 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 use JsonException;
 use PDO;
 use Yiisoft\Db\Command\Param;
+use Yiisoft\Db\Mssql\Column;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Schema\SchemaInterface;
 
 use function json_encode;
 use function serialize;
@@ -36,6 +38,14 @@ final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
                 'simple string',
                 'simple string',
             ],
+        ];
+    }
+
+    public static function columnTypes(): array
+    {
+        return [
+            ['ntext'],
+            [(new Column(SchemaInterface::TYPE_STRING, 255))->notNull()],
         ];
     }
 }

@@ -17,6 +17,7 @@ use Yiisoft\Db\Mssql\Column;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
+use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Tests\Common\CommonQueryBuilderTest;
 
@@ -592,42 +593,16 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $this->assertSame($testData, $resultData['blob_col']);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     */
-    public function testAlterColumn(): void
+    /** @dataProvider \Yiisoft\Db\Tests\Provider\QueryBuilderProvider::columnTypes */
+    public function testAlterColumn(ColumnInterface|string $type): void
     {
         $db = $this->getConnection(true);
 
         $qb = $db->getQueryBuilder();
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] varchar(255)
-DECLARE @tableName VARCHAR(MAX) = '[foo1]'
-DECLARE @columnName VARCHAR(MAX) = 'bar'
-WHILE 1=1 BEGIN
-    DECLARE @constraintName NVARCHAR(128)
-    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
-        FROM (
-            SELECT sc.[constid] object_id
-            FROM [sys].[sysconstraints] sc
-            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
-            WHERE sc.[id] = OBJECT_ID(@tableName)
-            UNION
-            SELECT object_id(i.[name]) FROM [sys].[indexes] i
-            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
-            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
-            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
-        ) cons
-        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
-         WHERE so.[type]='D')
-    IF @constraintName IS NULL BREAK
-    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
-END";
-        $sql = $qb->alterColumn('foo1', 'bar', 'varchar(255)');
-        $this->assertEquals($expected, $sql);
+        $type = $qb->getColumnType($type);
 
-        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255) NOT NULL
+        $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] {$type}
 DECLARE @tableName VARCHAR(MAX) = '[foo1]'
 DECLARE @columnName VARCHAR(MAX) = 'bar'
 WHILE 1=1 BEGIN
@@ -649,12 +624,15 @@ WHILE 1=1 BEGIN
     IF @constraintName IS NULL BREAK
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END";
-        $sql = $qb->alterColumn(
-            'foo1',
-            'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 255))->notNull()
-        );
+        $sql = $qb->alterColumn('foo1', 'bar', $type);
         $this->assertEquals($expected, $sql);
+    }
+
+    public function testAlterColumnWithConstraints(): void
+    {
+        $db = $this->getConnection(true);
+
+        $qb = $db->getQueryBuilder();
 
         $expected = "ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
 DECLARE @tableName VARCHAR(MAX) = '[foo1]'

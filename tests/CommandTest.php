@@ -17,6 +17,7 @@ use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\Mssql\Driver;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
 use Yiisoft\Db\Tests\Support\DbHelper;
 
@@ -33,22 +34,25 @@ final class CommandTest extends CommonCommandTest
 
     protected string $upsertTestCharCast = 'CAST([[address]] AS VARCHAR(255))';
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
-    public function testAlterColumn(): void
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::columnTypes */
+    public function testAlterColumn(ColumnInterface|string $type): void
     {
         $db = $this->getConnection(true);
 
         $command = $db->createCommand();
-        $command->alterColumn('{{customer}}', 'email', 'ntext')->execute();
+        $command->alterColumn('{{customer}}', 'email', $type)->execute();
         $schema = $db->getSchema();
         $columns = $schema->getTableSchema('{{customer}}')?->getColumns();
 
+        $dbType = $db->getQueryBuilder()->getColumnType($type);
+        $dbType = explode(' ', $dbType, 2)[0];
+
         $this->assertArrayHasKey('email', $columns);
-        $this->assertSame('ntext', $columns['email']->getDbType());
+        $this->assertSame($dbType, $columns['email']->getDbType());
+
+        if ($type instanceof ColumnInterface) {
+            $this->assertSame($type->isNotNull(), !$columns['email']->isAllowNull());
+        }
     }
 
     /**
