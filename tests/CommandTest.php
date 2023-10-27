@@ -52,22 +52,6 @@ final class CommandTest extends CommonCommandTest
     }
 
     /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::batchInsert
-     *
-     * @throws Throwable
-     */
-    public function testBatchInsert(
-        string $table,
-        array $columns,
-        array $values,
-        string $expected,
-        array $expectedParams = [],
-        int $insertedRow = 1
-    ): void {
-        parent::testBatchInsert($table, $columns, $values, $expected, $expectedParams, $insertedRow);
-    }
-
-    /**
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
