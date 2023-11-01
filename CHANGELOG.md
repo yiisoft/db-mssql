@@ -2,6 +2,7 @@
 
 ## 1.0.2 under development
 
+- Bug #275: Refactor `DMLQueryBuilder`, related with yiisoft/db#746 (@Tigrov)
 - Bug #278: Remove `RECURSIVE` expression from CTE queries (@Tigrov)
 - Bug #280: Fix type boolean (@terabytesoftw)
 
