@@ -5,6 +5,7 @@
 - Bug #275: Refactor `DMLQueryBuilder`, related with yiisoft/db#746 (@Tigrov)
 - Bug #278: Remove `RECURSIVE` expression from CTE queries (@Tigrov)
 - Bug #280: Fix type boolean (@terabytesoftw)
+- Enh #283: Move methods from `Command` to `AbstractPdoCommand` class (@Tigrov)
 
 ## 1.0.1 July 24, 2023
 
