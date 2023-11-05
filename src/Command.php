@@ -25,45 +25,4 @@ final class Command extends AbstractPdoCommand
 
         return $this->setSql($sql)->queryColumn();
     }
-
-    /**
-     * @psalm-suppress UnusedClosureParam
-     *
-     * @throws Exception
-     * @throws Throwable
-     */
-    protected function internalExecute(string|null $rawSql): void
-    {
-        $attempt = 0;
-
-        while (true) {
-            try {
-                if (
-                    ++$attempt === 1
-                    && $this->isolationLevel !== null
-                    && $this->db->getTransaction() === null
-                ) {
-                    $this->db->transaction(
-                        fn () => $this->internalExecute($rawSql),
-                        $this->isolationLevel
-                    );
-                } else {
-                    $this->pdoStatement?->execute();
-                }
-                break;
-            } catch (PDOException $e) {
-                $rawSql = $rawSql ?: $this->getRawSql();
-                $e = (new ConvertException($e, $rawSql))->run();
-
-                if ($this->retryHandler === null || !($this->retryHandler)($e, $attempt)) {
-                    throw $e;
-                }
-            }
-        }
-    }
-
-    protected function getQueryBuilder(): QueryBuilderInterface
-    {
-        return $this->db->getQueryBuilder();
-    }
 }
