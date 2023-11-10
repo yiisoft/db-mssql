@@ -12,6 +12,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Column;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\Mssql\Driver;
@@ -352,5 +353,28 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertSame('sqlsrv:Server=localhost,1433;', $db->getDriver()->getDsn());
         $this->assertSame(['yiitest'], $command->showDatabases());
+    }
+
+    /** @link https://github.com/yiisoft/db-migration/issues/11 */
+    public function testAlterColumnWithDefaultNull()
+    {
+        $db = $this->getConnection();
+        $command = $db->createCommand();
+
+        if ($db->getTableSchema('column_with_constraint', true) !== null) {
+            $command->dropTable('column_with_constraint')->execute();
+        }
+
+        $command->createTable('column_with_constraint', ['id' => 'pk'])->execute();
+        $command->addColumn('column_with_constraint', 'field', (new Column('integer'))->null()->asString())->execute();
+        $command->alterColumn('column_with_constraint', 'field', (new Column('string', 40))->notNull()->asString())->execute();
+
+        $fieldCol = $db->getTableSchema('column_with_constraint', true)->getColumn('field');
+
+        $this->assertFalse($fieldCol->isAllowNull());
+        $this->assertNull($fieldCol->getDefaultValue());
+        $this->assertSame('nvarchar(40)', $fieldCol->getDbType());
+
+        $command->dropTable('column_with_constraint');
     }
 }
