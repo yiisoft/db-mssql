@@ -218,6 +218,14 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                     '[EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
             ],
 
+            'regular values with unique at not the first position' => [
+                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ' .
+                    '([address], [email], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
+                    'WHEN MATCHED THEN UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status], [profile_id]=[EXCLUDED].[profile_id] ' .
+                    'WHEN NOT MATCHED THEN INSERT ([address], [email], [status], [profile_id]) VALUES (' .
+                    '[EXCLUDED].[address], [EXCLUDED].[email], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+            ],
+
             'regular values with update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ' .
                     '([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
