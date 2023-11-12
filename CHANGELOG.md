@@ -1,5 +1,9 @@
 # MSSQL Server driver for Yii Database Change Log
 
+## 1.1.1 under development
+
+- no changes in this release.
+
 ## 1.1.0 November 12, 2023
 
 - Enh #283: Move methods from `Command` to `AbstractPdoCommand` class (@Tigrov)
