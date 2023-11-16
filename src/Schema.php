@@ -63,11 +63,11 @@ final class Schema extends AbstractPdoSchema
     protected string|null $defaultSchema = 'dbo';
 
     /**
-     * @var array Mapping from physical column types (keys) to abstract column types (values).
+     * Mapping from physical column types (keys) to abstract column types (values).
      *
-     * @psalm-var string[]
+     * @var string[]
      */
-    private array $typeMap = [
+    private const TYPE_MAP = [
         /** Exact numbers */
         'bigint' => self::TYPE_BIGINT,
         'numeric' => self::TYPE_DECIMAL,
@@ -440,8 +440,8 @@ final class Schema extends AbstractPdoSchema
         if (preg_match('/^(\w+)(?:\(([^)]+)\))?/', $dbType, $matches)) {
             $type = $matches[1];
 
-            if (isset($this->typeMap[$type])) {
-                $column->type($this->typeMap[$type]);
+            if (isset(self::TYPE_MAP[$type])) {
+                $column->type(self::TYPE_MAP[$type]);
             }
 
             if ($type === 'bit') {
