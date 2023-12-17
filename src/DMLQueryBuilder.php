@@ -15,7 +15,6 @@ use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\AbstractDMLQueryBuilder;
 
 use function implode;
-use function in_array;
 
 /**
  * Implements a DML (Data Manipulation Language) SQL statements for MSSQL Server.
