@@ -14,7 +14,10 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\AbstractDMLQueryBuilder;
 
+use function array_flip;
+use function array_intersect_key;
 use function implode;
+use function in_array;
 
 /**
  * Implements a DML (Data Manipulation Language) SQL statements for MSSQL Server.
@@ -29,24 +32,40 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function insertWithReturningPks(string $table, QueryInterface|array $columns, array &$params = []): string
     {
-        $insertedCols = [];
-        $primaryKeys = $this->schema->getTableSchema($table)?->getPrimaryKey() ?? [];
+        $tableSchema = $this->schema->getTableSchema($table);
+        $primaryKeys = $tableSchema?->getPrimaryKey() ?? [];
 
-        foreach ($primaryKeys as $primaryKey) {
-            $quotedName = $this->quoter->quoteColumnName($primaryKey);
-            $insertedCols[] = 'INSERTED.' . $quotedName;
+        if ($primaryKeys === []) {
+            return $this->insert($table, $columns, $params);
         }
 
-        if (empty($insertedCols)) {
-            return $this->insert($table, $columns, $params);
+        $createdCols = [];
+        $insertedCols = [];
+        $returnColumns = array_intersect_key($tableSchema->getColumns(), array_flip($primaryKeys));
+
+        foreach ($returnColumns as $returnColumn) {
+            $dbType = $returnColumn->getDbType();
+
+            if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'], true)) {
+                $dbType .= '(MAX)';
+            } elseif ($dbType === 'timestamp') {
+                $dbType = $returnColumn->isAllowNull() ? 'varbinary(8)' : 'binary(8)';
+            }
+
+            $quotedName = $this->quoter->quoteColumnName($returnColumn->getName());
+            $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
+            $insertedCols[] = 'INSERTED.' . $quotedName;
         }
 
         [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
 
-        return 'INSERT INTO ' . $this->quoter->quoteTableName($table)
+        $sql = 'INSERT INTO ' . $this->quoter->quoteTableName($table)
             . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
-            . ' OUTPUT ' . implode(', ', $insertedCols)
+            . ' OUTPUT ' . implode(',', $insertedCols) . ' INTO @temporary_inserted'
             . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : ' ' . $values);
+
+        return 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $createdCols) . ');'
+            . $sql . ';SELECT * FROM @temporary_inserted;';
     }
 
     /**

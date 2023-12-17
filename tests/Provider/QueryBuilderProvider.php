@@ -113,7 +113,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ],
                 [],
                 <<<SQL
-                INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] VALUES (:qp0, :qp1, :qp2, :qp3, :qp4)
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int );INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3, :qp4);SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':qp0' => 'test@example.com',
@@ -144,7 +144,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ],
                 [':phBar' => 'bar'],
                 <<<SQL
-                INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id], [col]) OUTPUT INSERTED.[id] VALUES (:qp1, :qp2, :qp3, :qp4, :qp5, CONCAT(:phFoo, :phBar))
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int );INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id], [col]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp1, :qp2, :qp3, :qp4, :qp5, CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':phBar' => 'bar',
@@ -173,7 +173,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                     ),
                 [':phBar' => 'bar'],
                 <<<SQL
-                INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=:qp4) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar))
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int );INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=:qp4) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':phBar' => 'bar',
@@ -189,7 +189,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ['order_id' => 1, 'item_id' => 1, 'quantity' => 1, 'subtotal' => 1.0],
                 [],
                 <<<SQL
-                INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[item_id], INSERTED.[order_id] VALUES (:qp0, :qp1, :qp2, :qp3)
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([order_id] int , [item_id] int );INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[order_id],INSERTED.[item_id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3);SELECT * FROM @temporary_inserted;
                 SQL,
                 [':qp0' => 1, ':qp1' => 1, ':qp2' => 1, ':qp3' => 1.0,],
             ],
