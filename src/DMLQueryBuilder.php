@@ -41,7 +41,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
         $createdCols = [];
         $insertedCols = [];
-        $returnColumns = array_intersect_key($tableSchema->getColumns(), array_flip($primaryKeys));
+        $returnColumns = array_intersect_key($tableSchema?->getColumns() ?? [], array_flip($primaryKeys));
 
         foreach ($returnColumns as $returnColumn) {
             $dbType = $returnColumn->getDbType();
