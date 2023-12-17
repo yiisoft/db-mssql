@@ -30,37 +30,24 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function insertWithReturningPks(string $table, QueryInterface|array $columns, array &$params = []): string
     {
-        [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
-
-        $createdCols = [];
         $insertedCols = [];
-        $returnColumns = $this->schema->getTableSchema($table)?->getColumns() ?? [];
+        $primaryKeys = $this->schema->getTableSchema($table)?->getPrimaryKey() ?? [];
 
-        foreach ($returnColumns as $returnColumn) {
-            if ($returnColumn->isComputed()) {
-                continue;
-            }
-
-            $dbType = $returnColumn->getDbType();
-
-            if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'], true)) {
-                $dbType .= '(MAX)';
-            } elseif ($dbType === 'timestamp') {
-                $dbType = $returnColumn->isAllowNull() ? 'varbinary(8)' : 'binary(8)';
-            }
-
-            $quotedName = $this->quoter->quoteColumnName($returnColumn->getName());
-            $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
+        foreach ($primaryKeys as $primaryKey) {
+            $quotedName = $this->quoter->quoteColumnName($primaryKey);
             $insertedCols[] = 'INSERTED.' . $quotedName;
         }
 
-        $sql = 'INSERT INTO ' . $this->quoter->quoteTableName($table)
-            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
-            . ' OUTPUT ' . implode(',', $insertedCols) . ' INTO @temporary_inserted'
-            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : ' ' . $values);
+        if (empty($insertedCols)) {
+            return $this->insert($table, $columns, $params);
+        }
 
-        return 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $createdCols) . ');'
-            . $sql . ';SELECT * FROM @temporary_inserted;';
+        [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
+
+        return 'INSERT INTO ' . $this->quoter->quoteTableName($table)
+            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
+            . ' OUTPUT ' . implode(', ', $insertedCols)
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : ' ' . $values);
     }
 
     /**
