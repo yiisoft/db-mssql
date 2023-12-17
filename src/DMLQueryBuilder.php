@@ -33,9 +33,9 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     public function insertWithReturningPks(string $table, QueryInterface|array $columns, array &$params = []): string
     {
         $tableSchema = $this->schema->getTableSchema($table);
-        $primaryKeys = $tableSchema?->getPrimaryKey() ?? [];
+        $primaryKeys = $tableSchema?->getPrimaryKey();
 
-        if ($primaryKeys === []) {
+        if (empty($primaryKeys)) {
             return $this->insert($table, $columns, $params);
         }
 
