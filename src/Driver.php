@@ -18,7 +18,7 @@ final class Driver extends AbstractPdoDriver
     {
         $this->attributes += [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
         $this->attributes += [PDO::ATTR_STRINGIFY_FETCHES => false];
-        
+
         return parent::createConnection();
     }
 
