@@ -131,31 +131,6 @@ final class CommandTest extends CommonCommandTest
      * @throws Exception
      * @throws InvalidCallException
      * @throws InvalidConfigException
-     * @throws Throwable
-     */
-    public function testInsertWithReturningPks(): void
-    {
-        $db = $this->getConnection(true);
-
-        $command = $db->createCommand();
-
-        $this->assertSame(
-            [
-                'id' => '4',
-                'email' => 'test_1@example.com',
-                'name' => 'test_1',
-                'address' => null,
-                'status' => '0',
-                'profile_id' => null,
-            ],
-            $command->insertWithReturningPks('{{customer}}', ['name' => 'test_1', 'email' => 'test_1@example.com']),
-        );
-    }
-
-    /**
-     * @throws Exception
-     * @throws InvalidCallException
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      * @throws Throwable
      */
@@ -189,9 +164,7 @@ final class CommandTest extends CommonCommandTest
         $result = $command->insertWithReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
         $transaction->commit();
 
-        $this->assertIsArray($result);
-        $this->assertSame($insertedString, $result['stringcol']);
-        $this->assertSame('1', $result['id']);
+        $this->assertSame(['id' => '1'], $result);
     }
 
     /**
@@ -213,9 +186,7 @@ final class CommandTest extends CommonCommandTest
         $insertedString = 'test';
         $result = $command->insertWithReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
 
-        $this->assertIsArray($result);
-        $this->assertSame($insertedString, $result['stringcol']);
-        $this->assertSame('1', $result['id']);
+        $this->assertSame(['id' => '1'], $result);
     }
 
     /**
@@ -240,9 +211,7 @@ final class CommandTest extends CommonCommandTest
             ['stringcol' => $insertedString, 'RV' => new Expression('DEFAULT')],
         );
 
-        $this->assertIsArray($result);
-        $this->assertSame($insertedString, $result['stringcol']);
-        $this->assertSame('1', $result['id']);
+        $this->assertSame(['id' => '1'], $result);
     }
 
     /**

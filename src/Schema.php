@@ -305,7 +305,7 @@ final class Schema extends AbstractPdoSchema
      * @throws InvalidConfigException
      * @throws Throwable
      *
-     * @return array Indexes for the given table.
+     * @return IndexConstraint[] Indexes for the given table.
      */
     protected function loadTableIndexes(string $tableName): array
     {

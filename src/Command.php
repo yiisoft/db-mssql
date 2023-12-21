@@ -12,6 +12,19 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoCommand;
  */
 final class Command extends AbstractPdoCommand
 {
+    public function insertWithReturningPks(string $table, array $columns): bool|array
+    {
+        if (empty($this->db->getSchema()->getTableSchema($table)?->getPrimaryKey())) {
+            if (parent::insert($table, $columns)->execute() === 0) {
+                return false;
+            }
+
+            return [];
+        }
+
+        return parent::insertWithReturningPks($table, $columns);
+    }
+
     public function showDatabases(): array
     {
         $sql = <<<SQL

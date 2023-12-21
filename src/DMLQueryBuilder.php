@@ -14,6 +14,8 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\AbstractDMLQueryBuilder;
 
+use function array_flip;
+use function array_intersect_key;
 use function implode;
 use function in_array;
 
@@ -30,17 +32,18 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function insertWithReturningPks(string $table, QueryInterface|array $columns, array &$params = []): string
     {
-        [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
+        $tableSchema = $this->schema->getTableSchema($table);
+        $primaryKeys = $tableSchema?->getPrimaryKey();
+
+        if (empty($primaryKeys)) {
+            return $this->insert($table, $columns, $params);
+        }
 
         $createdCols = [];
         $insertedCols = [];
-        $returnColumns = $this->schema->getTableSchema($table)?->getColumns() ?? [];
+        $returnColumns = array_intersect_key($tableSchema?->getColumns() ?? [], array_flip($primaryKeys));
 
         foreach ($returnColumns as $returnColumn) {
-            if ($returnColumn->isComputed()) {
-                continue;
-            }
-
             $dbType = $returnColumn->getDbType();
 
             if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'], true)) {
@@ -53,6 +56,8 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
             $insertedCols[] = 'INSERTED.' . $quotedName;
         }
+
+        [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
 
         $sql = 'INSERT INTO ' . $this->quoter->quoteTableName($table)
             . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
