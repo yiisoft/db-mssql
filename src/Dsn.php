@@ -45,7 +45,6 @@ final class Dsn extends AbstractDsn
             $server = "Server=$this->host;";
         }
 
-        /** @psalm-suppress RiskyTruthyFalsyComparison */
         if ($this->databaseName !== null && $this->databaseName !== '') {
             $dsn = "$this->driver:" . $server . "Database=$this->databaseName";
         } else {
