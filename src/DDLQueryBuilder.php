@@ -191,17 +191,17 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             throw new InvalidArgumentException("Table not found: $table");
         }
 
-        $schemaName = $tableSchema->getSchemaName()
+        $schemaName = $tableSchema->getSchemaName() !== null
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
         $tableName = 'N' . (string) $this->quoter->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . (string) $this->quoter->quoteValue($column) : null;
+        $columnName = $column !== null ? 'N' . (string) $this->quoter->quoteValue($column) : null;
         $comment = 'N' . (string) $this->quoter->quoteValue($comment);
         $functionParams = "
             @name = N'MS_description',
             @value = $comment,
             @level0type = N'SCHEMA', @level0name = $schemaName,
             @level1type = N'TABLE', @level1name = $tableName"
-            . ($column ? ", @level2type = N'COLUMN', @level2name = $columnName" : '') . ';';
+            . ($column !== null ? ", @level2type = N'COLUMN', @level2name = $columnName" : '') . ';';
 
         return "
             IF NOT EXISTS (
@@ -210,7 +210,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
                         N'MS_description',
                         'SCHEMA', $schemaName,
                         'TABLE', $tableName,
-                        " . ($column ? "'COLUMN', $columnName " : ' DEFAULT, DEFAULT ') . "
+                        " . ($column !== null ? "'COLUMN', $columnName " : ' DEFAULT, DEFAULT ') . "
                     )
             )
                 EXEC sys.sp_addextendedproperty $functionParams
@@ -242,10 +242,10 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             throw new InvalidArgumentException("Table not found: $table");
         }
 
-        $schemaName = $tableSchema->getSchemaName()
+        $schemaName = $tableSchema->getSchemaName() !== null
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
         $tableName = 'N' . (string) $this->quoter->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . (string) $this->quoter->quoteValue($column) : null;
+        $columnName = $column !== null ? 'N' . (string) $this->quoter->quoteValue($column) : null;
 
         return "
             IF EXISTS (
@@ -254,14 +254,14 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
                         N'MS_description',
                         'SCHEMA', $schemaName,
                         'TABLE', $tableName,
-                        " . ($column ? "'COLUMN', $columnName " : ' DEFAULT, DEFAULT ') . "
+                        " . ($column !== null ? "'COLUMN', $columnName " : ' DEFAULT, DEFAULT ') . "
                     )
             )
                 EXEC sys.sp_dropextendedproperty
                     @name = N'MS_description',
                     @level0type = N'SCHEMA', @level0name = $schemaName,
                     @level1type = N'TABLE', @level1name = $tableName"
-                    . ($column ? ", @level2type = N'COLUMN', @level2name = $columnName" : '') . ';';
+                    . ($column !== null ? ", @level2type = N'COLUMN', @level2name = $columnName" : '') . ';';
     }
 
     /**

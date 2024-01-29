@@ -14,8 +14,9 @@ final class Command extends AbstractPdoCommand
 {
     public function insertWithReturningPks(string $table, array $columns): bool|array
     {
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
         if (empty($this->db->getSchema()->getTableSchema($table)?->getPrimaryKey())) {
-            if (parent::insert($table, $columns)->execute() === 0) {
+            if ($this->insert($table, $columns)->execute() === 0) {
                 return false;
             }
 

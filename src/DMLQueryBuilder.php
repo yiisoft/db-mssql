@@ -35,6 +35,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         $tableSchema = $this->schema->getTableSchema($table);
         $primaryKeys = $tableSchema?->getPrimaryKey();
 
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
         if (empty($primaryKeys)) {
             return $this->insert($table, $columns, $params);
         }

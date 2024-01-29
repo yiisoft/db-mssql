@@ -186,7 +186,7 @@ final class Schema extends AbstractPdoSchema
      */
     protected function findTableComment(TableSchemaInterface $tableSchema): void
     {
-        $schemaName = $tableSchema->getSchemaName()
+        $schemaName = $tableSchema->getSchemaName() !== null
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
         $tableName = 'N' . (string) $this->db->getQuoter()->quoteValue($tableSchema->getName());
 
