@@ -4,6 +4,7 @@
 
 - Enh #286: Change property `Schema::$typeMap` to constant `Schema::TYPE_MAP` (@Tigrov)
 - Bug #287: Fix `DMLQueryBuilder::insertWithReturningPks()` and `Command::insertWithReturningPks()` methods (@Tigrov)
+- Enh #291: Resolve deprecated methods (@Tigrov)
 
 ## 1.1.0 November 12, 2023
 
