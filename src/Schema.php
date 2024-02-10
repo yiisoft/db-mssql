@@ -18,6 +18,7 @@ use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
+use function array_map;
 use function explode;
 use function is_array;
 use function md5;
@@ -328,7 +329,7 @@ final class Schema extends AbstractPdoSchema
         $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $indexes */
-        $indexes = $this->normalizeRowKeyCase($indexes, true);
+        $indexes = array_map('array_change_key_case', $indexes);
         $indexes = DbArrayHelper::index($indexes, null, ['name']);
 
         $result = [];
@@ -832,7 +833,7 @@ final class Schema extends AbstractPdoSchema
         $constraints = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $constraints */
-        $constraints = $this->normalizeRowKeyCase($constraints, true);
+        $constraints = array_map('array_change_key_case', $constraints);
         $constraints = DbArrayHelper::index($constraints, null, ['type', 'name']);
 
         $result = [
@@ -901,6 +902,8 @@ final class Schema extends AbstractPdoSchema
      * @param string $name The table name.
      *
      * @return array The cache key.
+     *
+     * @psalm-suppress DeprecatedMethod
      */
     protected function getCacheKey(string $name): array
     {
