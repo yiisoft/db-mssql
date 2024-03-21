@@ -1,11 +1,11 @@
 # MSSQL Server driver for Yii Database Change Log
 
-## 1.1.1 under development
+## 1.2.0 March 21, 2024
 
 - Enh #286: Change property `Schema::$typeMap` to constant `Schema::TYPE_MAP` (@Tigrov)
-- Bug #287: Fix `DMLQueryBuilder::insertWithReturningPks()` and `Command::insertWithReturningPks()` methods (@Tigrov)
-- Enh #292: Minor refactoring of `Command` and `Quoter` (@Tigrov)
 - Enh #291: Resolve deprecated methods (@Tigrov)
+- Enh #292: Minor refactoring of `Command` and `Quoter` (@Tigrov)
+- Bug #287: Fix `DMLQueryBuilder::insertWithReturningPks()` and `Command::insertWithReturningPks()` methods (@Tigrov)
 
 ## 1.1.0 November 12, 2023
 
