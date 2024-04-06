@@ -1129,4 +1129,10 @@ ALTER TABLE [customer] DROP COLUMN [id]";
 
         $this->assertEquals($expected, $sql);
     }
+
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::selectScalar */
+    public function testSelectScalar(array|bool|float|int $columns, string $expected): void
+    {
+        parent::testSelectScalar($columns, $expected);
+    }
 }
