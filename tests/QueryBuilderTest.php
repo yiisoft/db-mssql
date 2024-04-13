@@ -523,6 +523,18 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testSelectExists($sql, $expected);
     }
 
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::update */
+    public function testUpdate(
+        string $table,
+        array $columns,
+        array|string $condition,
+        array $params,
+        string $expectedSql,
+        array $expectedParams,
+    ): void {
+        parent::testUpdate($table, $columns, $condition, $params, $expectedSql, $expectedParams);
+    }
+
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::upsert
      *
