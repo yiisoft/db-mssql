@@ -37,11 +37,11 @@ have access to a SQL Server database and the necessary credentials to connect to
 
 The package could be installed via composer:
 
-```php
+```shell
 composer require yiisoft/db-mssql
 ```
 
-## Usage 
+## Usage
 
 To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
 
