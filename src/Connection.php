@@ -20,11 +20,6 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  */
 final class Connection extends AbstractPdoConnection
 {
-    public function createBatchQueryResult(QueryInterface $query, bool $each = false): BatchQueryResultInterface
-    {
-        return new BatchQueryResult($query, $each);
-    }
-
     public function createCommand(string $sql = null, array $params = []): PdoCommandInterface
     {
         $command = new Command($this);
