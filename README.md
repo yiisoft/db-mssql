@@ -43,8 +43,15 @@ composer require yiisoft/db-mssql
 
 ## Documentation
 
-- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
-- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage.
+English:
+
+- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md)
+- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage
+
+Portuguese - Brazil:
+
+- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/pt-BR/connection/mssql.md)
+- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/pt-BR/README.md) to learn about usage
 
 Testing:
 
