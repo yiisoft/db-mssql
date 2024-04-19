@@ -41,15 +41,21 @@ The package could be installed via composer:
 composer require yiisoft/db-mssql
 ```
 
-## Usage
+## Documentation
 
-To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
+- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
+- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage.
 
-[Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage.
+Testing:
 
-## Testing
+- [English](docs/guide/en/testing.md)
+- [Portuguese - Brazil](docs/guide/pt-BR/testing.md)
+- More information can be found in the [Internals.](docs/internals.md)
 
-[Check the documentation](/docs/en/testing.md) to learn about testing.
+## Support
+
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
+You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
 
 ## Support the project
 
@@ -65,7 +71,7 @@ To configure connection to MSSQL database check [Connecting MSSQL](https://githu
 
 ## License
 
-The MSSQL Server Extension for Yii 3 is free software. It is released under the terms of the BSD License.
+The Yii Access is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).
