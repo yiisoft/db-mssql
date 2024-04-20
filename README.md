@@ -45,18 +45,16 @@ composer require yiisoft/db-mssql
 
 English:
 
-- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md)
-- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage
+- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
+- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage.
 
 Portuguese - Brazil:
 
-- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/pt-BR/connection/mssql.md)
-- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/pt-BR/README.md) to learn about usage
+- Para configurar a conexão com MSSQL leia [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/pt-BR/connection/mssql.md).
+- [Confira a documentação](https://github.com/yiisoft/db/blob/master/docs/pt-BR/README.md) para aprender como usar.
 
 Testing:
 
-- [English](docs/guide/en/testing.md)
-- [Portuguese - Brazil](docs/guide/pt-BR/testing.md)
 - More information can be found in the [Internals.](docs/internals.md)
 
 ## Support
@@ -78,7 +76,7 @@ You may also check out other [Yii Community Resources](https://www.yiiframework.
 
 ## License
 
-The Yii Access is free software. It is released under the terms of the BSD License.
+The MSSQL Server Extension for Yii 3 is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).
