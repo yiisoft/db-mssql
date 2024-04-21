@@ -48,14 +48,14 @@ English:
 - To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
 - [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage.
 
-Portuguese - Brazil:
+Português - Brasil:
 
 - Para configurar a conexão com MSSQL leia [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/pt-BR/connection/mssql.md).
 - [Confira a documentação](https://github.com/yiisoft/db/blob/master/docs/pt-BR/README.md) para aprender como usar.
 
 Testing:
 
-- More information can be found in the [Internals.](docs/internals.md)
+- [Internals](docs/internals.md)
 
 ## Support
 
