@@ -37,19 +37,30 @@ have access to a SQL Server database and the necessary credentials to connect to
 
 The package could be installed via composer:
 
-```php
+```shell
 composer require yiisoft/db-mssql
 ```
 
-## Usage 
+## Documentation
 
-To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
+English:
 
-[Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage.
+- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/en/connection/mssql.md).
+- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/en/README.md) to learn about usage.
 
-## Testing
+Português - Brasil:
 
-[Check the documentation](/docs/en/testing.md) to learn about testing.
+- Para configurar a conexão com MSSQL leia [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/pt-BR/connection/mssql.md).
+- [Confira a documentação](https://github.com/yiisoft/db/blob/master/docs/pt-BR/README.md) para aprender como usar.
+
+Testing:
+
+- [Internals](docs/internals.md)
+
+## Support
+
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
+You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
 
 ## Support the project
 

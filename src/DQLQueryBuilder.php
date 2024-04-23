@@ -86,7 +86,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         $sql .= $this->separator . $orderByString;
 
         /**
-         * @link http://technet.microsoft.com/en-us/library/gg699618.aspx
+         * @link https://technet.microsoft.com/en-us/library/gg699618.aspx
          */
         $offsetString = $this->hasOffset($offset) ?
             ($offset instanceof ExpressionInterface ? $this->buildExpression($offset) : (string)$offset) : '0';
