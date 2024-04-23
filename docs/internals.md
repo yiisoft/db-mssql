@@ -14,7 +14,7 @@ For greater ease it is recommended to use docker containers, for this you can us
 
 For running the docker containers you can use the following command:
 
-```dockerfile
+```shell
 docker compose up -d
 ```
 
