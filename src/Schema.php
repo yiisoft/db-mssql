@@ -18,6 +18,7 @@ use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
+use function array_map;
 use function explode;
 use function is_array;
 use function md5;
@@ -66,11 +67,11 @@ final class Schema extends AbstractPdoSchema
     protected string|null $defaultSchema = 'dbo';
 
     /**
-     * @var array Mapping from physical column types (keys) to abstract column types (values).
+     * Mapping from physical column types (keys) to abstract column types (values).
      *
-     * @psalm-var string[]
+     * @var string[]
      */
-    private array $typeMap = [
+    private const TYPE_MAP = [
         /** Exact numbers */
         'bigint' => self::TYPE_BIGINT,
         'numeric' => self::TYPE_DECIMAL,
@@ -308,7 +309,7 @@ final class Schema extends AbstractPdoSchema
      * @throws InvalidConfigException
      * @throws Throwable
      *
-     * @return array Indexes for the given table.
+     * @return IndexConstraint[] Indexes for the given table.
      */
     protected function loadTableIndexes(string $tableName): array
     {
@@ -331,7 +332,7 @@ final class Schema extends AbstractPdoSchema
         $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $indexes */
-        $indexes = $this->normalizeRowKeyCase($indexes, true);
+        $indexes = array_map('array_change_key_case', $indexes);
         $indexes = DbArrayHelper::index($indexes, null, ['name']);
 
         $result = [];
@@ -419,7 +420,8 @@ final class Schema extends AbstractPdoSchema
         $type = $this->getColumnType($dbType, $info);
         $isUnsigned = stripos($dbType, 'unsigned') !== false;
         /** @psalm-var ColumnArray $info */
-        $column = $this->createColumnSchema($type, $info['column_name'], unsigned: $isUnsigned);
+        $column = $this->createColumnSchema($type, unsigned: $isUnsigned);
+        $column->name($info['column_name']);
         $column->size($info['size'] ?? null);
         $column->precision($info['precision'] ?? null);
         $column->scale($info['scale'] ?? null);
@@ -430,7 +432,6 @@ final class Schema extends AbstractPdoSchema
         $column->autoIncrement($info['is_identity'] === '1');
         $column->computed($info['is_computed'] === '1');
         $column->comment($info['comment'] ?? '');
-        $column->phpType($this->getColumnPhpType($type));
         $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
 
         return $column;
@@ -449,6 +450,10 @@ final class Schema extends AbstractPdoSchema
         preg_match('/^(\w*)(?:\(([^)]+)\))?/', $dbType, $matches);
         $dbType = strtolower($matches[1]);
 
+        if ($dbType === 'bit') {
+            return self::TYPE_BOOLEAN;
+        }
+
         if (!empty($matches[2])) {
             $values = explode(',', $matches[2], 2);
             $info['size'] = (int) $values[0];
@@ -457,21 +462,9 @@ final class Schema extends AbstractPdoSchema
             if (isset($values[1])) {
                 $info['scale'] = (int) $values[1];
             }
-
-            if (($dbType === 'tinyint' || $dbType === 'bit') && $info['size'] === 1) {
-                return self::TYPE_BOOLEAN;
-            }
-
-            if ($dbType === 'bit') {
-                return match (true) {
-                    $info['size'] === 32 => self::TYPE_INTEGER,
-                    $info['size'] > 32 => self::TYPE_BIGINT,
-                    default => self::TYPE_SMALLINT,
-                };
-            }
         }
 
-        return $this->typeMap[$dbType] ?? self::TYPE_STRING;
+        return self::TYPE_MAP[$dbType] ?? self::TYPE_STRING;
     }
 
     protected function createPhpTypeColumnSchema(string $phpType, string $name): ColumnSchemaInterface
@@ -850,7 +843,7 @@ final class Schema extends AbstractPdoSchema
         $constraints = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $constraints */
-        $constraints = $this->normalizeRowKeyCase($constraints, true);
+        $constraints = array_map('array_change_key_case', $constraints);
         $constraints = DbArrayHelper::index($constraints, null, ['type', 'name']);
 
         $result = [
@@ -919,6 +912,8 @@ final class Schema extends AbstractPdoSchema
      * @param string $name The table name.
      *
      * @return array The cache key.
+     *
+     * @psalm-suppress DeprecatedMethod
      */
     protected function getCacheKey(string $name): array
     {

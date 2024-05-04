@@ -1,9 +1,25 @@
 # MSSQL Server driver for Yii Database Change Log
 
-## 1.0.2 under development
+## 2.0.0 under development
 
 - Enh #277: Implement `ColumnSchemaInterface` classes according to the data type of database table columns
   for type casting performance. Related with yiisoft/db#752 (@Tigrov)
+- Enh #293: Implement `SqlParser` and `ExpressionBuilder` driver classes (@Tigrov)
+
+## 1.2.0 March 21, 2024
+
+- Enh #286: Change property `Schema::$typeMap` to constant `Schema::TYPE_MAP` (@Tigrov)
+- Enh #291: Resolve deprecated methods (@Tigrov)
+- Enh #292: Minor refactoring of `Command` and `Quoter` (@Tigrov)
+- Bug #287: Fix `DMLQueryBuilder::insertWithReturningPks()` and `Command::insertWithReturningPks()` methods (@Tigrov)
+
+## 1.1.0 November 12, 2023
+
+- Enh #283: Move methods from `Command` to `AbstractPdoCommand` class (@Tigrov)
+- Bug #275: Refactor `DMLQueryBuilder`, related with yiisoft/db#746 (@Tigrov)
+- Bug #278: Remove `RECURSIVE` expression from CTE queries (@Tigrov)
+- Bug #280: Fix type boolean (@terabytesoftw)
+- Bug #282: Fix `DDLQueryBuilder::alterColumn()` for columns with default null (@Tigrov)
 
 ## 1.0.1 July 24, 2023
 

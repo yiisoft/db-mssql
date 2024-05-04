@@ -135,12 +135,11 @@ CREATE TABLE [dbo].[null_values] (
 );
 
 CREATE TABLE [dbo].[negative_default_values] (
-  [tinyint_col] [tinyint] DEFAULT '-123',
-  [smallint_col] [tinyint] DEFAULT '-123',
-  [int_col] [smallint] DEFAULT '-123',
-  [bigint_col] [int] DEFAULT '-123',
-  [float_col] [float] DEFAULT '-12345.6789',
-  [numeric_col] [decimal](5,2) DEFAULT '-33.22'
+  [smallint_col] [smallint] DEFAULT -123,
+  [int_col] [int] DEFAULT -123,
+  [bigint_col] [bigint] DEFAULT -123,
+  [float_col] [float] DEFAULT -12345.6789,
+  [numeric_col] [decimal](5,2) DEFAULT -33.22
 );
 
 CREATE TABLE [dbo].[type] (
@@ -156,8 +155,8 @@ CREATE TABLE [dbo].[type] (
     [blob_col] [varbinary](MAX),
     [numeric_col] [decimal](5,2) DEFAULT '33.22',
     [datetime_col] [datetime] NOT NULL DEFAULT '2002-01-01 00:00:00',
-    [bool_col] [tinyint] NOT NULL,
-    [bool_col2] [tinyint] DEFAULT '1'
+    [bool_col] [bit] NOT NULL,
+    [bool_col2] [bit] DEFAULT '1'
 );
 
 CREATE TABLE [dbo].[animal] (

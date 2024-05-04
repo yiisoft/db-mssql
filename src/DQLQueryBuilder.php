@@ -6,9 +6,12 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Mssql\Builder\ExpressionBuilder;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
+use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\AbstractDQLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\Condition\InCondition;
 use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
@@ -47,6 +50,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         return array_merge(parent::defaultExpressionBuilders(), [
             InCondition::class => InConditionBuilder::class,
             LikeCondition::class => LikeConditionBuilder::class,
+            Expression::class => ExpressionBuilder::class,
         ]);
     }
 
@@ -82,7 +86,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         $sql .= $this->separator . $orderByString;
 
         /**
-         * @link http://technet.microsoft.com/en-us/library/gg699618.aspx
+         * @link https://technet.microsoft.com/en-us/library/gg699618.aspx
          */
         $offsetString = $this->hasOffset($offset) ?
             ($offset instanceof ExpressionInterface ? $this->buildExpression($offset) : (string)$offset) : '0';
@@ -108,5 +112,15 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         }
 
         return parent::extractAlias($table);
+    }
+
+    public function buildWithQueries(array $withs, array &$params): string
+    {
+        /** @psalm-var array{query:string|Query, alias:ExpressionInterface|string, recursive:bool}[] $withs */
+        foreach ($withs as &$with) {
+            $with['recursive'] = false;
+        }
+
+        return parent::buildWithQueries($withs, $params);
     }
 }

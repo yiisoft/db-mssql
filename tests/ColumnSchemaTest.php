@@ -63,7 +63,7 @@ final class ColumnSchemaTest extends CommonColumnSchemaTest
         $this->assertSame(1.234, $floatColPhpType);
         $this->assertSame("\x10\x11\x12", $blobColPhpType);
         $this->assertSame('2023-07-11 14:50:00.123', $datetimeColPhpType);
-        $this->assertEquals(false, $boolColPhpType);
+        $this->assertFalse($boolColPhpType);
 
         $db->close();
     }

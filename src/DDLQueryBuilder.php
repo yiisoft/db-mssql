@@ -53,8 +53,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      */
     public function alterColumn(string $table, string $column, ColumnInterface|string $type): string
     {
-        $sqlAfter = [$this->dropConstraintsForColumn($table, $column, 'D')];
-
+        $sqlAfter = [];
         $columnName = $this->quoter->quoteColumnName($column);
         $tableName = $this->quoter->quoteTableName($table);
         $constraintBase = preg_replace('/[^a-z0-9_]/i', '', $table . '_' . $column);
@@ -85,11 +84,11 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             }
         }
 
-        return 'ALTER TABLE ' . $tableName
-            . ' ALTER COLUMN '
-            . $columnName . ' '
-            . $this->queryBuilder->getColumnType($type) . "\n"
-            . implode("\n", $sqlAfter);
+        return implode("\n", [
+            $this->dropConstraintsForColumn($table, $column, 'D'),
+            "ALTER TABLE $tableName ALTER COLUMN $columnName {$this->queryBuilder->getColumnType($type)}",
+            ...$sqlAfter,
+        ]);
     }
 
     /**

@@ -12,6 +12,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Column;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\Mssql\Driver;
@@ -49,22 +50,6 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertArrayHasKey('email', $columns);
         $this->assertSame('ntext', $columns['email']->getDbType());
-    }
-
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::batchInsert
-     *
-     * @throws Throwable
-     */
-    public function testBatchInsert(
-        string $table,
-        array $columns,
-        array $values,
-        string $expected,
-        array $expectedParams = [],
-        int $insertedRow = 1
-    ): void {
-        parent::testBatchInsert($table, $columns, $values, $expected, $expectedParams, $insertedRow);
     }
 
     /**
@@ -146,31 +131,6 @@ final class CommandTest extends CommonCommandTest
      * @throws Exception
      * @throws InvalidCallException
      * @throws InvalidConfigException
-     * @throws Throwable
-     */
-    public function testInsertWithReturningPks(): void
-    {
-        $db = $this->getConnection(true);
-
-        $command = $db->createCommand();
-
-        $this->assertSame(
-            [
-                'id' => '4',
-                'email' => 'test_1@example.com',
-                'name' => 'test_1',
-                'address' => null,
-                'status' => '0',
-                'profile_id' => null,
-            ],
-            $command->insertWithReturningPks('{{customer}}', ['name' => 'test_1', 'email' => 'test_1@example.com']),
-        );
-    }
-
-    /**
-     * @throws Exception
-     * @throws InvalidCallException
-     * @throws InvalidConfigException
      * @throws NotSupportedException
      * @throws Throwable
      */
@@ -204,9 +164,7 @@ final class CommandTest extends CommonCommandTest
         $result = $command->insertWithReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
         $transaction->commit();
 
-        $this->assertIsArray($result);
-        $this->assertSame($insertedString, $result['stringcol']);
-        $this->assertSame('1', $result['id']);
+        $this->assertSame(['id' => '1'], $result);
     }
 
     /**
@@ -228,9 +186,7 @@ final class CommandTest extends CommonCommandTest
         $insertedString = 'test';
         $result = $command->insertWithReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
 
-        $this->assertIsArray($result);
-        $this->assertSame($insertedString, $result['stringcol']);
-        $this->assertSame('1', $result['id']);
+        $this->assertSame(['id' => '1'], $result);
     }
 
     /**
@@ -255,9 +211,7 @@ final class CommandTest extends CommonCommandTest
             ['stringcol' => $insertedString, 'RV' => new Expression('DEFAULT')],
         );
 
-        $this->assertIsArray($result);
-        $this->assertSame($insertedString, $result['stringcol']);
-        $this->assertSame('1', $result['id']);
+        $this->assertSame(['id' => '1'], $result);
     }
 
     /**
@@ -287,9 +241,10 @@ final class CommandTest extends CommonCommandTest
         array $columns,
         array|string $conditions,
         array $params,
-        string $expected
+        array $expectedValues,
+        int $expectedCount,
     ): void {
-        parent::testUpdate($table, $columns, $conditions, $params, $expected);
+        parent::testUpdate($table, $columns, $conditions, $params, $expectedValues, $expectedCount);
     }
 
     /**
@@ -368,5 +323,28 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertSame('sqlsrv:Server=localhost,1433;', $db->getDriver()->getDsn());
         $this->assertSame(['yiitest'], $command->showDatabases());
+    }
+
+    /** @link https://github.com/yiisoft/db-migration/issues/11 */
+    public function testAlterColumnWithDefaultNull()
+    {
+        $db = $this->getConnection();
+        $command = $db->createCommand();
+
+        if ($db->getTableSchema('column_with_constraint', true) !== null) {
+            $command->dropTable('column_with_constraint')->execute();
+        }
+
+        $command->createTable('column_with_constraint', ['id' => 'pk'])->execute();
+        $command->addColumn('column_with_constraint', 'field', (new Column('integer'))->null()->asString())->execute();
+        $command->alterColumn('column_with_constraint', 'field', (new Column('string', 40))->notNull()->asString())->execute();
+
+        $fieldCol = $db->getTableSchema('column_with_constraint', true)->getColumn('field');
+
+        $this->assertFalse($fieldCol->isAllowNull());
+        $this->assertNull($fieldCol->getDefaultValue());
+        $this->assertSame('nvarchar(40)', $fieldCol->getDbType());
+
+        $command->dropTable('column_with_constraint');
     }
 }

@@ -177,6 +177,23 @@ final class SchemaTest extends CommonSchemaTest
         $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage('Only PDO connections are supported.');
 
-        $schema->refreshTableSchema('customer');
+        $schema->refresh();
+    }
+
+    public function testNegativeDefaultValues(): void
+    {
+        $db = $this->getConnection(true);
+
+        $schema = $db->getSchema();
+        $table = $schema->getTableSchema('negative_default_values');
+
+        $this->assertNotNull($table);
+        $this->assertSame(-123, $table->getColumn('smallint_col')?->getDefaultValue());
+        $this->assertSame(-123, $table->getColumn('int_col')?->getDefaultValue());
+        $this->assertSame(-123, $table->getColumn('bigint_col')?->getDefaultValue());
+        $this->assertSame(-12345.6789, $table->getColumn('float_col')?->getDefaultValue());
+        $this->assertEquals(-33.22, $table->getColumn('numeric_col')?->getDefaultValue());
+
+        $db->close();
     }
 }
