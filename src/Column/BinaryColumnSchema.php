@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Db\Mssql;
+namespace Yiisoft\Db\Mssql\Column;
 
 use Yiisoft\Db\Command\ParamInterface;
 use Yiisoft\Db\Expression\Expression;

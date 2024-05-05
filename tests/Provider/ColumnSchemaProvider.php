@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
-use Yiisoft\Db\Mssql\BinaryColumnSchema;
+use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
 
 class ColumnSchemaProvider extends \Yiisoft\Db\Tests\Provider\ColumnSchemaProvider
 {

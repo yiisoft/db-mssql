@@ -14,6 +14,7 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
+use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
@@ -467,13 +468,13 @@ final class Schema extends AbstractPdoSchema
         return self::TYPE_MAP[$dbType] ?? self::TYPE_STRING;
     }
 
-    protected function createPhpTypeColumnSchema(string $phpType, string $name): ColumnSchemaInterface
+    protected function createColumnSchemaFromPhpType(string $phpType, string $type): ColumnSchemaInterface
     {
         if ($phpType === self::PHP_TYPE_RESOURCE) {
-            return new BinaryColumnSchema($name);
+            return new BinaryColumnSchema($type, $phpType);
         }
 
-        return parent::createPhpTypeColumnSchema($phpType, $name);
+        return parent::createColumnSchemaFromPhpType($phpType, $type);
     }
 
     /**
@@ -577,10 +578,10 @@ final class Schema extends AbstractPdoSchema
             return false;
         }
 
-        foreach ($columns as $column) {
-            $column = $this->loadColumnSchema($column);
+        foreach ($columns as $info) {
+            $column = $this->loadColumnSchema($info);
             foreach ($table->getPrimaryKey() as $primaryKey) {
-                if (strcasecmp($column->getName(), $primaryKey) === 0) {
+                if (strcasecmp($info['column_name'], $primaryKey) === 0) {
                     $column->primaryKey(true);
                     break;
                 }
@@ -590,7 +591,7 @@ final class Schema extends AbstractPdoSchema
                 $table->sequenceName('');
             }
 
-            $table->column($column->getName(), $column);
+            $table->column($info['column_name'], $column);
         }
 
         return true;

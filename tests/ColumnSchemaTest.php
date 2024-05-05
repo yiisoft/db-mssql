@@ -7,9 +7,10 @@ namespace Yiisoft\Db\Mssql\Tests;
 use PDO;
 use Yiisoft\Db\Command\Param;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\BinaryColumnSchema;
+use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Schema\Column\BooleanColumnSchema;
 use Yiisoft\Db\Schema\Column\DoubleColumnSchema;
 use Yiisoft\Db\Schema\Column\IntegerColumnSchema;
 use Yiisoft\Db\Schema\Column\StringColumnSchema;
@@ -78,6 +79,7 @@ final class ColumnSchemaTest extends CommonColumnSchemaTest
         $this->assertInstanceOf(StringColumnSchema::class, $tableSchema->getColumn('char_col'));
         $this->assertInstanceOf(DoubleColumnSchema::class, $tableSchema->getColumn('float_col'));
         $this->assertInstanceOf(BinaryColumnSchema::class, $tableSchema->getColumn('blob_col'));
+        $this->assertInstanceOf(BooleanColumnSchema::class, $tableSchema->getColumn('bool_col'));
     }
 
     /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnSchemaProvider::predefinedTypes */
@@ -94,10 +96,9 @@ final class ColumnSchemaTest extends CommonColumnSchemaTest
 
     public function testBinaryColumnSchema()
     {
-        $binaryCol = new BinaryColumnSchema('binary_col');
+        $binaryCol = new BinaryColumnSchema();
         $binaryCol->dbType('varbinary');
 
-        $this->assertSame('binary_col', $binaryCol->getName());
         $this->assertEquals(
             new Expression('CONVERT(VARBINARY(MAX), 0x101112)'),
             $binaryCol->dbTypecast("\x10\x11\x12"),
