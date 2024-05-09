@@ -3,6 +3,7 @@
 ## 2.0.0 under development
 
 - Enh #293: Implement `SqlParser` and `ExpressionBuilder` driver classes (@Tigrov)
+- Chg #306: Remove parameter `$withColumn` from `Quoter::getTableNameParts()` method (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
