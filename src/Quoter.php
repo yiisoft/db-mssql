@@ -25,7 +25,7 @@ final class Quoter extends BaseQuoter
         return parent::quoteColumnName($name);
     }
 
-    public function getTableNameParts(string $name): array
+    public function getTableNameParts(string $name, bool $withColumn = false): array
     {
         if (preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches) > 0) {
             $parts = array_slice($matches[0], -4, 4);
