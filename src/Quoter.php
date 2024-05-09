@@ -6,6 +6,8 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Schema\Quoter as BaseQuoter;
 
+use function array_map;
+use function array_slice;
 use function preg_match;
 use function preg_match_all;
 
@@ -23,14 +25,14 @@ final class Quoter extends BaseQuoter
         return parent::quoteColumnName($name);
     }
 
-    public function getTableNameParts(string $name, bool $withColumn = false): array
+    public function getTableNameParts(string $name): array
     {
         if (preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches) > 0) {
             $parts = array_slice($matches[0], -4, 4);
-        } else {
-            $parts = [$name];
+
+            return array_map([$this, 'unquoteSimpleTableName'], $parts);
         }
 
-        return $this->unquoteParts($parts, $withColumn);
+        return [$this->unquoteSimpleTableName($name)];
     }
 }
