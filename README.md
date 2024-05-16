@@ -3,7 +3,7 @@
         <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px" alt="Yii">
     </a>
     <a href="https://www.microsoft.com/sql-server" target="_blank">
-        <img src="https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE1Mu3b?ver=5c31" height="80px" alt="MSSQL">
+        <img src="https://avatars0.githubusercontent.com/u/6154722" height="100px" alt="MSSQL">
     </a>
     <h1 align="center">Yii Database MSSQL Server driver</h1>
     <br>
@@ -43,8 +43,10 @@ composer require yiisoft/db-mssql
 
 ## Documentation
 
-- To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/guide/en/connection/mssql.md).
-- [Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/guide/en/README.md) to learn about usage.
+To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/guide/en/connection/mssql.md).
+
+[Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/guide/en/README.md) to learn about usage.
+
 - [Internals](docs/internals.md)
 
 If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
