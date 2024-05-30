@@ -43,7 +43,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         $insertedCols = [];
         $returnColumns = array_intersect_key($tableSchema?->getColumns() ?? [], array_flip($primaryKeys));
 
-        foreach ($returnColumns as $returnColumn) {
+        foreach ($returnColumns as $columnName => $returnColumn) {
             $dbType = $returnColumn->getDbType();
 
             if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'], true)) {
@@ -52,7 +52,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
                 $dbType = $returnColumn->isAllowNull() ? 'varbinary(8)' : 'binary(8)';
             }
 
-            $quotedName = $this->quoter->quoteColumnName($returnColumn->getName());
+            $quotedName = $this->quoter->quoteColumnName($columnName);
             $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
             $insertedCols[] = 'INSERTED.' . $quotedName;
         }

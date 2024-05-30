@@ -14,8 +14,9 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
+use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
-use Yiisoft\Db\Schema\ColumnSchemaInterface;
+use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_map;
@@ -38,7 +39,10 @@ use function stripos;
  *   column_default: string|null,
  *   is_identity: string,
  *   is_computed: string,
- *   comment: null|string
+ *   comment: null|string,
+ *   size?: int,
+ *   precision?: int,
+ *   scale?: int,
  * }
  * @psalm-type ConstraintArray = array<
  *   array-key,
@@ -407,63 +411,70 @@ final class Schema extends AbstractPdoSchema
     }
 
     /**
-     * Creates a column schema for the database.
-     *
-     * This method may be overridden by child classes to create a DBMS-specific column schema.
-     *
-     * @param string $name Name of the column.
-     */
-    protected function createColumnSchema(string $name): ColumnSchema
-    {
-        return new ColumnSchema($name);
-    }
-
-    /**
      * Loads the column information into a {@see ColumnSchemaInterface} object.
      *
      * @psalm-param ColumnArray $info The column information.
      */
-    protected function loadColumnSchema(array $info): ColumnSchemaInterface
+    private function loadColumnSchema(array $info): ColumnSchemaInterface
     {
         $dbType = $info['data_type'];
-
-        $column = $this->createColumnSchema($info['column_name']);
+        $type = $this->getColumnType($dbType, $info);
+        $isUnsigned = stripos($dbType, 'unsigned') !== false;
+        /** @psalm-var ColumnArray $info */
+        $column = $this->createColumnSchema($type, unsigned: $isUnsigned);
+        $column->name($info['column_name']);
+        $column->size($info['size'] ?? null);
+        $column->precision($info['precision'] ?? null);
+        $column->scale($info['scale'] ?? null);
         $column->allowNull($info['is_nullable'] === 'YES');
         $column->dbType($dbType);
         $column->enumValues([]); // MSSQL has only vague equivalents to enum.
         $column->primaryKey(false); // The primary key will be determined in the `findColumns()` method.
         $column->autoIncrement($info['is_identity'] === '1');
         $column->computed($info['is_computed'] === '1');
-        $column->unsigned(stripos($dbType, 'unsigned') !== false);
         $column->comment($info['comment'] ?? '');
-        $column->type(self::TYPE_STRING);
-
-        if (preg_match('/^(\w+)(?:\(([^)]+)\))?/', $dbType, $matches)) {
-            $type = $matches[1];
-
-            if (isset(self::TYPE_MAP[$type])) {
-                $column->type(self::TYPE_MAP[$type]);
-            }
-
-            if ($type === 'bit') {
-                $column->type(self::TYPE_BOOLEAN);
-            }
-
-            if (!empty($matches[2])) {
-                $values = explode(',', $matches[2]);
-                $column->precision((int) $values[0]);
-                $column->size((int) $values[0]);
-
-                if (isset($values[1])) {
-                    $column->scale((int) $values[1]);
-                }
-            }
-        }
-
-        $column->phpType($this->getColumnPhpType($column));
         $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
 
         return $column;
+    }
+
+    /**
+     * Get the abstract data type for the database data type.
+     *
+     * @param string $dbType The database data type
+     * @param array $info Column information.
+     *
+     * @return string The abstract data type.
+     */
+    private function getColumnType(string $dbType, array &$info): string
+    {
+        preg_match('/^(\w*)(?:\(([^)]+)\))?/', $dbType, $matches);
+        $dbType = strtolower($matches[1]);
+
+        if ($dbType === 'bit') {
+            return self::TYPE_BOOLEAN;
+        }
+
+        if (!empty($matches[2])) {
+            $values = explode(',', $matches[2], 2);
+            $info['size'] = (int) $values[0];
+            $info['precision'] = (int) $values[0];
+
+            if (isset($values[1])) {
+                $info['scale'] = (int) $values[1];
+            }
+        }
+
+        return self::TYPE_MAP[$dbType] ?? self::TYPE_STRING;
+    }
+
+    protected function createColumnSchemaFromPhpType(string $phpType, string $type): ColumnSchemaInterface
+    {
+        if ($phpType === self::PHP_TYPE_RESOURCE) {
+            return new BinaryColumnSchema($type, $phpType);
+        }
+
+        return parent::createColumnSchemaFromPhpType($phpType, $type);
     }
 
     /**
@@ -474,7 +485,7 @@ final class Schema extends AbstractPdoSchema
      *
      * @return mixed The normalized default value.
      */
-    private function normalizeDefaultValue(?string $defaultValue, ColumnSchemaInterface $column): mixed
+    private function normalizeDefaultValue(string|null $defaultValue, ColumnSchemaInterface $column): mixed
     {
         if (
             $defaultValue === null
@@ -567,10 +578,10 @@ final class Schema extends AbstractPdoSchema
             return false;
         }
 
-        foreach ($columns as $column) {
-            $column = $this->loadColumnSchema($column);
+        foreach ($columns as $info) {
+            $column = $this->loadColumnSchema($info);
             foreach ($table->getPrimaryKey() as $primaryKey) {
-                if (strcasecmp($column->getName(), $primaryKey) === 0) {
+                if (strcasecmp($info['column_name'], $primaryKey) === 0) {
                     $column->primaryKey(true);
                     break;
                 }
@@ -580,7 +591,7 @@ final class Schema extends AbstractPdoSchema
                 $table->sequenceName('');
             }
 
-            $table->column($column->getName(), $column);
+            $table->column($info['column_name'], $column);
         }
 
         return true;
