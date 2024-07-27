@@ -26,13 +26,10 @@ jobs:
       COMPOSER_ROOT_VERSION: 1.0.0
       EXTENSIONS: pdo, pdo_sqlsrv-5.10.1
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os:
-          - ubuntu-latest
-
         php:
           - 8.0
           - 8.1
@@ -45,14 +42,12 @@ jobs:
             flag: "-C"
 
         include:
-          - os: ubuntu-latest
-            php: 8.3
+          - php: 8.3
             mssql:
-              selver: 2017-latest
-          - os: ubuntu-latest
-            php: 8.3
+              - selver: 2017-latest
+          - php: 8.3
             mssql:
-              server: 2019-latest
+              - server: 2019-latest
 
     services:
       mssql:
