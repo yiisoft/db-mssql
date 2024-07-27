@@ -43,11 +43,9 @@ jobs:
 
         include:
           - php: 8.3
-            mssql:
-              - selver: 2017-latest
+            mssql: {server: 2017-latest}
           - php: 8.3
-            mssql:
-              - server: 2019-latest
+            mssql: {server: 2019-latest}
 
     services:
       mssql:
