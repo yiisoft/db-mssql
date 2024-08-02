@@ -76,7 +76,7 @@ final class Schema extends AbstractPdoSchema
         /** Exact numbers */
         'bigint' => self::TYPE_BIGINT,
         'numeric' => self::TYPE_DECIMAL,
-        'bit' => self::TYPE_SMALLINT,
+        'bit' => self::TYPE_BOOLEAN,
         'smallint' => self::TYPE_SMALLINT,
         'decimal' => self::TYPE_DECIMAL,
         'smallmoney' => self::TYPE_MONEY,
@@ -450,10 +450,6 @@ final class Schema extends AbstractPdoSchema
     {
         preg_match('/^(\w*)(?:\(([^)]+)\))?/', $dbType, $matches);
         $dbType = strtolower($matches[1]);
-
-        if ($dbType === 'bit') {
-            return self::TYPE_BOOLEAN;
-        }
 
         if (!empty($matches[2])) {
             $values = explode(',', $matches[2], 2);
