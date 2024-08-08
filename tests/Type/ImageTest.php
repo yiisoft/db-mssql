@@ -39,7 +39,7 @@ final class ImageTest extends TestCase
         $tableSchema = $db->getTableSchema('image_default');
 
         $this->assertSame('image', $tableSchema?->getColumn('Myimage')->getDbType());
-        $this->assertSame('resource', $tableSchema?->getColumn('Myimage')->getPhpType());
+        $this->assertSame('mixed', $tableSchema?->getColumn('Myimage')->getPhpType());
         $this->assertSame('image', $tableSchema?->getColumn('Myimage')->getDefaultValue());
 
         $db->createCommand()->dropTable('image_default')->execute();
@@ -86,7 +86,7 @@ final class ImageTest extends TestCase
         $tableSchema = $db->getTableSchema('image_default');
 
         $this->assertSame('image', $tableSchema?->getColumn('Myimage')->getDbType());
-        $this->assertSame('resource', $tableSchema?->getColumn('Myimage')->getPhpType());
+        $this->assertSame('mixed', $tableSchema?->getColumn('Myimage')->getPhpType());
         $this->assertSame('image', $tableSchema?->getColumn('Myimage')->getDefaultValue());
 
         $db->createCommand()->dropTable('image_default')->execute();

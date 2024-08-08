@@ -9,8 +9,8 @@ final class BitProvider
     public static function columns(): array
     {
         return [
-            ['Mybit1', 'bit', 'boolean', false],
-            ['Mybit2', 'bit', 'boolean', true],
+            ['Mybit1', 'bit', 'bool', false],
+            ['Mybit2', 'bit', 'bool', true],
         ];
     }
 }
