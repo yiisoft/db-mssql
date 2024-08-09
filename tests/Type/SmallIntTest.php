@@ -38,7 +38,7 @@ final class SmallIntTest extends TestCase
         $tableSchema = $db->getTableSchema('smallint_default');
 
         $this->assertSame('smallint', $tableSchema?->getColumn('Mysmallint')->getDbType());
-        $this->assertSame('integer', $tableSchema?->getColumn('Mysmallint')->getPhpType());
+        $this->assertSame('int', $tableSchema?->getColumn('Mysmallint')->getPhpType());
         $this->assertSame(32767, $tableSchema?->getColumn('Mysmallint')->getDefaultValue());
 
         $db->createCommand()->dropTable('smallint_default')->execute();
@@ -85,7 +85,7 @@ final class SmallIntTest extends TestCase
         $tableSchema = $db->getTableSchema('smallint_default');
 
         $this->assertSame('smallint', $tableSchema?->getColumn('Mysmallint')->getDbType());
-        $this->assertSame('integer', $tableSchema?->getColumn('Mysmallint')->getPhpType());
+        $this->assertSame('int', $tableSchema?->getColumn('Mysmallint')->getPhpType());
         $this->assertSame(32767, $tableSchema?->getColumn('Mysmallint')->getDefaultValue());
 
         $db->createCommand()->dropTable('smallint_default')->execute();

@@ -17,7 +17,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'int_col' => [
                         'type' => 'integer',
                         'dbType' => 'int',
-                        'phpType' => 'integer',
+                        'phpType' => 'int',
                         'primaryKey' => false,
                         'allowNull' => false,
                         'autoIncrement' => false,
@@ -30,7 +30,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'int_col2' => [
                         'type' => 'integer',
                         'dbType' => 'int',
-                        'phpType' => 'integer',
+                        'phpType' => 'int',
                         'primaryKey' => false,
                         'allowNull' => true,
                         'autoIncrement' => false,
@@ -43,7 +43,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'tinyint_col' => [
                         'type' => 'tinyint',
                         'dbType' => 'tinyint',
-                        'phpType' => 'integer',
+                        'phpType' => 'int',
                         'primaryKey' => false,
                         'allowNull' => true,
                         'autoIncrement' => false,
@@ -56,7 +56,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'smallint_col' => [
                         'type' => 'smallint',
                         'dbType' => 'smallint',
-                        'phpType' => 'integer',
+                        'phpType' => 'int',
                         'primaryKey' => false,
                         'allowNull' => true,
                         'autoIncrement' => false,
@@ -108,7 +108,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'float_col' => [
                         'type' => 'decimal',
                         'dbType' => 'decimal(4,3)',
-                        'phpType' => 'double',
+                        'phpType' => 'float',
                         'primaryKey' => false,
                         'allowNull' => false,
                         'autoIncrement' => false,
@@ -121,7 +121,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'float_col2' => [
                         'type' => 'float',
                         'dbType' => 'float',
-                        'phpType' => 'double',
+                        'phpType' => 'float',
                         'primaryKey' => false,
                         'allowNull' => true,
                         'autoIncrement' => false,
@@ -134,7 +134,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'blob_col' => [
                         'type' => 'binary',
                         'dbType' => 'varbinary',
-                        'phpType' => 'resource',
+                        'phpType' => 'mixed',
                         'primaryKey' => false,
                         'allowNull' => true,
                         'autoIncrement' => false,
@@ -147,7 +147,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'numeric_col' => [
                         'type' => 'decimal',
                         'dbType' => 'decimal(5,2)',
-                        'phpType' => 'double',
+                        'phpType' => 'float',
                         'primaryKey' => false,
                         'allowNull' => true,
                         'autoIncrement' => false,
@@ -173,7 +173,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'bool_col' => [
                         'type' => 'boolean',
                         'dbType' => 'bit',
-                        'phpType' => 'boolean',
+                        'phpType' => 'bool',
                         'primaryKey' => false,
                         'allowNull' => false,
                         'autoIncrement' => false,
@@ -186,7 +186,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'bool_col2' => [
                         'type' => 'boolean',
                         'dbType' => 'bit',
-                        'phpType' => 'boolean',
+                        'phpType' => 'bool',
                         'primaryKey' => false,
                         'allowNull' => true,
                         'autoIncrement' => false,
@@ -204,7 +204,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'id' => [
                         'type' => 'integer',
                         'dbType' => 'int',
-                        'phpType' => 'integer',
+                        'phpType' => 'int',
                         'primaryKey' => true,
                         'allowNull' => false,
                         'autoIncrement' => true,

@@ -38,7 +38,7 @@ final class IntTest extends TestCase
         $tableSchema = $db->getTableSchema('int_default');
 
         $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
-        $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
+        $this->assertSame('int', $tableSchema?->getColumn('Myint')->getPhpType());
         $this->assertSame(2_147_483_647, $tableSchema?->getColumn('Myint')->getDefaultValue());
 
         $db->createCommand()->dropTable('int_default')->execute();
@@ -85,7 +85,7 @@ final class IntTest extends TestCase
         $tableSchema = $db->getTableSchema('int_default');
 
         $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
-        $this->assertSame('integer', $tableSchema?->getColumn('Myint')->getPhpType());
+        $this->assertSame('int', $tableSchema?->getColumn('Myint')->getPhpType());
         $this->assertSame(2_147_483_647, $tableSchema?->getColumn('Myint')->getDefaultValue());
 
         $db->createCommand()->dropTable('int_default')->execute();
