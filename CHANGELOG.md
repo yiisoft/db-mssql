@@ -8,6 +8,7 @@
 - Chg #306: Remove parameter `$withColumn` from `Quoter::getTableNameParts()` method (@Tigrov)
 - Chg #308: Replace call of `SchemaInterface::getRawTableName()` to `QuoterInterface::getRawTableName()` (@Tigrov)
 - Enh #312: Refactor `bit` type (@Tigrov)
+- Enh #315: Refactor PHP type of `ColumnSchemaInterface` instances (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
