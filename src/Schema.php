@@ -14,20 +14,19 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
-use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
+use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
+use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_map;
-use function explode;
 use function is_array;
 use function md5;
 use function preg_match;
 use function serialize;
 use function str_replace;
 use function strcasecmp;
-use function stripos;
 
 /**
  * Implements the MSSQL Server specific schema, supporting MSSQL Server 2017 and above.
@@ -67,65 +66,14 @@ final class Schema extends AbstractPdoSchema
      */
     protected string|null $defaultSchema = 'dbo';
 
-    /**
-     * Mapping from physical column types (keys) to abstract column types (values).
-     *
-     * @var string[]
-     */
-    private const TYPE_MAP = [
-        /** Exact numbers */
-        'bigint' => self::TYPE_BIGINT,
-        'numeric' => self::TYPE_DECIMAL,
-        'bit' => self::TYPE_BOOLEAN,
-        'smallint' => self::TYPE_SMALLINT,
-        'decimal' => self::TYPE_DECIMAL,
-        'smallmoney' => self::TYPE_MONEY,
-        'int' => self::TYPE_INTEGER,
-        'tinyint' => self::TYPE_TINYINT,
-        'money' => self::TYPE_MONEY,
-
-        /** Approximate numbers */
-        'float' => self::TYPE_FLOAT,
-        'double' => self::TYPE_DOUBLE,
-        'real' => self::TYPE_FLOAT,
-
-        /** Date and time */
-        'date' => self::TYPE_DATE,
-        'datetimeoffset' => self::TYPE_DATETIME,
-        'datetime2' => self::TYPE_DATETIME,
-        'smalldatetime' => self::TYPE_DATETIME,
-        'datetime' => self::TYPE_DATETIME,
-        'time' => self::TYPE_TIME,
-
-        /** Character strings */
-        'char' => self::TYPE_CHAR,
-        'varchar' => self::TYPE_STRING,
-        'text' => self::TYPE_TEXT,
-
-        /** Unicode character strings */
-        'nchar' => self::TYPE_CHAR,
-        'nvarchar' => self::TYPE_STRING,
-        'ntext' => self::TYPE_TEXT,
-
-        /** Binary strings */
-        'binary' => self::TYPE_BINARY,
-        'varbinary' => self::TYPE_BINARY,
-        'image' => self::TYPE_BINARY,
-
-        /**
-         * Other data types 'cursor' type can't be used with tables
-         */
-        'timestamp' => self::TYPE_TIMESTAMP,
-        'hierarchyid' => self::TYPE_STRING,
-        'uniqueidentifier' => self::TYPE_STRING,
-        'sql_variant' => self::TYPE_STRING,
-        'xml' => self::TYPE_STRING,
-        'table' => self::TYPE_STRING,
-    ];
-
     public function createColumn(string $type, array|int|string|null $length = null): ColumnInterface
     {
         return new Column($type, $length);
+    }
+
+    public function getColumnFactory(): ColumnFactoryInterface
+    {
+        return new ColumnFactory();
     }
 
     /**
@@ -418,14 +366,9 @@ final class Schema extends AbstractPdoSchema
     private function loadColumnSchema(array $info): ColumnSchemaInterface
     {
         $dbType = $info['data_type'];
-        $type = $this->getColumnType($dbType, $info);
-        $isUnsigned = stripos($dbType, 'unsigned') !== false;
         /** @psalm-var ColumnArray $info */
-        $column = $this->createColumnSchema($type, unsigned: $isUnsigned);
+        $column = $this->getColumnFactory()->fromDefinition($dbType);
         $column->name($info['column_name']);
-        $column->size($info['size'] ?? null);
-        $column->precision($info['precision'] ?? null);
-        $column->scale($info['scale'] ?? null);
         $column->allowNull($info['is_nullable'] === 'YES');
         $column->dbType($dbType);
         $column->enumValues([]); // MSSQL has only vague equivalents to enum.
@@ -436,41 +379,6 @@ final class Schema extends AbstractPdoSchema
         $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
 
         return $column;
-    }
-
-    /**
-     * Get the abstract data type for the database data type.
-     *
-     * @param string $dbType The database data type
-     * @param array $info Column information.
-     *
-     * @return string The abstract data type.
-     */
-    private function getColumnType(string $dbType, array &$info): string
-    {
-        preg_match('/^(\w*)(?:\(([^)]+)\))?/', $dbType, $matches);
-        $dbType = strtolower($matches[1]);
-
-        if (!empty($matches[2])) {
-            $values = explode(',', $matches[2], 2);
-            $info['size'] = (int) $values[0];
-            $info['precision'] = (int) $values[0];
-
-            if (isset($values[1])) {
-                $info['scale'] = (int) $values[1];
-            }
-        }
-
-        return self::TYPE_MAP[$dbType] ?? self::TYPE_STRING;
-    }
-
-    protected function createColumnSchemaFromType(string $type, bool $isUnsigned = false): ColumnSchemaInterface
-    {
-        if ($type === self::TYPE_BINARY) {
-            return new BinaryColumnSchema($type);
-        }
-
-        return parent::createColumnSchemaFromType($type, $isUnsigned);
     }
 
     /**
