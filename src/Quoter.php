@@ -30,7 +30,7 @@ final class Quoter extends BaseQuoter
         if (preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches) > 0) {
             $parts = array_slice($matches[0], -4, 4);
 
-            return array_map([$this, 'unquoteSimpleTableName'], $parts);
+            return array_map($this->unquoteSimpleTableName(...), $parts);
         }
 
         return [$this->unquoteSimpleTableName($name)];
