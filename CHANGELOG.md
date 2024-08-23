@@ -9,7 +9,7 @@
 - Chg #308: Replace call of `SchemaInterface::getRawTableName()` to `QuoterInterface::getRawTableName()` (@Tigrov)
 - Enh #312: Refactor `bit` type (@Tigrov)
 - Enh #315: Refactor PHP type of `ColumnSchemaInterface` instances (@Tigrov)
-- Chg #317: Raise minimum PHP version to `^8.1` (@Tigrov)
+- Enh #317: Raise minimum PHP version to `^8.1` with minor refactoring (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 

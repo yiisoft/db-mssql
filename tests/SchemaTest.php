@@ -155,7 +155,8 @@ final class SchemaTest extends CommonSchemaTest
 
     public function withIndexDataProvider(): array
     {
-        return array_merge(parent::withIndexDataProvider(), [
+        return [
+            ...parent::withIndexDataProvider(),
             [
                 'indexType' => SchemaInterface::INDEX_CLUSTERED,
                 'indexMethod' => null,
@@ -166,7 +167,7 @@ final class SchemaTest extends CommonSchemaTest
                 'indexMethod' => null,
                 'columnType' => 'varchar(16)',
             ],
-        ]);
+        ];
     }
 
     public function testNotConnectionPDO(): void
