@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Column;
 
+use Yiisoft\Db\Schema\Column\AbstractColumnFactory;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 
-final class ColumnFactory extends \Yiisoft\Db\Schema\Column\ColumnFactory
+final class ColumnFactory extends AbstractColumnFactory
 {
     /**
      * Mapping from physical column types (keys) to abstract column types (values).
