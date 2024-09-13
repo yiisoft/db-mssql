@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use JsonException;
 use Throwable;
+use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\IntegrityException;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -17,7 +18,6 @@ use Yiisoft\Db\Mssql\Column;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
-use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Tests\Common\CommonQueryBuilderTest;
 
 use function json_encode;
@@ -668,7 +668,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 255))->notNull()
+            (new Column(ColumnType::STRING, 255))->notNull()
         );
         $this->assertEquals($expected, $sql);
 
@@ -700,7 +700,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 255))->check('LEN(bar) > 5')
+            (new Column(ColumnType::STRING, 255))->check('LEN(bar) > 5')
         );
         $this->assertEquals($expected, $sql);
 
@@ -732,7 +732,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 255))->defaultValue('')
+            (new Column(ColumnType::STRING, 255))->defaultValue('')
         );
         $this->assertEquals($expected, $sql);
 
@@ -764,7 +764,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 255))->defaultValue('AbCdE')
+            (new Column(ColumnType::STRING, 255))->defaultValue('AbCdE')
         );
         $this->assertEquals($expected, $sql);
 
@@ -796,7 +796,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP')
+            (new Column(ColumnType::TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP')
         );
         $this->assertEquals($expected, $sql);
 
@@ -828,7 +828,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 30))->unique()
+            (new Column(ColumnType::STRING, 30))->unique()
         );
         $this->assertEquals($expected, $sql);
     }
@@ -852,7 +852,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 128))->notNull()
+            (new Column(ColumnType::STRING, 128))->notNull()
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
@@ -863,11 +863,11 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP')
+            (new Column(ColumnType::TIMESTAMP))->defaultExpression('CURRENT_TIMESTAMP')
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertSame(SchemaInterface::TYPE_DATETIME, $schema?->getColumn('bar')->getDbType());
+        $this->assertSame(ColumnType::DATETIME, $schema?->getColumn('bar')->getDbType());
         $this->assertSame('getdate()', $schema?->getColumn('bar')->getDefaultValue());
     }
 
@@ -883,7 +883,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 128))->null()->check('LEN(bar) > 5')
+            (new Column(ColumnType::STRING, 128))->null()->check('LEN(bar) > 5')
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
@@ -906,7 +906,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 64))->check('LEN(bar) > 5')
+            (new Column(ColumnType::STRING, 64))->check('LEN(bar) > 5')
         );
         $db->createCommand($sql)->execute();
 
@@ -927,7 +927,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 64))->unique()
+            (new Column(ColumnType::STRING, 64))->unique()
         );
         $db->createCommand($sql)->execute();
 
@@ -1011,7 +1011,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_STRING, 64))
+            (new Column(ColumnType::STRING, 64))
                 ->defaultValue('')
                 ->check('LEN(bar) < 5')
                 ->unique()
@@ -1061,7 +1061,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_INTEGER))->null()->defaultValue(null)
+            (new Column(ColumnType::INTEGER))->null()->defaultValue(null)
         );
         $this->assertEquals($expected, $sql);
 
@@ -1093,7 +1093,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_INTEGER))->defaultValue(null)
+            (new Column(ColumnType::INTEGER))->defaultValue(null)
         );
         $this->assertEquals($expected, $sql);
     }
@@ -1134,7 +1134,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            (new Column(SchemaInterface::TYPE_INTEGER))
+            (new Column(ColumnType::INTEGER))
                 ->null()
                 ->defaultValue(new Expression('CAST(GETDATE() AS INT)'))
         );

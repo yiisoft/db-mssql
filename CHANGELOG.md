@@ -11,6 +11,7 @@
 - Enh #315: Refactor PHP type of `ColumnSchemaInterface` instances (@Tigrov)
 - Enh #317: Raise minimum PHP version to `^8.1` with minor refactoring (@Tigrov)
 - Enh #316: Implement `ColumnFactory` class (@Tigrov)
+- Enh #319: Separate column type constants (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 

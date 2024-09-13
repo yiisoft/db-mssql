@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\QueryBuilder\AbstractQueryBuilder;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\QuoterInterface;
@@ -20,29 +22,29 @@ final class QueryBuilder extends AbstractQueryBuilder
      * @psalm-var string[] $typeMap Mapping from abstract column types (keys) to physical column types (values).
      */
     protected array $typeMap = [
-        SchemaInterface::TYPE_PK => 'int IDENTITY PRIMARY KEY',
-        SchemaInterface::TYPE_UPK => 'int IDENTITY PRIMARY KEY',
-        SchemaInterface::TYPE_BIGPK => 'bigint IDENTITY PRIMARY KEY',
-        SchemaInterface::TYPE_UBIGPK => 'bigint IDENTITY PRIMARY KEY',
-        SchemaInterface::TYPE_CHAR => 'nchar(1)',
-        SchemaInterface::TYPE_STRING => 'nvarchar(255)',
-        SchemaInterface::TYPE_TEXT => 'nvarchar(max)',
-        SchemaInterface::TYPE_TINYINT => 'tinyint',
-        SchemaInterface::TYPE_SMALLINT => 'smallint',
-        SchemaInterface::TYPE_INTEGER => 'int',
-        SchemaInterface::TYPE_BIGINT => 'bigint',
-        SchemaInterface::TYPE_FLOAT => 'float',
-        SchemaInterface::TYPE_DOUBLE => 'float',
-        SchemaInterface::TYPE_DECIMAL => 'decimal(18,0)',
-        SchemaInterface::TYPE_DATETIME => 'datetime',
-        SchemaInterface::TYPE_TIMESTAMP => 'datetime',
-        SchemaInterface::TYPE_TIME => 'time',
-        SchemaInterface::TYPE_DATE => 'date',
-        SchemaInterface::TYPE_BINARY => 'varbinary(max)',
-        SchemaInterface::TYPE_BOOLEAN => 'bit',
-        SchemaInterface::TYPE_MONEY => 'decimal(19,4)',
-        SchemaInterface::TYPE_UUID => 'UNIQUEIDENTIFIER',
-        SchemaInterface::TYPE_UUID_PK => 'UNIQUEIDENTIFIER PRIMARY KEY',
+        PseudoType::PK => 'int IDENTITY PRIMARY KEY',
+        PseudoType::UPK => 'int IDENTITY PRIMARY KEY',
+        PseudoType::BIGPK => 'bigint IDENTITY PRIMARY KEY',
+        PseudoType::UBIGPK => 'bigint IDENTITY PRIMARY KEY',
+        ColumnType::CHAR => 'nchar(1)',
+        ColumnType::STRING => 'nvarchar(255)',
+        ColumnType::TEXT => 'nvarchar(max)',
+        ColumnType::TINYINT => 'tinyint',
+        ColumnType::SMALLINT => 'smallint',
+        ColumnType::INTEGER => 'int',
+        ColumnType::BIGINT => 'bigint',
+        ColumnType::FLOAT => 'float',
+        ColumnType::DOUBLE => 'float',
+        ColumnType::DECIMAL => 'decimal(18,0)',
+        ColumnType::DATETIME => 'datetime',
+        ColumnType::TIMESTAMP => 'datetime',
+        ColumnType::TIME => 'time',
+        ColumnType::DATE => 'date',
+        ColumnType::BINARY => 'varbinary(max)',
+        ColumnType::BOOLEAN => 'bit',
+        ColumnType::MONEY => 'decimal(19,4)',
+        ColumnType::UUID => 'UNIQUEIDENTIFIER',
+        PseudoType::UUID_PK => 'UNIQUEIDENTIFIER PRIMARY KEY',
     ];
 
     public function __construct(QuoterInterface $quoter, SchemaInterface $schema)
