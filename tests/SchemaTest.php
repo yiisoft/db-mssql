@@ -11,7 +11,6 @@ use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Schema\SchemaInterface;
@@ -197,13 +196,5 @@ final class SchemaTest extends CommonSchemaTest
         $this->assertEquals(-33.22, $table->getColumn('numeric_col')?->getDefaultValue());
 
         $db->close();
-    }
-
-    public function testGetColumnFactory(): void
-    {
-        $db = $this->getConnection();
-        $factory = $db->getSchema()->getColumnFactory();
-
-        $this->assertInstanceOf(ColumnFactory::class, $factory);
     }
 }

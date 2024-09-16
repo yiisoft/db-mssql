@@ -14,9 +14,7 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
-use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
-use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
@@ -70,11 +68,6 @@ final class Schema extends AbstractPdoSchema
     public function createColumn(string $type, array|int|string|null $length = null): ColumnInterface
     {
         return new Column($type, $length);
-    }
-
-    public function getColumnFactory(): ColumnFactoryInterface
-    {
-        return new ColumnFactory();
     }
 
     /**
@@ -366,9 +359,11 @@ final class Schema extends AbstractPdoSchema
      */
     private function loadColumnSchema(array $info): ColumnSchemaInterface
     {
+        $columnFactory = $this->db->getColumnFactory();
+
         $dbType = $info['data_type'];
         /** @psalm-var ColumnArray $info */
-        $column = $this->getColumnFactory()->fromDefinition($dbType);
+        $column = $columnFactory->fromDefinition($dbType);
         $column->name($info['column_name']);
         $column->allowNull($info['is_nullable'] === 'YES');
         $column->dbType($dbType);

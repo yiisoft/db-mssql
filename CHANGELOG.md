@@ -12,6 +12,7 @@
 - Enh #317: Raise minimum PHP version to `^8.1` with minor refactoring (@Tigrov)
 - Enh #316: Implement `ColumnFactory` class (@Tigrov)
 - Enh #319: Separate column type constants (@Tigrov)
+- Enh #320: Realize `ColumnBuilder` class (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
