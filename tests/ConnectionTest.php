@@ -10,7 +10,7 @@ use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Column\ColumnBuilder;
+use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Tests\Common\CommonConnectionTest;
 use Yiisoft\Db\Transaction\TransactionInterface;
@@ -89,10 +89,10 @@ final class ConnectionTest extends CommonConnectionTest
         $this->assertSame(PDO::ERRMODE_EXCEPTION, $db->getActivePDO()?->getAttribute(PDO::ATTR_ERRMODE));
     }
 
-    public function testGetColumnBuilderClass(): void
+    public function testGetColumnFactory(): void
     {
         $db = $this->getConnection();
 
-        $this->assertSame(ColumnBuilder::class, $db->getColumnBuilderClass());
+        $this->assertInstanceOf(ColumnFactory::class, $db->getColumnFactory());
     }
 }
