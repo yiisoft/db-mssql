@@ -49,11 +49,11 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'], true)) {
                 $dbType .= '(MAX)';
             } elseif ($dbType === 'timestamp') {
-                $dbType = $returnColumn->isAllowNull() ? 'varbinary(8)' : 'binary(8)';
+                $dbType = $returnColumn->isNotNull() ? 'binary(8)' : 'varbinary(8)';
             }
 
             $quotedName = $this->quoter->quoteColumnName($columnName);
-            $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
+            $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isNotNull() ? '' : 'NULL');
             $insertedCols[] = 'INSERTED.' . $quotedName;
         }
 
