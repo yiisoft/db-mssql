@@ -35,7 +35,8 @@ jobs:
           - 8.2
           - 8.3
 
-        mssql: 2022-latest
+        mssql:
+          - 2022-latest
 
         include:
           - php: 8.3
