@@ -20,13 +20,13 @@ name: build
 
 jobs:
   tests:
-    name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql }}
+    name: PHP ${{ matrix.php }}-mssql-${{ matrix.mssql.server }}
 
     env:
       COMPOSER_ROOT_VERSION: 1.0.0
       EXTENSIONS: pdo, pdo_sqlsrv-5.10.1
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.mssql.os || 'ubuntu-latest' }}
 
     strategy:
       matrix:
@@ -36,31 +36,38 @@ jobs:
           - 8.3
 
         mssql:
-          - 2022-latest
+          - server: 2022-latest
+            odbc-version: 18
+            flag: "-C"
 
         include:
           - php: 8.3
-            mssql: 2017-latest
+            mssql:
+              server: 2017-latest
+              os: ubuntu-20.04
           - php: 8.3
-            mssql: 2019-latest
+            mssql:
+              server: 2019-latest
+              odbc-version: 18
+              flag: "-C"
 
     services:
       mssql:
-        image: mcr.microsoft.com/mssql/server:${{ matrix.mssql }}
+        image: mcr.microsoft.com/mssql/server:${{ matrix.mssql.server }}
         env:
           SA_PASSWORD: YourStrong!Passw0rd
           ACCEPT_EULA: Y
           MSSQL_PID: Developer
         ports:
           - 1433:1433
-        options: --name=mssql --health-cmd="/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=20s --health-timeout=10s --health-retries=3
+        options: --name=mssql --health-cmd="/opt/mssql-tools${{ matrix.mssql.odbc-version }}/bin/sqlcmd ${{ matrix.mssql.flag }} -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout.
         uses: actions/checkout@v3
 
       - name: Create MS SQL Database.
-        run: docker exec -i mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
+        run: docker exec -i mssql /opt/mssql-tools${{ matrix.mssql.odbc-version }}/bin/sqlcmd ${{ matrix.mssql.flag }} -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
 
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
