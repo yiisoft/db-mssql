@@ -847,7 +847,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $schema = $db->getTableSchema('[foo1]', true);
 
         $this->assertSame('varchar(255)', $schema?->getColumn('bar')->getDbType());
-        $this->assertSame(true, $schema?->getColumn('bar')->isAllowNull());
+        $this->assertFalse($schema?->getColumn('bar')->isNotNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
@@ -858,7 +858,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $schema = $db->getTableSchema('[foo1]', true);
 
         $this->assertSame('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
-        $this->assertSame(false, $schema?->getColumn('bar')->isAllowNull());
+        $this->assertTrue($schema?->getColumn('bar')->isNotNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
@@ -888,7 +888,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
         $this->assertEquals('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
-        $this->assertEquals(true, $schema?->getColumn('bar')->isAllowNull());
+        $this->assertFalse($schema?->getColumn('bar')->isNotNull());
 
         $sql = "INSERT INTO [foo1]([bar]) values('abcdef')";
         $this->assertEquals(1, $db->createCommand($sql)->execute());

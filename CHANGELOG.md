@@ -13,6 +13,7 @@
 - Enh #316: Implement `ColumnFactory` class (@Tigrov)
 - Enh #319: Separate column type constants (@Tigrov)
 - Enh #320: Realize `ColumnBuilder` class (@Tigrov)
+- Enh #321: Update according changes in `ColumnSchemaInterface` (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 

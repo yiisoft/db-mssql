@@ -39,7 +39,6 @@ use function strcasecmp;
  *   is_computed: string,
  *   comment: null|string,
  *   size?: int,
- *   precision?: int,
  *   scale?: int,
  * }
  * @psalm-type ConstraintArray = array<
@@ -364,11 +363,10 @@ final class Schema extends AbstractPdoSchema
         $dbType = $info['data_type'];
         /** @psalm-var ColumnArray $info */
         $column = $columnFactory->fromDefinition($dbType);
+        /** @psalm-suppress DeprecatedMethod */
         $column->name($info['column_name']);
-        $column->allowNull($info['is_nullable'] === 'YES');
+        $column->notNull($info['is_nullable'] !== 'YES');
         $column->dbType($dbType);
-        $column->enumValues([]); // MSSQL has only vague equivalents to enum.
-        $column->primaryKey(false); // The primary key will be determined in the `findColumns()` method.
         $column->autoIncrement($info['is_identity'] === '1');
         $column->computed($info['is_computed'] === '1');
         $column->comment($info['comment'] ?? '');
