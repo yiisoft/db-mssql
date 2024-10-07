@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
 use Yiisoft\Db\Schema\Column\BooleanColumnSchema;
 use Yiisoft\Db\Schema\Column\DoubleColumnSchema;
@@ -13,6 +14,15 @@ use Yiisoft\Db\Schema\Column\StringColumnSchema;
 
 final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFactoryProvider
 {
+    public static function pseudoTypes(): array
+    {
+        $values = parent::pseudoTypes();
+
+        $values['uuid_pk_seq'][3]['getDefaultValue'] = new Expression('newsequentialid()');
+
+        return $values;
+    }
+
     public static function dbTypes(): array
     {
         return [
@@ -44,9 +54,9 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
             ['binary', ColumnType::BINARY, BinaryColumnSchema::class],
             ['varbinary', ColumnType::BINARY, BinaryColumnSchema::class],
             ['image', ColumnType::BINARY, BinaryColumnSchema::class],
-            ['timestamp', ColumnType::TIMESTAMP, StringColumnSchema::class],
+            ['timestamp', ColumnType::BINARY, BinaryColumnSchema::class],
             ['hierarchyid', ColumnType::STRING, StringColumnSchema::class],
-            ['uniqueidentifier', ColumnType::STRING, StringColumnSchema::class],
+            ['uniqueidentifier', ColumnType::UUID, StringColumnSchema::class],
             ['sql_variant', ColumnType::STRING, StringColumnSchema::class],
             ['xml', ColumnType::STRING, StringColumnSchema::class],
             ['table', ColumnType::STRING, StringColumnSchema::class],
