@@ -8,6 +8,8 @@ use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\QueryBuilder\AbstractColumnDefinitionBuilder;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 
+use function ceil;
+
 final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
 {
     protected const AUTO_INCREMENT_KEYWORD = 'IDENTITY';
@@ -45,22 +47,6 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
         'decimal',
         'numeric',
     ];
-
-    protected function buildType(ColumnSchemaInterface $column): string
-    {
-        if ($column->getType() === 'bit' && $column->getDbType() === null) {
-            match ($column->getSize()) {
-                1 => 'bit',
-                8 => 'tinyint',
-                16 => 'smallint',
-                32 => 'int',
-                64 => 'bigint',
-                default => 'varbinary',
-            };
-        }
-
-        return parent::buildType($column);
-    }
 
     protected function getDbType(ColumnSchemaInterface $column): string
     {
