@@ -39,23 +39,6 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
         'nvarchar',
         'binary',
         'varbinary',
-
-//        'text',
-//        'ntext',
-//        'image',
-//        'real',
-//        'money',
-//        'smallmoney',
-//        'uniqueidentifier',
-//        'date',
-//        'datetime',
-//        'smalldatetime',
-//        'bit',
-//        'tinyint',
-//        'smallint',
-//        'int',
-//        'bigint',
-//        'json',
     ];
 
     protected const TYPES_WITH_SCALE = [
