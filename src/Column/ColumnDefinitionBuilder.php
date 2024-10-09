@@ -14,18 +14,6 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
 {
     protected const AUTO_INCREMENT_KEYWORD = 'IDENTITY';
 
-    protected const CLAUSES = [
-        'type',
-        'auto_increment',
-        'primary_key',
-        'unique',
-        'not_null',
-        'default',
-        'check',
-        'references',
-        'extra',
-    ];
-
     protected const GENERATE_UUID_EXPRESSION = 'newid()';
 
     protected const TYPES_WITH_SIZE = [
@@ -47,6 +35,19 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
         'decimal',
         'numeric',
     ];
+
+    public function build(ColumnSchemaInterface $column): string
+    {
+        return $this->buildType($column)
+            . $this->buildAutoIncrement($column)
+            . $this->buildPrimaryKey($column)
+            . $this->buildUnique($column)
+            . $this->buildNotNull($column)
+            . $this->buildDefault($column)
+            . $this->buildCheck($column)
+            . $this->buildReferences($column)
+            . $this->buildExtra($column);
+    }
 
     protected function getDbType(ColumnSchemaInterface $column): string
     {
