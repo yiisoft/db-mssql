@@ -186,7 +186,7 @@ final class FloatTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
+            "SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
         );
 
         $command->insert('float', ['Myfloat1' => new Expression('1.80E+308')])->execute();
@@ -256,7 +256,7 @@ final class FloatTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
+            "SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
         );
 
         $command->insert('float', ['Myfloat1' => new Expression('-1.80E+308')])->execute();

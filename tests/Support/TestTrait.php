@@ -37,8 +37,7 @@ trait TestTrait
 
     protected static function getDb(): PdoConnectionInterface
     {
-        $dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
-        $dsn .= ';Encrypt=no';
+        $dsn = (new Dsn(databaseName: 'yiitest', options: ['Encrypt' => 'no']))->asString();
 
         return new Connection(
             new Driver($dsn, 'SA', 'YourStrong!Passw0rd'),
@@ -49,8 +48,7 @@ trait TestTrait
     protected function getDsn(): string
     {
         if ($this->dsn === '') {
-            $this->dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
-            $this->dsn .= ';Encrypt=no';
+            $this->dsn = (new Dsn(databaseName: 'yiitest', options: ['Encrypt' => 'no']))->asString();
         }
 
         return $this->dsn;

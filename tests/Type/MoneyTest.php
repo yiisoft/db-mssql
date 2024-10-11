@@ -182,7 +182,7 @@ final class MoneyTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow error converting expression to data type money.'
+            'SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Arithmetic overflow error converting expression to data type money.'
         );
 
         $command->insert('money', ['Mymoney1' => '922337203685478.5808'])->execute();
@@ -252,7 +252,7 @@ final class MoneyTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow error converting expression to data type money.'
+            'SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Arithmetic overflow error converting expression to data type money.'
         );
 
         $command->insert('money', ['Mymoney1' => '-922337203685480.5808'])->execute();

@@ -182,7 +182,7 @@ final class IntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow'
+            'SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Arithmetic overflow'
         );
 
         $command->insert('int', ['Myint1' => 2_147_483_648])->execute();
@@ -252,7 +252,7 @@ final class IntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow'
+            'SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Arithmetic overflow'
         );
 
         $command->insert('int', ['Myint1' => -2_147_483_649])->execute();

@@ -183,7 +183,7 @@ final class RealTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow error for type real'
+            'SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Arithmetic overflow error for type real'
         );
 
         $command->insert('real', ['Myreal1' => new Expression('4.4E+38')])->execute();
@@ -253,7 +253,7 @@ final class RealTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow error for type real'
+            'SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Arithmetic overflow error for type real'
         );
 
         $command->insert('real', ['Myreal1' => new Expression('-4.4E+38')])->execute();

@@ -14,12 +14,13 @@ use Yiisoft\Db\Connection\AbstractDsn;
 final class Dsn extends AbstractDsn
 {
     public function __construct(
-        private string $driver,
-        private string $host,
-        private string|null $databaseName = null,
-        private string $port = '1433'
+        string $driver = 'sqlsrv',
+        string $host = 'localhost',
+        string|null $databaseName = null,
+        string $port = '1433',
+        array $options = []
     ) {
-        parent::__construct($driver, $host, $databaseName, $port);
+        parent::__construct($driver, $host, $databaseName, $port, $options);
     }
 
     /**
@@ -39,16 +40,24 @@ final class Dsn extends AbstractDsn
      */
     public function asString(): string
     {
-        if ($this->port !== '') {
-            $server = "Server=$this->host,$this->port;";
-        } else {
-            $server = "Server=$this->host;";
+        $driver = $this->getDriver();
+        $host = $this->getHost();
+        $port = $this->getPort();
+        $databaseName = $this->getDatabaseName();
+        $options = $this->getOptions();
+
+        $dsn = "$driver:Server=$host";
+
+        if (!empty($port)) {
+            $dsn .= ",$port";
         }
 
-        if (!empty($this->databaseName)) {
-            $dsn = "$this->driver:" . $server . "Database=$this->databaseName";
-        } else {
-            $dsn = "$this->driver:" . $server;
+        if (!empty($databaseName)) {
+            $dsn .= ";Database=$databaseName";
+        }
+
+        if (!empty($options)) {
+            $dsn .= ';' . http_build_query($options, '', ';');
         }
 
         return $dsn;
