@@ -24,7 +24,7 @@ jobs:
 
     env:
       COMPOSER_ROOT_VERSION: 1.0.0
-      EXTENSIONS: pdo, pdo_sqlsrv-5.10.1
+      EXTENSIONS: pdo, pdo_sqlsrv-5.12
 
     runs-on: ${{ matrix.mssql.os || 'ubuntu-latest' }}
 
