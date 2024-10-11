@@ -13,6 +13,9 @@ use Yiisoft\Db\Connection\AbstractDsn;
  */
 final class Dsn extends AbstractDsn
 {
+    /**
+     * @param string[] $options
+     */
     public function __construct(
         string $driver = 'sqlsrv',
         string $host = 'localhost',
