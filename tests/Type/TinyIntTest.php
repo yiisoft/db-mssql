@@ -197,7 +197,7 @@ final class TinyIntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow'
         );
 
         $command->insert('tinyint', ['Mytinyint1' => 256])->execute();
@@ -267,7 +267,7 @@ final class TinyIntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow'
         );
 
         $command->insert('tinyint', ['Mytinyint1' => -1])->execute();

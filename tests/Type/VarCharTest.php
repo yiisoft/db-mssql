@@ -191,7 +191,7 @@ final class VarCharTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[Microsoft][ODBC Driver 18 for SQL Server][SQL Server]String or binary data would be truncated'
+            '[SQL Server]String or binary data would be truncated'
         );
 
         $command->insert('varchar', ['Myvarchar1' => '01234567891'])->execute();

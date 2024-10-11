@@ -175,7 +175,7 @@ final class UniqueidentifierTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[42000]: [Microsoft][ODBC Driver 18 for SQL Server][SQL Server]Conversion failed when converting from a character string to uniqueidentifier.'
+            '[SQL Server]Conversion failed when converting from a character string to uniqueidentifier.'
         );
 
         $command = $db->createCommand();
