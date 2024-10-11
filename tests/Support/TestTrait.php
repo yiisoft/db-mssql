@@ -38,7 +38,7 @@ trait TestTrait
     protected static function getDb(): PdoConnectionInterface
     {
         $dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
-        $dsn .= ';TrustServerCertificate=yes';
+        $dsn .= ';Encrypt=no';
 
         return new Connection(
             new Driver($dsn, 'SA', 'YourStrong!Passw0rd'),
@@ -50,7 +50,7 @@ trait TestTrait
     {
         if ($this->dsn === '') {
             $this->dsn = (new Dsn('sqlsrv', 'localhost', 'yiitest'))->asString();
-            $this->dsn .= ';TrustServerCertificate=yes';
+            $this->dsn .= ';Encrypt=no';
         }
 
         return $this->dsn;
