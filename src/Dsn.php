@@ -14,13 +14,13 @@ use Yiisoft\Db\Connection\AbstractDsn;
 final class Dsn extends AbstractDsn
 {
     /**
-     * @param string[] $options
+     * @psalm-param array<string,string> $options
      */
     public function __construct(
         string $driver = 'sqlsrv',
         string $host = 'localhost',
         string|null $databaseName = null,
-        string $port = '1433',
+        string|null $port = '1433',
         array $options = []
     ) {
         parent::__construct($driver, $host, $databaseName, $port, $options);
@@ -60,7 +60,9 @@ final class Dsn extends AbstractDsn
         }
 
         if (!empty($options)) {
-            $dsn .= ';' . http_build_query($options, '', ';');
+            foreach ($options as $key => $value) {
+                $dsn .= ";$key=$value";
+            }
         }
 
         return $dsn;
