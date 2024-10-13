@@ -313,7 +313,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testShowDatabases(): void
     {
-        $dsn = new Dsn('sqlsrv', 'localhost');
+        $dsn = new Dsn(options: ['Encrypt' => 'no']);
         $db = new Connection(
             new Driver($dsn->asString(), 'SA', 'YourStrong!Passw0rd'),
             DbHelper::getSchemaCache(),
@@ -321,7 +321,7 @@ final class CommandTest extends CommonCommandTest
 
         $command = $db->createCommand();
 
-        $this->assertSame('sqlsrv:Server=localhost,1433;', $db->getDriver()->getDsn());
+        $this->assertSame('sqlsrv:Server=localhost,1433;Encrypt=no', $db->getDriver()->getDsn());
         $this->assertSame(['yiitest'], $command->showDatabases());
     }
 

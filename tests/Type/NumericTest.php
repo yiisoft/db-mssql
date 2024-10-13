@@ -245,7 +245,7 @@ final class NumericTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
+            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
         );
 
         $command->insert(
