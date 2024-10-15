@@ -2,7 +2,7 @@
 
 ## 2.0.0 under development
 
-- Enh #277: Implement `ColumnSchemaInterface` classes according to the data type of database table columns
+- New #277: Implement `ColumnSchemaInterface` classes according to the data type of database table columns
   for type casting performance. Related with yiisoft/db#752 (@Tigrov)
 - Enh #293: Implement `SqlParser` and `ExpressionBuilder` driver classes (@Tigrov)
 - Chg #306: Remove parameter `$withColumn` from `Quoter::getTableNameParts()` method (@Tigrov)
@@ -10,10 +10,11 @@
 - Enh #312: Refactor `bit` type (@Tigrov)
 - Enh #315: Refactor PHP type of `ColumnSchemaInterface` instances (@Tigrov)
 - Enh #317: Raise minimum PHP version to `^8.1` with minor refactoring (@Tigrov)
-- Enh #316: Implement `ColumnFactory` class (@Tigrov)
+- New #316: Implement `ColumnFactory` class (@Tigrov)
 - Enh #319: Separate column type constants (@Tigrov)
-- Enh #320: Realize `ColumnBuilder` class (@Tigrov)
+- New #320: Realize `ColumnBuilder` class (@Tigrov)
 - Enh #321: Update according changes in `ColumnSchemaInterface` (@Tigrov)
+- New #322: Add `ColumnDefinitionBuilder` class (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 

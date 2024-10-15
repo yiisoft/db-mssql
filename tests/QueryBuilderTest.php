@@ -18,6 +18,7 @@ use Yiisoft\Db\Mssql\Column;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
+use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Tests\Common\CommonQueryBuilderTest;
 
 use function json_encode;
@@ -1146,5 +1147,11 @@ ALTER TABLE [customer] DROP COLUMN [id]";
     public function testSelectScalar(array|bool|float|int|string $columns, string $expected): void
     {
         parent::testSelectScalar($columns, $expected);
+    }
+
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildColumnDefinition() */
+    public function testBuildColumnDefinition(string $expected, ColumnSchemaInterface|string $column): void
+    {
+        parent::testBuildColumnDefinition($expected, $column);
     }
 }

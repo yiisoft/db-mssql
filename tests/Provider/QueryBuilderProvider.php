@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
+use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
@@ -336,5 +337,84 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         }
 
         return $upsert;
+    }
+
+    public static function buildColumnDefinition(): array
+    {
+        $values = parent::buildColumnDefinition();
+
+        $values[PseudoType::PK][0] = 'int IDENTITY PRIMARY KEY';
+        $values[PseudoType::UPK][0] = 'int IDENTITY PRIMARY KEY';
+        $values[PseudoType::BIGPK][0] = 'bigint IDENTITY PRIMARY KEY';
+        $values[PseudoType::UBIGPK][0] = 'bigint IDENTITY PRIMARY KEY';
+        $values[PseudoType::UUID_PK][0] = 'uniqueidentifier PRIMARY KEY DEFAULT newid()';
+        $values[PseudoType::UUID_PK_SEQ][0] = 'uniqueidentifier PRIMARY KEY DEFAULT newsequentialid()';
+        $values['STRING'][0] = 'nvarchar';
+        $values['STRING(100)'][0] = 'nvarchar(100)';
+        $values['primaryKey()'][0] = 'int IDENTITY PRIMARY KEY';
+        $values['primaryKey(false)'][0] = 'int PRIMARY KEY';
+        $values['smallPrimaryKey()'][0] = 'smallint IDENTITY PRIMARY KEY';
+        $values['smallPrimaryKey(false)'][0] = 'smallint PRIMARY KEY';
+        $values['bigPrimaryKey()'][0] = 'bigint IDENTITY PRIMARY KEY';
+        $values['bigPrimaryKey(false)'][0] = 'bigint PRIMARY KEY';
+        $values['uuidPrimaryKey()'][0] = 'uniqueidentifier PRIMARY KEY DEFAULT newid()';
+        $values['uuidPrimaryKey(false)'][0] = 'uniqueidentifier PRIMARY KEY';
+        $values['boolean()'][0] = 'bit';
+        $values['boolean(100)'][0] = 'bit';
+        $values['bit()'][0] = 'bigint';
+        $values['bit(1)'][0] = 'bit';
+        $values['bit(8)'][0] = 'tinyint';
+        $values['bit(1000)'][0] = 'varbinary(125)';
+        $values['tinyint(2)'][0] = 'tinyint';
+        $values['smallint(4)'][0] = 'smallint';
+        $values['integer()'][0] = 'int';
+        $values['integer(8)'][0] = 'int';
+        $values['bigint(15)'][0] = 'bigint';
+        $values['float()'][0] = 'real';
+        $values['float(10)'][0] = 'real';
+        $values['float(10,2)'][0] = 'real';
+        $values['double()'][0] = 'float(53)';
+        $values['double(10)'][0] = 'float(53)';
+        $values['double(10,2)'][0] = 'float(53)';
+        $values['char()'][0] = 'nchar(1)';
+        $values['char(10)'][0] = 'nchar(10)';
+        $values['char(null)'][0] = 'nchar';
+        $values['string()'][0] = 'nvarchar(255)';
+        $values['string(100)'][0] = 'nvarchar(100)';
+        $values['string(null)'][0] = 'nvarchar';
+        $values['text()'][0] = 'nvarchar(max)';
+        $values['text(1000)'][0] = 'nvarchar(max)';
+        $values['binary()'][0] = 'varbinary(max)';
+        $values['binary(1000)'][0] = 'varbinary(max)';
+        $values['datetime()'][0] = 'datetime2(0)';
+        $values['datetime(6)'][0] = 'datetime2(6)';
+        $values['datetime(null)'][0] = 'datetime2';
+        $values['timestamp()'][0] = 'datetime2(0)';
+        $values['timestamp(6)'][0] = 'datetime2(6)';
+        $values['timestamp(null)'][0] = 'datetime2';
+        $values['uuid()'][0] = 'uniqueidentifier';
+        $values["extra('bar')"][0] = 'nvarchar(255) bar';
+        $values["extra('')"][0] = 'nvarchar(255)';
+        $values["check('value > 5')"][0] = 'nvarchar(255) CHECK (value > 5)';
+        $values["check('')"][0] = 'nvarchar(255)';
+        $values['check(null)'][0] = 'nvarchar(255)';
+        $values["comment('comment')"][0] = 'nvarchar(255)';
+        $values["comment('')"][0] = 'nvarchar(255)';
+        $values['comment(null)'][0] = 'nvarchar(255)';
+        $values["defaultValue('value')"][0] = "nvarchar(255) DEFAULT 'value'";
+        $values["defaultValue('')"][0] = "nvarchar(255) DEFAULT ''";
+        $values['defaultValue(null)'][0] = 'nvarchar(255)';
+        $values['defaultValue($expression)'][0] = 'nvarchar(255) DEFAULT expression';
+        $values["integer()->defaultValue('')"][0] = 'int';
+        $values['notNull()'][0] = 'nvarchar(255) NOT NULL';
+        $values['integer()->primaryKey()'][0] = 'int PRIMARY KEY';
+        $values['size(10)'][0] = 'nvarchar(10)';
+        $values['unique()'][0] = 'nvarchar(255) UNIQUE';
+        $values['unsigned()'][0] = 'int';
+        $values['integer(8)->scale(2)'][0] = 'int';
+        $values['reference($reference)'][0] = 'int REFERENCES [ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
+        $values['reference($referenceWithSchema)'][0] = 'int REFERENCES [ref_schema].[ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
+
+        return $values;
     }
 }

@@ -84,6 +84,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             }
         }
 
+        /** @psalm-suppress DeprecatedMethod */
         return implode("\n", [
             $this->dropConstraintsForColumn($table, $column, 'D'),
             "ALTER TABLE $tableName ALTER COLUMN $columnName {$this->queryBuilder->getColumnType($type)}",

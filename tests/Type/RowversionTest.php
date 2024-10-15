@@ -38,7 +38,7 @@ final class RowversionTest extends TestCase
         $tableSchema = $db->getTableSchema('rowversion');
 
         $this->assertSame('timestamp', $tableSchema?->getColumn('Myrowversion')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Myrowversion')->getPhpType());
+        $this->assertSame('mixed', $tableSchema?->getColumn('Myrowversion')->getPhpType());
         $this->assertNull($tableSchema?->getColumn('Myrowversion')->getDefaultValue());
 
         $command = $db->createCommand();

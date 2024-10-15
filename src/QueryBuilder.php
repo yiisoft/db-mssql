@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Constant\PseudoType;
+use Yiisoft\Db\Mssql\Column\ColumnDefinitionBuilder;
 use Yiisoft\Db\QueryBuilder\AbstractQueryBuilder;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\QuoterInterface;
@@ -52,12 +53,15 @@ final class QueryBuilder extends AbstractQueryBuilder
         $ddlBuilder = new DDLQueryBuilder($this, $quoter, $schema);
         $dmlBuilder = new DMLQueryBuilder($this, $quoter, $schema);
         $dqlBuilder = new DQLQueryBuilder($this, $quoter);
+        $columnDefinitionBuilder = new ColumnDefinitionBuilder($this);
 
-        parent::__construct($quoter, $schema, $ddlBuilder, $dmlBuilder, $dqlBuilder);
+        parent::__construct($quoter, $schema, $ddlBuilder, $dmlBuilder, $dqlBuilder, $columnDefinitionBuilder);
     }
 
+    /** @deprecated Use {@see buildColumnDefinition()}. Will be removed in version 2.0. */
     public function getColumnType(ColumnInterface|string $type): string
     {
+        /** @psalm-suppress DeprecatedMethod */
         $columnType = parent::getColumnType($type);
 
         /** remove unsupported keywords*/

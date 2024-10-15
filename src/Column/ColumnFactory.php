@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Column;
 
 use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\Db\Constant\PseudoType;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Column\AbstractColumnFactory;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 
@@ -58,9 +60,9 @@ final class ColumnFactory extends AbstractColumnFactory
         /**
          * Other data types 'cursor' type can't be used with tables
          */
-        'timestamp' => ColumnType::TIMESTAMP,
+        'timestamp' => ColumnType::BINARY,
         'hierarchyid' => ColumnType::STRING,
-        'uniqueidentifier' => ColumnType::STRING,
+        'uniqueidentifier' => ColumnType::UUID,
         'sql_variant' => ColumnType::STRING,
         'xml' => ColumnType::STRING,
         'table' => ColumnType::STRING,
@@ -69,6 +71,17 @@ final class ColumnFactory extends AbstractColumnFactory
     protected function getType(string $dbType, array $info = []): string
     {
         return self::TYPE_MAP[$dbType] ?? ColumnType::STRING;
+    }
+
+    public function fromPseudoType(string $pseudoType, array $info = []): ColumnSchemaInterface
+    {
+        if ($pseudoType === PseudoType::UUID_PK_SEQ) {
+            return ColumnBuilder::uuidPrimaryKey()
+                ->defaultValue(new Expression('newsequentialid()'))
+                ->load($info);
+        }
+
+        return parent::fromPseudoType($pseudoType, $info);
     }
 
     public function fromType(string $type, array $info = []): ColumnSchemaInterface
