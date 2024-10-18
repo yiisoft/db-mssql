@@ -9,6 +9,7 @@ use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Column\AbstractColumnFactory;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
+use Yiisoft\Db\Schema\Column\StringColumnSchema;
 
 final class ColumnFactory extends AbstractColumnFactory
 {
@@ -76,9 +77,11 @@ final class ColumnFactory extends AbstractColumnFactory
     public function fromPseudoType(string $pseudoType, array $info = []): ColumnSchemaInterface
     {
         if ($pseudoType === PseudoType::UUID_PK_SEQ) {
-            return ColumnBuilder::uuidPrimaryKey()
-                ->defaultValue(new Expression('newsequentialid()'))
-                ->load($info);
+            $info['primaryKey'] = true;
+            $info['autoIncrement'] = true;
+            $info['defaultValue'] = new Expression('newsequentialid()');
+
+            return new StringColumnSchema(ColumnType::UUID, ...$info);
         }
 
         return parent::fromPseudoType($pseudoType, $info);
@@ -87,7 +90,7 @@ final class ColumnFactory extends AbstractColumnFactory
     public function fromType(string $type, array $info = []): ColumnSchemaInterface
     {
         if ($type === ColumnType::BINARY) {
-            return (new BinaryColumnSchema($type))->load($info);
+            return new BinaryColumnSchema($type, ...$info);
         }
 
         return parent::fromType($type, $info);
