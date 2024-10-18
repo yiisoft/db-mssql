@@ -77,6 +77,7 @@ final class ColumnFactory extends AbstractColumnFactory
     public function fromPseudoType(string $pseudoType, array $info = []): ColumnSchemaInterface
     {
         if ($pseudoType === PseudoType::UUID_PK_SEQ) {
+            unset($info['type']);
             $info['primaryKey'] = true;
             $info['autoIncrement'] = true;
             $info['defaultValue'] = new Expression('newsequentialid()');
@@ -90,6 +91,7 @@ final class ColumnFactory extends AbstractColumnFactory
     public function fromType(string $type, array $info = []): ColumnSchemaInterface
     {
         if ($type === ColumnType::BINARY) {
+            unset($info['type']);
             return new BinaryColumnSchema($type, ...$info);
         }
 
