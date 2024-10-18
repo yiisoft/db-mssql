@@ -321,7 +321,7 @@ final class CommandTest extends CommonCommandTest
 
         $command = $db->createCommand();
 
-        $this->assertSame('sqlsrv:Server=localhost,1433;Encrypt=no', $db->getDriver()->getDsn());
+        $this->assertSame('sqlsrv:Server=127.0.0.1,1433;Encrypt=no', $db->getDriver()->getDsn());
         $this->assertSame(['yiitest'], $command->showDatabases());
     }
 
