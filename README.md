@@ -13,7 +13,7 @@
 [![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads)](https://packagist.org/packages/yiisoft/db-mssql)
 [![Code Coverage](https://codecov.io/gh/yiisoft/db-mssql/branch/master/graph/badge.svg?token=UF9VERNMYU)](https://codecov.io/gh/yiisoft/db-mssql)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdb-mssql%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/db-mssql/master)
-[![static analysis](https://github.com/yiisoft/db-mssql/actions/workflows/static.yml/badge.svg?branch=dev)](https://github.com/yiisoft/db-mssql/actions/workflows/static.yml) 
+[![static analysis](https://github.com/yiisoft/db-mssql/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/db-mssql/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/db-mssql/coverage.svg)](https://shepherd.dev/github/yiisoft/db-mssql)
 [![psalm-level](https://shepherd.dev/github/yiisoft/db-mssql/level.svg)](https://shepherd.dev/github/yiisoft/db-mssql)
 
