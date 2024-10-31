@@ -313,16 +313,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testShowDatabases(): void
     {
-        $dsn = new Dsn(options: ['Encrypt' => 'no']);
-        $db = new Connection(
-            new Driver($dsn->asString(), 'SA', 'YourStrong!Passw0rd'),
-            DbHelper::getSchemaCache(),
-        );
-
-        $command = $db->createCommand();
-
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433;Encrypt=no', $db->getDriver()->getDsn());
-        $this->assertSame(['yiitest'], $command->showDatabases());
+        $this->assertSame([self::getDatabaseName()], self::getDb()->createCommand()->showDatabases());
     }
 
     /** @link https://github.com/yiisoft/db-migration/issues/11 */
