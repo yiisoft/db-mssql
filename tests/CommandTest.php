@@ -13,13 +13,9 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column;
-use Yiisoft\Db\Mssql\Connection;
-use Yiisoft\Db\Mssql\Dsn;
-use Yiisoft\Db\Mssql\Driver;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
-use Yiisoft\Db\Tests\Support\DbHelper;
 
 use function trim;
 
