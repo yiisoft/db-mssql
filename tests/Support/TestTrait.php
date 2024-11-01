@@ -43,7 +43,7 @@ trait TestTrait
         ))->asString();
 
         return new Connection(
-            new Driver($dsn, 'SA', 'YourStrong!Passw0rd'),
+            new Driver($dsn, self::getUsername(), self::getPassword()),
             DbHelper::getSchemaCache(),
         );
     }
