@@ -438,7 +438,7 @@ final class Schema extends AbstractPdoSchema
         }
 
         if ($schemaName !== null) {
-            $whereSql .= " AND [t1].[table_schema] = :schema_name";
+            $whereSql .= ' AND [t1].[table_schema] = :schema_name';
             $whereParams[':schema_name'] = $schemaName;
         }
 
