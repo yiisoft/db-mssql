@@ -73,18 +73,6 @@ final class SchemaTest extends CommonSchemaTest
         $this->assertSame(['dbo', 'guest'], $schemas);
     }
 
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::columnsTypeChar
-     */
-    public function testGetStringFieldsSize(
-        string $columnName,
-        string $columnType,
-        int|null $columnSize,
-        string $columnDbType
-    ): void {
-        parent::testGetStringFieldsSize($columnName, $columnType, $columnSize, $columnDbType);
-    }
-
     public function testGetViewNames(): void
     {
         $db = $this->getConnection(true);
