@@ -49,6 +49,13 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             . $this->buildExtra($column);
     }
 
+    public function buildAlter(ColumnSchemaInterface $column): string
+    {
+        return $this->buildType($column)
+            . $this->buildNotNull($column)
+            . $this->buildExtra($column);
+    }
+
     protected function getDbType(ColumnSchemaInterface $column): string
     {
         $size = $column->getSize();

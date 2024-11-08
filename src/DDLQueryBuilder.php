@@ -8,11 +8,13 @@ use Exception;
 use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
 use Yiisoft\Db\Schema\Builder\ColumnInterface;
+use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 
 use function array_diff;
+use function implode;
+use function preg_replace;
 
 /**
  * Implements a (Data Definition Language) SQL statements for MSSQL Server.
@@ -51,45 +53,45 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     /**
      * @throws Exception
      */
-    public function alterColumn(string $table, string $column, ColumnInterface|string $type): string
+    public function alterColumn(string $table, string $column, ColumnInterface|ColumnSchemaInterface|string $type): string
     {
-        $sqlAfter = [];
         $columnName = $this->quoter->quoteColumnName($column);
         $tableName = $this->quoter->quoteTableName($table);
-        $constraintBase = preg_replace('/[^a-z0-9_]/i', '', $table . '_' . $column);
+        $constraintBase = preg_replace('/\W/', '', $table . '_' . $column);
 
         if ($type instanceof ColumnInterface) {
-            $type->setFormat('{type}{length}{notnull}{append}');
-
-            /** @psalm-var mixed $defaultValue */
-            $defaultValue = $type->getDefault();
-            if ($defaultValue !== null || $type->isNotNull() === false) {
-                $sqlAfter[] = $this->addDefaultValue(
-                    $table,
-                    "DF_{$constraintBase}",
-                    $column,
-                    $defaultValue instanceof Expression ? $defaultValue : new Expression((string)$defaultValue)
-                );
-            }
-
-            $checkValue = $type->getCheck();
-            if ($checkValue !== null) {
-                $sqlAfter[] = "ALTER TABLE {$tableName} ADD CONSTRAINT " .
-                    $this->quoter->quoteColumnName("CK_{$constraintBase}") .
-                    ' CHECK (' . ($defaultValue instanceof Expression ? $checkValue : new Expression($checkValue)) . ')';
-            }
-
-            if ($type->isUnique()) {
-                $sqlAfter[] = "ALTER TABLE {$tableName} ADD CONSTRAINT " . $this->quoter->quoteColumnName("UQ_{$constraintBase}") . " UNIQUE ({$columnName})";
-            }
+            $type = $type->asString();
         }
 
-        /** @psalm-suppress DeprecatedMethod */
-        return implode("\n", [
+        if (is_string($type)) {
+            $type = $this->schema->getColumnFactory()->fromDefinition($type);
+        }
+
+        $columnDefinitionBuilder = $this->queryBuilder->getColumnDefinitionBuilder();
+        $statements = [
             $this->dropConstraintsForColumn($table, $column, 'D'),
-            "ALTER TABLE $tableName ALTER COLUMN $columnName {$this->queryBuilder->getColumnType($type)}",
-            ...$sqlAfter,
-        ]);
+            "ALTER TABLE $tableName ALTER COLUMN $columnName " . $columnDefinitionBuilder->buildAlter($type),
+        ];
+
+        if ($type->hasDefaultValue()) {
+            $defaultValue = $type->dbTypecast($type->getDefaultValue());
+            $statements[] = $this->addDefaultValue($table, "DF_$constraintBase", $column, $defaultValue);
+        }
+
+        $checkValue = $type->getCheck();
+        if (!empty($checkValue)) {
+            $statements[] = "ALTER TABLE $tableName ADD CONSTRAINT "
+                . $this->quoter->quoteColumnName("CK_$constraintBase")
+                . " CHECK ($checkValue)";
+        }
+
+        if ($type->isUnique()) {
+            $statements[] = "ALTER TABLE $tableName ADD CONSTRAINT "
+                . $this->quoter->quoteColumnName("UQ_$constraintBase")
+                . " UNIQUE ($columnName)";
+        }
+
+        return implode("\n", $statements);
     }
 
     /**
