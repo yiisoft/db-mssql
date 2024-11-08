@@ -25,7 +25,6 @@ use function array_fill_keys;
 use function array_map;
 use function is_array;
 use function md5;
-use function preg_match;
 use function serialize;
 use function str_replace;
 
