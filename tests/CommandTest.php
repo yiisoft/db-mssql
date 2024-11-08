@@ -343,7 +343,8 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertTrue($fieldCol->isNotNull());
         $this->assertNull($fieldCol->getDefaultValue());
-        $this->assertSame('nvarchar(40)', $fieldCol->getDbType());
+        $this->assertSame('nvarchar', $fieldCol->getDbType());
+        $this->assertSame(40, $fieldCol->getSize());
 
         $command->dropTable('column_with_constraint');
     }

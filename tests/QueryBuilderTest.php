@@ -847,7 +847,8 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
 
-        $this->assertSame('varchar(255)', $schema?->getColumn('bar')->getDbType());
+        $this->assertSame('varchar', $schema?->getColumn('bar')->getDbType());
+        $this->assertSame(255, $schema?->getColumn('bar')->getSize());
         $this->assertFalse($schema?->getColumn('bar')->isNotNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
@@ -858,7 +859,8 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
 
-        $this->assertSame('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
+        $this->assertSame('nvarchar', $schema?->getColumn('bar')->getDbType());
+        $this->assertSame(128, $schema?->getColumn('bar')->getSize());
         $this->assertTrue($schema?->getColumn('bar')->isNotNull());
 
         $sql = $db->getQueryBuilder()->alterColumn(
@@ -888,7 +890,8 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
-        $this->assertEquals('nvarchar(128)', $schema?->getColumn('bar')->getDbType());
+        $this->assertSame('nvarchar', $schema?->getColumn('bar')->getDbType());
+        $this->assertSame(128, $schema?->getColumn('bar')->getSize());
         $this->assertFalse($schema?->getColumn('bar')->isNotNull());
 
         $sql = "INSERT INTO [foo1]([bar]) values('abcdef')";

@@ -9,7 +9,6 @@ use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Column\AbstractColumnFactory;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
-use Yiisoft\Db\Schema\Column\StringColumnSchema;
 
 final class ColumnFactory extends AbstractColumnFactory
 {
@@ -17,8 +16,9 @@ final class ColumnFactory extends AbstractColumnFactory
      * Mapping from physical column types (keys) to abstract column types (values).
      *
      * @var string[]
+     * @psalm-var array<string, ColumnType::*>
      */
-    private const TYPE_MAP = [
+    protected const TYPE_MAP = [
         /** Exact numbers */
         'bit' => ColumnType::BOOLEAN,
         'tinyint' => ColumnType::TINYINT,
@@ -69,37 +69,21 @@ final class ColumnFactory extends AbstractColumnFactory
         'table' => ColumnType::STRING,
     ];
 
-    protected function getType(string $dbType, array $info = []): string
-    {
-        return self::TYPE_MAP[$dbType] ?? ColumnType::STRING;
-    }
-
     public function fromPseudoType(string $pseudoType, array $info = []): ColumnSchemaInterface
     {
-        if ($pseudoType === PseudoType::UUID_PK_SEQ) {
-            unset($info['type']);
-            $info['primaryKey'] = true;
-            $info['autoIncrement'] = true;
+        if ($pseudoType === PseudoType::UUID_PK_SEQ && !isset($info['defaultValue'])) {
             $info['defaultValue'] = new Expression('newsequentialid()');
-
-            return new StringColumnSchema(ColumnType::UUID, ...$info);
         }
 
         return parent::fromPseudoType($pseudoType, $info);
     }
 
-    public function fromType(string $type, array $info = []): ColumnSchemaInterface
+    protected function getColumnClass(string $type, array $info = []): string
     {
         if ($type === ColumnType::BINARY) {
-            unset($info['type']);
-            return new BinaryColumnSchema($type, ...$info);
+            return BinaryColumnSchema::class;
         }
 
-        return parent::fromType($type, $info);
-    }
-
-    protected function isDbType(string $dbType): bool
-    {
-        return isset(self::TYPE_MAP[$dbType]);
+        return parent::getColumnClass($type, $info);
     }
 }
