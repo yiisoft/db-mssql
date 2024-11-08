@@ -871,7 +871,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
         $this->assertSame(ColumnType::DATETIME, $schema?->getColumn('bar')->getDbType());
-        $this->assertSame('getdate()', $schema?->getColumn('bar')->getDefaultValue());
+        $this->assertEquals(new Expression('getdate()'), $schema?->getColumn('bar')->getDefaultValue());
     }
 
     /**

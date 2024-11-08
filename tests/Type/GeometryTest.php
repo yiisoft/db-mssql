@@ -38,7 +38,7 @@ final class GeometryTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string|null $defaultValue
+        Expression|null $defaultValue
     ): void {
         $db = $this->buildTable();
 
@@ -46,7 +46,7 @@ final class GeometryTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('geometry_default')->execute();
     }
@@ -90,7 +90,7 @@ final class GeometryTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string|null $defaultValue
+        Expression|null $defaultValue
     ): void {
         $this->setFixture('Type/geometry.sql');
 
@@ -99,7 +99,7 @@ final class GeometryTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('geometry_default')->execute();
     }

@@ -369,10 +369,11 @@ final class Schema extends AbstractPdoSchema
      */
     private function loadColumnSchema(array $info): ColumnSchemaInterface
     {
-        $column = $this->getColumnFactory()->fromDbType($info['data_type'], [
+        return $this->getColumnFactory()->fromDbType($info['data_type'], [
             'autoIncrement' => $info['is_identity'] === '1',
             'comment' => $info['comment'],
             'computed' => $info['is_computed'] === '1',
+            'defaultValueRaw' => $info['column_default'],
             'name' => $info['column_name'],
             'notNull' => $info['is_nullable'] !== 'YES',
             'primaryKey' => $info['primaryKey'],
@@ -381,36 +382,6 @@ final class Schema extends AbstractPdoSchema
             'size' => $info['size'] !== null ? (int) $info['size'] : null,
             'table' => $info['table'],
         ]);
-
-        $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
-
-        return $column;
-    }
-
-    /**
-     * Converts column's default value according to {@see ColumnSchema::phpType} after retrieval from the database.
-     *
-     * @param string|null $defaultValue The default value retrieved from the database.
-     * @param ColumnSchemaInterface $column The column schema object.
-     *
-     * @return mixed The normalized default value.
-     */
-    private function normalizeDefaultValue(string|null $defaultValue, ColumnSchemaInterface $column): mixed
-    {
-        if (
-            $defaultValue === null
-            || $defaultValue === '(NULL)'
-            || $column->isPrimaryKey()
-            || $column->isComputed()
-        ) {
-            return null;
-        }
-
-        $value = $this->parseDefaultValue($defaultValue);
-
-        return is_numeric($value)
-            ? $column->phpTypeCast($value)
-            : $value;
     }
 
     /**
@@ -827,18 +798,5 @@ final class Schema extends AbstractPdoSchema
     protected function getCacheTag(): string
     {
         return md5(serialize([self::class, ...$this->generateCacheKey()]));
-    }
-
-    private function parseDefaultValue(string $value): string
-    {
-        if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
-            return $matches[1];
-        }
-
-        if (preg_match('/^\((.*)\)$/', $value, $matches)) {
-            return $this->parseDefaultValue($matches[1]);
-        }
-
-        return $value;
     }
 }

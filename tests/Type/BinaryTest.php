@@ -39,7 +39,7 @@ final class BinaryTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        string $defaultValue
+        Expression $defaultValue
     ): void {
         $db = $this->buildTable();
 
@@ -48,7 +48,7 @@ final class BinaryTest extends TestCase
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('binary_default')->execute();
     }
@@ -93,7 +93,7 @@ final class BinaryTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        string $defaultValue
+        Expression $defaultValue
     ): void {
         $this->setFixture('Type/binary.sql');
 
@@ -103,7 +103,7 @@ final class BinaryTest extends TestCase
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('binary_default')->execute();
     }
