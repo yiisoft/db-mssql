@@ -403,10 +403,12 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['comment(null)'][0] = 'nvarchar(255)';
         $values["defaultValue('value')"][0] = "nvarchar(255) DEFAULT 'value'";
         $values["defaultValue('')"][0] = "nvarchar(255) DEFAULT ''";
-        $values['defaultValue(null)'][0] = 'nvarchar(255)';
+        $values['defaultValue(null)'][0] = 'nvarchar(255) DEFAULT NULL';
         $values['defaultValue($expression)'][0] = 'nvarchar(255) DEFAULT expression';
-        $values["integer()->defaultValue('')"][0] = 'int';
+        $values['notNull()->defaultValue(null)'][0] = 'nvarchar(255) NOT NULL';
+        $values["integer()->defaultValue('')"][0] = 'int DEFAULT NULL';
         $values['notNull()'][0] = 'nvarchar(255) NOT NULL';
+        $values['null()'][0] = 'nvarchar(255) NULL';
         $values['integer()->primaryKey()'][0] = 'int PRIMARY KEY';
         $values['size(10)'][0] = 'nvarchar(10)';
         $values['unique()'][0] = 'nvarchar(255) UNIQUE';
