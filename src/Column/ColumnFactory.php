@@ -86,4 +86,13 @@ final class ColumnFactory extends AbstractColumnFactory
 
         return parent::getColumnClass($type, $info);
     }
+
+    protected function normalizeNotNullDefaultValue(string $defaultValue, ColumnSchemaInterface $column): mixed
+    {
+        if ($defaultValue[0] === '(' && $defaultValue[-1] === ')') {
+            $defaultValue = substr($defaultValue, 1, -1);
+        }
+
+        return parent::normalizeNotNullDefaultValue($defaultValue, $column);
+    }
 }
