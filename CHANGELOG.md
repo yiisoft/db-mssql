@@ -19,6 +19,7 @@
 - Enh #324: Use constructor to create columns and initialize properties (@Tigrov)
 - Enh #327: Refactor `Schema::findColumns()` method (@Tigrov)
 - Enh #328: Refactor `Schema::normalizeDefaultValue()` method and move it to `ColumnFactory` class (@Tigrov)
+- Enh #331: Refactor according to changes #902 in `yiisoft/db` package (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
