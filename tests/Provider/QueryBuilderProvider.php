@@ -411,7 +411,6 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values["defaultValue('')"][0] = "nvarchar(255) DEFAULT ''";
         $values['defaultValue(null)'][0] = 'nvarchar(255) DEFAULT NULL';
         $values['defaultValue($expression)'][0] = 'int DEFAULT (1 + 2)';
-        $values['notNull()->defaultValue(null)'][0] = 'nvarchar(255) NOT NULL';
         $values["integer()->defaultValue('')"][0] = 'int DEFAULT NULL';
         $values['notNull()'][0] = 'nvarchar(255) NOT NULL';
         $values['null()'][0] = 'nvarchar(255) NULL';
@@ -422,6 +421,26 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['integer(8)->scale(2)'][0] = 'int';
         $values['reference($reference)'][0] = 'int REFERENCES [ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
         $values['reference($referenceWithSchema)'][0] = 'int REFERENCES [ref_schema].[ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
+
+        return $values;
+    }
+
+    public static function prepareParam(): array
+    {
+        $values = parent::prepareParam();
+
+        $values['true'][0] = '1';
+        $values['false'][0] = '0';
+
+        return $values;
+    }
+
+    public static function prepareValue(): array
+    {
+        $values = parent::prepareValue();
+
+        $values['true'][0] = '1';
+        $values['false'][0] = '0';
 
         return $values;
     }

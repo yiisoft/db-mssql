@@ -144,7 +144,7 @@ final class Schema extends AbstractPdoSchema
     {
         $schemaName = $tableSchema->getSchemaName()
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . (string) $this->db->getQuoter()->quoteValue($tableSchema->getName());
+        $tableName = 'N' . $this->db->getQuoter()->quoteValue($tableSchema->getName());
 
         $sql = <<<SQL
         SELECT [value]

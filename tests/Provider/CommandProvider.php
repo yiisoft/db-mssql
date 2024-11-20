@@ -11,6 +11,7 @@ use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 use function json_encode;
 use function serialize;
+use function strtr;
 
 final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
 {
@@ -54,5 +55,19 @@ final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
                 'simple string',
             ],
         ];
+    }
+
+    public static function rawSql(): array
+    {
+        $rawSql = parent::rawSql();
+
+        foreach ($rawSql as &$values) {
+            $values[2] = strtr($values[2], [
+                'FALSE' => '0',
+                'TRUE' => '1',
+            ]);
+        }
+
+        return $rawSql;
     }
 }
