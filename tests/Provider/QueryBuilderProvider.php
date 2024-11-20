@@ -411,6 +411,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values["defaultValue('')"][0] = "nvarchar(255) DEFAULT ''";
         $values['defaultValue(null)'][0] = 'nvarchar(255) DEFAULT NULL';
         $values['defaultValue($expression)'][0] = 'int DEFAULT (1 + 2)';
+        $values['defaultValue($emptyExpression)'][0] = 'int';
         $values["integer()->defaultValue('')"][0] = 'int DEFAULT NULL';
         $values['notNull()'][0] = 'nvarchar(255) NOT NULL';
         $values['null()'][0] = 'nvarchar(255) NULL';
