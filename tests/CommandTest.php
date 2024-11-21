@@ -309,7 +309,14 @@ final class CommandTest extends CommonCommandTest
 
     public function testShowDatabases(): void
     {
-        $this->assertSame([self::getDatabaseName()], self::getDb()->createCommand()->showDatabases());
+        $expectedDatabases = [];
+        if (self::getDatabaseName() !== 'tempdb') {
+            $expectedDatabases[] = self::getDatabaseName();
+        }
+
+        $actualDatabases = self::getDb()->createCommand()->showDatabases();
+
+        $this->assertSame($expectedDatabases, $actualDatabases);
     }
 
     /** @link https://github.com/yiisoft/db-migration/issues/11 */
