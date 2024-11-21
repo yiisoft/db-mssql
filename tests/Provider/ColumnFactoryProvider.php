@@ -62,4 +62,18 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
             ['table', ColumnType::STRING, StringColumnSchema::class],
         ];
     }
+
+    public static function defaultValueRaw(): array
+    {
+        $defaultValueRaw = parent::defaultValueRaw();
+
+        $defaultValueRaw['(now())'][2] = new Expression('now()');
+
+        $defaultValueRaw[] = [ColumnType::TEXT, '(NULL)', null];
+        $defaultValueRaw[] = [ColumnType::TEXT, "(('str''ing'))", "str'ing"];
+        $defaultValueRaw[] = [ColumnType::INTEGER, '((-1))', -1];
+        $defaultValueRaw[] = [ColumnType::TIMESTAMP, '((now()))', new Expression('(now())')];
+
+        return $defaultValueRaw;
+    }
 }

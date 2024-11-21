@@ -51,11 +51,13 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
 
     protected function getDbType(ColumnSchemaInterface $column): string
     {
+        $size = $column->getSize();
+
         /** @psalm-suppress DocblockTypeContradiction */
-        return match ($column->getType()) {
+        $dbType = $column->getDbType() ?? match ($column->getType()) {
             ColumnType::BOOLEAN => 'bit',
             ColumnType::BIT => match (true) {
-                ($size = $column->getSize()) === null => 'bigint',
+                $size === null => 'bigint',
                 $size === 1 => 'bit',
                 $size <= 8 => 'tinyint',
                 $size <= 16 => 'smallint',
@@ -72,7 +74,7 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             ColumnType::DECIMAL => 'decimal',
             ColumnType::MONEY => 'money',
             ColumnType::CHAR => 'nchar',
-            ColumnType::STRING => 'nvarchar',
+            ColumnType::STRING => 'nvarchar(' . (($size ?? '255') ?: 'max') . ')',
             ColumnType::TEXT => 'nvarchar(max)',
             ColumnType::BINARY => 'varbinary(max)',
             ColumnType::UUID => 'uniqueidentifier',
@@ -80,10 +82,18 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             ColumnType::TIMESTAMP => 'datetime2',
             ColumnType::DATE => 'date',
             ColumnType::TIME => 'time',
-            ColumnType::ARRAY => 'json',
-            ColumnType::STRUCTURED => 'json',
-            ColumnType::JSON => 'json',
-            default => 'varchar',
+            ColumnType::ARRAY => 'nvarchar(max)',
+            ColumnType::STRUCTURED => 'nvarchar(max)',
+            ColumnType::JSON => 'nvarchar(max)',
+            default => 'nvarchar',
+        };
+
+        return match ($dbType) {
+            'timestamp' => 'datetime2',
+            'varchar' => 'varchar(' . ($size ?: 'max') . ')',
+            'nvarchar' => 'nvarchar(' . ($size ?: 'max') . ')',
+            'varbinary' => 'varbinary(' . ($size ?: 'max') . ')',
+            default => $dbType,
         };
     }
 }

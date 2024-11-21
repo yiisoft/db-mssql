@@ -21,27 +21,29 @@ use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_change_key_case;
+use function array_fill_keys;
 use function array_map;
 use function is_array;
 use function md5;
-use function preg_match;
 use function serialize;
 use function str_replace;
-use function strcasecmp;
 
 /**
  * Implements the MSSQL Server specific schema, supporting MSSQL Server 2017 and above.
  *
  * @psalm-type ColumnArray = array{
  *   column_name: string,
+ *   column_default: string|null,
  *   is_nullable: string,
  *   data_type: string,
- *   column_default: string|null,
+ *   size: int|string|null,
+ *   numeric_scale: int|string|null,
  *   is_identity: string,
  *   is_computed: string,
- *   comment: null|string,
- *   size?: int,
- *   scale?: int,
+ *   comment: string|null,
+ *   primaryKey: bool,
+ *   schema: string|null,
+ *   table: string
  * }
  * @psalm-type ConstraintArray = array<
  *   array-key,
@@ -366,47 +368,19 @@ final class Schema extends AbstractPdoSchema
      */
     private function loadColumnSchema(array $info): ColumnSchemaInterface
     {
-        $columnFactory = $this->getColumnFactory();
-
-        $dbType = $info['data_type'];
-        /** @psalm-var ColumnArray $info */
-        $column = $columnFactory->fromDefinition($dbType);
-        /** @psalm-suppress DeprecatedMethod */
-        $column->name($info['column_name']);
-        $column->notNull($info['is_nullable'] !== 'YES');
-        $column->dbType($dbType);
-        $column->autoIncrement($info['is_identity'] === '1');
-        $column->computed($info['is_computed'] === '1');
-        $column->comment($info['comment'] ?? '');
-        $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
-
-        return $column;
-    }
-
-    /**
-     * Converts column's default value according to {@see ColumnSchema::phpType} after retrieval from the database.
-     *
-     * @param string|null $defaultValue The default value retrieved from the database.
-     * @param ColumnSchemaInterface $column The column schema object.
-     *
-     * @return mixed The normalized default value.
-     */
-    private function normalizeDefaultValue(string|null $defaultValue, ColumnSchemaInterface $column): mixed
-    {
-        if (
-            $defaultValue === null
-            || $defaultValue === '(NULL)'
-            || $column->isPrimaryKey()
-            || $column->isComputed()
-        ) {
-            return null;
-        }
-
-        $value = $this->parseDefaultValue($defaultValue);
-
-        return is_numeric($value)
-            ? $column->phpTypeCast($value)
-            : $value;
+        return $this->getColumnFactory()->fromDbType($info['data_type'], [
+            'autoIncrement' => $info['is_identity'] === '1',
+            'comment' => $info['comment'],
+            'computed' => $info['is_computed'] === '1',
+            'defaultValueRaw' => $info['column_default'],
+            'name' => $info['column_name'],
+            'notNull' => $info['is_nullable'] !== 'YES',
+            'primaryKey' => $info['primaryKey'],
+            'scale' => $info['numeric_scale'] !== null ? (int) $info['numeric_scale'] : null,
+            'schema' => $info['schema'],
+            'size' => $info['size'] !== null ? (int) $info['size'] : null,
+            'table' => $info['table'],
+        ]);
     }
 
     /**
@@ -420,61 +394,46 @@ final class Schema extends AbstractPdoSchema
      */
     protected function findColumns(TableSchemaInterface $table): bool
     {
-        $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
+        $schemaName = $table->getSchemaName();
+        $tableName = $table->getName();
 
-        $whereParams = [':table_name' => $table->getName()];
+        $columnsTableName = '[INFORMATION_SCHEMA].[COLUMNS]';
         $whereSql = '[t1].[table_name] = :table_name';
+        $whereParams = [':table_name' => $tableName];
 
         if ($table->getCatalogName() !== null) {
-            $columnsTableName = "{$table->getCatalogName()}.$columnsTableName";
+            $columnsTableName = "[{$table->getCatalogName()}].$columnsTableName";
             $whereSql .= ' AND [t1].[table_catalog] = :catalog';
             $whereParams[':catalog'] = $table->getCatalogName();
         }
 
-        if ($table->getSchemaName() !== null) {
-            $whereSql .= " AND [t1].[table_schema] = '{$table->getSchemaName()}'";
+        if ($schemaName !== null) {
+            $whereSql .= ' AND [t1].[table_schema] = :schema_name';
+            $whereParams[':schema_name'] = $schemaName;
         }
-
-        $columnsTableName = $this->db->getQuoter()->quoteTableName($columnsTableName);
 
         $sql = <<<SQL
         SELECT
             [t1].[column_name],
+            [t1].[column_default],
             [t1].[is_nullable],
-        CASE WHEN [t1].[data_type] IN ('char','varchar','nchar','nvarchar','binary','varbinary') THEN
-        CASE WHEN [t1].[character_maximum_length] = NULL OR [t1].[character_maximum_length] = -1 THEN
-            [t1].[data_type]
-        ELSE
-            [t1].[data_type] + '(' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[character_maximum_length]))) + ')'
-        END
-        WHEN [t1].[data_type] IN ('decimal','numeric') THEN
-        CASE WHEN [t1].[numeric_precision] = NULL OR [t1].[numeric_precision] = -1 THEN
-            [t1].[data_type]
-        ELSE
-            [t1].[data_type] + '(' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[numeric_precision]))) + ',' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[numeric_scale]))) + ')'
-        END
-        ELSE
-            [t1].[data_type]
-        END AS 'data_type',
-        [t1].[column_default],
-        COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsIdentity') AS is_identity,
-        COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsComputed') AS is_computed,
-        (
-        SELECT CONVERT(VARCHAR, [t2].[value])
-        FROM [sys].[extended_properties] AS [t2]
-        WHERE
-        [t2].[class] = 1 AND
-        [t2].[class_desc] = 'OBJECT_OR_COLUMN' AND
-        [t2].[name] = 'MS_Description' AND
-        [t2].[major_id] = OBJECT_ID([t1].[TABLE_SCHEMA] + '.' + [t1].[table_name]) AND
-        [t2].[minor_id] = COLUMNPROPERTY(OBJECT_ID([t1].[TABLE_SCHEMA] + '.' + [t1].[TABLE_NAME]), [t1].[COLUMN_NAME], 'ColumnID')
-        ) as comment
+            [t1].[data_type],
+            COALESCE(NULLIF([t1].[character_maximum_length], -1), [t1].[numeric_precision], [t1].[datetime_precision]) AS [size],
+            [t1].[numeric_scale],
+            COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsIdentity') AS [is_identity],
+            COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsComputed') AS [is_computed],
+            [t2].[value] as [comment]
         FROM $columnsTableName AS [t1]
+        LEFT JOIN [sys].[extended_properties] AS [t2]
+            ON [t2].[class] = 1
+                AND [t2].[class_desc] = 'OBJECT_OR_COLUMN'
+                AND [t2].[name] = 'MS_Description'
+                AND [t2].[major_id] = OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name])
+                AND [t2].[minor_id] = COLUMNPROPERTY([t2].[major_id], [t1].[column_name], 'ColumnID')
         WHERE $whereSql
         SQL;
 
         try {
-            /** @psalm-var ColumnArray[] $columns */
             $columns = $this->db->createCommand($sql, $whereParams)->queryAll();
 
             if (empty($columns)) {
@@ -484,14 +443,17 @@ final class Schema extends AbstractPdoSchema
             return false;
         }
 
+        $primaryKeys = array_fill_keys($table->getPrimaryKey(), true);
+
         foreach ($columns as $info) {
+            $info = array_change_key_case($info);
+
+            /** @psalm-var ColumnArray $info */
+            $info['primaryKey'] = isset($primaryKeys[$info['column_name']]);
+            $info['schema'] = $schemaName;
+            $info['table'] = $tableName;
+
             $column = $this->loadColumnSchema($info);
-            foreach ($table->getPrimaryKey() as $primaryKey) {
-                if (strcasecmp($info['column_name'], $primaryKey) === 0) {
-                    $column->primaryKey(true);
-                    break;
-                }
-            }
 
             if ($column->isPrimaryKey() && $column->isAutoIncrement()) {
                 $table->sequenceName('');
@@ -835,18 +797,5 @@ final class Schema extends AbstractPdoSchema
     protected function getCacheTag(): string
     {
         return md5(serialize([self::class, ...$this->generateCacheKey()]));
-    }
-
-    private function parseDefaultValue(string $value): string
-    {
-        if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
-            return $matches[1];
-        }
-
-        if (preg_match('/^\((.*)\)$/', $value, $matches)) {
-            return $this->parseDefaultValue($matches[1]);
-        }
-
-        return $value;
     }
 }

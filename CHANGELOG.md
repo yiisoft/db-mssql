@@ -10,13 +10,15 @@
 - Enh #312: Refactor `bit` type (@Tigrov)
 - Enh #315: Refactor PHP type of `ColumnSchemaInterface` instances (@Tigrov)
 - Enh #317: Raise minimum PHP version to `^8.1` with minor refactoring (@Tigrov)
-- New #316: Implement `ColumnFactory` class (@Tigrov)
+- New #316, #327: Implement `ColumnFactory` class (@Tigrov)
 - Enh #319: Separate column type constants (@Tigrov)
 - New #320: Realize `ColumnBuilder` class (@Tigrov)
 - Enh #321: Update according changes in `ColumnSchemaInterface` (@Tigrov)
-- New #322: Add `ColumnDefinitionBuilder` class (@Tigrov)
+- New #322, #330: Add `ColumnDefinitionBuilder` class (@Tigrov)
 - Enh #323: Refactor `Dsn` class (@Tigrov)
 - Enh #324: Use constructor to create columns and initialize properties (@Tigrov)
+- Enh #327: Refactor `Schema::findColumns()` method (@Tigrov)
+- Enh #328: Refactor `Schema::normalizeDefaultValue()` method and move it to `ColumnFactory` class (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
