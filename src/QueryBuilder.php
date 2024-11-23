@@ -19,6 +19,10 @@ use function preg_replace;
  */
 final class QueryBuilder extends AbstractQueryBuilder
 {
+    protected const FALSE_VALUE = '0';
+
+    protected const TRUE_VALUE = '1';
+
     /**
      * @psalm-var string[] $typeMap Mapping from abstract column types (keys) to physical column types (values).
      */

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use JsonException;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Throwable;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
@@ -15,6 +16,7 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Column;
+use Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
@@ -1152,9 +1154,21 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         parent::testSelectScalar($columns, $expected);
     }
 
-    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\QueryBuilderProvider::buildColumnDefinition() */
+    #[DataProviderExternal(QueryBuilderProvider::class, 'buildColumnDefinition')]
     public function testBuildColumnDefinition(string $expected, ColumnSchemaInterface|string $column): void
     {
         parent::testBuildColumnDefinition($expected, $column);
+    }
+
+    #[DataProviderExternal(QueryBuilderProvider::class, 'prepareParam')]
+    public function testPrepareParam(string $expected, mixed $value, int $type): void
+    {
+        parent::testPrepareParam($expected, $value, $type);
+    }
+
+    #[DataProviderExternal(QueryBuilderProvider::class, 'prepareValue')]
+    public function testPrepareValue(string $expected, mixed $value): void
+    {
+        parent::testPrepareValue($expected, $value);
     }
 }

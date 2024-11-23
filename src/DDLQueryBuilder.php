@@ -44,7 +44,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . $this->quoter->quoteTableName($table)
             . ' ADD CONSTRAINT '
             . $this->quoter->quoteColumnName($name)
-            . ' DEFAULT ' . ($value === null ? 'NULL' : (string) $this->quoter->quoteValue($value))
+            . ' DEFAULT ' . $this->queryBuilder->prepareValue($value)
             . ' FOR ' . $this->quoter->quoteColumnName($column);
     }
 
@@ -194,9 +194,9 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
         $schemaName = $tableSchema->getSchemaName()
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . (string) $this->quoter->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . (string) $this->quoter->quoteValue($column) : null;
-        $comment = 'N' . (string) $this->quoter->quoteValue($comment);
+        $tableName = 'N' . $this->quoter->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . $this->quoter->quoteValue($column) : null;
+        $comment = 'N' . $this->quoter->quoteValue($comment);
         $functionParams = "
             @name = N'MS_description',
             @value = $comment,
@@ -245,8 +245,8 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
 
         $schemaName = $tableSchema->getSchemaName()
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . (string) $this->quoter->quoteValue($tableSchema->getName());
-        $columnName = $column ? 'N' . (string) $this->quoter->quoteValue($column) : null;
+        $tableName = 'N' . $this->quoter->quoteValue($tableSchema->getName());
+        $columnName = $column ? 'N' . $this->quoter->quoteValue($column) : null;
 
         return "
             IF EXISTS (
