@@ -84,26 +84,26 @@ trait TestTrait
 
     private static function getDatabaseName(): string
     {
-        return getenv('YII_MSSQL_DATABASE');
+        return getenv('YII_MSSQL_DATABASE') ?? '';
     }
 
     private static function getHost(): string
     {
-        return getenv('YII_MSSQL_HOST');
+        return getenv('YII_MSSQL_HOST') ?? '';
     }
 
     private static function getPort(): string
     {
-        return getenv('YII_MSSQL_PORT');
+        return getenv('YII_MSSQL_PORT') ?? '';
     }
 
     private static function getUsername(): string
     {
-        return getenv('YII_MSSQL_USER');
+        return getenv('YII_MSSQL_USER') ?? '';
     }
 
     private static function getPassword(): string
     {
-        return getenv('YII_MSSQL_PASSWORD');
+        return getenv('YII_MSSQL_PASSWORD') ?? '';
     }
 }
