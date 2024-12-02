@@ -10,6 +10,10 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Column\AbstractColumnFactory;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 
+use function hex2bin;
+use function str_starts_with;
+use function substr;
+
 final class ColumnFactory extends AbstractColumnFactory
 {
     /**
@@ -91,6 +95,10 @@ final class ColumnFactory extends AbstractColumnFactory
     {
         if ($defaultValue[0] === '(' && $defaultValue[-1] === ')') {
             $defaultValue = substr($defaultValue, 1, -1);
+        }
+
+        if (str_starts_with($defaultValue, '0x')) {
+            return hex2bin(substr($defaultValue, 2));
         }
 
         return parent::normalizeNotNullDefaultValue($defaultValue, $column);

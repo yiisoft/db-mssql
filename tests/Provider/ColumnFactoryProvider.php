@@ -73,6 +73,9 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
         $defaultValueRaw[] = [ColumnType::TEXT, "(('str''ing'))", "str'ing"];
         $defaultValueRaw[] = [ColumnType::INTEGER, '((-1))', -1];
         $defaultValueRaw[] = [ColumnType::TIMESTAMP, '((now()))', new Expression('(now())')];
+        $defaultValueRaw[] = [ColumnType::BOOLEAN, '((1))', true];
+        $defaultValueRaw[] = [ColumnType::BOOLEAN, '((0))', false];
+        $defaultValueRaw[] = [ColumnType::BINARY, '(0x737472696e67)', 'string'];
 
         return $defaultValueRaw;
     }
