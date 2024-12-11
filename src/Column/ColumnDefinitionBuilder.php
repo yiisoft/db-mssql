@@ -14,8 +14,6 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
 {
     protected const AUTO_INCREMENT_KEYWORD = 'IDENTITY';
 
-    protected const GENERATE_UUID_EXPRESSION = 'newid()';
-
     protected const TYPES_WITH_SIZE = [
         'decimal',
         'numeric',
@@ -102,5 +100,10 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             'varbinary' => 'varbinary(' . ($size ?: 'max') . ')',
             default => $dbType,
         };
+    }
+
+    protected function getDefaultUuidExpression(): string
+    {
+        return 'newid()';
     }
 }
