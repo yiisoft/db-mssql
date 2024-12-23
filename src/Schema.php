@@ -71,6 +71,7 @@ final class Schema extends AbstractPdoSchema
     /** @deprecated Use {@see ColumnBuilder} instead. Will be removed in 2.0. */
     public function createColumn(string $type, array|int|string|null $length = null): ColumnInterface
     {
+        /** @psalm-suppress DeprecatedClass */
         return new Column($type, $length);
     }
 
@@ -229,7 +230,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTablePrimaryKey(string $tableName): Constraint|null
     {
-        /** @psalm-var mixed $tablePrimaryKey */
         $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
         return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
@@ -247,7 +247,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableForeignKeys(string $tableName): array
     {
-        /** @psalm-var mixed $tableForeignKeys */
         $tableForeignKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
         return is_array($tableForeignKeys) ? $tableForeignKeys : [];
     }
@@ -320,7 +319,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableUniques(string $tableName): array
     {
-        /** @psalm-var mixed $tableUniques */
         $tableUniques = $this->loadTableConstraints($tableName, self::UNIQUES);
         return is_array($tableUniques) ? $tableUniques : [];
     }
@@ -338,7 +336,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableChecks(string $tableName): array
     {
-        /** @psalm-var mixed $tableCheck */
         $tableCheck = $this->loadTableConstraints($tableName, self::CHECKS);
         return is_array($tableCheck) ? $tableCheck : [];
     }
@@ -356,7 +353,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableDefaultValues(string $tableName): array
     {
-        /** @psalm-var mixed $tableDefault */
         $tableDefault = $this->loadTableConstraints($tableName, self::DEFAULTS);
         return is_array($tableDefault) ? $tableDefault : [];
     }

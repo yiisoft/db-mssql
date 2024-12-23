@@ -21,6 +21,7 @@
 - Enh #328: Refactor `Schema::normalizeDefaultValue()` method and move it to `ColumnFactory` class (@Tigrov)
 - Enh #331: Refactor according to changes #902 in `yiisoft/db` package (@Tigrov)
 - Chg #333: Update `QueryBuilder` constructor (@Tigrov)
+- Enh #332: Use `ColumnDefinitionBuilder` to generate table column SQL representation (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 

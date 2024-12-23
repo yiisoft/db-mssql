@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Builder\AbstractColumn;
+use Yiisoft\Db\Schema\Column\StringColumnSchema;
 
 /**
  * Provides a convenient way to create column schema for use with {@see Schema} for MSSQL Server.
@@ -21,6 +22,10 @@ use Yiisoft\Db\Schema\Builder\AbstractColumn;
  *
  * Provides a fluent interface, which means that the methods can be chained together to create a column schema with
  * many properties in a single line of code.
+ *
+ * @psalm-suppress DeprecatedClass
+ *
+ * @deprecated Use {@see StringColumnSchema} or other column classes instead. Will be removed in 2.0.0.
  */
 final class Column extends AbstractColumn
 {
