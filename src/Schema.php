@@ -68,13 +68,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected string|null $defaultSchema = 'dbo';
 
-    /** @deprecated Use {@see ColumnBuilder} instead. Will be removed in 2.0. */
-    public function createColumn(string $type, array|int|string|null $length = null): ColumnInterface
-    {
-        /** @psalm-suppress DeprecatedClass */
-        return new Column($type, $length);
-    }
-
     public function getColumnFactory(): ColumnFactoryInterface
     {
         return new ColumnFactory();
