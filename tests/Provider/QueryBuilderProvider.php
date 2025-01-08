@@ -610,6 +610,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['notNull()'][0] = 'nvarchar(255) NOT NULL';
         $values['null()'][0] = 'nvarchar(255) NULL';
         $values['integer()->primaryKey()'][0] = 'int PRIMARY KEY';
+        $values['string()->primaryKey()'][0] = 'nvarchar(255) PRIMARY KEY';
         $values['size(10)'][0] = 'nvarchar(10)';
         $values['unique()'][0] = 'nvarchar(255) UNIQUE';
         $values['unsigned()'][0] = 'int';
