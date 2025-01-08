@@ -15,7 +15,6 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Mssql\Column\ColumnFactory;
-use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
@@ -67,13 +66,6 @@ final class Schema extends AbstractPdoSchema
      * @var string|null The default schema used for the current session.
      */
     protected string|null $defaultSchema = 'dbo';
-
-    /** @deprecated Use {@see ColumnBuilder} instead. Will be removed in 2.0. */
-    public function createColumn(string $type, array|int|string|null $length = null): ColumnInterface
-    {
-        /** @psalm-suppress DeprecatedClass */
-        return new Column($type, $length);
-    }
 
     public function getColumnFactory(): ColumnFactoryInterface
     {

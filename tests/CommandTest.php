@@ -12,7 +12,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Column;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\Mssql\Driver;
@@ -336,8 +336,8 @@ final class CommandTest extends CommonCommandTest
         }
 
         $command->createTable('column_with_constraint', ['id' => 'pk'])->execute();
-        $command->addColumn('column_with_constraint', 'field', (new Column('integer'))->null()->asString())->execute();
-        $command->alterColumn('column_with_constraint', 'field', (new Column('string', 40))->notNull()->asString())->execute();
+        $command->addColumn('column_with_constraint', 'field', ColumnBuilder::integer()->null())->execute();
+        $command->alterColumn('column_with_constraint', 'field', ColumnBuilder::string(40)->notNull())->execute();
 
         $fieldCol = $db->getTableSchema('column_with_constraint', true)->getColumn('field');
 

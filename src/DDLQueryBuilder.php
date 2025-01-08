@@ -9,7 +9,6 @@ use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
-use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
 
 use function array_diff;
@@ -53,15 +52,11 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     /**
      * @throws Exception
      */
-    public function alterColumn(string $table, string $column, ColumnInterface|ColumnSchemaInterface|string $type): string
+    public function alterColumn(string $table, string $column, ColumnSchemaInterface|string $type): string
     {
         $columnName = $this->quoter->quoteColumnName($column);
         $tableName = $this->quoter->quoteTableName($table);
         $constraintBase = preg_replace('/\W/', '', $table . '_' . $column);
-
-        if ($type instanceof ColumnInterface) {
-            $type = $type->asString();
-        }
 
         if (is_string($type)) {
             $type = $this->schema->getColumnFactory()->fromDefinition($type);
