@@ -9,7 +9,7 @@ use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
-use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 use function array_diff;
 use function implode;
@@ -52,7 +52,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
     /**
      * @throws Exception
      */
-    public function alterColumn(string $table, string $column, ColumnSchemaInterface|string $type): string
+    public function alterColumn(string $table, string $column, ColumnInterface|string $type): string
     {
         $columnName = $this->quoter->quoteColumnName($column);
         $tableName = $this->quoter->quoteTableName($table);

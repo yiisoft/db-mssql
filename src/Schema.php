@@ -16,7 +16,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
-use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_change_key_case;
@@ -350,11 +350,11 @@ final class Schema extends AbstractPdoSchema
     }
 
     /**
-     * Loads the column information into a {@see ColumnSchemaInterface} object.
+     * Loads the column information into a {@see ColumnInterface} object.
      *
      * @psalm-param ColumnArray $info The column information.
      */
-    private function loadColumnSchema(array $info): ColumnSchemaInterface
+    private function loadColumn(array $info): ColumnInterface
     {
         return $this->getColumnFactory()->fromDbType($info['data_type'], [
             'autoIncrement' => $info['is_identity'] === '1',
@@ -441,7 +441,7 @@ final class Schema extends AbstractPdoSchema
             $info['schema'] = $schemaName;
             $info['table'] = $tableName;
 
-            $column = $this->loadColumnSchema($info);
+            $column = $this->loadColumn($info);
 
             if ($column->isPrimaryKey() && $column->isAutoIncrement()) {
                 $table->sequenceName('');
