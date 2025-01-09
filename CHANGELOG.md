@@ -23,6 +23,7 @@
 - Chg #333: Update `QueryBuilder` constructor (@Tigrov)
 - Enh #332: Use `ColumnDefinitionBuilder` to generate table column SQL representation (@Tigrov)
 - Enh #335: Remove `ColumnInterface` (@Tigrov)
+- Enh #337: Rename `ColumnSchemaInterface` to `ColumnInterface` (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
