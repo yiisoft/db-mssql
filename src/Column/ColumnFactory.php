@@ -8,7 +8,7 @@ use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Column\AbstractColumnFactory;
-use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 use function hex2bin;
 use function str_starts_with;
@@ -73,7 +73,7 @@ final class ColumnFactory extends AbstractColumnFactory
         'table' => ColumnType::STRING,
     ];
 
-    public function fromPseudoType(string $pseudoType, array $info = []): ColumnSchemaInterface
+    public function fromPseudoType(string $pseudoType, array $info = []): ColumnInterface
     {
         if ($pseudoType === PseudoType::UUID_PK_SEQ && !isset($info['defaultValue'])) {
             $info['defaultValue'] = new Expression('newsequentialid()');
@@ -85,13 +85,13 @@ final class ColumnFactory extends AbstractColumnFactory
     protected function getColumnClass(string $type, array $info = []): string
     {
         if ($type === ColumnType::BINARY) {
-            return BinaryColumnSchema::class;
+            return BinaryColumn::class;
         }
 
         return parent::getColumnClass($type, $info);
     }
 
-    protected function normalizeNotNullDefaultValue(string $defaultValue, ColumnSchemaInterface $column): mixed
+    protected function normalizeNotNullDefaultValue(string $defaultValue, ColumnInterface $column): mixed
     {
         if ($defaultValue[0] === '(' && $defaultValue[-1] === ')') {
             $defaultValue = substr($defaultValue, 1, -1);

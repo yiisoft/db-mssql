@@ -6,7 +6,7 @@ namespace Yiisoft\Db\Mssql\Column;
 
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\QueryBuilder\AbstractColumnDefinitionBuilder;
-use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 use function ceil;
 
@@ -34,7 +34,7 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
         'numeric',
     ];
 
-    public function build(ColumnSchemaInterface $column): string
+    public function build(ColumnInterface $column): string
     {
         return $this->buildType($column)
             . $this->buildAutoIncrement($column)
@@ -47,14 +47,14 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             . $this->buildExtra($column);
     }
 
-    public function buildAlter(ColumnSchemaInterface $column): string
+    public function buildAlter(ColumnInterface $column): string
     {
         return $this->buildType($column)
             . $this->buildNotNull($column)
             . $this->buildExtra($column);
     }
 
-    protected function getDbType(ColumnSchemaInterface $column): string
+    protected function getDbType(ColumnInterface $column): string
     {
         $size = $column->getSize();
 

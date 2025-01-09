@@ -31,9 +31,9 @@ final class SchemaTest extends CommonSchemaTest
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::columns
      */
-    public function testColumnSchema(array $columns, string $tableName): void
+    public function testColumns(array $columns, string $tableName): void
     {
-        parent::testColumnSchema($columns, $tableName);
+        parent::testColumns($columns, $tableName);
     }
 
     /**
