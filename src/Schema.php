@@ -269,7 +269,7 @@ final class Schema extends AbstractPdoSchema
         INNER JOIN [sys].[columns] AS [iccol]
             ON [iccol].[object_id] = [ic].[object_id] AND [iccol].[column_id] = [ic].[column_id]
         WHERE [i].[object_id] = OBJECT_ID(:fullName)
-        ORDER BY [ic].[key_ordinal] ASC
+        ORDER BY [index_is_primary] DESC, [ic].[key_ordinal] ASC
         SQL;
 
         $resolvedName = $this->resolveTableName($tableName);
