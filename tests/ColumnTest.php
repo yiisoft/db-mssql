@@ -4,16 +4,24 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use PHPUnit\Framework\TestCase;
+use PDO;
+use Yiisoft\Db\Command\Param;
+use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Column\BinaryColumn;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Schema\Column\BooleanColumn;
+use Yiisoft\Db\Schema\Column\DoubleColumn;
+use Yiisoft\Db\Schema\Column\IntegerColumn;
+use Yiisoft\Db\Schema\Column\StringColumn;
+use Yiisoft\Db\Tests\Common\CommonColumnTest;
 
 use function str_repeat;
 
 /**
  * @group mssql
  */
-final class ColumnSchemaTest extends TestCase
+final class ColumnTest extends CommonColumnTest
 {
     use TestTrait;
 
@@ -59,5 +67,45 @@ final class ColumnSchemaTest extends TestCase
         $this->assertFalse($boolColPhpType);
 
         $db->close();
+    }
+
+    public function testColumnInstance()
+    {
+        $db = $this->getConnection(true);
+        $schema = $db->getSchema();
+        $tableSchema = $schema->getTableSchema('type');
+
+        $this->assertInstanceOf(IntegerColumn::class, $tableSchema->getColumn('int_col'));
+        $this->assertInstanceOf(StringColumn::class, $tableSchema->getColumn('char_col'));
+        $this->assertInstanceOf(DoubleColumn::class, $tableSchema->getColumn('float_col'));
+        $this->assertInstanceOf(BinaryColumn::class, $tableSchema->getColumn('blob_col'));
+        $this->assertInstanceOf(BooleanColumn::class, $tableSchema->getColumn('bool_col'));
+    }
+
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider::predefinedTypes */
+    public function testPredefinedType(string $className, string $type, string $phpType)
+    {
+        parent::testPredefinedType($className, $type, $phpType);
+    }
+
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider::dbTypecastColumns */
+    public function testDbTypecastColumns(string $className, array $values)
+    {
+        parent::testDbTypecastColumns($className, $values);
+    }
+
+    public function testBinaryColumn()
+    {
+        $binaryCol = new BinaryColumn();
+        $binaryCol->dbType('varbinary');
+
+        $this->assertEquals(
+            new Expression('CONVERT(VARBINARY(MAX), 0x101112)'),
+            $binaryCol->dbTypecast("\x10\x11\x12"),
+        );
+        $this->assertEquals(
+            new Expression('CONVERT(VARBINARY(MAX), 0x101112)'),
+            $binaryCol->dbTypecast(new Param("\x10\x11\x12", PDO::PARAM_LOB)),
+        );
     }
 }

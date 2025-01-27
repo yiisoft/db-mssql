@@ -16,7 +16,6 @@ use Yiisoft\Db\QueryBuilder\AbstractDQLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\Condition\InCondition;
 use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
 
-use function array_merge;
 use function preg_match;
 
 /**
@@ -47,11 +46,12 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
 
     protected function defaultExpressionBuilders(): array
     {
-        return array_merge(parent::defaultExpressionBuilders(), [
+        return [
+            ...parent::defaultExpressionBuilders(),
             InCondition::class => InConditionBuilder::class,
             LikeCondition::class => LikeConditionBuilder::class,
             Expression::class => ExpressionBuilder::class,
-        ]);
+        ];
     }
 
     /**
@@ -86,7 +86,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         $sql .= $this->separator . $orderByString;
 
         /**
-         * @link http://technet.microsoft.com/en-us/library/gg699618.aspx
+         * @link https://technet.microsoft.com/en-us/library/gg699618.aspx
          */
         $offsetString = $this->hasOffset($offset) ?
             ($offset instanceof ExpressionInterface ? $this->buildExpression($offset) : (string)$offset) : '0';

@@ -38,8 +38,8 @@ final class DecimalTest extends TestCase
 
         $tableSchema = $db->getTableSchema('decimal_default');
 
-        $this->assertSame('decimal(38,0)', $tableSchema?->getColumn('Mydecimal')->getDbType());
-        $this->assertSame('double', $tableSchema?->getColumn('Mydecimal')->getPhpType());
+        $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
+        $this->assertSame('float', $tableSchema?->getColumn('Mydecimal')->getPhpType());
         $this->assertSame(38, $tableSchema?->getColumn('Mydecimal')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
 
@@ -86,8 +86,8 @@ final class DecimalTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('decimal_default');
 
-        $this->assertSame('decimal(38,0)', $tableSchema?->getColumn('Mydecimal')->getDbType());
-        $this->assertSame('double', $tableSchema?->getColumn('Mydecimal')->getPhpType());
+        $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
+        $this->assertSame('float', $tableSchema?->getColumn('Mydecimal')->getPhpType());
         $this->assertSame(38, $tableSchema?->getColumn('Mydecimal')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
 
@@ -189,7 +189,7 @@ final class DecimalTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
+            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
         );
 
         $command->insert(
@@ -266,7 +266,7 @@ final class DecimalTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
+            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
         );
 
         $command->insert(

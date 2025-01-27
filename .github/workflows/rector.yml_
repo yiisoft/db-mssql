@@ -1,0 +1,18 @@
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - '.github/workflows/rector.yml'
+      - 'composer.json'
+      - 'rector.php'
+
+name: rector
+
+jobs:
+  rector:
+    uses: yiisoft/actions/.github/workflows/rector.yml@master
+    with:
+      os: >-
+        ['ubuntu-latest']
+      php: >-
+        ['8.3']

@@ -24,17 +24,17 @@ final class DsnTest extends TestCase
 
     public function testAsStringWithDatabaseName(): void
     {
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433;', (new Dsn('sqlsrv', '127.0.0.1'))->asString());
+        $this->assertSame('sqlsrv:Server=127.0.0.1,1433', (new Dsn('sqlsrv', '127.0.0.1'))->asString());
     }
 
     public function testAsStringWithDatabaseNameWithEmptyString(): void
     {
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433;', (new Dsn('sqlsrv', '127.0.0.1', ''))->asString());
+        $this->assertSame('sqlsrv:Server=127.0.0.1,1433', (new Dsn('sqlsrv', '127.0.0.1', ''))->asString());
     }
 
     public function testAsStringWithDatabaseNameWithNull(): void
     {
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433;', (new Dsn('sqlsrv', '127.0.0.1', null))->asString());
+        $this->assertSame('sqlsrv:Server=127.0.0.1,1433', (new Dsn('sqlsrv', '127.0.0.1', null))->asString());
     }
 
     public function testAsStringWithEmptyPort(): void

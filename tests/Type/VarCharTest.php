@@ -11,6 +11,7 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -38,7 +39,7 @@ final class VarCharTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        string $defaultValue
+        string|Expression $defaultValue
     ): void {
         $db = $this->buildTable();
 
@@ -47,7 +48,7 @@ final class VarCharTest extends TestCase
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('varchar_default')->execute();
     }
@@ -92,7 +93,7 @@ final class VarCharTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        string $defaultValue
+        string|Expression $defaultValue
     ): void {
         $this->setFixture('Type/varchar.sql');
 
@@ -102,7 +103,7 @@ final class VarCharTest extends TestCase
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('varchar_default')->execute();
     }
@@ -191,7 +192,7 @@ final class VarCharTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]String or binary data would be truncated'
+            '[SQL Server]String or binary data would be truncated'
         );
 
         $command->insert('varchar', ['Myvarchar1' => '01234567891'])->execute();

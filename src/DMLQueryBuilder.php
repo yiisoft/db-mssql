@@ -43,17 +43,17 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         $insertedCols = [];
         $returnColumns = array_intersect_key($tableSchema?->getColumns() ?? [], array_flip($primaryKeys));
 
-        foreach ($returnColumns as $returnColumn) {
+        foreach ($returnColumns as $columnName => $returnColumn) {
             $dbType = $returnColumn->getDbType();
 
             if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'], true)) {
                 $dbType .= '(MAX)';
             } elseif ($dbType === 'timestamp') {
-                $dbType = $returnColumn->isAllowNull() ? 'varbinary(8)' : 'binary(8)';
+                $dbType = $returnColumn->isNotNull() ? 'binary(8)' : 'varbinary(8)';
             }
 
-            $quotedName = $this->quoter->quoteColumnName($returnColumn->getName());
-            $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isAllowNull() ? 'NULL' : '');
+            $quotedName = $this->quoter->quoteColumnName($columnName);
+            $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isNotNull() ? '' : 'NULL');
             $insertedCols[] = 'INSERTED.' . $quotedName;
         }
 

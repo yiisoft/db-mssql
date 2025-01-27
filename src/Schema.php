@@ -14,31 +14,35 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
-use Yiisoft\Db\Schema\Builder\ColumnInterface;
-use Yiisoft\Db\Schema\ColumnSchemaInterface;
+use Yiisoft\Db\Mssql\Column\ColumnFactory;
+use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
+use function array_change_key_case;
+use function array_fill_keys;
 use function array_map;
-use function explode;
 use function is_array;
 use function md5;
-use function preg_match;
 use function serialize;
 use function str_replace;
-use function strcasecmp;
-use function stripos;
 
 /**
  * Implements the MSSQL Server specific schema, supporting MSSQL Server 2017 and above.
  *
  * @psalm-type ColumnArray = array{
  *   column_name: string,
+ *   column_default: string|null,
  *   is_nullable: string,
  *   data_type: string,
- *   column_default: string|null,
+ *   size: int|string|null,
+ *   numeric_scale: int|string|null,
  *   is_identity: string,
  *   is_computed: string,
- *   comment: null|string
+ *   comment: string|null,
+ *   primaryKey: bool,
+ *   schema: string|null,
+ *   table: string
  * }
  * @psalm-type ConstraintArray = array<
  *   array-key,
@@ -63,65 +67,9 @@ final class Schema extends AbstractPdoSchema
      */
     protected string|null $defaultSchema = 'dbo';
 
-    /**
-     * Mapping from physical column types (keys) to abstract column types (values).
-     *
-     * @var string[]
-     */
-    private const TYPE_MAP = [
-        /** Exact numbers */
-        'bigint' => self::TYPE_BIGINT,
-        'numeric' => self::TYPE_DECIMAL,
-        'bit' => self::TYPE_SMALLINT,
-        'smallint' => self::TYPE_SMALLINT,
-        'decimal' => self::TYPE_DECIMAL,
-        'smallmoney' => self::TYPE_MONEY,
-        'int' => self::TYPE_INTEGER,
-        'tinyint' => self::TYPE_TINYINT,
-        'money' => self::TYPE_MONEY,
-
-        /** Approximate numbers */
-        'float' => self::TYPE_FLOAT,
-        'double' => self::TYPE_DOUBLE,
-        'real' => self::TYPE_FLOAT,
-
-        /** Date and time */
-        'date' => self::TYPE_DATE,
-        'datetimeoffset' => self::TYPE_DATETIME,
-        'datetime2' => self::TYPE_DATETIME,
-        'smalldatetime' => self::TYPE_DATETIME,
-        'datetime' => self::TYPE_DATETIME,
-        'time' => self::TYPE_TIME,
-
-        /** Character strings */
-        'char' => self::TYPE_CHAR,
-        'varchar' => self::TYPE_STRING,
-        'text' => self::TYPE_TEXT,
-
-        /** Unicode character strings */
-        'nchar' => self::TYPE_CHAR,
-        'nvarchar' => self::TYPE_STRING,
-        'ntext' => self::TYPE_TEXT,
-
-        /** Binary strings */
-        'binary' => self::TYPE_BINARY,
-        'varbinary' => self::TYPE_BINARY,
-        'image' => self::TYPE_BINARY,
-
-        /**
-         * Other data types 'cursor' type can't be used with tables
-         */
-        'timestamp' => self::TYPE_TIMESTAMP,
-        'hierarchyid' => self::TYPE_STRING,
-        'uniqueidentifier' => self::TYPE_STRING,
-        'sql_variant' => self::TYPE_STRING,
-        'xml' => self::TYPE_STRING,
-        'table' => self::TYPE_STRING,
-    ];
-
-    public function createColumn(string $type, array|int|string|null $length = null): ColumnInterface
+    public function getColumnFactory(): ColumnFactoryInterface
     {
-        return new Column($type, $length);
+        return new ColumnFactory();
     }
 
     /**
@@ -189,7 +137,7 @@ final class Schema extends AbstractPdoSchema
     {
         $schemaName = $tableSchema->getSchemaName()
             ? "N'" . (string) $tableSchema->getSchemaName() . "'" : 'SCHEMA_NAME()';
-        $tableName = 'N' . (string) $this->db->getQuoter()->quoteValue($tableSchema->getName());
+        $tableName = 'N' . $this->db->getQuoter()->quoteValue($tableSchema->getName());
 
         $sql = <<<SQL
         SELECT [value]
@@ -274,7 +222,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTablePrimaryKey(string $tableName): Constraint|null
     {
-        /** @psalm-var mixed $tablePrimaryKey */
         $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
         return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
@@ -292,7 +239,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableForeignKeys(string $tableName): array
     {
-        /** @psalm-var mixed $tableForeignKeys */
         $tableForeignKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
         return is_array($tableForeignKeys) ? $tableForeignKeys : [];
     }
@@ -329,7 +275,7 @@ final class Schema extends AbstractPdoSchema
         $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $indexes */
-        $indexes = array_map('array_change_key_case', $indexes);
+        $indexes = array_map(array_change_key_case(...), $indexes);
         $indexes = DbArrayHelper::index($indexes, null, ['name']);
 
         $result = [];
@@ -365,7 +311,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableUniques(string $tableName): array
     {
-        /** @psalm-var mixed $tableUniques */
         $tableUniques = $this->loadTableConstraints($tableName, self::UNIQUES);
         return is_array($tableUniques) ? $tableUniques : [];
     }
@@ -383,7 +328,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableChecks(string $tableName): array
     {
-        /** @psalm-var mixed $tableCheck */
         $tableCheck = $this->loadTableConstraints($tableName, self::CHECKS);
         return is_array($tableCheck) ? $tableCheck : [];
     }
@@ -401,95 +345,30 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableDefaultValues(string $tableName): array
     {
-        /** @psalm-var mixed $tableDefault */
         $tableDefault = $this->loadTableConstraints($tableName, self::DEFAULTS);
         return is_array($tableDefault) ? $tableDefault : [];
     }
 
     /**
-     * Creates a column schema for the database.
-     *
-     * This method may be overridden by child classes to create a DBMS-specific column schema.
-     *
-     * @param string $name Name of the column.
-     */
-    protected function createColumnSchema(string $name): ColumnSchema
-    {
-        return new ColumnSchema($name);
-    }
-
-    /**
-     * Loads the column information into a {@see ColumnSchemaInterface} object.
+     * Loads the column information into a {@see ColumnInterface} object.
      *
      * @psalm-param ColumnArray $info The column information.
      */
-    protected function loadColumnSchema(array $info): ColumnSchemaInterface
+    private function loadColumn(array $info): ColumnInterface
     {
-        $dbType = $info['data_type'];
-
-        $column = $this->createColumnSchema($info['column_name']);
-        $column->allowNull($info['is_nullable'] === 'YES');
-        $column->dbType($dbType);
-        $column->enumValues([]); // MSSQL has only vague equivalents to enum.
-        $column->primaryKey(false); // The primary key will be determined in the `findColumns()` method.
-        $column->autoIncrement($info['is_identity'] === '1');
-        $column->computed($info['is_computed'] === '1');
-        $column->unsigned(stripos($dbType, 'unsigned') !== false);
-        $column->comment($info['comment'] ?? '');
-        $column->type(self::TYPE_STRING);
-
-        if (preg_match('/^(\w+)(?:\(([^)]+)\))?/', $dbType, $matches)) {
-            $type = $matches[1];
-
-            if (isset(self::TYPE_MAP[$type])) {
-                $column->type(self::TYPE_MAP[$type]);
-            }
-
-            if ($type === 'bit') {
-                $column->type(self::TYPE_BOOLEAN);
-            }
-
-            if (!empty($matches[2])) {
-                $values = explode(',', $matches[2]);
-                $column->precision((int) $values[0]);
-                $column->size((int) $values[0]);
-
-                if (isset($values[1])) {
-                    $column->scale((int) $values[1]);
-                }
-            }
-        }
-
-        $column->phpType($this->getColumnPhpType($column));
-        $column->defaultValue($this->normalizeDefaultValue($info['column_default'], $column));
-
-        return $column;
-    }
-
-    /**
-     * Converts column's default value according to {@see ColumnSchema::phpType} after retrieval from the database.
-     *
-     * @param string|null $defaultValue The default value retrieved from the database.
-     * @param ColumnSchemaInterface $column The column schema object.
-     *
-     * @return mixed The normalized default value.
-     */
-    private function normalizeDefaultValue(?string $defaultValue, ColumnSchemaInterface $column): mixed
-    {
-        if (
-            $defaultValue === null
-            || $defaultValue === '(NULL)'
-            || $column->isPrimaryKey()
-            || $column->isComputed()
-        ) {
-            return null;
-        }
-
-        $value = $this->parseDefaultValue($defaultValue);
-
-        return is_numeric($value)
-            ? $column->phpTypeCast($value)
-            : $value;
+        return $this->getColumnFactory()->fromDbType($info['data_type'], [
+            'autoIncrement' => $info['is_identity'] === '1',
+            'comment' => $info['comment'],
+            'computed' => $info['is_computed'] === '1',
+            'defaultValueRaw' => $info['column_default'],
+            'name' => $info['column_name'],
+            'notNull' => $info['is_nullable'] !== 'YES',
+            'primaryKey' => $info['primaryKey'],
+            'scale' => $info['numeric_scale'] !== null ? (int) $info['numeric_scale'] : null,
+            'schema' => $info['schema'],
+            'size' => $info['size'] !== null ? (int) $info['size'] : null,
+            'table' => $info['table'],
+        ]);
     }
 
     /**
@@ -503,61 +382,46 @@ final class Schema extends AbstractPdoSchema
      */
     protected function findColumns(TableSchemaInterface $table): bool
     {
-        $columnsTableName = 'INFORMATION_SCHEMA.COLUMNS';
+        $schemaName = $table->getSchemaName();
+        $tableName = $table->getName();
 
-        $whereParams = [':table_name' => $table->getName()];
+        $columnsTableName = '[INFORMATION_SCHEMA].[COLUMNS]';
         $whereSql = '[t1].[table_name] = :table_name';
+        $whereParams = [':table_name' => $tableName];
 
         if ($table->getCatalogName() !== null) {
-            $columnsTableName = "{$table->getCatalogName()}.$columnsTableName";
+            $columnsTableName = "[{$table->getCatalogName()}].$columnsTableName";
             $whereSql .= ' AND [t1].[table_catalog] = :catalog';
             $whereParams[':catalog'] = $table->getCatalogName();
         }
 
-        if ($table->getSchemaName() !== null) {
-            $whereSql .= " AND [t1].[table_schema] = '{$table->getSchemaName()}'";
+        if ($schemaName !== null) {
+            $whereSql .= ' AND [t1].[table_schema] = :schema_name';
+            $whereParams[':schema_name'] = $schemaName;
         }
-
-        $columnsTableName = $this->db->getQuoter()->quoteTableName($columnsTableName);
 
         $sql = <<<SQL
         SELECT
             [t1].[column_name],
+            [t1].[column_default],
             [t1].[is_nullable],
-        CASE WHEN [t1].[data_type] IN ('char','varchar','nchar','nvarchar','binary','varbinary') THEN
-        CASE WHEN [t1].[character_maximum_length] = NULL OR [t1].[character_maximum_length] = -1 THEN
-            [t1].[data_type]
-        ELSE
-            [t1].[data_type] + '(' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[character_maximum_length]))) + ')'
-        END
-        WHEN [t1].[data_type] IN ('decimal','numeric') THEN
-        CASE WHEN [t1].[numeric_precision] = NULL OR [t1].[numeric_precision] = -1 THEN
-            [t1].[data_type]
-        ELSE
-            [t1].[data_type] + '(' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[numeric_precision]))) + ',' + LTRIM(RTRIM(CONVERT(CHAR,[t1].[numeric_scale]))) + ')'
-        END
-        ELSE
-            [t1].[data_type]
-        END AS 'data_type',
-        [t1].[column_default],
-        COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsIdentity') AS is_identity,
-        COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsComputed') AS is_computed,
-        (
-        SELECT CONVERT(VARCHAR, [t2].[value])
-        FROM [sys].[extended_properties] AS [t2]
-        WHERE
-        [t2].[class] = 1 AND
-        [t2].[class_desc] = 'OBJECT_OR_COLUMN' AND
-        [t2].[name] = 'MS_Description' AND
-        [t2].[major_id] = OBJECT_ID([t1].[TABLE_SCHEMA] + '.' + [t1].[table_name]) AND
-        [t2].[minor_id] = COLUMNPROPERTY(OBJECT_ID([t1].[TABLE_SCHEMA] + '.' + [t1].[TABLE_NAME]), [t1].[COLUMN_NAME], 'ColumnID')
-        ) as comment
+            [t1].[data_type],
+            COALESCE(NULLIF([t1].[character_maximum_length], -1), [t1].[numeric_precision], [t1].[datetime_precision]) AS [size],
+            [t1].[numeric_scale],
+            COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsIdentity') AS [is_identity],
+            COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsComputed') AS [is_computed],
+            [t2].[value] as [comment]
         FROM $columnsTableName AS [t1]
+        LEFT JOIN [sys].[extended_properties] AS [t2]
+            ON [t2].[class] = 1
+                AND [t2].[class_desc] = 'OBJECT_OR_COLUMN'
+                AND [t2].[name] = 'MS_Description'
+                AND [t2].[major_id] = OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name])
+                AND [t2].[minor_id] = COLUMNPROPERTY([t2].[major_id], [t1].[column_name], 'ColumnID')
         WHERE $whereSql
         SQL;
 
         try {
-            /** @psalm-var ColumnArray[] $columns */
             $columns = $this->db->createCommand($sql, $whereParams)->queryAll();
 
             if (empty($columns)) {
@@ -567,20 +431,23 @@ final class Schema extends AbstractPdoSchema
             return false;
         }
 
-        foreach ($columns as $column) {
-            $column = $this->loadColumnSchema($column);
-            foreach ($table->getPrimaryKey() as $primaryKey) {
-                if (strcasecmp($column->getName(), $primaryKey) === 0) {
-                    $column->primaryKey(true);
-                    break;
-                }
-            }
+        $primaryKeys = array_fill_keys($table->getPrimaryKey(), true);
+
+        foreach ($columns as $info) {
+            $info = array_change_key_case($info);
+
+            /** @psalm-var ColumnArray $info */
+            $info['primaryKey'] = isset($primaryKeys[$info['column_name']]);
+            $info['schema'] = $schemaName;
+            $info['table'] = $tableName;
+
+            $column = $this->loadColumn($info);
 
             if ($column->isPrimaryKey() && $column->isAutoIncrement()) {
                 $table->sequenceName('');
             }
 
-            $table->column($column->getName(), $column);
+            $table->column($info['column_name'], $column);
         }
 
         return true;
@@ -833,7 +700,7 @@ final class Schema extends AbstractPdoSchema
         $constraints = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
         /** @psalm-var array[] $constraints */
-        $constraints = array_map('array_change_key_case', $constraints);
+        $constraints = array_map(array_change_key_case(...), $constraints);
         $constraints = DbArrayHelper::index($constraints, null, ['type', 'name']);
 
         $result = [
@@ -902,12 +769,10 @@ final class Schema extends AbstractPdoSchema
      * @param string $name The table name.
      *
      * @return array The cache key.
-     *
-     * @psalm-suppress DeprecatedMethod
      */
     protected function getCacheKey(string $name): array
     {
-        return array_merge([self::class], $this->generateCacheKey(), [$this->getRawTableName($name)]);
+        return [self::class, ...$this->generateCacheKey(), $this->db->getQuoter()->getRawTableName($name)];
     }
 
     /**
@@ -919,19 +784,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function getCacheTag(): string
     {
-        return md5(serialize(array_merge([self::class], $this->generateCacheKey())));
-    }
-
-    private function parseDefaultValue(string $value): string
-    {
-        if (preg_match('/^\'(.*)\'$/', $value, $matches)) {
-            return $matches[1];
-        }
-
-        if (preg_match('/^\((.*)\)$/', $value, $matches)) {
-            return $this->parseDefaultValue($matches[1]);
-        }
-
-        return $value;
+        return md5(serialize([self::class, ...$this->generateCacheKey()]));
     }
 }

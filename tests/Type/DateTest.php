@@ -191,7 +191,7 @@ final class DateTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22007]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Conversion failed when converting date and/or time from character string.'
+            '[SQL Server]Conversion failed when converting date and/or time from character string.'
         );
 
         $db->createCommand()->insert('date', ['Mydate1' => '0000-00-00'])->execute();

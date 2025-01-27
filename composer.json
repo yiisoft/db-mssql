@@ -13,25 +13,35 @@
     "type": "library",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/yiisoft/db-mssql/issues",
+        "issues": "https://github.com/yiisoft/db-mssql/issues?state=open",
+        "source": "https://github.com/yiisoft/db-mssql",
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
-        "irc": "irc://irc.freenode.net/yii",
-        "chat": "https://t.me/yii3en",
-        "source": "https://github.com/yiisoft/db-mssql"
+        "irc": "ircs://irc.libera.chat:6697/yii",
+        "chat": "https://t.me/yii3en"
     },
+    "funding": [
+        {
+            "type": "opencollective",
+            "url": "https://opencollective.com/yiisoft"
+        },
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/yiisoft"
+        }
+    ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-pdo": "*",
-        "yiisoft/db": "^1.2"
+        "yiisoft/db": "dev-master"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
-        "phpunit/phpunit": "^9.6|^10.0",
-        "rector/rector": "^1.0",
+        "phpunit/phpunit": "^10.0",
+        "rector/rector": "^2.0",
         "roave/infection-static-analysis-plugin": "^1.16",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.30|^5.20",
+        "vimeo/psalm": "^5.25",
         "yiisoft/aliases": "^2.0",
         "yiisoft/cache-file": "^3.1",
         "yiisoft/var-dumper": "^1.5"

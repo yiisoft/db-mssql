@@ -12,7 +12,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Column;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Dsn;
 use Yiisoft\Db\Mssql\Driver;
@@ -313,7 +313,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testShowDatabases(): void
     {
-        $dsn = new Dsn('sqlsrv', 'localhost');
+        $dsn = new Dsn(options: ['Encrypt' => 'no']);
         $db = new Connection(
             new Driver($dsn->asString(), 'SA', 'YourStrong!Passw0rd'),
             DbHelper::getSchemaCache(),
@@ -321,7 +321,7 @@ final class CommandTest extends CommonCommandTest
 
         $command = $db->createCommand();
 
-        $this->assertSame('sqlsrv:Server=localhost,1433;', $db->getDriver()->getDsn());
+        $this->assertSame('sqlsrv:Server=127.0.0.1,1433;Encrypt=no', $db->getDriver()->getDsn());
         $this->assertSame(['yiitest'], $command->showDatabases());
     }
 
@@ -336,14 +336,15 @@ final class CommandTest extends CommonCommandTest
         }
 
         $command->createTable('column_with_constraint', ['id' => 'pk'])->execute();
-        $command->addColumn('column_with_constraint', 'field', (new Column('integer'))->null()->asString())->execute();
-        $command->alterColumn('column_with_constraint', 'field', (new Column('string', 40))->notNull()->asString())->execute();
+        $command->addColumn('column_with_constraint', 'field', ColumnBuilder::integer()->null())->execute();
+        $command->alterColumn('column_with_constraint', 'field', ColumnBuilder::string(40)->notNull())->execute();
 
         $fieldCol = $db->getTableSchema('column_with_constraint', true)->getColumn('field');
 
-        $this->assertFalse($fieldCol->isAllowNull());
+        $this->assertTrue($fieldCol->isNotNull());
         $this->assertNull($fieldCol->getDefaultValue());
-        $this->assertSame('nvarchar(40)', $fieldCol->getDbType());
+        $this->assertSame('nvarchar', $fieldCol->getDbType());
+        $this->assertSame(40, $fieldCol->getSize());
 
         $command->dropTable('column_with_constraint');
     }

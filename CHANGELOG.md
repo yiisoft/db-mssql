@@ -2,7 +2,28 @@
 
 ## 2.0.0 under development
 
+- New #277: Implement `ColumnSchemaInterface` classes according to the data type of database table columns
+  for type casting performance. Related with yiisoft/db#752 (@Tigrov)
 - Enh #293: Implement `SqlParser` and `ExpressionBuilder` driver classes (@Tigrov)
+- Chg #306: Remove parameter `$withColumn` from `Quoter::getTableNameParts()` method (@Tigrov)
+- Chg #308: Replace call of `SchemaInterface::getRawTableName()` to `QuoterInterface::getRawTableName()` (@Tigrov)
+- Enh #312: Refactor `bit` type (@Tigrov)
+- Enh #315: Refactor PHP type of `ColumnSchemaInterface` instances (@Tigrov)
+- Enh #317: Raise minimum PHP version to `^8.1` with minor refactoring (@Tigrov)
+- New #316, #327: Implement `ColumnFactory` class (@Tigrov)
+- Enh #319: Separate column type constants (@Tigrov)
+- New #320: Realize `ColumnBuilder` class (@Tigrov)
+- Enh #321: Update according changes in `ColumnSchemaInterface` (@Tigrov)
+- New #322, #330: Add `ColumnDefinitionBuilder` class (@Tigrov)
+- Enh #323: Refactor `Dsn` class (@Tigrov)
+- Enh #324: Use constructor to create columns and initialize properties (@Tigrov)
+- Enh #327: Refactor `Schema::findColumns()` method (@Tigrov)
+- Enh #328: Refactor `Schema::normalizeDefaultValue()` method and move it to `ColumnFactory` class (@Tigrov)
+- Enh #331: Refactor according to changes #902 in `yiisoft/db` package (@Tigrov)
+- Chg #333: Update `QueryBuilder` constructor (@Tigrov)
+- Enh #332: Use `ColumnDefinitionBuilder` to generate table column SQL representation (@Tigrov)
+- Enh #335: Remove `ColumnInterface` (@Tigrov)
+- Enh #337: Rename `ColumnSchemaInterface` to `ColumnInterface` (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 

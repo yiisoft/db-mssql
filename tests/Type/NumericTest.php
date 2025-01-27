@@ -38,8 +38,8 @@ final class NumericTest extends TestCase
 
         $tableSchema = $db->getTableSchema('numeric_default');
 
-        $this->assertSame('numeric(38,0)', $tableSchema?->getColumn('Mynumeric')->getDbType());
-        $this->assertSame('double', $tableSchema?->getColumn('Mynumeric')->getPhpType());
+        $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
+        $this->assertSame('float', $tableSchema?->getColumn('Mynumeric')->getPhpType());
         $this->assertSame(38, $tableSchema?->getColumn('Mynumeric')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mynumeric')->getDefaultValue());
 
@@ -86,8 +86,8 @@ final class NumericTest extends TestCase
         $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('numeric_default');
 
-        $this->assertSame('numeric(38,0)', $tableSchema?->getColumn('Mynumeric')->getDbType());
-        $this->assertSame('double', $tableSchema?->getColumn('Mynumeric')->getPhpType());
+        $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
+        $this->assertSame('float', $tableSchema?->getColumn('Mynumeric')->getPhpType());
         $this->assertSame(38, $tableSchema?->getColumn('Mynumeric')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mynumeric')->getDefaultValue());
 
@@ -245,7 +245,7 @@ final class NumericTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
+            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
         );
 
         $command->insert(

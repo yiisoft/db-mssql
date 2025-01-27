@@ -13,18 +13,22 @@ use Yiisoft\Db\Connection\AbstractDsn;
  */
 final class Dsn extends AbstractDsn
 {
+    /**
+     * @psalm-param array<string,string> $options
+     */
     public function __construct(
-        private string $driver,
-        private string $host,
-        private string|null $databaseName = null,
-        private string $port = '1433'
+        string $driver = 'sqlsrv',
+        string $host = '127.0.0.1',
+        string|null $databaseName = null,
+        string|null $port = '1433',
+        array $options = []
     ) {
-        parent::__construct($driver, $host, $databaseName, $port);
+        parent::__construct($driver, $host, $databaseName, $port, $options);
     }
 
     /**
      * @return string the Data Source Name, or DSN, has the information required to connect to the database.
-     * Please refer to the [PHP manual](http://php.net/manual/en/pdo.construct.php) on the format of the DSN string.
+     * Please refer to the [PHP manual](https://php.net/manual/en/pdo.construct.php) on the format of the DSN string.
      *
      * The `driver` array key is used as the driver prefix of the DSN, all further key-value pairs are rendered as
      * `key=value` and concatenated by `;`. For example:
@@ -39,16 +43,26 @@ final class Dsn extends AbstractDsn
      */
     public function asString(): string
     {
-        if ($this->port !== '') {
-            $server = "Server=$this->host,$this->port;";
-        } else {
-            $server = "Server=$this->host;";
+        $driver = $this->getDriver();
+        $host = $this->getHost();
+        $port = $this->getPort();
+        $databaseName = $this->getDatabaseName();
+        $options = $this->getOptions();
+
+        $dsn = "$driver:Server=$host";
+
+        if (!empty($port)) {
+            $dsn .= ",$port";
         }
 
-        if (!empty($this->databaseName)) {
-            $dsn = "$this->driver:" . $server . "Database=$this->databaseName";
-        } else {
-            $dsn = "$this->driver:" . $server;
+        if (!empty($databaseName)) {
+            $dsn .= ";Database=$databaseName";
+        }
+
+        if (!empty($options)) {
+            foreach ($options as $key => $value) {
+                $dsn .= ";$key=$value";
+            }
         }
 
         return $dsn;

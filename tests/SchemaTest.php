@@ -11,6 +11,7 @@ use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Schema\SchemaInterface;
@@ -30,9 +31,9 @@ final class SchemaTest extends CommonSchemaTest
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::columns
      */
-    public function testColumnSchema(array $columns, string $tableName): void
+    public function testColumns(array $columns, string $tableName): void
     {
-        parent::testColumnSchema($columns, $tableName);
+        parent::testColumns($columns, $tableName);
     }
 
     /**
@@ -70,18 +71,6 @@ final class SchemaTest extends CommonSchemaTest
         $schemas = $schema->getSchemaNames();
 
         $this->assertSame(['dbo', 'guest'], $schemas);
-    }
-
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider::columnsTypeChar
-     */
-    public function testGetStringFieldsSize(
-        string $columnName,
-        string $columnType,
-        int|null $columnSize,
-        string $columnDbType
-    ): void {
-        parent::testGetStringFieldsSize($columnName, $columnType, $columnSize, $columnDbType);
     }
 
     public function testGetViewNames(): void
@@ -155,7 +144,8 @@ final class SchemaTest extends CommonSchemaTest
 
     public function withIndexDataProvider(): array
     {
-        return array_merge(parent::withIndexDataProvider(), [
+        return [
+            ...parent::withIndexDataProvider(),
             [
                 'indexType' => SchemaInterface::INDEX_CLUSTERED,
                 'indexMethod' => null,
@@ -166,7 +156,7 @@ final class SchemaTest extends CommonSchemaTest
                 'indexMethod' => null,
                 'columnType' => 'varchar(16)',
             ],
-        ]);
+        ];
     }
 
     public function testNotConnectionPDO(): void
@@ -195,5 +185,12 @@ final class SchemaTest extends CommonSchemaTest
         $this->assertEquals(-33.22, $table->getColumn('numeric_col')?->getDefaultValue());
 
         $db->close();
+    }
+
+    public function testGetColumnFactory(): void
+    {
+        $db = $this->getConnection();
+
+        $this->assertInstanceOf(ColumnFactory::class, $db->getSchema()->getColumnFactory());
     }
 }

@@ -39,7 +39,7 @@ final class RealTest extends TestCase
         $tableSchema = $db->getTableSchema('real_default');
 
         $this->assertSame('real', $tableSchema?->getColumn('Myreal')->getDbType());
-        $this->assertSame('double', $tableSchema?->getColumn('Myreal')->getPhpType());
+        $this->assertSame('float', $tableSchema?->getColumn('Myreal')->getPhpType());
         $this->assertSame(3.4000000000000000e+038, $tableSchema?->getColumn('Myreal')->getDefaultValue());
 
         $db->createCommand()->dropTable('real_default')->execute();
@@ -86,7 +86,7 @@ final class RealTest extends TestCase
         $tableSchema = $db->getTableSchema('real_default');
 
         $this->assertSame('real', $tableSchema?->getColumn('Myreal')->getDbType());
-        $this->assertSame('double', $tableSchema?->getColumn('Myreal')->getPhpType());
+        $this->assertSame('float', $tableSchema?->getColumn('Myreal')->getPhpType());
         $this->assertSame(3.4000000000000000e+038, $tableSchema?->getColumn('Myreal')->getDefaultValue());
 
         $db->createCommand()->dropTable('real_default')->execute();
@@ -183,7 +183,7 @@ final class RealTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow error for type real'
+            '[SQL Server]Arithmetic overflow error for type real'
         );
 
         $command->insert('real', ['Myreal1' => new Expression('4.4E+38')])->execute();
@@ -253,7 +253,7 @@ final class RealTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow error for type real'
+            '[SQL Server]Arithmetic overflow error for type real'
         );
 
         $command->insert('real', ['Myreal1' => new Expression('-4.4E+38')])->execute();

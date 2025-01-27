@@ -39,7 +39,7 @@ final class FloatTest extends TestCase
         $tableSchema = $db->getTableSchema('float_default');
 
         $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
-        $this->assertSame('double', $tableSchema?->getColumn('Myfloat')->getPhpType());
+        $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getPhpType());
         $this->assertSame(2.2300000000000001e-308, $tableSchema?->getColumn('Myfloat')->getDefaultValue());
 
         $db->createCommand()->insert('float_default', [])->execute();
@@ -86,7 +86,7 @@ final class FloatTest extends TestCase
         $tableSchema = $db->getTableSchema('float_default');
 
         $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
-        $this->assertSame('double', $tableSchema?->getColumn('Myfloat')->getPhpType());
+        $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getPhpType());
         $this->assertSame(2.2300000000000001e-308, $tableSchema?->getColumn('Myfloat')->getDefaultValue());
 
         $command = $db->createCommand();
@@ -186,7 +186,7 @@ final class FloatTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
+            "[SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
         );
 
         $command->insert('float', ['Myfloat1' => new Expression('1.80E+308')])->execute();
@@ -256,7 +256,7 @@ final class FloatTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
+            "[SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
         );
 
         $command->insert('float', ['Myfloat1' => new Expression('-1.80E+308')])->execute();

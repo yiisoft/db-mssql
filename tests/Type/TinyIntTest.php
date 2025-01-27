@@ -38,7 +38,7 @@ final class TinyIntTest extends TestCase
         $tableSchema = $db->getTableSchema('tinyint_default');
 
         $this->assertSame('tinyint', $tableSchema?->getColumn('Mytinyint')->getDbType());
-        $this->assertSame('integer', $tableSchema?->getColumn('Mytinyint')->getPhpType());
+        $this->assertSame('int', $tableSchema?->getColumn('Mytinyint')->getPhpType());
         $this->assertSame(255, $tableSchema?->getColumn('Mytinyint')->getDefaultValue());
 
         $db->createCommand()->dropTable('tinyint_default')->execute();
@@ -85,7 +85,7 @@ final class TinyIntTest extends TestCase
         $tableSchema = $db->getTableSchema('tinyint_default');
 
         $this->assertSame('tinyint', $tableSchema?->getColumn('Mytinyint')->getDbType());
-        $this->assertSame('integer', $tableSchema?->getColumn('Mytinyint')->getPhpType());
+        $this->assertSame('int', $tableSchema?->getColumn('Mytinyint')->getPhpType());
         $this->assertSame(255, $tableSchema?->getColumn('Mytinyint')->getDefaultValue());
 
         $db->createCommand()->dropTable('tinyint_default')->execute();
@@ -197,7 +197,7 @@ final class TinyIntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow'
         );
 
         $command->insert('tinyint', ['Mytinyint1' => 256])->execute();
@@ -267,7 +267,7 @@ final class TinyIntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            'SQLSTATE[22003]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow'
         );
 
         $command->insert('tinyint', ['Mytinyint1' => -1])->execute();

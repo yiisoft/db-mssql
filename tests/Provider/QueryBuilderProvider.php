@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
+use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\Condition\InCondition;
@@ -33,6 +35,200 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         ']' => '[]]',
         '\\\\' => '[\\]',
     ];
+
+    public static function alterColumn(): array
+    {
+        return [
+            [
+                'varchar(255)',
+                <<<SQL
+                DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+                DECLARE @columnName VARCHAR(MAX) = 'bar'
+                WHILE 1=1 BEGIN
+                    DECLARE @constraintName NVARCHAR(128)
+                    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                        FROM (
+                            SELECT sc.[constid] object_id
+                            FROM [sys].[sysconstraints] sc
+                            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                            WHERE sc.[id] = OBJECT_ID(@tableName)
+                            UNION
+                            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                        ) cons
+                        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                         WHERE so.[type]='D')
+                    IF @constraintName IS NULL BREAK
+                    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+                END
+                ALTER TABLE [foo1] ALTER COLUMN [bar] varchar(255)
+                SQL,
+            ], [
+                ColumnBuilder::string()->notNull(),
+                <<<SQL
+                DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+                DECLARE @columnName VARCHAR(MAX) = 'bar'
+                WHILE 1=1 BEGIN
+                    DECLARE @constraintName NVARCHAR(128)
+                    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                        FROM (
+                            SELECT sc.[constid] object_id
+                            FROM [sys].[sysconstraints] sc
+                            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                            WHERE sc.[id] = OBJECT_ID(@tableName)
+                            UNION
+                            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                        ) cons
+                        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                         WHERE so.[type]='D')
+                    IF @constraintName IS NULL BREAK
+                    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+                END
+                ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255) NOT NULL
+                SQL,
+            ], [
+                ColumnBuilder::string()->check('LEN(bar) > 5'),
+                <<<SQL
+                DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+                DECLARE @columnName VARCHAR(MAX) = 'bar'
+                WHILE 1=1 BEGIN
+                    DECLARE @constraintName NVARCHAR(128)
+                    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                        FROM (
+                            SELECT sc.[constid] object_id
+                            FROM [sys].[sysconstraints] sc
+                            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                            WHERE sc.[id] = OBJECT_ID(@tableName)
+                            UNION
+                            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                        ) cons
+                        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                         WHERE so.[type]='D')
+                    IF @constraintName IS NULL BREAK
+                    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+                END
+                ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+                ALTER TABLE [foo1] ADD CONSTRAINT [CK_foo1_bar] CHECK (LEN(bar) > 5)
+                SQL,
+            ], [
+                ColumnBuilder::string()->defaultValue(''),
+                <<<SQL
+                DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+                DECLARE @columnName VARCHAR(MAX) = 'bar'
+                WHILE 1=1 BEGIN
+                    DECLARE @constraintName NVARCHAR(128)
+                    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                        FROM (
+                            SELECT sc.[constid] object_id
+                            FROM [sys].[sysconstraints] sc
+                            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                            WHERE sc.[id] = OBJECT_ID(@tableName)
+                            UNION
+                            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                        ) cons
+                        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                         WHERE so.[type]='D')
+                    IF @constraintName IS NULL BREAK
+                    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+                END
+                ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+                ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT '' FOR [bar]
+                SQL,
+            ], [
+                ColumnBuilder::string()->defaultValue('AbCdE'),
+                <<<SQL
+                DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+                DECLARE @columnName VARCHAR(MAX) = 'bar'
+                WHILE 1=1 BEGIN
+                    DECLARE @constraintName NVARCHAR(128)
+                    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                        FROM (
+                            SELECT sc.[constid] object_id
+                            FROM [sys].[sysconstraints] sc
+                            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                            WHERE sc.[id] = OBJECT_ID(@tableName)
+                            UNION
+                            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                        ) cons
+                        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                         WHERE so.[type]='D')
+                    IF @constraintName IS NULL BREAK
+                    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+                END
+                ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(255)
+                ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT 'AbCdE' FOR [bar]
+                SQL,
+            ], [
+                ColumnBuilder::timestamp()->defaultValue(new Expression('CURRENT_TIMESTAMP')),
+                <<<SQL
+                DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+                DECLARE @columnName VARCHAR(MAX) = 'bar'
+                WHILE 1=1 BEGIN
+                    DECLARE @constraintName NVARCHAR(128)
+                    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                        FROM (
+                            SELECT sc.[constid] object_id
+                            FROM [sys].[sysconstraints] sc
+                            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                            WHERE sc.[id] = OBJECT_ID(@tableName)
+                            UNION
+                            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                        ) cons
+                        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                         WHERE so.[type]='D')
+                    IF @constraintName IS NULL BREAK
+                    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+                END
+                ALTER TABLE [foo1] ALTER COLUMN [bar] datetime2(0)
+                ALTER TABLE [foo1] ADD CONSTRAINT [DF_foo1_bar] DEFAULT CURRENT_TIMESTAMP FOR [bar]
+                SQL,
+            ], [
+                ColumnBuilder::string(30)->unique(),
+                <<<SQL
+                DECLARE @tableName VARCHAR(MAX) = '[foo1]'
+                DECLARE @columnName VARCHAR(MAX) = 'bar'
+                WHILE 1=1 BEGIN
+                    DECLARE @constraintName NVARCHAR(128)
+                    SET @constraintName = (SELECT TOP 1 OBJECT_NAME(cons.[object_id])
+                        FROM (
+                            SELECT sc.[constid] object_id
+                            FROM [sys].[sysconstraints] sc
+                            JOIN [sys].[columns] c ON c.[object_id]=sc.[id] AND c.[column_id]=sc.[colid] AND c.[name]=@columnName
+                            WHERE sc.[id] = OBJECT_ID(@tableName)
+                            UNION
+                            SELECT object_id(i.[name]) FROM [sys].[indexes] i
+                            JOIN [sys].[columns] c ON c.[object_id]=i.[object_id] AND c.[name]=@columnName
+                            JOIN [sys].[index_columns] ic ON ic.[object_id]=i.[object_id] AND i.[index_id]=ic.[index_id] AND c.[column_id]=ic.[column_id]
+                            WHERE i.[is_unique_constraint]=1 and i.[object_id]=OBJECT_ID(@tableName)
+                        ) cons
+                        JOIN [sys].[objects] so ON so.[object_id]=cons.[object_id]
+                         WHERE so.[type]='D')
+                    IF @constraintName IS NULL BREAK
+                    EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
+                END
+                ALTER TABLE [foo1] ALTER COLUMN [bar] nvarchar(30)
+                ALTER TABLE [foo1] ADD CONSTRAINT [UQ_foo1_bar] UNIQUE ([bar])
+                SQL,
+            ],
+        ];
+    }
 
     public static function buildCondition(): array
     {
@@ -336,5 +532,112 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         }
 
         return $upsert;
+    }
+
+    public static function buildColumnDefinition(): array
+    {
+        $values = parent::buildColumnDefinition();
+
+        $values[PseudoType::PK][0] = 'int IDENTITY PRIMARY KEY';
+        $values[PseudoType::UPK][0] = 'int IDENTITY PRIMARY KEY';
+        $values[PseudoType::BIGPK][0] = 'bigint IDENTITY PRIMARY KEY';
+        $values[PseudoType::UBIGPK][0] = 'bigint IDENTITY PRIMARY KEY';
+        $values[PseudoType::UUID_PK][0] = 'uniqueidentifier PRIMARY KEY DEFAULT newid()';
+        $values[PseudoType::UUID_PK_SEQ][0] = 'uniqueidentifier PRIMARY KEY DEFAULT newsequentialid()';
+        $values['STRING'][0] = 'nvarchar(255)';
+        $values['STRING(100)'][0] = 'nvarchar(100)';
+        $values['primaryKey()'][0] = 'int IDENTITY PRIMARY KEY';
+        $values['primaryKey(false)'][0] = 'int PRIMARY KEY';
+        $values['smallPrimaryKey()'][0] = 'smallint IDENTITY PRIMARY KEY';
+        $values['smallPrimaryKey(false)'][0] = 'smallint PRIMARY KEY';
+        $values['bigPrimaryKey()'][0] = 'bigint IDENTITY PRIMARY KEY';
+        $values['bigPrimaryKey(false)'][0] = 'bigint PRIMARY KEY';
+        $values['uuidPrimaryKey()'][0] = 'uniqueidentifier PRIMARY KEY DEFAULT newid()';
+        $values['uuidPrimaryKey(false)'][0] = 'uniqueidentifier PRIMARY KEY';
+        $values['boolean()'][0] = 'bit';
+        $values['boolean(100)'][0] = 'bit';
+        $values['bit()'][0] = 'bigint';
+        $values['bit(1)'][0] = 'bit';
+        $values['bit(8)'][0] = 'tinyint';
+        $values['bit(64)'][0] = 'bigint';
+        $values['tinyint(2)'][0] = 'tinyint';
+        $values['smallint(4)'][0] = 'smallint';
+        $values['integer()'][0] = 'int';
+        $values['integer(8)'][0] = 'int';
+        $values['bigint(15)'][0] = 'bigint';
+        $values['float()'][0] = 'real';
+        $values['float(10)'][0] = 'real';
+        $values['float(10,2)'][0] = 'real';
+        $values['double()'][0] = 'float(53)';
+        $values['double(10)'][0] = 'float(53)';
+        $values['double(10,2)'][0] = 'float(53)';
+        $values['char()'][0] = 'nchar(1)';
+        $values['char(10)'][0] = 'nchar(10)';
+        $values['char(null)'][0] = 'nchar';
+        $values['string()'][0] = 'nvarchar(255)';
+        $values['string(100)'][0] = 'nvarchar(100)';
+        $values['string(null)'][0] = 'nvarchar(255)';
+        $values['text()'][0] = 'nvarchar(max)';
+        $values['text(1000)'][0] = 'nvarchar(max)';
+        $values['binary()'][0] = 'varbinary(max)';
+        $values['binary(1000)'][0] = 'varbinary(max)';
+        $values['datetime()'][0] = 'datetime2(0)';
+        $values['datetime(6)'][0] = 'datetime2(6)';
+        $values['datetime(null)'][0] = 'datetime2';
+        $values['timestamp()'][0] = 'datetime2(0)';
+        $values['timestamp(6)'][0] = 'datetime2(6)';
+        $values['timestamp(null)'][0] = 'datetime2';
+        $values['uuid()'][0] = 'uniqueidentifier';
+        $values['array()'][0] = 'nvarchar(max)';
+        $values['structured()'][0] = 'nvarchar(max)';
+        $values["structured('json')"] = ['varbinary(max)', ColumnBuilder::structured('varbinary(max)')];
+        $values['json()'][0] = 'nvarchar(max)';
+        $values['json(100)'][0] = 'nvarchar(max)';
+        $values["extra('NOT NULL')"][0] = 'nvarchar(255) NOT NULL';
+        $values["extra('')"][0] = 'nvarchar(255)';
+        $values["check('value > 5')"][0] = 'int CHECK ([col_59] > 5)';
+        $values["check('')"][0] = 'int';
+        $values['check(null)'][0] = 'int';
+        $values["comment('comment')"][0] = 'nvarchar(255)';
+        $values["comment('')"][0] = 'nvarchar(255)';
+        $values['comment(null)'][0] = 'nvarchar(255)';
+        $values["defaultValue('value')"][0] = "nvarchar(255) DEFAULT 'value'";
+        $values["defaultValue('')"][0] = "nvarchar(255) DEFAULT ''";
+        $values['defaultValue(null)'][0] = 'nvarchar(255) DEFAULT NULL';
+        $values['defaultValue($expression)'][0] = 'int DEFAULT (1 + 2)';
+        $values['defaultValue($emptyExpression)'][0] = 'int';
+        $values["integer()->defaultValue('')"][0] = 'int DEFAULT NULL';
+        $values['notNull()'][0] = 'nvarchar(255) NOT NULL';
+        $values['null()'][0] = 'nvarchar(255) NULL';
+        $values['integer()->primaryKey()'][0] = 'int PRIMARY KEY';
+        $values['string()->primaryKey()'][0] = 'nvarchar(255) PRIMARY KEY';
+        $values['size(10)'][0] = 'nvarchar(10)';
+        $values['unique()'][0] = 'nvarchar(255) UNIQUE';
+        $values['unsigned()'][0] = 'int';
+        $values['integer(8)->scale(2)'][0] = 'int';
+        $values['reference($reference)'][0] = 'int REFERENCES [ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
+        $values['reference($referenceWithSchema)'][0] = 'int REFERENCES [ref_schema].[ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
+
+        return $values;
+    }
+
+    public static function prepareParam(): array
+    {
+        $values = parent::prepareParam();
+
+        $values['true'][0] = '1';
+        $values['false'][0] = '0';
+
+        return $values;
+    }
+
+    public static function prepareValue(): array
+    {
+        $values = parent::prepareValue();
+
+        $values['true'][0] = '1';
+        $values['false'][0] = '0';
+
+        return $values;
     }
 }
