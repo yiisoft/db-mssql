@@ -24,6 +24,7 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
 use Yiisoft\Db\Tests\Support\DbHelper;
 
+use function array_filter;
 use function trim;
 
 /**
@@ -407,11 +408,10 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertCount(3, $schema->getTableIndexes($tableName));
 
-        $index = $schema->getTableIndexes($tableName)[2];
+        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimary())[1];
 
         $this->assertSame($indexColumns, $index->getColumnNames());
         $this->assertFalse($index->isUnique());
-        $this->assertFalse($index->isPrimary());
 
         $db->close();
     }
