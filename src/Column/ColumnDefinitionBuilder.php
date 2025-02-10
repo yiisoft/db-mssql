@@ -59,7 +59,7 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
     protected function buildOnDelete(string $onDelete): string
     {
         if (strtoupper($onDelete) === ReferentialAction::RESTRICT) {
-            $onDelete = ReferentialAction::NO_ACTION;
+            return '';
         }
 
         return " ON DELETE $onDelete";
@@ -68,7 +68,7 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
     protected function buildOnUpdate(string $onUpdate): string
     {
         if (strtoupper($onUpdate) === ReferentialAction::RESTRICT) {
-            $onUpdate = ReferentialAction::NO_ACTION;
+            return '';
         }
 
         return " ON UPDATE $onUpdate";

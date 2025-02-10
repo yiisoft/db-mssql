@@ -626,7 +626,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $referenceRestrict->onDelete(ReferentialAction::RESTRICT);
         $referenceRestrict->onUpdate(ReferentialAction::RESTRICT);
 
-        $values[] = ['int REFERENCES [ref_table] ([id]) ON DELETE NO ACTION ON UPDATE NO ACTION', ColumnBuilder::integer()->reference($referenceRestrict)];
+        $values[] = ['int REFERENCES [ref_table] ([id])', ColumnBuilder::integer()->reference($referenceRestrict)];
 
         return $values;
     }
