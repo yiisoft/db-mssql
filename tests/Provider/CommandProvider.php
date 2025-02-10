@@ -7,6 +7,9 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 use JsonException;
 use PDO;
 use Yiisoft\Db\Command\Param;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
+use Yiisoft\Db\Mssql\IndexMethod;
+use Yiisoft\Db\Mssql\IndexType;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 use function json_encode;
@@ -69,5 +72,23 @@ final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
         }
 
         return $rawSql;
+    }
+
+    public static function createIndex(): array
+    {
+        return [
+            ...parent::createIndex(),
+            [['col1' => ColumnBuilder::integer()], ['col1'], IndexType::CLUSTERED, null],
+            [['col1' => ColumnBuilder::integer()], ['col1'], IndexType::NONCLUSTERED, null],
+            [['col1' => ColumnBuilder::integer()], ['col1'], IndexType::UNIQUE, null],
+            [['col1' => ColumnBuilder::integer()], ['col1'], IndexType::UNIQUE_CLUSTERED, null],
+            [['id' => ColumnBuilder::primaryKey(), 'col1' => 'geometry'], ['col1'], IndexType::SPATIAL, IndexMethod::GEOMETRY_GRID . ' WITH(BOUNDING_BOX = (0, 0, 100, 100))'],
+            [['id' => ColumnBuilder::primaryKey(), 'col1' => 'geometry'], ['col1'], IndexType::SPATIAL, IndexMethod::GEOMETRY_AUTO_GRID . ' WITH(BOUNDING_BOX = (0, 0, 100, 100))'],
+            [['id' => ColumnBuilder::primaryKey(), 'col1' => 'geography'], ['col1'], IndexType::SPATIAL, null],
+            [['id' => ColumnBuilder::primaryKey(), 'col1' => 'geography'], ['col1'], IndexType::SPATIAL, IndexMethod::GEOGRAPHY_GRID],
+            [['id' => ColumnBuilder::primaryKey(), 'col1' => 'geography'], ['col1'], IndexType::SPATIAL, IndexMethod::GEOGRAPHY_AUTO_GRID],
+            [['col1' => ColumnBuilder::integer()], ['col1'], IndexType::COLUMNSTORE, null],
+            [['id' => ColumnBuilder::primaryKey(), 'col1' => 'xml'], ['col1'], IndexType::PRIMARY_XML, null],
+        ];
     }
 }
