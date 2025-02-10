@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Constant\PseudoType;
+use Yiisoft\Db\Constant\ReferentialAction;
+use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
@@ -617,6 +619,14 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['integer(8)->scale(2)'][0] = 'int';
         $values['reference($reference)'][0] = 'int REFERENCES [ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
         $values['reference($referenceWithSchema)'][0] = 'int REFERENCES [ref_schema].[ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
+
+        $referenceRestrict = new ForeignKeyConstraint();
+        $referenceRestrict->foreignColumnNames(['id']);
+        $referenceRestrict->foreignTableName('ref_table');
+        $referenceRestrict->onDelete(ReferentialAction::RESTRICT);
+        $referenceRestrict->onUpdate(ReferentialAction::RESTRICT);
+
+        $values[] = ['int REFERENCES [ref_table] ([id]) ON DELETE NO ACTION ON UPDATE NO ACTION', ColumnBuilder::integer()->reference($referenceRestrict)];
 
         return $values;
     }
