@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Column;
 
 use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\Db\Constant\ReferentialAction;
 use Yiisoft\Db\QueryBuilder\AbstractColumnDefinitionBuilder;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 use function ceil;
+use function strtoupper;
 
 final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
 {
@@ -52,6 +54,24 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
         return $this->buildType($column)
             . $this->buildNotNull($column)
             . $this->buildExtra($column);
+    }
+
+    protected function buildOnDelete(string $onDelete): string
+    {
+        if (strtoupper($onDelete) === ReferentialAction::RESTRICT) {
+            return '';
+        }
+
+        return " ON DELETE $onDelete";
+    }
+
+    protected function buildOnUpdate(string $onUpdate): string
+    {
+        if (strtoupper($onUpdate) === ReferentialAction::RESTRICT) {
+            return '';
+        }
+
+        return " ON UPDATE $onUpdate";
     }
 
     protected function getDbType(ColumnInterface $column): string

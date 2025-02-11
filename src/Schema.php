@@ -727,12 +727,13 @@ final class Schema extends AbstractPdoSchema
                             ->name($name);
                         break;
                     case 'F':
+                        /** @psalm-suppress ArgumentTypeCoercion */
                         $result[self::FOREIGN_KEYS][] = (new ForeignKeyConstraint())
                             ->foreignSchemaName($constraint[0]['foreign_table_schema'])
                             ->foreignTableName($constraint[0]['foreign_table_name'])
                             ->foreignColumnNames(array_column($constraint, 'foreign_column_name'))
-                            ->onDelete(str_replace('_', '', $constraint[0]['on_delete']))
-                            ->onUpdate(str_replace('_', '', $constraint[0]['on_update']))
+                            ->onDelete(str_replace('_', ' ', $constraint[0]['on_delete']))
+                            ->onUpdate(str_replace('_', ' ', $constraint[0]['on_update']))
                             ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
