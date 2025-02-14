@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\IntegrityException;
@@ -13,10 +14,17 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
+use Yiisoft\Db\Mssql\Connection;
+use Yiisoft\Db\Mssql\Dsn;
+use Yiisoft\Db\Mssql\Driver;
+use Yiisoft\Db\Mssql\IndexType;
+use Yiisoft\Db\Mssql\Tests\Provider\CommandProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
 
+use function array_filter;
 use function trim;
 
 /**
@@ -330,8 +338,8 @@ final class CommandTest extends CommonCommandTest
         }
 
         $command->createTable('column_with_constraint', ['id' => 'pk'])->execute();
-        $command->addColumn('column_with_constraint', 'field', (new Column('integer'))->null()->asString())->execute();
-        $command->alterColumn('column_with_constraint', 'field', (new Column('string', 40))->notNull()->asString())->execute();
+        $command->addColumn('column_with_constraint', 'field', ColumnBuilder::integer()->null())->execute();
+        $command->alterColumn('column_with_constraint', 'field', ColumnBuilder::string(40)->notNull())->execute();
 
         $fieldCol = $db->getTableSchema('column_with_constraint', true)->getColumn('field');
 
@@ -341,5 +349,68 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame(40, $fieldCol->getSize());
 
         $command->dropTable('column_with_constraint');
+    }
+
+    #[DataProviderExternal(CommandProvider::class, 'createIndex')]
+    public function testCreateIndex(array $columns, array $indexColumns, string|null $indexType, string|null $indexMethod): void
+    {
+        parent::testCreateIndex($columns, $indexColumns, $indexType, $indexMethod);
+    }
+
+    public function createCreateClusteredColumnstoreIndex()
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+        $schema = $db->getSchema();
+
+        $tableName = 'test_create_index';
+        $indexName = 'test_index_name';
+
+        if ($schema->getTableSchema($tableName) !== null) {
+            $command->dropTable($tableName)->execute();
+        }
+
+        $command->createTable($tableName, ['col1' => ColumnBuilder::integer()])->execute();
+        $command->createIndex($tableName, $indexName, '', IndexType::CLUSTERED_COLUMNSTORE)->execute();
+
+        $this->assertCount(1, $schema->getTableIndexes($tableName));
+
+        $index = $schema->getTableIndexes($tableName)[0];
+
+        $this->assertSame(['col1'], $index->getColumnNames());
+        $this->assertFalse($index->isUnique());
+        $this->assertFalse($index->isPrimary());
+
+        $db->close();
+    }
+
+    public function testCreateXmlIndex(): void
+    {
+        $db = $this->getConnection();
+        $command = $db->createCommand();
+        $schema = $db->getSchema();
+
+        $tableName = 'test_create_index';
+        $primaryXmlIndexName = 'test_index_name';
+        $xmlIndexName = 'test_index_name_xml';
+        $indexColumns = ['col1'];
+
+        if ($schema->getTableSchema($tableName) !== null) {
+            $command->dropTable($tableName)->execute();
+        }
+
+        $command->createTable($tableName, ['id' => ColumnBuilder::primaryKey(), 'col1' => 'xml'])->execute();
+        $command->createIndex($tableName, $primaryXmlIndexName, $indexColumns, IndexType::PRIMARY_XML)->execute();
+        $command->createIndex($tableName, $xmlIndexName, $indexColumns, IndexType::XML, "XML INDEX $primaryXmlIndexName FOR PATH")->execute();
+
+        $this->assertCount(3, $schema->getTableIndexes($tableName));
+
+        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimary())[1];
+
+        $this->assertSame($indexColumns, $index->getColumnNames());
+        $this->assertFalse($index->isUnique());
+
+        $db->close();
     }
 }

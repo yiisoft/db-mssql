@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Column;
 
 use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\Db\Constant\ReferentialAction;
 use Yiisoft\Db\QueryBuilder\AbstractColumnDefinitionBuilder;
-use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 use function ceil;
+use function strtoupper;
 
 final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
 {
     protected const AUTO_INCREMENT_KEYWORD = 'IDENTITY';
-
-    protected const GENERATE_UUID_EXPRESSION = 'newid()';
 
     protected const TYPES_WITH_SIZE = [
         'decimal',
@@ -36,7 +36,7 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
         'numeric',
     ];
 
-    public function build(ColumnSchemaInterface $column): string
+    public function build(ColumnInterface $column): string
     {
         return $this->buildType($column)
             . $this->buildAutoIncrement($column)
@@ -49,7 +49,32 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             . $this->buildExtra($column);
     }
 
-    protected function getDbType(ColumnSchemaInterface $column): string
+    public function buildAlter(ColumnInterface $column): string
+    {
+        return $this->buildType($column)
+            . $this->buildNotNull($column)
+            . $this->buildExtra($column);
+    }
+
+    protected function buildOnDelete(string $onDelete): string
+    {
+        if (strtoupper($onDelete) === ReferentialAction::RESTRICT) {
+            return '';
+        }
+
+        return " ON DELETE $onDelete";
+    }
+
+    protected function buildOnUpdate(string $onUpdate): string
+    {
+        if (strtoupper($onUpdate) === ReferentialAction::RESTRICT) {
+            return '';
+        }
+
+        return " ON UPDATE $onUpdate";
+    }
+
+    protected function getDbType(ColumnInterface $column): string
     {
         $size = $column->getSize();
 
@@ -95,5 +120,10 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             'varbinary' => 'varbinary(' . ($size ?: 'max') . ')',
             default => $dbType,
         };
+    }
+
+    protected function getDefaultUuidExpression(): string
+    {
+        return 'newid()';
     }
 }

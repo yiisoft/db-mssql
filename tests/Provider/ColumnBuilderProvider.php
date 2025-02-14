@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
-use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
+use Yiisoft\Db\Mssql\Column\BinaryColumn;
 
 class ColumnBuilderProvider extends \Yiisoft\Db\Tests\Provider\ColumnBuilderProvider
 {
@@ -12,8 +12,8 @@ class ColumnBuilderProvider extends \Yiisoft\Db\Tests\Provider\ColumnBuilderProv
     {
         $values = parent::buildingMethods();
 
-        $values['binary()'][2] = BinaryColumnSchema::class;
-        $values['binary(8)'][2] = BinaryColumnSchema::class;
+        $values['binary()'][2] = BinaryColumn::class;
+        $values['binary(8)'][2] = BinaryColumn::class;
 
         return $values;
     }

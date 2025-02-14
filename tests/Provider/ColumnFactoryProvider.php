@@ -6,11 +6,11 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
-use Yiisoft\Db\Schema\Column\BooleanColumnSchema;
-use Yiisoft\Db\Schema\Column\DoubleColumnSchema;
-use Yiisoft\Db\Schema\Column\IntegerColumnSchema;
-use Yiisoft\Db\Schema\Column\StringColumnSchema;
+use Yiisoft\Db\Mssql\Column\BinaryColumn;
+use Yiisoft\Db\Schema\Column\BooleanColumn;
+use Yiisoft\Db\Schema\Column\DoubleColumn;
+use Yiisoft\Db\Schema\Column\IntegerColumn;
+use Yiisoft\Db\Schema\Column\StringColumn;
 
 final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFactoryProvider
 {
@@ -27,39 +27,39 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
     {
         return [
             // db type, expected abstract type, expected instance of
-            ['bit', ColumnType::BOOLEAN, BooleanColumnSchema::class],
-            ['tinyint', ColumnType::TINYINT, IntegerColumnSchema::class],
-            ['smallint', ColumnType::SMALLINT, IntegerColumnSchema::class],
-            ['int', ColumnType::INTEGER, IntegerColumnSchema::class],
-            ['bigint', ColumnType::BIGINT, IntegerColumnSchema::class],
-            ['numeric', ColumnType::DECIMAL, DoubleColumnSchema::class],
-            ['decimal', ColumnType::DECIMAL, DoubleColumnSchema::class],
-            ['float', ColumnType::FLOAT, DoubleColumnSchema::class],
-            ['real', ColumnType::FLOAT, DoubleColumnSchema::class],
-            ['double', ColumnType::DOUBLE, DoubleColumnSchema::class],
-            ['smallmoney', ColumnType::MONEY, StringColumnSchema::class],
-            ['money', ColumnType::MONEY, StringColumnSchema::class],
-            ['date', ColumnType::DATE, StringColumnSchema::class],
-            ['time', ColumnType::TIME, StringColumnSchema::class],
-            ['smalldatetime', ColumnType::DATETIME, StringColumnSchema::class],
-            ['datetime', ColumnType::DATETIME, StringColumnSchema::class],
-            ['datetime2', ColumnType::DATETIME, StringColumnSchema::class],
-            ['datetimeoffset', ColumnType::DATETIME, StringColumnSchema::class],
-            ['char', ColumnType::CHAR, StringColumnSchema::class],
-            ['varchar', ColumnType::STRING, StringColumnSchema::class],
-            ['text', ColumnType::TEXT, StringColumnSchema::class],
-            ['nchar', ColumnType::CHAR, StringColumnSchema::class],
-            ['nvarchar', ColumnType::STRING, StringColumnSchema::class],
-            ['ntext', ColumnType::TEXT, StringColumnSchema::class],
-            ['binary', ColumnType::BINARY, BinaryColumnSchema::class],
-            ['varbinary', ColumnType::BINARY, BinaryColumnSchema::class],
-            ['image', ColumnType::BINARY, BinaryColumnSchema::class],
-            ['timestamp', ColumnType::BINARY, BinaryColumnSchema::class],
-            ['hierarchyid', ColumnType::STRING, StringColumnSchema::class],
-            ['uniqueidentifier', ColumnType::UUID, StringColumnSchema::class],
-            ['sql_variant', ColumnType::STRING, StringColumnSchema::class],
-            ['xml', ColumnType::STRING, StringColumnSchema::class],
-            ['table', ColumnType::STRING, StringColumnSchema::class],
+            ['bit', ColumnType::BOOLEAN, BooleanColumn::class],
+            ['tinyint', ColumnType::TINYINT, IntegerColumn::class],
+            ['smallint', ColumnType::SMALLINT, IntegerColumn::class],
+            ['int', ColumnType::INTEGER, IntegerColumn::class],
+            ['bigint', ColumnType::BIGINT, IntegerColumn::class],
+            ['numeric', ColumnType::DECIMAL, DoubleColumn::class],
+            ['decimal', ColumnType::DECIMAL, DoubleColumn::class],
+            ['float', ColumnType::FLOAT, DoubleColumn::class],
+            ['real', ColumnType::FLOAT, DoubleColumn::class],
+            ['double', ColumnType::DOUBLE, DoubleColumn::class],
+            ['smallmoney', ColumnType::MONEY, StringColumn::class],
+            ['money', ColumnType::MONEY, StringColumn::class],
+            ['date', ColumnType::DATE, StringColumn::class],
+            ['time', ColumnType::TIME, StringColumn::class],
+            ['smalldatetime', ColumnType::DATETIME, StringColumn::class],
+            ['datetime', ColumnType::DATETIME, StringColumn::class],
+            ['datetime2', ColumnType::DATETIME, StringColumn::class],
+            ['datetimeoffset', ColumnType::DATETIME, StringColumn::class],
+            ['char', ColumnType::CHAR, StringColumn::class],
+            ['varchar', ColumnType::STRING, StringColumn::class],
+            ['text', ColumnType::TEXT, StringColumn::class],
+            ['nchar', ColumnType::CHAR, StringColumn::class],
+            ['nvarchar', ColumnType::STRING, StringColumn::class],
+            ['ntext', ColumnType::TEXT, StringColumn::class],
+            ['binary', ColumnType::BINARY, BinaryColumn::class],
+            ['varbinary', ColumnType::BINARY, BinaryColumn::class],
+            ['image', ColumnType::BINARY, BinaryColumn::class],
+            ['timestamp', ColumnType::BINARY, BinaryColumn::class],
+            ['hierarchyid', ColumnType::STRING, StringColumn::class],
+            ['uniqueidentifier', ColumnType::UUID, StringColumn::class],
+            ['sql_variant', ColumnType::STRING, StringColumn::class],
+            ['xml', ColumnType::STRING, StringColumn::class],
+            ['table', ColumnType::STRING, StringColumn::class],
         ];
     }
 

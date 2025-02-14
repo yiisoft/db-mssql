@@ -14,13 +14,18 @@
 - Enh #319: Separate column type constants (@Tigrov)
 - New #320: Realize `ColumnBuilder` class (@Tigrov)
 - Enh #321: Update according changes in `ColumnSchemaInterface` (@Tigrov)
-- New #322, #330: Add `ColumnDefinitionBuilder` class (@Tigrov)
+- New #322, #330, #340: Add `ColumnDefinitionBuilder` class (@Tigrov)
 - Enh #323: Refactor `Dsn` class (@Tigrov)
 - Enh #324: Use constructor to create columns and initialize properties (@Tigrov)
 - Enh #327: Refactor `Schema::findColumns()` method (@Tigrov)
 - Enh #328: Refactor `Schema::normalizeDefaultValue()` method and move it to `ColumnFactory` class (@Tigrov)
 - Enh #331: Refactor according to changes #902 in `yiisoft/db` package (@Tigrov)
 - Chg #333: Update `QueryBuilder` constructor (@Tigrov)
+- Enh #332: Use `ColumnDefinitionBuilder` to generate table column SQL representation (@Tigrov)
+- Enh #335: Remove `ColumnInterface` (@Tigrov)
+- Enh #337: Rename `ColumnSchemaInterface` to `ColumnInterface` (@Tigrov)
+- Enh #338: Replace `DbArrayHelper::getColumn()` with `array_column()` (@Tigrov)
+- New #339: Add `IndexType` and `IndexMethod` classes (@Tigrov) 
 
 ## 1.2.0 March 21, 2024
 

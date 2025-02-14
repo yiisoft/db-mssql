@@ -7,21 +7,21 @@ namespace Yiisoft\Db\Mssql\Tests;
 use PDO;
 use Yiisoft\Db\Command\Param;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Column\BinaryColumnSchema;
+use Yiisoft\Db\Mssql\Column\BinaryColumn;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Schema\Column\BooleanColumnSchema;
-use Yiisoft\Db\Schema\Column\DoubleColumnSchema;
-use Yiisoft\Db\Schema\Column\IntegerColumnSchema;
-use Yiisoft\Db\Schema\Column\StringColumnSchema;
-use Yiisoft\Db\Tests\Common\CommonColumnSchemaTest;
+use Yiisoft\Db\Schema\Column\BooleanColumn;
+use Yiisoft\Db\Schema\Column\DoubleColumn;
+use Yiisoft\Db\Schema\Column\IntegerColumn;
+use Yiisoft\Db\Schema\Column\StringColumn;
+use Yiisoft\Db\Tests\Common\CommonColumnTest;
 
 use function str_repeat;
 
 /**
  * @group mssql
  */
-final class ColumnSchemaTest extends CommonColumnSchemaTest
+final class ColumnTest extends CommonColumnTest
 {
     use TestTrait;
 
@@ -69,34 +69,34 @@ final class ColumnSchemaTest extends CommonColumnSchemaTest
         $db->close();
     }
 
-    public function testColumnSchemaInstance()
+    public function testColumnInstance()
     {
         $db = $this->getConnection(true);
         $schema = $db->getSchema();
         $tableSchema = $schema->getTableSchema('type');
 
-        $this->assertInstanceOf(IntegerColumnSchema::class, $tableSchema->getColumn('int_col'));
-        $this->assertInstanceOf(StringColumnSchema::class, $tableSchema->getColumn('char_col'));
-        $this->assertInstanceOf(DoubleColumnSchema::class, $tableSchema->getColumn('float_col'));
-        $this->assertInstanceOf(BinaryColumnSchema::class, $tableSchema->getColumn('blob_col'));
-        $this->assertInstanceOf(BooleanColumnSchema::class, $tableSchema->getColumn('bool_col'));
+        $this->assertInstanceOf(IntegerColumn::class, $tableSchema->getColumn('int_col'));
+        $this->assertInstanceOf(StringColumn::class, $tableSchema->getColumn('char_col'));
+        $this->assertInstanceOf(DoubleColumn::class, $tableSchema->getColumn('float_col'));
+        $this->assertInstanceOf(BinaryColumn::class, $tableSchema->getColumn('blob_col'));
+        $this->assertInstanceOf(BooleanColumn::class, $tableSchema->getColumn('bool_col'));
     }
 
-    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnSchemaProvider::predefinedTypes */
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider::predefinedTypes */
     public function testPredefinedType(string $className, string $type, string $phpType)
     {
         parent::testPredefinedType($className, $type, $phpType);
     }
 
-    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnSchemaProvider::dbTypecastColumns */
+    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider::dbTypecastColumns */
     public function testDbTypecastColumns(string $className, array $values)
     {
         parent::testDbTypecastColumns($className, $values);
     }
 
-    public function testBinaryColumnSchema()
+    public function testBinaryColumn()
     {
-        $binaryCol = new BinaryColumnSchema();
+        $binaryCol = new BinaryColumn();
         $binaryCol->dbType('varbinary');
 
         $this->assertEquals(

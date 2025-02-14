@@ -15,12 +15,12 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Mssql\Column\ColumnFactory;
-use Yiisoft\Db\Schema\Builder\ColumnInterface;
 use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
-use Yiisoft\Db\Schema\Column\ColumnSchemaInterface;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_change_key_case;
+use function array_column;
 use function array_fill_keys;
 use function array_map;
 use function is_array;
@@ -67,12 +67,6 @@ final class Schema extends AbstractPdoSchema
      * @var string|null The default schema used for the current session.
      */
     protected string|null $defaultSchema = 'dbo';
-
-    /** @deprecated Use {@see ColumnBuilder} instead. Will be removed in 2.0. */
-    public function createColumn(string $type, array|int|string|null $length = null): ColumnInterface
-    {
-        return new Column($type, $length);
-    }
 
     public function getColumnFactory(): ColumnFactoryInterface
     {
@@ -229,7 +223,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTablePrimaryKey(string $tableName): Constraint|null
     {
-        /** @psalm-var mixed $tablePrimaryKey */
         $tablePrimaryKey = $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
         return $tablePrimaryKey instanceof Constraint ? $tablePrimaryKey : null;
     }
@@ -247,7 +240,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableForeignKeys(string $tableName): array
     {
-        /** @psalm-var mixed $tableForeignKeys */
         $tableForeignKeys = $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
         return is_array($tableForeignKeys) ? $tableForeignKeys : [];
     }
@@ -302,7 +294,7 @@ final class Schema extends AbstractPdoSchema
             $result[] = (new IndexConstraint())
                 ->primary((bool) $index[0]['index_is_primary'])
                 ->unique((bool) $index[0]['index_is_unique'])
-                ->columnNames(DbArrayHelper::getColumn($index, 'column_name'))
+                ->columnNames(array_column($index, 'column_name'))
                 ->name($name);
         }
 
@@ -320,7 +312,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableUniques(string $tableName): array
     {
-        /** @psalm-var mixed $tableUniques */
         $tableUniques = $this->loadTableConstraints($tableName, self::UNIQUES);
         return is_array($tableUniques) ? $tableUniques : [];
     }
@@ -338,7 +329,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableChecks(string $tableName): array
     {
-        /** @psalm-var mixed $tableCheck */
         $tableCheck = $this->loadTableConstraints($tableName, self::CHECKS);
         return is_array($tableCheck) ? $tableCheck : [];
     }
@@ -356,17 +346,16 @@ final class Schema extends AbstractPdoSchema
      */
     protected function loadTableDefaultValues(string $tableName): array
     {
-        /** @psalm-var mixed $tableDefault */
         $tableDefault = $this->loadTableConstraints($tableName, self::DEFAULTS);
         return is_array($tableDefault) ? $tableDefault : [];
     }
 
     /**
-     * Loads the column information into a {@see ColumnSchemaInterface} object.
+     * Loads the column information into a {@see ColumnInterface} object.
      *
      * @psalm-param ColumnArray $info The column information.
      */
-    private function loadColumnSchema(array $info): ColumnSchemaInterface
+    private function loadColumn(array $info): ColumnInterface
     {
         return $this->getColumnFactory()->fromDbType($info['data_type'], [
             'autoIncrement' => $info['is_identity'] === '1',
@@ -453,7 +442,7 @@ final class Schema extends AbstractPdoSchema
             $info['schema'] = $schemaName;
             $info['table'] = $tableName;
 
-            $column = $this->loadColumnSchema($info);
+            $column = $this->loadColumn($info);
 
             if ($column->isPrimaryKey() && $column->isAutoIncrement()) {
                 $table->sequenceName('');
@@ -734,34 +723,35 @@ final class Schema extends AbstractPdoSchema
                     case 'PK':
                         /** @psalm-var Constraint */
                         $result[self::PRIMARY_KEY] = (new Constraint())
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'F':
+                        /** @psalm-suppress ArgumentTypeCoercion */
                         $result[self::FOREIGN_KEYS][] = (new ForeignKeyConstraint())
                             ->foreignSchemaName($constraint[0]['foreign_table_schema'])
                             ->foreignTableName($constraint[0]['foreign_table_name'])
-                            ->foreignColumnNames(DbArrayHelper::getColumn($constraint, 'foreign_column_name'))
-                            ->onDelete(str_replace('_', '', $constraint[0]['on_delete']))
-                            ->onUpdate(str_replace('_', '', $constraint[0]['on_update']))
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->foreignColumnNames(array_column($constraint, 'foreign_column_name'))
+                            ->onDelete(str_replace('_', ' ', $constraint[0]['on_delete']))
+                            ->onUpdate(str_replace('_', ' ', $constraint[0]['on_update']))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'UQ':
                         $result[self::UNIQUES][] = (new Constraint())
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'C':
                         $result[self::CHECKS][] = (new CheckConstraint())
                             ->expression($constraint[0]['check_expr'])
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'D':
                         $result[self::DEFAULTS][] = (new DefaultValueConstraint())
                             ->value($constraint[0]['default_expr'])
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                 }
