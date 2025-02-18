@@ -592,20 +592,20 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['uuid()'][0] = 'uniqueidentifier';
         $values['array()'] = [
             'nvarchar(max) CHECK (isjson([array_col]) > 0)',
-            $values['array()'][1]->withName('array_col')
+            $values['array()'][1]->withName('array_col'),
         ];
         $values['structured()'] = [
             'nvarchar(max) CHECK (isjson([structured_col]) > 0)',
-            $values['structured()'][1]->withName('structured_col')
+            $values['structured()'][1]->withName('structured_col'),
         ];
         $values["structured('json')"] = ['nvarchar(max)', ColumnBuilder::structured('nvarchar(max)')];
         $values['json()'] = [
             'nvarchar(max) CHECK (isjson([json_col]) > 0)',
-            $values['json()'][1]->withName('json_col')
+            $values['json()'][1]->withName('json_col'),
         ];
         $values['json(100)'] = [
             'nvarchar(max) CHECK (isjson([json_100]) > 0)',
-            $values['json(100)'][1]->withName('json_100')
+            $values['json(100)'][1]->withName('json_100'),
         ];
         $values["extra('NOT NULL')"][0] = 'nvarchar(255) NOT NULL';
         $values["extra('')"][0] = 'nvarchar(255)';
