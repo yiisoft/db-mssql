@@ -14,15 +14,11 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
-use Yiisoft\Db\Mssql\Connection;
-use Yiisoft\Db\Mssql\Dsn;
-use Yiisoft\Db\Mssql\Driver;
 use Yiisoft\Db\Mssql\IndexType;
 use Yiisoft\Db\Mssql\Tests\Provider\CommandProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
-use Yiisoft\Db\Tests\Support\DbHelper;
 
 use function array_filter;
 use function trim;
@@ -317,16 +313,14 @@ final class CommandTest extends CommonCommandTest
 
     public function testShowDatabases(): void
     {
-        $dsn = new Dsn(options: ['Encrypt' => 'no']);
-        $db = new Connection(
-            new Driver($dsn->asString(), 'SA', 'YourStrong!Passw0rd'),
-            DbHelper::getSchemaCache(),
-        );
+        $expectedDatabases = [];
+        if (self::getDatabaseName() !== 'tempdb') {
+            $expectedDatabases[] = self::getDatabaseName();
+        }
 
-        $command = $db->createCommand();
+        $actualDatabases = self::getDb()->createCommand()->showDatabases();
 
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433;Encrypt=no', $db->getDriver()->getDsn());
-        $this->assertSame(['yiitest'], $command->showDatabases());
+        $this->assertSame($expectedDatabases, $actualDatabases);
     }
 
     /** @link https://github.com/yiisoft/db-migration/issues/11 */
