@@ -11,17 +11,18 @@ use Yiisoft\Db\Mssql\Column\BinaryColumn;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\Column\DoubleColumn;
 use Yiisoft\Db\Schema\Column\IntegerColumn;
 use Yiisoft\Db\Schema\Column\StringColumn;
-use Yiisoft\Db\Tests\Common\CommonColumnTest;
+use Yiisoft\Db\Tests\AbstractColumnTest;
 
 use function str_repeat;
 
 /**
  * @group mssql
  */
-final class ColumnTest extends CommonColumnTest
+final class ColumnTest extends AbstractColumnTest
 {
     use TestTrait;
 
@@ -43,6 +44,7 @@ final class ColumnTest extends CommonColumnTest
                 'blob_col' => "\x10\x11\x12",
                 'datetime_col' => '2023-07-11 14:50:00.123',
                 'bool_col' => false,
+                'json_col' => [['a' => 1, 'b' => null, 'c' => [1, 3, 5]]],
             ]
         );
         $command->execute();
@@ -57,6 +59,7 @@ final class ColumnTest extends CommonColumnTest
         $blobColPhpType = $tableSchema->getColumn('blob_col')?->phpTypecast($query['blob_col']);
         $datetimeColPhpType = $tableSchema->getColumn('datetime_col')?->phpTypecast($query['datetime_col']);
         $boolColPhpType = $tableSchema->getColumn('bool_col')?->phpTypecast($query['bool_col']);
+        $jsonColPhpType = $tableSchema->getColumn('json_col')?->phpTypecast($query['json_col']);
 
         $this->assertSame(1, $intColPhpType);
         $this->assertSame(str_repeat('x', 100), $charColPhpType);
@@ -65,6 +68,7 @@ final class ColumnTest extends CommonColumnTest
         $this->assertSame("\x10\x11\x12", $blobColPhpType);
         $this->assertSame('2023-07-11 14:50:00.123', $datetimeColPhpType);
         $this->assertFalse($boolColPhpType);
+        $this->assertSame([['a' => 1, 'b' => null, 'c' => [1, 3, 5]]], $jsonColPhpType);
 
         $db->close();
     }
@@ -89,9 +93,9 @@ final class ColumnTest extends CommonColumnTest
     }
 
     /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider::dbTypecastColumns */
-    public function testDbTypecastColumns(string $className, array $values)
+    public function testDbTypecastColumns(ColumnInterface $column, array $values)
     {
-        parent::testDbTypecastColumns($className, $values);
+        parent::testDbTypecastColumns($column, $values);
     }
 
     public function testBinaryColumn()
