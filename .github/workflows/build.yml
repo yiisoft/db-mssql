@@ -103,12 +103,6 @@ jobs:
 
       - name: Run tests with phpunit with code coverage.
         run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always
-        env:
-          YII_MSSQL_DATABASE: yiitest
-          YII_MSSQL_HOST: 127.0.0.1
-          YII_MSSQL_PORT: 1433
-          YII_MSSQL_USER: SA
-          YII_MSSQL_PASSWORD: YourStrong!Passw0rd
 
       - name: Upload coverage to Codecov.
         uses: codecov/codecov-action@v3
