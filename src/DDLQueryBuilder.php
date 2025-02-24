@@ -195,7 +195,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      *
      * Note: The method will quote the `comment`, `table`, `column` parameter before using it in the generated SQL.
      */
-    private function buildAddCommentSql(string $comment, string $table, string $column = null): string
+    private function buildAddCommentSql(string $comment, string $table, ?string $column = null): string
     {
         $tableSchema = $this->schema->getTableSchema($table);
 
@@ -246,7 +246,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      *
      * Note: The method will quote the `table`, `column` parameter before using it in the generated SQL.
      */
-    private function buildRemoveCommentSql(string $table, string $column = null): string
+    private function buildRemoveCommentSql(string $table, ?string $column = null): string
     {
         $tableSchema = $this->schema->getTableSchema($table);
 

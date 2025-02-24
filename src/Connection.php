@@ -25,7 +25,7 @@ final class Connection extends AbstractPdoConnection
         return new BatchQueryResult($query, $each);
     }
 
-    public function createCommand(string $sql = null, array $params = []): PdoCommandInterface
+    public function createCommand(?string $sql = null, array $params = []): PdoCommandInterface
     {
         $command = new Command($this);
 
