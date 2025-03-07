@@ -56,6 +56,27 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             . $this->buildExtra($column);
     }
 
+    protected function buildCheck(ColumnInterface $column): string
+    {
+        $check = $column->getCheck();
+
+        if (empty($check)) {
+            $name = $column->getName();
+
+            if (empty($name)) {
+                return '';
+            }
+
+            return match ($column->getType()) {
+                ColumnType::ARRAY, ColumnType::STRUCTURED, ColumnType::JSON =>
+                    ' CHECK (isjson(' . $this->queryBuilder->quoter()->quoteSimpleColumnName($name) . ') > 0)',
+                default => '',
+            };
+        }
+
+        return " CHECK ($check)";
+    }
+
     protected function buildOnDelete(string $onDelete): string
     {
         if (strtoupper($onDelete) === ReferentialAction::RESTRICT) {
