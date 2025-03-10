@@ -311,6 +311,15 @@ final class CommandTest extends CommonCommandTest
         );
     }
 
+    public function testDropTableCascade(): void
+    {
+        $command = $this->getConnection()->createCommand();
+
+        $this->expectException(NotSupportedException::class);
+        $this->expectExceptionMessage('MSSQL doesn\'t support cascade drop table.');
+        $command->dropTable('{{table}}', cascade: true);
+    }
+
     public function testShowDatabases(): void
     {
         $expectedDatabases = [];
