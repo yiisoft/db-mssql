@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use JsonException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -951,5 +952,24 @@ ALTER TABLE [customer] DROP COLUMN [id]";
     public function testPrepareValue(string $expected, mixed $value): void
     {
         parent::testPrepareValue($expected, $value);
+    }
+
+    #[DataProvider('dataDropTable')]
+    public function testDropTable(string $expected, ?bool $ifExists, ?bool $cascade): void
+    {
+        if ($cascade) {
+            $qb = $this->getConnection()->getQueryBuilder();
+
+            $this->expectException(NotSupportedException::class);
+            $this->expectExceptionMessage('MSSQL doesn\'t support cascade drop table.');
+
+            $ifExists === null
+                ? $qb->dropTable('customer', cascade: true)
+                : $qb->dropTable('customer', ifExists: $ifExists, cascade: true);
+
+            return;
+        }
+
+        parent::testDropTable($expected, $ifExists, $cascade);
     }
 }
