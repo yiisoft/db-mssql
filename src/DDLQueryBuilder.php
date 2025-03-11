@@ -314,4 +314,15 @@ WHILE 1=1 BEGIN
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END";
     }
+
+    /**
+     * @throws NotSupportedException MSSQL doesn't support cascade drop table.
+     */
+    public function dropTable(string $table, bool $ifExists = false, bool $cascade = false): string
+    {
+        if ($cascade) {
+            throw new NotSupportedException('MSSQL doesn\'t support cascade drop table.');
+        }
+        return parent::dropTable($table, $ifExists, false);
+    }
 }
