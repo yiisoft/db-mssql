@@ -70,7 +70,7 @@ final class QueryTest extends CommonQueryTest
         $query = (new Query($db))
             ->select('name')
             ->from('customer')
-            ->where(['like', 'name', $value, true]);
+            ->where(['like', 'name', $value, 'caseSensitive' => true]);
 
         $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage('MSSQL doesn\'t support case-sensitive "LIKE" conditions.');
