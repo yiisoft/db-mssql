@@ -30,7 +30,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         ExpressionInterface|int|null $offset,
         array &$params = []
     ): string {
-        if (!$this->hasOffset($offset) && !$this->hasLimit($limit)) {
+        if (empty($offset) && $limit === null) {
             $orderByString = $this->buildOrderBy($orderBy, $params);
 
             return $orderByString === '' ? $sql : $sql . $this->separator . $orderByString;
@@ -88,13 +88,15 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         /**
          * @link https://technet.microsoft.com/en-us/library/gg699618.aspx
          */
-        $offsetString = $this->hasOffset($offset) ?
-            ($offset instanceof ExpressionInterface ? $this->buildExpression($offset) : (string)$offset) : '0';
+        $offsetString = !empty($offset)
+            ? ($offset instanceof ExpressionInterface ? $this->buildExpression($offset) : (string) $offset)
+            : '0';
         $sql .= $this->separator . 'OFFSET ' . $offsetString . ' ROWS';
 
-        if ($this->hasLimit($limit)) {
-            $sql .= $this->separator . 'FETCH NEXT ' .
-                ($limit instanceof ExpressionInterface ? $this->buildExpression($limit) : (string)$limit) . ' ROWS ONLY';
+        if ($limit !== null) {
+            $sql .= $this->separator . 'FETCH NEXT '
+                . ($limit instanceof ExpressionInterface ? $this->buildExpression($limit) : (string) $limit)
+                . ' ROWS ONLY';
         }
 
         return $sql;
