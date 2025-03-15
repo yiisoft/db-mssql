@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonQueryTest;
@@ -58,5 +60,20 @@ final class QueryTest extends CommonQueryTest
         $data = $query->all();
 
         $this->assertCount(4, $data);
+    }
+
+    #[DataProvider('dataLikeCaseSensitive')]
+    public function testLikeCaseSensitive(mixed $expected, string $value): void
+    {
+        $db = $this->getConnection(true);
+
+        $query = (new Query($db))
+            ->select('name')
+            ->from('customer')
+            ->where(['like', 'name', $value, 'caseSensitive' => true]);
+
+        $this->expectException(NotSupportedException::class);
+        $this->expectExceptionMessage('MSSQL doesn\'t support case-sensitive "LIKE" conditions.');
+        $query->scalar();
     }
 }
