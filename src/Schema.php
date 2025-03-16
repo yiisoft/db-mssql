@@ -69,11 +69,6 @@ final class Schema extends AbstractPdoSchema
      */
     protected string|null $defaultSchema = 'dbo';
 
-    public function getColumnFactory(): ColumnFactoryInterface
-    {
-        return new ColumnFactory();
-    }
-
     /**
      * Resolves the table name and schema name (if any).
      *
@@ -358,7 +353,7 @@ final class Schema extends AbstractPdoSchema
      */
     private function loadColumn(array $info): ColumnInterface
     {
-        return $this->getColumnFactory()->fromDbType($info['data_type'], [
+        return $this->db->getColumnFactory()->fromDbType($info['data_type'], [
             'autoIncrement' => $info['is_identity'] === '1',
             'check' => $info['check'],
             'comment' => $info['comment'],
