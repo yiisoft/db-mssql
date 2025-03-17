@@ -33,6 +33,7 @@
 - New #345: Add parameters `$ifExists` and `$cascade` to `CommandInterface::dropTable()` and
   `DDLQueryBuilderInterface::dropTable()` methods (@vjik)
 - Chg #348: Remove usage of `hasLimit()` and `hasOffset()` methods of `DQLQueryBuilder` class (@Tigrov)
+- Enh #350: Refactor according changes in `db` package (@Tigrov)
 - New #349: Add `caseSensitive` option to like condition (@vjik)
 
 ## 1.2.0 March 21, 2024

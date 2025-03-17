@@ -14,8 +14,6 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
-use Yiisoft\Db\Mssql\Column\ColumnFactory;
-use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
@@ -68,11 +66,6 @@ final class Schema extends AbstractPdoSchema
      * @var string|null The default schema used for the current session.
      */
     protected string|null $defaultSchema = 'dbo';
-
-    public function getColumnFactory(): ColumnFactoryInterface
-    {
-        return new ColumnFactory();
-    }
 
     /**
      * Resolves the table name and schema name (if any).
@@ -358,7 +351,7 @@ final class Schema extends AbstractPdoSchema
      */
     private function loadColumn(array $info): ColumnInterface
     {
-        return $this->getColumnFactory()->fromDbType($info['data_type'], [
+        return $this->db->getColumnFactory()->fromDbType($info['data_type'], [
             'autoIncrement' => $info['is_identity'] === '1',
             'check' => $info['check'],
             'comment' => $info['comment'],

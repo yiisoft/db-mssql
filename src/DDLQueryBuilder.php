@@ -59,7 +59,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         $constraintBase = preg_replace('/\W/', '', $table . '_' . $column);
 
         if (is_string($type)) {
-            $type = $this->schema->getColumnFactory()->fromDefinition($type);
+            $type = $this->queryBuilder->getColumnFactory()->fromDefinition($type);
         }
 
         $columnDefinitionBuilder = $this->queryBuilder->getColumnDefinitionBuilder();
