@@ -86,7 +86,8 @@ final class ColumnFactory extends AbstractColumnFactory
     {
         /** @psalm-var class-string<ColumnInterface> */
         return $this->mapType($this->columnClassMap, $type, $info)
-            ?? ($type === ColumnType::BINARY
+            ?? (
+                $type === ColumnType::BINARY
                 ? BinaryColumn::class
                 : parent::getColumnClass($type, $info)
             );
@@ -96,7 +97,8 @@ final class ColumnFactory extends AbstractColumnFactory
     {
         /** @psalm-var ColumnType::* */
         return $this->mapType($this->typeMap, $dbType, $info)
-            ?? (isset($info['check'], $info['name']) && $info['check'] === "(isjson([{$info['name']}])>(0))"
+            ?? (
+                isset($info['check'], $info['name']) && $info['check'] === "(isjson([{$info['name']}])>(0))"
                 ? ColumnType::JSON
                 : parent::getType($dbType, $info)
             );
