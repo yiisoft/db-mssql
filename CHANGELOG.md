@@ -35,6 +35,7 @@
 - Chg #348: Remove usage of `hasLimit()` and `hasOffset()` methods of `DQLQueryBuilder` class (@Tigrov)
 - Enh #350: Refactor according changes in `db` package (@Tigrov)
 - New #349: Add `caseSensitive` option to like condition (@vjik)
+- Enh #352: Remove `getCacheKey()` and `getCacheTag()` methods from `Schema` class (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
