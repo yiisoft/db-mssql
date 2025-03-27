@@ -178,6 +178,52 @@ final class Schema extends AbstractPdoSchema
     }
 
     /**
+     * @psalm-param array{
+     *     flags: int,
+     *     "sqlsrv:decl_type": string,
+     *     native_type: string,
+     *     table: string,
+     *     pdo_type: int,
+     *     name: string,
+     *     len: int,
+     *     precision: int,
+     * } $info
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
+     */
+    protected function loadResultColumn(array $info): ColumnInterface|null
+    {
+        if (empty($info['sqlsrv:decl_type'])) {
+            return null;
+        }
+
+        $dbType = $info['sqlsrv:decl_type'];
+
+        $columnInfo = ['fromResult' => true];
+
+        if (!empty($info['table'])) {
+            $columnInfo['table'] = $info['table'];
+            $columnInfo['name'] = $info['name'];
+        } elseif (!empty($info['name'])) {
+            $columnInfo['name'] = $info['name'];
+        }
+
+        if (!empty($info['len'])) {
+            $columnInfo['size'] = match ($dbType) {
+                'time', 'datetime', 'datetime2', 'datetimeoffset' => $info['precision'],
+                default => $info['len'],
+            };
+        }
+
+        match ($dbType) {
+            'decimal', 'numeric' => $columnInfo['scale'] = $info['precision'],
+            default => null,
+        };
+
+        return $this->db->getColumnFactory()->fromDbType($dbType, $columnInfo);
+    }
+
+    /**
      * Loads the metadata for the specified table.
      *
      * @param string $name The table name.

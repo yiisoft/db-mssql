@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -12,7 +13,9 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Schema;
+use Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\Tests\Common\CommonSchemaTest;
@@ -184,5 +187,11 @@ final class SchemaTest extends CommonSchemaTest
         $this->assertEquals(-33.22, $table->getColumn('numeric_col')?->getDefaultValue());
 
         $db->close();
+    }
+
+    #[DataProviderExternal(SchemaProvider::class, 'resultColumns')]
+    public function testGetResultColumn(ColumnInterface|null $expected, array $info): void
+    {
+        parent::testGetResultColumn($expected, $info);
     }
 }
