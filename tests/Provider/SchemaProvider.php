@@ -261,6 +261,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
     {
         return [
             [null, []],
+            [null, ['sqlsrv:decl_type' => '']],
             [new IntegerColumn(dbType: 'int', name: 'int_col', size: 10), [
                 'flags' => 0,
                 'sqlsrv:decl_type' => 'int',
