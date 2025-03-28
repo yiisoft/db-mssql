@@ -82,26 +82,22 @@ final class ColumnFactory extends AbstractColumnFactory
         return parent::fromPseudoType($pseudoType, $info);
     }
 
-    protected function getColumnClass(string $type, array &$info = []): string
+    protected function getColumnClass(string $type, array $info = []): string
     {
-        /** @psalm-var class-string<ColumnInterface> */
-        return $this->mapType($this->columnClassMap, $type, $info)
-            ?? (
-                $type === ColumnType::BINARY
-                ? BinaryColumn::class
-                : parent::getColumnClass($type, $info)
-            );
+        if ($type === ColumnType::BINARY) {
+            return BinaryColumn::class;
+        }
+
+        return parent::getColumnClass($type, $info);
     }
 
-    protected function getType(string $dbType, array &$info = []): string
+    protected function getType(string $dbType, array $info = []): string
     {
-        /** @psalm-var ColumnType::* */
-        return $this->mapType($this->typeMap, $dbType, $info)
-            ?? (
-                isset($info['check'], $info['name']) && $info['check'] === "(isjson([{$info['name']}])>(0))"
-                ? ColumnType::JSON
-                : parent::getType($dbType, $info)
-            );
+        if (isset($info['check'], $info['name']) && $info['check'] === "(isjson([{$info['name']}])>(0))") {
+            return ColumnType::JSON;
+        }
+
+        return parent::getType($dbType, $info);
     }
 
     protected function normalizeNotNullDefaultValue(string $defaultValue, ColumnInterface $column): mixed
