@@ -59,7 +59,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         $constraintBase = preg_replace('/\W/', '', $table . '_' . $column);
 
         if (is_string($type)) {
-            $type = $this->schema->getColumnFactory()->fromDefinition($type);
+            $type = $this->queryBuilder->getColumnFactory()->fromDefinition($type);
         }
 
         $columnDefinitionBuilder = $this->queryBuilder->getColumnDefinitionBuilder();
@@ -114,6 +114,20 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         }
 
         return $command;
+    }
+
+    public function createIndex(
+        string $table,
+        string $name,
+        array|string $columns,
+        string|null $indexType = null,
+        string|null $indexMethod = null
+    ): string {
+        return 'CREATE ' . (!empty($indexType) ? $indexType . ' ' : '') . 'INDEX '
+            . $this->quoter->quoteTableName($name) . ' ON '
+            . $this->quoter->quoteTableName($table)
+            . (!empty($columns) ? ' (' . $this->queryBuilder->buildColumns($columns) . ')' : '')
+            . (!empty($indexMethod) ? " USING $indexMethod" : '');
     }
 
     /**
@@ -181,7 +195,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      *
      * Note: The method will quote the `comment`, `table`, `column` parameter before using it in the generated SQL.
      */
-    private function buildAddCommentSql(string $comment, string $table, string $column = null): string
+    private function buildAddCommentSql(string $comment, string $table, ?string $column = null): string
     {
         $tableSchema = $this->schema->getTableSchema($table);
 
@@ -232,7 +246,7 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
      *
      * Note: The method will quote the `table`, `column` parameter before using it in the generated SQL.
      */
-    private function buildRemoveCommentSql(string $table, string $column = null): string
+    private function buildRemoveCommentSql(string $table, ?string $column = null): string
     {
         $tableSchema = $this->schema->getTableSchema($table);
 
@@ -299,5 +313,16 @@ WHILE 1=1 BEGIN
     IF @constraintName IS NULL BREAK
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END";
+    }
+
+    /**
+     * @throws NotSupportedException MSSQL doesn't support cascade drop table.
+     */
+    public function dropTable(string $table, bool $ifExists = false, bool $cascade = false): string
+    {
+        if ($cascade) {
+            throw new NotSupportedException('MSSQL doesn\'t support cascade drop table.');
+        }
+        return parent::dropTable($table, $ifExists, false);
     }
 }

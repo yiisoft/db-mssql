@@ -12,7 +12,7 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoCommand;
  */
 final class Command extends AbstractPdoCommand
 {
-    public function insertWithReturningPks(string $table, array $columns): bool|array
+    public function insertWithReturningPks(string $table, array $columns): array|false
     {
         if (empty($this->db->getSchema()->getTableSchema($table)?->getPrimaryKey())) {
             if ($this->insert($table, $columns)->execute() === 0) {

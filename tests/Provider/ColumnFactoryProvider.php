@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
+use Yiisoft\Db\Schema\Column\ArrayColumn;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
 use Yiisoft\Db\Schema\Column\DoubleColumn;
 use Yiisoft\Db\Schema\Column\IntegerColumn;
@@ -18,7 +19,7 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
     {
         $values = parent::pseudoTypes();
 
-        $values['uuid_pk_seq'][3]['getDefaultValue'] = new Expression('newsequentialid()');
+        $values['uuid_pk_seq'][1] = new StringColumn(ColumnType::UUID, primaryKey: true, autoIncrement: true, defaultValue: new Expression('newsequentialid()'));
 
         return $values;
     }
@@ -78,5 +79,14 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
         $defaultValueRaw[] = [ColumnType::BINARY, '(0x737472696e67)', 'string'];
 
         return $defaultValueRaw;
+    }
+
+    public static function definitions(): array
+    {
+        $definitions = parent::definitions();
+
+        $definitions['integer[]'] = ['int[]', new ArrayColumn(dbType: 'int', column: new IntegerColumn(dbType: 'int'))];
+
+        return $definitions;
     }
 }

@@ -91,6 +91,15 @@ final class ColumnFactory extends AbstractColumnFactory
         return parent::getColumnClass($type, $info);
     }
 
+    protected function getType(string $dbType, array $info = []): string
+    {
+        if (isset($info['check'], $info['name']) && $info['check'] === "(isjson([{$info['name']}])>(0))") {
+            return ColumnType::JSON;
+        }
+
+        return parent::getType($dbType, $info);
+    }
+
     protected function normalizeNotNullDefaultValue(string $defaultValue, ColumnInterface $column): mixed
     {
         if ($defaultValue[0] === '(' && $defaultValue[-1] === ')') {

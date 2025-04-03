@@ -6,7 +6,11 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Driver\Pdo\AbstractPdoConnection;
 use Yiisoft\Db\Driver\Pdo\PdoCommandInterface;
+use Yiisoft\Db\Mssql\Column\ColumnFactory;
+use Yiisoft\Db\Query\BatchQueryResultInterface;
+use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
+use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
 use Yiisoft\Db\Schema\QuoterInterface;
 use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Transaction\TransactionInterface;
@@ -18,7 +22,12 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  */
 final class Connection extends AbstractPdoConnection
 {
-    public function createCommand(string $sql = null, array $params = []): PdoCommandInterface
+    public function createBatchQueryResult(QueryInterface $query, bool $each = false): BatchQueryResultInterface
+    {
+        return new BatchQueryResult($query, $each);
+    }
+
+    public function createCommand(?string $sql = null, array $params = []): PdoCommandInterface
     {
         $command = new Command($this);
 
@@ -42,31 +51,24 @@ final class Connection extends AbstractPdoConnection
         return new Transaction($this);
     }
 
+    public function getColumnFactory(): ColumnFactoryInterface
+    {
+        return new ColumnFactory();
+    }
+
     public function getQueryBuilder(): QueryBuilderInterface
     {
-        return $this->queryBuilder ??= new QueryBuilder(
-            $this->getQuoter(),
-            $this->getSchema(),
-            $this->getServerInfo(),
-        );
+        return $this->queryBuilder ??= new QueryBuilder($this);
     }
 
     public function getQuoter(): QuoterInterface
     {
-        if ($this->quoter === null) {
-            $this->quoter = new Quoter(['[', ']'], ['[', ']'], $this->getTablePrefix());
-        }
-
-        return $this->quoter;
+        return $this->quoter ??= new Quoter(['[', ']'], ['[', ']'], $this->getTablePrefix());
     }
 
     public function getSchema(): SchemaInterface
     {
-        if ($this->schema === null) {
-            $this->schema = new Schema($this, $this->schemaCache);
-        }
-
-        return $this->schema;
+        return $this->schema ??= new Schema($this, $this->schemaCache);
     }
 
     /**

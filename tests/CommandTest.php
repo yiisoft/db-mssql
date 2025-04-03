@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\IntegrityException;
@@ -13,14 +14,13 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
-use Yiisoft\Db\Mssql\Connection;
-use Yiisoft\Db\Mssql\Dsn;
-use Yiisoft\Db\Mssql\Driver;
+use Yiisoft\Db\Mssql\IndexType;
+use Yiisoft\Db\Mssql\Tests\Provider\CommandProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
-use Yiisoft\Db\Tests\Support\DbHelper;
 
+use function array_filter;
 use function trim;
 
 /**
@@ -311,18 +311,25 @@ final class CommandTest extends CommonCommandTest
         );
     }
 
+    public function testDropTableCascade(): void
+    {
+        $command = $this->getConnection()->createCommand();
+
+        $this->expectException(NotSupportedException::class);
+        $this->expectExceptionMessage('MSSQL doesn\'t support cascade drop table.');
+        $command->dropTable('{{table}}', cascade: true);
+    }
+
     public function testShowDatabases(): void
     {
-        $dsn = new Dsn(options: ['Encrypt' => 'no']);
-        $db = new Connection(
-            new Driver($dsn->asString(), 'SA', 'YourStrong!Passw0rd'),
-            DbHelper::getSchemaCache(),
-        );
+        $expectedDatabases = [];
+        if (self::getDatabaseName() !== 'tempdb') {
+            $expectedDatabases[] = self::getDatabaseName();
+        }
 
-        $command = $db->createCommand();
+        $actualDatabases = self::getDb()->createCommand()->showDatabases();
 
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433;Encrypt=no', $db->getDriver()->getDsn());
-        $this->assertSame(['yiitest'], $command->showDatabases());
+        $this->assertSame($expectedDatabases, $actualDatabases);
     }
 
     /** @link https://github.com/yiisoft/db-migration/issues/11 */
@@ -347,5 +354,68 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame(40, $fieldCol->getSize());
 
         $command->dropTable('column_with_constraint');
+    }
+
+    #[DataProviderExternal(CommandProvider::class, 'createIndex')]
+    public function testCreateIndex(array $columns, array $indexColumns, string|null $indexType, string|null $indexMethod): void
+    {
+        parent::testCreateIndex($columns, $indexColumns, $indexType, $indexMethod);
+    }
+
+    public function createCreateClusteredColumnstoreIndex()
+    {
+        $db = $this->getConnection();
+
+        $command = $db->createCommand();
+        $schema = $db->getSchema();
+
+        $tableName = 'test_create_index';
+        $indexName = 'test_index_name';
+
+        if ($schema->getTableSchema($tableName) !== null) {
+            $command->dropTable($tableName)->execute();
+        }
+
+        $command->createTable($tableName, ['col1' => ColumnBuilder::integer()])->execute();
+        $command->createIndex($tableName, $indexName, '', IndexType::CLUSTERED_COLUMNSTORE)->execute();
+
+        $this->assertCount(1, $schema->getTableIndexes($tableName));
+
+        $index = $schema->getTableIndexes($tableName)[0];
+
+        $this->assertSame(['col1'], $index->getColumnNames());
+        $this->assertFalse($index->isUnique());
+        $this->assertFalse($index->isPrimary());
+
+        $db->close();
+    }
+
+    public function testCreateXmlIndex(): void
+    {
+        $db = $this->getConnection();
+        $command = $db->createCommand();
+        $schema = $db->getSchema();
+
+        $tableName = 'test_create_index';
+        $primaryXmlIndexName = 'test_index_name';
+        $xmlIndexName = 'test_index_name_xml';
+        $indexColumns = ['col1'];
+
+        if ($schema->getTableSchema($tableName) !== null) {
+            $command->dropTable($tableName)->execute();
+        }
+
+        $command->createTable($tableName, ['id' => ColumnBuilder::primaryKey(), 'col1' => 'xml'])->execute();
+        $command->createIndex($tableName, $primaryXmlIndexName, $indexColumns, IndexType::PRIMARY_XML)->execute();
+        $command->createIndex($tableName, $xmlIndexName, $indexColumns, IndexType::XML, "XML INDEX $primaryXmlIndexName FOR PATH")->execute();
+
+        $this->assertCount(3, $schema->getTableIndexes($tableName));
+
+        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimary())[1];
+
+        $this->assertSame($indexColumns, $index->getColumnNames());
+        $this->assertFalse($index->isUnique());
+
+        $db->close();
     }
 }

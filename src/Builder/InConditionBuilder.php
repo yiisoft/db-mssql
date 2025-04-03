@@ -65,7 +65,7 @@ final class InConditionBuilder extends \Yiisoft\Db\QueryBuilder\Condition\Builde
             }
 
             $quotedColumns[$i] = !str_contains($column, '(')
-                ? $this->queryBuilder->quoter()->quoteColumnName($column) : $column;
+                ? $this->queryBuilder->getQuoter()->quoteColumnName($column) : $column;
         }
 
         $vss = [];
