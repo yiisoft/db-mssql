@@ -14,23 +14,21 @@ use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
-use Yiisoft\Db\Mssql\Column\ColumnFactory;
-use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_change_key_case;
+use function array_column;
 use function array_fill_keys;
 use function array_map;
 use function is_array;
-use function md5;
-use function serialize;
 use function str_replace;
 
 /**
  * Implements the MSSQL Server specific schema, supporting MSSQL Server 2017 and above.
  *
  * @psalm-type ColumnArray = array{
+ *   check: string|null,
  *   column_name: string,
  *   column_default: string|null,
  *   is_nullable: string,
@@ -66,11 +64,6 @@ final class Schema extends AbstractPdoSchema
      * @var string|null The default schema used for the current session.
      */
     protected string|null $defaultSchema = 'dbo';
-
-    public function getColumnFactory(): ColumnFactoryInterface
-    {
-        return new ColumnFactory();
-    }
 
     /**
      * Resolves the table name and schema name (if any).
@@ -293,7 +286,7 @@ final class Schema extends AbstractPdoSchema
             $result[] = (new IndexConstraint())
                 ->primary((bool) $index[0]['index_is_primary'])
                 ->unique((bool) $index[0]['index_is_unique'])
-                ->columnNames(DbArrayHelper::getColumn($index, 'column_name'))
+                ->columnNames(array_column($index, 'column_name'))
                 ->name($name);
         }
 
@@ -356,8 +349,9 @@ final class Schema extends AbstractPdoSchema
      */
     private function loadColumn(array $info): ColumnInterface
     {
-        return $this->getColumnFactory()->fromDbType($info['data_type'], [
+        return $this->db->getColumnFactory()->fromDbType($info['data_type'], [
             'autoIncrement' => $info['is_identity'] === '1',
+            'check' => $info['check'],
             'comment' => $info['comment'],
             'computed' => $info['is_computed'] === '1',
             'defaultValueRaw' => $info['column_default'],
@@ -386,38 +380,42 @@ final class Schema extends AbstractPdoSchema
         $tableName = $table->getName();
 
         $columnsTableName = '[INFORMATION_SCHEMA].[COLUMNS]';
-        $whereSql = '[t1].[table_name] = :table_name';
+        $whereSql = '[t].[table_name] = :table_name';
         $whereParams = [':table_name' => $tableName];
 
         if ($table->getCatalogName() !== null) {
             $columnsTableName = "[{$table->getCatalogName()}].$columnsTableName";
-            $whereSql .= ' AND [t1].[table_catalog] = :catalog';
+            $whereSql .= ' AND [t].[table_catalog] = :catalog';
             $whereParams[':catalog'] = $table->getCatalogName();
         }
 
         if ($schemaName !== null) {
-            $whereSql .= ' AND [t1].[table_schema] = :schema_name';
+            $whereSql .= ' AND [t].[table_schema] = :schema_name';
             $whereParams[':schema_name'] = $schemaName;
         }
 
         $sql = <<<SQL
         SELECT
-            [t1].[column_name],
-            [t1].[column_default],
-            [t1].[is_nullable],
-            [t1].[data_type],
-            COALESCE(NULLIF([t1].[character_maximum_length], -1), [t1].[numeric_precision], [t1].[datetime_precision]) AS [size],
-            [t1].[numeric_scale],
-            COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsIdentity') AS [is_identity],
-            COLUMNPROPERTY(OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name]), [t1].[column_name], 'IsComputed') AS [is_computed],
-            [t2].[value] as [comment]
-        FROM $columnsTableName AS [t1]
-        LEFT JOIN [sys].[extended_properties] AS [t2]
-            ON [t2].[class] = 1
-                AND [t2].[class_desc] = 'OBJECT_OR_COLUMN'
-                AND [t2].[name] = 'MS_Description'
-                AND [t2].[major_id] = OBJECT_ID([t1].[table_schema] + '.' + [t1].[table_name])
-                AND [t2].[minor_id] = COLUMNPROPERTY([t2].[major_id], [t1].[column_name], 'ColumnID')
+            [t].[column_name],
+            [t].[column_default],
+            [t].[is_nullable],
+            [t].[data_type],
+            COALESCE(NULLIF([t].[character_maximum_length], -1), [t].[numeric_precision], [t].[datetime_precision]) AS [size],
+            [t].[numeric_scale],
+            COLUMNPROPERTY(OBJECT_ID([t].[table_schema] + '.' + [t].[table_name]), [t].[column_name], 'IsIdentity') AS [is_identity],
+            COLUMNPROPERTY(OBJECT_ID([t].[table_schema] + '.' + [t].[table_name]), [t].[column_name], 'IsComputed') AS [is_computed],
+            [ext].[value] as [comment],
+            [c].[definition] AS [check]
+        FROM $columnsTableName AS [t]
+        LEFT JOIN [sys].[extended_properties] AS [ext]
+            ON [ext].[class] = 1
+                AND [ext].[class_desc] = 'OBJECT_OR_COLUMN'
+                AND [ext].[name] = 'MS_Description'
+                AND [ext].[major_id] = OBJECT_ID([t].[table_schema] + '.' + [t].[table_name])
+                AND [ext].[minor_id] = COLUMNPROPERTY([ext].[major_id], [t].[column_name], 'ColumnID')
+        LEFT JOIN [sys].[check_constraints] AS [c]
+            ON [c].[parent_object_id] = OBJECT_ID([t].[table_schema] + '.' + [t].[table_name])
+                AND [c].[parent_column_id] = COLUMNPROPERTY([c].[parent_object_id], [t].[column_name], 'ColumnID')
         WHERE $whereSql
         SQL;
 
@@ -722,34 +720,35 @@ final class Schema extends AbstractPdoSchema
                     case 'PK':
                         /** @psalm-var Constraint */
                         $result[self::PRIMARY_KEY] = (new Constraint())
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'F':
+                        /** @psalm-suppress ArgumentTypeCoercion */
                         $result[self::FOREIGN_KEYS][] = (new ForeignKeyConstraint())
                             ->foreignSchemaName($constraint[0]['foreign_table_schema'])
                             ->foreignTableName($constraint[0]['foreign_table_name'])
-                            ->foreignColumnNames(DbArrayHelper::getColumn($constraint, 'foreign_column_name'))
-                            ->onDelete(str_replace('_', '', $constraint[0]['on_delete']))
-                            ->onUpdate(str_replace('_', '', $constraint[0]['on_update']))
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->foreignColumnNames(array_column($constraint, 'foreign_column_name'))
+                            ->onDelete(str_replace('_', ' ', $constraint[0]['on_delete']))
+                            ->onUpdate(str_replace('_', ' ', $constraint[0]['on_update']))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'UQ':
                         $result[self::UNIQUES][] = (new Constraint())
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'C':
                         $result[self::CHECKS][] = (new CheckConstraint())
                             ->expression($constraint[0]['check_expr'])
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                     case 'D':
                         $result[self::DEFAULTS][] = (new DefaultValueConstraint())
                             ->value($constraint[0]['default_expr'])
-                            ->columnNames(DbArrayHelper::getColumn($constraint, 'column_name'))
+                            ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
                         break;
                 }
@@ -761,29 +760,5 @@ final class Schema extends AbstractPdoSchema
         }
 
         return $result[$returnType];
-    }
-
-    /**
-     * Returns the cache key for the specified table name.
-     *
-     * @param string $name The table name.
-     *
-     * @return array The cache key.
-     */
-    protected function getCacheKey(string $name): array
-    {
-        return [self::class, ...$this->generateCacheKey(), $this->db->getQuoter()->getRawTableName($name)];
-    }
-
-    /**
-     * Returns the cache tag name.
-     *
-     * This allows {@see refresh()} to invalidate all cached table schemas.
-     *
-     * @return string The cache tag name.
-     */
-    protected function getCacheTag(): string
-    {
-        return md5(serialize([self::class, ...$this->generateCacheKey()]));
     }
 }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
 use Yiisoft\Db\Constant\PseudoType;
+use Yiisoft\Db\Constant\ReferentialAction;
+use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
@@ -588,14 +590,26 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['timestamp(6)'][0] = 'datetime2(6)';
         $values['timestamp(null)'][0] = 'datetime2';
         $values['uuid()'][0] = 'uniqueidentifier';
-        $values['array()'][0] = 'nvarchar(max)';
-        $values['structured()'][0] = 'nvarchar(max)';
-        $values["structured('json')"] = ['varbinary(max)', ColumnBuilder::structured('varbinary(max)')];
-        $values['json()'][0] = 'nvarchar(max)';
-        $values['json(100)'][0] = 'nvarchar(max)';
+        $values['array()'] = [
+            'nvarchar(max) CHECK (isjson([array_col]) > 0)',
+            $values['array()'][1]->withName('array_col'),
+        ];
+        $values['structured()'] = [
+            'nvarchar(max) CHECK (isjson([structured_col]) > 0)',
+            $values['structured()'][1]->withName('structured_col'),
+        ];
+        $values["structured('json')"] = ['nvarchar(max)', ColumnBuilder::structured('nvarchar(max)')];
+        $values['json()'] = [
+            'nvarchar(max) CHECK (isjson([json_col]) > 0)',
+            $values['json()'][1]->withName('json_col'),
+        ];
+        $values['json(100)'] = [
+            'nvarchar(max) CHECK (isjson([json_100]) > 0)',
+            $values['json(100)'][1]->withName('json_100'),
+        ];
         $values["extra('NOT NULL')"][0] = 'nvarchar(255) NOT NULL';
         $values["extra('')"][0] = 'nvarchar(255)';
-        $values["check('value > 5')"][0] = 'int CHECK ([col_59] > 5)';
+        $values["check('value > 5')"][0] = 'int CHECK ([check_col] > 5)';
         $values["check('')"][0] = 'int';
         $values['check(null)'][0] = 'int';
         $values["comment('comment')"][0] = 'nvarchar(255)';
@@ -617,6 +631,14 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['integer(8)->scale(2)'][0] = 'int';
         $values['reference($reference)'][0] = 'int REFERENCES [ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
         $values['reference($referenceWithSchema)'][0] = 'int REFERENCES [ref_schema].[ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
+
+        $referenceRestrict = new ForeignKeyConstraint();
+        $referenceRestrict->foreignColumnNames(['id']);
+        $referenceRestrict->foreignTableName('ref_table');
+        $referenceRestrict->onDelete(ReferentialAction::RESTRICT);
+        $referenceRestrict->onUpdate(ReferentialAction::RESTRICT);
+
+        $values[] = ['int REFERENCES [ref_table] ([id])', ColumnBuilder::integer()->reference($referenceRestrict)];
 
         return $values;
     }

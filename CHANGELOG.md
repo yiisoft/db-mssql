@@ -14,7 +14,7 @@
 - Enh #319: Separate column type constants (@Tigrov)
 - New #320: Realize `ColumnBuilder` class (@Tigrov)
 - Enh #321: Update according changes in `ColumnSchemaInterface` (@Tigrov)
-- New #322, #330: Add `ColumnDefinitionBuilder` class (@Tigrov)
+- New #322, #330, #340: Add `ColumnDefinitionBuilder` class (@Tigrov)
 - Enh #323: Refactor `Dsn` class (@Tigrov)
 - Enh #324: Use constructor to create columns and initialize properties (@Tigrov)
 - Enh #327: Refactor `Schema::findColumns()` method (@Tigrov)
@@ -24,6 +24,18 @@
 - Enh #332: Use `ColumnDefinitionBuilder` to generate table column SQL representation (@Tigrov)
 - Enh #335: Remove `ColumnInterface` (@Tigrov)
 - Enh #337: Rename `ColumnSchemaInterface` to `ColumnInterface` (@Tigrov)
+- Enh #338: Replace `DbArrayHelper::getColumn()` with `array_column()` (@Tigrov)
+- New #339: Add `IndexType` and `IndexMethod` classes (@Tigrov)
+- Bug #343: Explicitly mark nullable parameters (@vjik)
+- New #342: Support JSON type (@Tigrov)
+- Chg #344: Change supported PHP versions to `8.1 - 8.4` (@Tigrov)
+- Chg #344: Change return type of `Command::insertWithReturningPks()` method to `array|false` (@Tigrov)
+- New #345: Add parameters `$ifExists` and `$cascade` to `CommandInterface::dropTable()` and
+  `DDLQueryBuilderInterface::dropTable()` methods (@vjik)
+- Chg #348: Remove usage of `hasLimit()` and `hasOffset()` methods of `DQLQueryBuilder` class (@Tigrov)
+- Enh #350: Refactor according changes in `db` package (@Tigrov)
+- New #349: Add `caseSensitive` option to like condition (@vjik)
+- Enh #352: Remove `getCacheKey()` and `getCacheTag()` methods from `Schema` class (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 

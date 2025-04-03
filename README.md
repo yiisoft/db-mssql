@@ -33,7 +33,7 @@ have access to a SQL Server database and the necessary credentials to connect to
 
 | PHP           | MSSQL Version | CI-Actions |
 |---------------|---------------|------------|
-| **8.1 - 8.3** | **2017 - 2022**| [![Build status](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml/badge.svg)](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml)
+| **8.1 - 8.4** | **2017 - 2022**| [![Build status](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml/badge.svg)](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml)
 
 ## Installation
 

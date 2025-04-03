@@ -14,13 +14,17 @@ on:
 
 name: mutation test
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     env:
       COMPOSER_ROOT_VERSION: 1.0.0
-      EXTENSIONS: pdo, pdo_sqlsrv-5.12
+      EXTENSIONS: pdo, pdo_sqlsrv
 
     runs-on: ${{ matrix.os }}
 
@@ -30,7 +34,7 @@ jobs:
           - ubuntu-latest
 
         php:
-          - 8.3
+          - 8.4
 
     services:
       mssql:
@@ -50,7 +54,7 @@ jobs:
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18
 
       - name: Checkout.
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create MS SQL Database.
         run: docker exec -i mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -C -Q 'CREATE DATABASE yiitest'
@@ -62,7 +66,6 @@ jobs:
           extensions: ${{ env.EXTENSIONS }}
           ini-values: memory_limit=-1
           coverage: pcov
-          tools: composer:v2, pecl
 
       - name: Update composer.
         run: composer self-update
@@ -78,9 +81,6 @@ jobs:
           CURRENT_PACKAGE: db
           FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
           WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
-
-      - name: Install dependencies with composer.
-        run: composer update --no-interaction --no-progress --optimize-autoloader --ansi
 
       - name: Run infection.
         run: |
