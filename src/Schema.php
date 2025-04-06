@@ -715,7 +715,6 @@ final class Schema extends AbstractPdoSchema
             foreach ($names as $name => $constraint) {
                 switch ($type) {
                     case 'PK':
-                        /** @var Constraint */
                         $result[self::PRIMARY_KEY] = (new Constraint())
                             ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
