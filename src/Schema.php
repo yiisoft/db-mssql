@@ -267,7 +267,6 @@ final class Schema extends AbstractPdoSchema
         $resolvedName = $this->resolveTableName($tableName);
         $indexes = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
-        /** @psalm-var array[] $indexes */
         $indexes = array_map(array_change_key_case(...), $indexes);
         $indexes = DbArrayHelper::arrange($indexes, ['name']);
 
@@ -697,7 +696,6 @@ final class Schema extends AbstractPdoSchema
         $resolvedName = $this->resolveTableName($tableName);
         $constraints = $this->db->createCommand($sql, [':fullName' => $resolvedName->getFullName()])->queryAll();
 
-        /** @psalm-var array[] $constraints */
         $constraints = array_map(array_change_key_case(...), $constraints);
         $constraints = DbArrayHelper::arrange($constraints, ['type', 'name']);
 
@@ -709,16 +707,14 @@ final class Schema extends AbstractPdoSchema
             self::DEFAULTS => [],
         ];
 
-        /** @psalm-var array<array-key, array> $constraints */
         foreach ($constraints as $type => $names) {
             /**
-             * @psalm-var object|string|null $name
+             * @var string $name
              * @psalm-var ConstraintArray $constraint
              */
             foreach ($names as $name => $constraint) {
                 switch ($type) {
                     case 'PK':
-                        /** @psalm-var Constraint */
                         $result[self::PRIMARY_KEY] = (new Constraint())
                             ->columnNames(array_column($constraint, 'column_name'))
                             ->name($name);
