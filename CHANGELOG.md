@@ -36,7 +36,8 @@
 - Enh #350: Refactor according changes in `db` package (@Tigrov)
 - New #349: Add `caseSensitive` option to like condition (@vjik)
 - Enh #352: Remove `getCacheKey()` and `getCacheTag()` methods from `Schema` class (@Tigrov)
-- Enh #355: Use `DbArrayHelper::arrange()` instead of `DbArrayHelper::index()` method (@Tigrov)
+- Enh #355, #356: Use `DbArrayHelper::arrange()` instead of `DbArrayHelper::index()` method (@Tigrov)
+- Enh #300: Remove realization of `Connection::createBatchQueryResult()` method (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
