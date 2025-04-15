@@ -187,36 +187,36 @@ final class Schema extends AbstractPdoSchema
      *     name: string,
      *     len: int,
      *     precision: int,
-     * } $info
+     * } $metadata
      *
      * @psalm-suppress MoreSpecificImplementedParamType
      */
-    protected function loadResultColumn(array $info): ColumnInterface|null
+    protected function loadResultColumn(array $metadata): ColumnInterface|null
     {
-        if (empty($info['sqlsrv:decl_type'])) {
+        if (empty($metadata['sqlsrv:decl_type'])) {
             return null;
         }
 
-        $dbType = $info['sqlsrv:decl_type'];
+        $dbType = $metadata['sqlsrv:decl_type'];
 
         $columnInfo = ['fromResult' => true];
 
-        if (!empty($info['table'])) {
-            $columnInfo['table'] = $info['table'];
-            $columnInfo['name'] = $info['name'];
-        } elseif (!empty($info['name'])) {
-            $columnInfo['name'] = $info['name'];
+        if (!empty($metadata['table'])) {
+            $columnInfo['table'] = $metadata['table'];
+            $columnInfo['name'] = $metadata['name'];
+        } elseif (!empty($metadata['name'])) {
+            $columnInfo['name'] = $metadata['name'];
         }
 
-        if (!empty($info['len'])) {
+        if (!empty($metadata['len'])) {
             $columnInfo['size'] = match ($dbType) {
-                'time', 'datetime', 'datetime2', 'datetimeoffset' => $info['precision'],
-                default => $info['len'],
+                'time', 'datetime', 'datetime2', 'datetimeoffset' => $metadata['precision'],
+                default => $metadata['len'],
             };
         }
 
         match ($dbType) {
-            'decimal', 'numeric' => $columnInfo['scale'] = $info['precision'],
+            'decimal', 'numeric' => $columnInfo['scale'] = $metadata['precision'],
             default => null,
         };
 
