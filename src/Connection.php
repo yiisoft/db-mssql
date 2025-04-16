@@ -7,8 +7,6 @@ namespace Yiisoft\Db\Mssql;
 use Yiisoft\Db\Driver\Pdo\AbstractPdoConnection;
 use Yiisoft\Db\Driver\Pdo\PdoCommandInterface;
 use Yiisoft\Db\Mssql\Column\ColumnFactory;
-use Yiisoft\Db\Query\BatchQueryResultInterface;
-use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Schema\Column\ColumnFactoryInterface;
 use Yiisoft\Db\Schema\QuoterInterface;
@@ -22,11 +20,6 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  */
 final class Connection extends AbstractPdoConnection
 {
-    public function createBatchQueryResult(QueryInterface $query, bool $each = false): BatchQueryResultInterface
-    {
-        return new BatchQueryResult($query, $each);
-    }
-
     public function createCommand(?string $sql = null, array $params = []): PdoCommandInterface
     {
         $command = new Command($this);
