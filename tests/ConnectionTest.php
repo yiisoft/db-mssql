@@ -11,8 +11,10 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Column\ColumnFactory;
+use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Tests\Common\CommonConnectionTest;
+use Yiisoft\Db\Tests\Support\DbHelper;
 use Yiisoft\Db\Transaction\TransactionInterface;
 
 /**
@@ -94,5 +96,18 @@ final class ConnectionTest extends CommonConnectionTest
         $db = $this->getConnection();
 
         $this->assertInstanceOf(ColumnFactory::class, $db->getColumnFactory());
+
+        $db->close();
+    }
+
+    public function testUserDefinedColumnFactory(): void
+    {
+        $columnFactory = new ColumnFactory();
+
+        $db = new Connection($this->getDriver(), DbHelper::getSchemaCache(), $columnFactory);
+
+        $this->assertSame($columnFactory, $db->getColumnFactory());
+
+        $db->close();
     }
 }
