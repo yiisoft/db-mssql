@@ -38,6 +38,7 @@
 - Enh #352: Remove `getCacheKey()` and `getCacheTag()` methods from `Schema` class (@Tigrov)
 - Enh #355, #356: Use `DbArrayHelper::arrange()` instead of `DbArrayHelper::index()` method (@Tigrov)
 - New #353: Realize `Schema::loadResultColumn()` method (@Tigrov)
+- Enh #300: Remove realization of `Connection::createBatchQueryResult()` method (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
