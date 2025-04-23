@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -37,7 +38,7 @@ final class DateTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string $defaultValue
+        DateTimeImmutable $defaultValue
     ): void {
         $db = $this->buildTable();
 
@@ -45,7 +46,7 @@ final class DateTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->insert('date_default', [])->execute();
     }
@@ -61,7 +62,7 @@ final class DateTest extends TestCase
     {
         $db = $this->buildTable();
 
-        $command = $db->createCommand();
+        $command = $db->createCommand()->withDbTypecasting(false);
         $command->insert('date_default', [])->execute();
 
         $this->assertSame(
@@ -89,7 +90,7 @@ final class DateTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string $defaultValue
+        DateTimeImmutable $defaultValue
     ): void {
         $this->setFixture('Type/date.sql');
 
@@ -98,7 +99,7 @@ final class DateTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('date_default')->execute();
     }
@@ -142,7 +143,7 @@ final class DateTest extends TestCase
         $this->setFixture('Type/date.sql');
 
         $db = $this->getConnection(true);
-        $command = $db->createCommand();
+        $command = $db->createCommand()->withDbTypecasting(false);
         $command->insert('date', [
             'Mydate1' => '2007-05-08',
             'Mydate2' => null,

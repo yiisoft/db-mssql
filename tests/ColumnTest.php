@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use PDO;
 use Yiisoft\Db\Command\Param;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
@@ -16,16 +19,18 @@ use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\Column\DoubleColumn;
 use Yiisoft\Db\Schema\Column\IntegerColumn;
 use Yiisoft\Db\Schema\Column\StringColumn;
-use Yiisoft\Db\Tests\AbstractColumnTest;
+use Yiisoft\Db\Tests\Common\CommonColumnTest;
 
 use function str_repeat;
 
 /**
  * @group mssql
  */
-final class ColumnTest extends AbstractColumnTest
+final class ColumnTest extends CommonColumnTest
 {
     use TestTrait;
+
+    protected const COLUMN_BUILDER = ColumnBuilder::class;
 
     private function insertTypeValues(Connection $db): void
     {
@@ -44,16 +49,21 @@ final class ColumnTest extends AbstractColumnTest
         )->execute();
     }
 
-    private function assertResultValues(array $result): void
+    private function assertTypecastedValues(array $result, bool $allTypecasted = false): void
     {
         $this->assertSame(1, $result['int_col']);
         $this->assertSame(str_repeat('x', 100), $result['char_col']);
         $this->assertNull($result['char_col3']);
         $this->assertSame(1.234, $result['float_col']);
         $this->assertSame("\x10\x11\x12", $result['blob_col']);
-        $this->assertSame('2023-07-11 14:50:00.123', $result['datetime_col']);
+        $this->assertEquals(new DateTimeImmutable('2023-07-11 14:50:00.123', new DateTimeZone('UTC')), $result['datetime_col']);
         $this->assertFalse($result['bool_col']);
-        $this->assertSame('[{"a":1,"b":null,"c":[1,3,5]}]', $result['json_col']);
+
+        if ($allTypecasted) {
+            $this->assertSame([['a' => 1, 'b' => null, 'c' => [1, 3, 5]]], $result['json_col']);
+        } else {
+            $this->assertSame('[{"a":1,"b":null,"c":[1,3,5]}]', $result['json_col']);
+        }
     }
 
     public function testQueryWithTypecasting(): void
@@ -66,11 +76,11 @@ final class ColumnTest extends AbstractColumnTest
 
         $result = $query->one();
 
-        $this->assertResultValues($result);
+        $this->assertTypecastedValues($result);
 
         $result = $query->all();
 
-        $this->assertResultValues($result[0]);
+        $this->assertTypecastedValues($result[0]);
 
         $db->close();
     }
@@ -85,11 +95,11 @@ final class ColumnTest extends AbstractColumnTest
 
         $result = $command->queryOne();
 
-        $this->assertResultValues($result);
+        $this->assertTypecastedValues($result);
 
         $result = $command->queryAll();
 
-        $this->assertResultValues($result[0]);
+        $this->assertTypecastedValues($result[0]);
 
         $db->close();
     }
@@ -138,29 +148,19 @@ final class ColumnTest extends AbstractColumnTest
     {
         $db = $this->getConnection(true);
         $schema = $db->getSchema();
-        $tableSchema = $schema->getTableSchema('type');
+        $columns = $schema->getTableSchema('type')->getColumns();
 
         $this->insertTypeValues($db);
 
         $query = (new Query($db))->from('type')->one();
 
-        $intColPhpType = $tableSchema->getColumn('int_col')?->phpTypecast($query['int_col']);
-        $charColPhpType = $tableSchema->getColumn('char_col')?->phpTypecast($query['char_col']);
-        $charCol3PhpType = $tableSchema->getColumn('char_col3')?->phpTypecast($query['char_col3']);
-        $floatColPhpType = $tableSchema->getColumn('float_col')?->phpTypecast($query['float_col']);
-        $blobColPhpType = $tableSchema->getColumn('blob_col')?->phpTypecast($query['blob_col']);
-        $datetimeColPhpType = $tableSchema->getColumn('datetime_col')?->phpTypecast($query['datetime_col']);
-        $boolColPhpType = $tableSchema->getColumn('bool_col')?->phpTypecast($query['bool_col']);
-        $jsonColPhpType = $tableSchema->getColumn('json_col')?->phpTypecast($query['json_col']);
+        $result = [];
 
-        $this->assertSame(1, $intColPhpType);
-        $this->assertSame(str_repeat('x', 100), $charColPhpType);
-        $this->assertNull($charCol3PhpType);
-        $this->assertSame(1.234, $floatColPhpType);
-        $this->assertSame("\x10\x11\x12", $blobColPhpType);
-        $this->assertSame('2023-07-11 14:50:00.123', $datetimeColPhpType);
-        $this->assertFalse($boolColPhpType);
-        $this->assertSame([['a' => 1, 'b' => null, 'c' => [1, 3, 5]]], $jsonColPhpType);
+        foreach ($columns as $columnName => $column) {
+            $result[$columnName] = $column->phpTypecast($query[$columnName]);
+        }
+
+        $this->assertTypecastedValues($result, true);
 
         $db->close();
     }
