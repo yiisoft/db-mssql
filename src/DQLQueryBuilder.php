@@ -6,9 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
-use Yiisoft\Db\Mssql\Builder\ExpressionBuilder;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
 use Yiisoft\Db\Query\Query;
@@ -50,7 +48,6 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
             ...parent::defaultExpressionBuilders(),
             InCondition::class => InConditionBuilder::class,
             LikeCondition::class => LikeConditionBuilder::class,
-            Expression::class => ExpressionBuilder::class,
         ];
     }
 
