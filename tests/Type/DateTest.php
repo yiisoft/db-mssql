@@ -12,6 +12,8 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -149,9 +151,9 @@ final class DateTest extends TestCase
             'Mydate2' => null,
             'Mydatetime1' => '2007-05-08 12:35:29.123',
             'Mydatetime2' => null,
-            'Mydatetimeoffset1' => '2007-05-08 12:35:29.123456 +12:15',
+            'Mydatetimeoffset1' => '2007-05-08 12:35:29.1234567 +12:15',
             'Mydatetimeoffset2' => null,
-            'Mytime1' => '12:35:29.123456',
+            'Mytime1' => '12:35:29.1234567',
             'Mytime2' => null,
         ])->execute();
 
@@ -162,9 +164,9 @@ final class DateTest extends TestCase
                 'Mydate2' => null,
                 'Mydatetime1' => '2007-05-08 12:35:29.123',
                 'Mydatetime2' => null,
-                'Mydatetimeoffset1' => '2007-05-08 12:35:29.123456 +12:15',
+                'Mydatetimeoffset1' => '2007-05-08 12:35:29.1234567 +12:15',
                 'Mydatetimeoffset2' => null,
-                'Mytime1' => '12:35:29.123456',
+                'Mytime1' => '12:35:29.1234567',
                 'Mytime2' => null,
             ],
             $command->setSql(
@@ -214,9 +216,9 @@ final class DateTest extends TestCase
                 'id' => 'INT IDENTITY NOT NULL',
                 'Mydate' => 'DATE DEFAULT \'2007-05-08\'',
                 'Mydatetime' => 'DATETIME DEFAULT \'2007-05-08 12:35:29.123\'',
-                'Mydatetime2' => 'DATETIME2(6) DEFAULT \'2007-05-08 12:35:29.123456\'',
-                'Mydatetimeoffset' => 'DATETIMEOFFSET(6) DEFAULT \'2007-05-08 12:35:29.123456 +12:15\'',
-                'Mytime' => 'TIME(6) DEFAULT \'12:35:29.123456\'',
+                'Mydatetime2' => ColumnBuilder::datetime(7)->defaultValue(new Expression("'2007-05-08 12:35:29.1234567'")),
+                'Mydatetimeoffset' => ColumnBuilder::datetimeWithTimezone(7)->defaultValue(new Expression("'2007-05-08 12:35:29.1234567 +12:15'")),
+                'Mytime' => ColumnBuilder::time(7)->defaultValue(new Expression("'12:35:29.1234567'")),
             ],
         )->execute();
 
@@ -229,9 +231,9 @@ final class DateTest extends TestCase
             'id' => '1',
             'Mydate' => '2007-05-08',
             'Mydatetime' => '2007-05-08 12:35:29.123',
-            'Mydatetime2' => '2007-05-08 12:35:29.123456',
-            'Mydatetimeoffset' => '2007-05-08 12:35:29.123456 +12:15',
-            'Mytime' => '12:35:29.123456',
+            'Mydatetime2' => '2007-05-08 12:35:29.1234567',
+            'Mydatetimeoffset' => '2007-05-08 12:35:29.1234567 +12:15',
+            'Mytime' => '12:35:29.1234567',
         ];
     }
 }
