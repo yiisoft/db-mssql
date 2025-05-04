@@ -62,7 +62,7 @@ final class DateTest extends TestCase
     {
         $db = $this->buildTable();
 
-        $command = $db->createCommand()->withDbTypecasting(false);
+        $command = $db->createCommand();
         $command->insert('date_default', [])->execute();
 
         $this->assertSame(
@@ -149,9 +149,9 @@ final class DateTest extends TestCase
             'Mydate2' => null,
             'Mydatetime1' => '2007-05-08 12:35:29.123',
             'Mydatetime2' => null,
-            'Mydatetimeoffset1' => '2007-05-08 12:35:29.1234567 +12:15',
+            'Mydatetimeoffset1' => '2007-05-08 12:35:29.123456 +12:15',
             'Mydatetimeoffset2' => null,
-            'Mytime1' => '12:35:29.1234567',
+            'Mytime1' => '12:35:29.123456',
             'Mytime2' => null,
         ])->execute();
 
@@ -162,9 +162,9 @@ final class DateTest extends TestCase
                 'Mydate2' => null,
                 'Mydatetime1' => '2007-05-08 12:35:29.123',
                 'Mydatetime2' => null,
-                'Mydatetimeoffset1' => '2007-05-08 12:35:29.1234567 +12:15',
+                'Mydatetimeoffset1' => '2007-05-08 12:35:29.123456 +12:15',
                 'Mydatetimeoffset2' => null,
-                'Mytime1' => '12:35:29.1234567',
+                'Mytime1' => '12:35:29.123456',
                 'Mytime2' => null,
             ],
             $command->setSql(
@@ -214,9 +214,9 @@ final class DateTest extends TestCase
                 'id' => 'INT IDENTITY NOT NULL',
                 'Mydate' => 'DATE DEFAULT \'2007-05-08\'',
                 'Mydatetime' => 'DATETIME DEFAULT \'2007-05-08 12:35:29.123\'',
-                'Mydatetime2' => 'DATETIME2 DEFAULT \'2007-05-08 12:35:29.1234567\'',
-                'Mydatetimeoffset' => 'DATETIMEOFFSET DEFAULT \'2007-05-08 12:35:29.1234567 +12:15\'',
-                'Mytime' => 'TIME DEFAULT \'12:35:29.1234567\'',
+                'Mydatetime2' => 'DATETIME2(6) DEFAULT \'2007-05-08 12:35:29.123456\'',
+                'Mydatetimeoffset' => 'DATETIMEOFFSET(6) DEFAULT \'2007-05-08 12:35:29.123456 +12:15\'',
+                'Mytime' => 'TIME(6) DEFAULT \'12:35:29.123456\'',
             ],
         )->execute();
 
@@ -229,9 +229,9 @@ final class DateTest extends TestCase
             'id' => '1',
             'Mydate' => '2007-05-08',
             'Mydatetime' => '2007-05-08 12:35:29.123',
-            'Mydatetime2' => '2007-05-08 12:35:29.1234567',
-            'Mydatetimeoffset' => '2007-05-08 12:35:29.1234567 +12:15',
-            'Mytime' => '12:35:29.1234567',
+            'Mydatetime2' => '2007-05-08 12:35:29.123456',
+            'Mydatetimeoffset' => '2007-05-08 12:35:29.123456 +12:15',
+            'Mytime' => '12:35:29.123456',
         ];
     }
 }
