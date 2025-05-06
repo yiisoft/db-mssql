@@ -8,6 +8,7 @@ on:
       - 'phpunit.xml.dist'
 
   push:
+    branches: ['master']
     paths:
       - 'src/**'
       - 'tests/**'
@@ -15,7 +16,7 @@ on:
       - 'composer.json'
       - 'phpunit.xml.dist'
 
-name: build
+name: build-2017
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
