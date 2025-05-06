@@ -7,11 +7,13 @@ namespace Yiisoft\Db\Mssql\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use PDO;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Command\Param;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Connection;
+use Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
@@ -178,16 +180,22 @@ final class ColumnTest extends CommonColumnTest
         $this->assertInstanceOf(BooleanColumn::class, $tableSchema->getColumn('bool_col'));
     }
 
-    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider::predefinedTypes */
+    #[DataProviderExternal(ColumnProvider::class, 'predefinedTypes')]
     public function testPredefinedType(string $className, string $type, string $phpType)
     {
         parent::testPredefinedType($className, $type, $phpType);
     }
 
-    /** @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider::dbTypecastColumns */
+    #[DataProviderExternal(ColumnProvider::class, 'dbTypecastColumns')]
     public function testDbTypecastColumns(ColumnInterface $column, array $values)
     {
         parent::testDbTypecastColumns($column, $values);
+    }
+
+    #[DataProviderExternal(ColumnProvider::class, 'phpTypecastColumns')]
+    public function testPhpTypecastColumns(ColumnInterface $column, array $values)
+    {
+        parent::testPhpTypecastColumns($column, $values);
     }
 
     public function testBinaryColumn()
