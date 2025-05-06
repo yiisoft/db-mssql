@@ -3,7 +3,7 @@ on:
     paths:
       - 'src/**'
       - 'tests/**'
-      - '.github/workflows/build.yml'
+      - '.github/workflows/build-2017.yml'
       - 'composer.json'
       - 'phpunit.xml.dist'
 
@@ -12,7 +12,7 @@ on:
     paths:
       - 'src/**'
       - 'tests/**'
-      - '.github/workflows/build.yml'
+      - '.github/workflows/build-2017.yml'
       - 'composer.json'
       - 'phpunit.xml.dist'
 
@@ -33,8 +33,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Install SQL Server on Windows
-        run: choco install sql-server-express --version=2017.20190916 -y --no-progress --params="'/Q /SUPPRESSPRIVACYSTATEMENTNOTICE /IACCEPTSQLSERVERLICENSETERMS /ACTION=install /INSTANCEID=MSSQLSERVER /INSTANCENAME=MSSQLSERVER /UPDATEENABLED=FALSE /SECURITYMODE=SQL /TCPENABLED=1 /SAPWD=YourStrong!Passw0rd'"
+      - name: Install SQL Server on Windows.
+        run: choco install sql-server-express --version=2017.20190916 -y --no-progress --ia="'/Q /SUPPRESSPRIVACYSTATEMENTNOTICE /IACCEPTSQLSERVERLICENSETERMS /ACTION=install /INSTANCEID=MSSQLSERVER /INSTANCENAME=MSSQLSERVER /UPDATEENABLED=FALSE /SECURITYMODE=SQL /TCPENABLED=1 /SAPWD=YourStrong!Passw0rd'"
 
       - name: Create database.
         run: sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
