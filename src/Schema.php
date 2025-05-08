@@ -534,6 +534,7 @@ final class Schema extends AbstractPdoSchema
             [tc].[constraint_type] = :type AND
             [kcu].[table_name] = :tableName AND
             [kcu].[table_schema] = :schemaName
+        ORDER BY [kcu].[ordinal_position] ASC
         SQL;
 
         return $this->db->createCommand(
