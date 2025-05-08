@@ -39,6 +39,7 @@
 - Enh #355, #356: Use `DbArrayHelper::arrange()` instead of `DbArrayHelper::index()` method (@Tigrov)
 - New #353: Realize `Schema::loadResultColumn()` method (@Tigrov)
 - Enh #300: Remove realization of `Connection::createBatchQueryResult()` method (@Tigrov)
+- Bug #360: Fix columns order in composite primary key (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
