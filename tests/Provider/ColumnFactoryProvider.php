@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
+use Yiisoft\Db\Mssql\Column\DateTimeColumn;
 use Yiisoft\Db\Schema\Column\ArrayColumn;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
 use Yiisoft\Db\Schema\Column\DoubleColumn;
@@ -40,12 +41,12 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
             ['double', ColumnType::DOUBLE, DoubleColumn::class],
             ['smallmoney', ColumnType::MONEY, StringColumn::class],
             ['money', ColumnType::MONEY, StringColumn::class],
-            ['date', ColumnType::DATE, StringColumn::class],
-            ['time', ColumnType::TIME, StringColumn::class],
-            ['smalldatetime', ColumnType::DATETIME, StringColumn::class],
-            ['datetime', ColumnType::DATETIME, StringColumn::class],
-            ['datetime2', ColumnType::DATETIME, StringColumn::class],
-            ['datetimeoffset', ColumnType::DATETIME, StringColumn::class],
+            ['smalldatetime', ColumnType::DATETIME, DateTimeColumn::class],
+            ['datetime', ColumnType::DATETIME, DateTimeColumn::class],
+            ['datetime2', ColumnType::DATETIME, DateTimeColumn::class],
+            ['datetimeoffset', ColumnType::DATETIMETZ, DateTimeColumn::class],
+            ['time', ColumnType::TIME, DateTimeColumn::class],
+            ['date', ColumnType::DATE, DateTimeColumn::class],
             ['char', ColumnType::CHAR, StringColumn::class],
             ['varchar', ColumnType::STRING, StringColumn::class],
             ['text', ColumnType::TEXT, StringColumn::class],

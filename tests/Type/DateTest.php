@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -11,6 +12,8 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
@@ -37,7 +40,7 @@ final class DateTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string $defaultValue
+        DateTimeImmutable $defaultValue
     ): void {
         $db = $this->buildTable();
 
@@ -45,7 +48,7 @@ final class DateTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->insert('date_default', [])->execute();
     }
@@ -89,7 +92,7 @@ final class DateTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        string $defaultValue
+        DateTimeImmutable $defaultValue
     ): void {
         $this->setFixture('Type/date.sql');
 
@@ -98,7 +101,7 @@ final class DateTest extends TestCase
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
         $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
-        $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
+        $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('date_default')->execute();
     }
@@ -142,7 +145,7 @@ final class DateTest extends TestCase
         $this->setFixture('Type/date.sql');
 
         $db = $this->getConnection(true);
-        $command = $db->createCommand();
+        $command = $db->createCommand()->withDbTypecasting(false);
         $command->insert('date', [
             'Mydate1' => '2007-05-08',
             'Mydate2' => null,
@@ -213,9 +216,9 @@ final class DateTest extends TestCase
                 'id' => 'INT IDENTITY NOT NULL',
                 'Mydate' => 'DATE DEFAULT \'2007-05-08\'',
                 'Mydatetime' => 'DATETIME DEFAULT \'2007-05-08 12:35:29.123\'',
-                'Mydatetime2' => 'DATETIME2 DEFAULT \'2007-05-08 12:35:29.1234567\'',
-                'Mydatetimeoffset' => 'DATETIMEOFFSET DEFAULT \'2007-05-08 12:35:29.1234567 +12:15\'',
-                'Mytime' => 'TIME DEFAULT \'12:35:29.1234567\'',
+                'Mydatetime2' => ColumnBuilder::datetime(7)->defaultValue(new Expression("'2007-05-08 12:35:29.1234567'")),
+                'Mydatetimeoffset' => ColumnBuilder::datetimeWithTimezone(7)->defaultValue(new Expression("'2007-05-08 12:35:29.1234567 +12:15'")),
+                'Mytime' => ColumnBuilder::time(7)->defaultValue(new Expression("'12:35:29.1234567'")),
             ],
         )->execute();
 
