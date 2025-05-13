@@ -40,6 +40,7 @@
 - New #353: Realize `Schema::loadResultColumn()` method (@Tigrov)
 - Enh #300: Remove realization of `Connection::createBatchQueryResult()` method (@Tigrov)
 - Bug #360: Fix columns order in composite primary key (@Tigrov)
+- New #358: Use `DateTimeColumn` class for datetime column types (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
