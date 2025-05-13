@@ -589,7 +589,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 . ' WHEN MATCHED THEN UPDATE SET [blob_col]=[EXCLUDED].[blob_col] WHEN NOT MATCHED'
                 . ' THEN INSERT ([id], [blob_col]) VALUES ([EXCLUDED].[id], [EXCLUDED].[blob_col]);',
                 [':qp0' => 1],
-            ]
+            ],
         ];
     }
 
