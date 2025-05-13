@@ -580,6 +580,16 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 'INSERT INTO [type] ([int_col], [char_col], [float_col], [bool_col]) VALUES (:qp0, :qp1, :qp2, :qp3)',
                 [':qp0' => 3, ':qp1' => 'a', ':qp2' => 1.2, ':qp3' => true],
             ],
+            'no primary key but unique' => [
+                'T_upsert_varbinary',
+                ['id' => 1, 'blob_col' => ''],
+                true,
+                'MERGE [T_upsert_varbinary] WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(VARBINARY(MAX), 0x)))'
+                . ' AS [EXCLUDED] ([id], [blob_col]) ON ([T_upsert_varbinary].[id]=[EXCLUDED].[id])'
+                . ' WHEN MATCHED THEN UPDATE SET [blob_col]=[EXCLUDED].[blob_col] WHEN NOT MATCHED'
+                . ' THEN INSERT ([id], [blob_col]) VALUES ([EXCLUDED].[id], [EXCLUDED].[blob_col]);',
+                [':qp0' => 1],
+            ]
         ];
     }
 
