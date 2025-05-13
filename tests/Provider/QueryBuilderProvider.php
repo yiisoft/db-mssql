@@ -15,6 +15,7 @@ use Yiisoft\Db\QueryBuilder\Condition\InCondition;
 use Yiisoft\Db\Tests\Support\TraversableObject;
 
 use function array_replace;
+use function rtrim;
 
 final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilderProvider
 {
@@ -311,7 +312,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ],
                 [],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int );INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3, :qp4);SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3, :qp4);SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':qp0' => 'test@example.com',
@@ -342,7 +343,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ],
                 [':phBar' => 'bar'],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int );INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id], [col]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp1, :qp2, :qp3, :qp4, :qp5, CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id], [col]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp1, :qp2, :qp3, :qp4, :qp5, CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':phBar' => 'bar',
@@ -371,7 +372,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                     ),
                 [':phBar' => 'bar'],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int );INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=:qp4) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=:qp4) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':phBar' => 'bar',
@@ -387,7 +388,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ['order_id' => 1, 'item_id' => 1, 'quantity' => 1, 'subtotal' => 1.0],
                 [],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([order_id] int , [item_id] int );INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[order_id],INSERTED.[item_id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3);SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([order_id] int, [item_id] int);INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[order_id],INSERTED.[item_id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3);SELECT * FROM @temporary_inserted;
                 SQL,
                 [':qp0' => 1, ':qp1' => 1, ':qp2' => 1, ':qp3' => 1.0,],
             ],
@@ -534,6 +535,52 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         }
 
         return $upsert;
+    }
+
+    public static function upsertWithReturningPks(): array
+    {
+        $upsert = static::upsert();
+
+        foreach ($upsert as &$data) {
+            $data[3] = 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);'
+                . rtrim($data[3], ';')
+                . ' OUTPUT INSERTED.[id] INTO @temporary_inserted;SELECT * FROM @temporary_inserted;';
+        }
+
+        $upsert['no unique columns in table - simple insert'][3] = 'SET NOCOUNT ON;'
+            . 'DECLARE @temporary_inserted TABLE ([id] int);'
+            . 'INSERT INTO {{%animal}} ([type]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp0);'
+            . 'SELECT * FROM @temporary_inserted;';
+
+        $upsert['no columns to update'][3] = 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([a] int);'
+            . 'MERGE [T_upsert_1] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED] ([a])'
+            . ' ON ([T_upsert_1].[a]=[EXCLUDED].[a]) WHEN NOT MATCHED THEN INSERT ([a])'
+            . ' VALUES ([EXCLUDED].[a]) OUTPUT INSERTED.[a] INTO @temporary_inserted;'
+            . 'SELECT * FROM @temporary_inserted;';
+
+        return [
+            ...$upsert,
+            'composite primary key' => [
+                'notauto_pk',
+                ['id_1' => 1, 'id_2' => 2.5, 'type' => 'Test'],
+                true,
+                'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id_1] int, [id_2] decimal(5,2));'
+                . 'MERGE [notauto_pk] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2)) AS [EXCLUDED]'
+                . ' ([id_1], [id_2], [type]) ON (([notauto_pk].[id_1]=[EXCLUDED].[id_1])'
+                . ' AND ([notauto_pk].[id_2]=[EXCLUDED].[id_2])) WHEN MATCHED THEN UPDATE SET [type]=[EXCLUDED].[type]'
+                . ' WHEN NOT MATCHED THEN INSERT ([id_1], [id_2], [type])'
+                . ' VALUES ([EXCLUDED].[id_1], [EXCLUDED].[id_2], [EXCLUDED].[type])'
+                . ' OUTPUT INSERTED.[id_1],INSERTED.[id_2] INTO @temporary_inserted;SELECT * FROM @temporary_inserted;',
+                [':qp0' => 1, ':qp1' => 2.5, ':qp2' => 'Test'],
+            ],
+            'no primary key' => [
+                'type',
+                ['int_col' => 3, 'char_col' => 'a', 'float_col' => 1.2, 'bool_col' => true],
+                true,
+                'INSERT INTO [type] ([int_col], [char_col], [float_col], [bool_col]) VALUES (:qp0, :qp1, :qp2, :qp3)',
+                [':qp0' => 3, ':qp1' => 'a', ':qp2' => 1.2, ':qp3' => true],
+            ],
+        ];
     }
 
     public static function buildColumnDefinition(): array
