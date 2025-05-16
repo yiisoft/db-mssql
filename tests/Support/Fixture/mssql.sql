@@ -178,7 +178,7 @@ CREATE TABLE [dbo].[default_pk] (
 
 CREATE TABLE [dbo].[notauto_pk] (
     [id_1] [INT],
-    [id_2] [INT],
+    [id_2] [DECIMAL](5,2),
     [type] [VARCHAR](255) NOT NULL,
     CONSTRAINT [PK_notauto_pk] PRIMARY KEY CLUSTERED (
         [id_1] ASC,
@@ -353,8 +353,7 @@ CREATE TABLE [T_upsert]
 
 CREATE TABLE [T_upsert_1]
 (
-    [a] INT NOT NULL,
-    UNIQUE ([a])
+    [a] INT NOT NULL PRIMARY KEY
 );
 
 CREATE TABLE [dbo].[table.with.special.characters] (
