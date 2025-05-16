@@ -640,12 +640,18 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['text(1000)'][0] = 'nvarchar(max)';
         $values['binary()'][0] = 'varbinary(max)';
         $values['binary(1000)'][0] = 'varbinary(max)';
-        $values['datetime()'][0] = 'datetime2(0)';
-        $values['datetime(6)'][0] = 'datetime2(6)';
-        $values['datetime(null)'][0] = 'datetime2';
         $values['timestamp()'][0] = 'datetime2(0)';
         $values['timestamp(6)'][0] = 'datetime2(6)';
         $values['timestamp(null)'][0] = 'datetime2';
+        $values['datetime()'][0] = 'datetime2(0)';
+        $values['datetime(6)'][0] = 'datetime2(6)';
+        $values['datetime(null)'][0] = 'datetime2';
+        $values['datetimeWithTimezone()'][0] = 'datetimeoffset(0)';
+        $values['datetimeWithTimezone(6)'][0] = 'datetimeoffset(6)';
+        $values['datetimeWithTimezone(null)'][0] = 'datetimeoffset';
+        $values['timeWithTimezone()'][0] = 'time(0)';
+        $values['timeWithTimezone(6)'][0] = 'time(6)';
+        $values['timeWithTimezone(null)'][0] = 'time';
         $values['uuid()'][0] = 'uniqueidentifier';
         $values['array()'] = [
             'nvarchar(max) CHECK (isjson([array_col]) > 0)',
