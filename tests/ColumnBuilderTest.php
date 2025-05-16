@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
+use Yiisoft\Db\Mssql\Tests\Provider\ColumnBuilderProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Tests\AbstractColumnBuilderTest;
 
@@ -20,9 +22,7 @@ class ColumnBuilderTest extends AbstractColumnBuilderTest
         return ColumnBuilder::class;
     }
 
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\ColumnBuilderProvider::buildingMethods
-     */
+    #[DataProviderExternal(ColumnBuilderProvider::class, 'buildingMethods')]
     public function testBuildingMethods(
         string $buildingMethod,
         array $args,

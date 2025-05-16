@@ -40,12 +40,12 @@ final class ColumnFactory extends AbstractColumnFactory
         'double' => ColumnType::DOUBLE,
 
         /** Date and time */
-        'date' => ColumnType::DATE,
-        'time' => ColumnType::TIME,
         'smalldatetime' => ColumnType::DATETIME,
         'datetime' => ColumnType::DATETIME,
         'datetime2' => ColumnType::DATETIME,
-        'datetimeoffset' => ColumnType::DATETIME,
+        'datetimeoffset' => ColumnType::DATETIMETZ,
+        'time' => ColumnType::TIME,
+        'date' => ColumnType::DATE,
 
         /** Character strings */
         'char' => ColumnType::CHAR,
@@ -84,11 +84,16 @@ final class ColumnFactory extends AbstractColumnFactory
 
     protected function getColumnClass(string $type, array $info = []): string
     {
-        if ($type === ColumnType::BINARY) {
-            return BinaryColumn::class;
-        }
-
-        return parent::getColumnClass($type, $info);
+        return match ($type) {
+            ColumnType::BINARY => BinaryColumn::class,
+            ColumnType::TIMESTAMP => DateTimeColumn::class,
+            ColumnType::DATETIME => DateTimeColumn::class,
+            ColumnType::DATETIMETZ => DateTimeColumn::class,
+            ColumnType::TIME => DateTimeColumn::class,
+            ColumnType::TIMETZ => DateTimeColumn::class,
+            ColumnType::DATE => DateTimeColumn::class,
+            default => parent::getColumnClass($type, $info),
+        };
     }
 
     protected function getType(string $dbType, array $info = []): string

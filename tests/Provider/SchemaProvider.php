@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Constraint\DefaultValueConstraint;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
+use Yiisoft\Db\Mssql\Column\DateTimeColumn;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
 use Yiisoft\Db\Schema\Column\DoubleColumn;
 use Yiisoft\Db\Schema\Column\IntegerColumn;
@@ -86,12 +89,12 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                         scale: 2,
                         defaultValue: 33.22,
                     ),
-                    'datetime_col' => new StringColumn(
-                        ColumnType::DATETIME,
+                    'datetime_col' => new DateTimeColumn(
                         dbType: 'datetime',
                         notNull: true,
                         size: 3,
-                        defaultValue: '2002-01-01 00:00:00',
+                        defaultValue: new DateTimeImmutable('2002-01-01 00:00:00', new DateTimeZone('UTC')),
+                        shouldConvertTimezone: true,
                     ),
                     'bool_col' => new BooleanColumn(
                         dbType: 'bit',
@@ -246,7 +249,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                 'len' => 0,
                 'precision' => 0,
             ]],
-            [new StringColumn(ColumnType::DATETIME, dbType: 'datetime', name: 'datetime_col', size: 3), [
+            [new DateTimeColumn(dbType: 'datetime', name: 'datetime_col', size: 3), [
                 'flags' => 0,
                 'sqlsrv:decl_type' => 'datetime',
                 'native_type' => 'string',
@@ -256,7 +259,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                 'len' => 23,
                 'precision' => 3,
             ]],
-            [new StringColumn(ColumnType::DATETIME, dbType: 'datetime2', name: 'datetime2_col', size: 7), [
+            [new DateTimeColumn(dbType: 'datetime2', name: 'datetime2_col', size: 7), [
                 'flags' => 0,
                 'sqlsrv:decl_type' => 'datetime2',
                 'native_type' => 'string',
