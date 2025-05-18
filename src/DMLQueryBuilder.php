@@ -14,10 +14,10 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\AbstractDMLQueryBuilder;
 
-use function array_flip;
+use function array_fill_keys;
 use function array_intersect_key;
 use function implode;
-use function in_array;
+use function rtrim;
 
 /**
  * Implements a DML (Data Manipulation Language) SQL statements for MSSQL Server.
@@ -30,7 +30,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
-    public function insertWithReturningPks(string $table, QueryInterface|array $columns, array &$params = []): string
+    public function insertWithReturningPks(string $table, array|QueryInterface $columns, array &$params = []): string
     {
         $tableSchema = $this->schema->getTableSchema($table);
         $primaryKeys = $tableSchema?->getPrimaryKey();
@@ -39,33 +39,16 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             return $this->insert($table, $columns, $params);
         }
 
-        $createdCols = [];
-        $insertedCols = [];
-        $returnColumns = array_intersect_key($tableSchema?->getColumns() ?? [], array_flip($primaryKeys));
-
-        foreach ($returnColumns as $columnName => $returnColumn) {
-            $dbType = $returnColumn->getDbType();
-
-            if (in_array($dbType, ['char', 'varchar', 'nchar', 'nvarchar', 'binary', 'varbinary'], true)) {
-                $dbType .= '(MAX)';
-            } elseif ($dbType === 'timestamp') {
-                $dbType = $returnColumn->isNotNull() ? 'binary(8)' : 'varbinary(8)';
-            }
-
-            $quotedName = $this->quoter->quoteColumnName($columnName);
-            $createdCols[] = $quotedName . ' ' . (string) $dbType . ' ' . ($returnColumn->isNotNull() ? '' : 'NULL');
-            $insertedCols[] = 'INSERTED.' . $quotedName;
-        }
-
+        /** @var TableSchema $tableSchema */
+        [$declareSql, $outputSql, $selectSql] = $this->prepareReturningParts($tableSchema, $primaryKeys);
         [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
 
-        $sql = 'INSERT INTO ' . $this->quoter->quoteTableName($table)
+        return $declareSql
+            . 'INSERT INTO ' . $this->quoter->quoteTableName($table)
             . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
-            . ' OUTPUT ' . implode(',', $insertedCols) . ' INTO @temporary_inserted'
-            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : ' ' . $values);
-
-        return 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $createdCols) . ');'
-            . $sql . ';SELECT * FROM @temporary_inserted;';
+            . $outputSql
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : ' ' . $values) . ';'
+            . $selectSql;
     }
 
     /**
@@ -103,9 +86,9 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function upsert(
         string $table,
-        QueryInterface|array $insertColumns,
-        bool|array $updateColumns,
-        array &$params = []
+        array|QueryInterface $insertColumns,
+        array|bool $updateColumns = true,
+        array &$params = [],
     ): string {
         /** @psalm-var Constraint[] $constraints */
         $constraints = [];
@@ -171,5 +154,72 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
         return "$mergeSql WHEN MATCHED THEN UPDATE SET " . implode(', ', $updates)
             . " WHEN NOT MATCHED THEN $insertSql;";
+    }
+
+    public function upsertWithReturningPks(
+        string $table,
+        array|QueryInterface $insertColumns,
+        array|bool $updateColumns = true,
+        array &$params = [],
+    ): string {
+        [$uniqueNames] = $this->prepareUpsertColumns($table, $insertColumns, $updateColumns);
+
+        if (empty($uniqueNames)) {
+            return $this->insertWithReturningPks($table, $insertColumns, $params);
+        }
+
+        $upsertSql = $this->upsert($table, $insertColumns, $updateColumns, $params);
+
+        $tableSchema = $this->schema->getTableSchema($table);
+        $primaryKeys = $tableSchema?->getPrimaryKey();
+
+        if (empty($primaryKeys)) {
+            return $upsertSql;
+        }
+
+        /** @var TableSchema $tableSchema */
+        [$declareSql, $outputSql, $selectSql] = $this->prepareReturningParts($tableSchema, $primaryKeys);
+
+        return $declareSql
+            . rtrim($upsertSql, ';')
+            . $outputSql . ';'
+            . $selectSql;
+    }
+
+    /**
+     * Prepares SQL parts for a returning query.
+     *
+     * @param TableSchema $tableSchema The table schema.
+     * @param string[] $returnColumns The columns to return.
+     *
+     * @return string[] List of Declare SQL, output SQL and select SQL.
+     */
+    private function prepareReturningParts(
+        TableSchema $tableSchema,
+        array $returnColumns,
+    ): array {
+        $createdCols = [];
+        $insertedCols = [];
+        $columns = array_intersect_key($tableSchema->getColumns(), array_fill_keys($returnColumns, true));
+
+        $columnDefinitionBuilder = $this->queryBuilder->getColumnDefinitionBuilder();
+
+        foreach ($columns as $name => $column) {
+            if ($column->getDbType() === 'timestamp') {
+                $dbType = $column->isNotNull() ? 'binary(8)' : 'varbinary(8)';
+            } else {
+                $dbType = $columnDefinitionBuilder->buildType($column);
+            }
+
+            $quotedName = $this->quoter->quoteColumnName($name);
+            $createdCols[] = $quotedName . ' ' . $dbType . ($column->isNotNull() ? '' : ' NULL');
+            $insertedCols[] = 'INSERTED.' . $quotedName;
+        }
+
+        return [
+            'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $createdCols) . ');',
+            ' OUTPUT ' . implode(',', $insertedCols) . ' INTO @temporary_inserted',
+            'SELECT * FROM @temporary_inserted;',
+        ];
     }
 }
