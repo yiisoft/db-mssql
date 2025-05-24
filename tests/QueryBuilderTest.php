@@ -468,15 +468,16 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $this->assertSame($testData, $resultData['blob_col']);
     }
 
-    #[DataProviderExternal(QueryBuilderProvider::class, 'upsertWithReturningPks')]
-    public function testUpsertWithReturningPks(
+    #[DataProviderExternal(QueryBuilderProvider::class, 'upsertWithReturning')]
+    public function testUpsertWithReturning(
         string $table,
         array|QueryInterface $insertColumns,
         array|bool $updateColumns,
+        array|null $returnColumns,
         string $expectedSql,
         array $expectedParams
     ): void {
-        parent::testUpsertWithReturningPks($table, $insertColumns, $updateColumns, $expectedSql, $expectedParams);
+        parent::testUpsertWithReturning($table, $insertColumns, $updateColumns, $returnColumns, $expectedSql, $expectedParams);
     }
 
     #[DataProviderExternal(QueryBuilderProvider::class, 'alterColumn')]
