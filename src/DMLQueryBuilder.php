@@ -18,7 +18,6 @@ use function array_fill_keys;
 use function array_intersect_key;
 use function array_map;
 use function implode;
-use function rtrim;
 
 /**
  * Implements a DML (Data Manipulation Language) SQL statements for MSSQL Server.
