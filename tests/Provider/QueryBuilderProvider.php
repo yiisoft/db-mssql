@@ -634,6 +634,19 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 'INSERT INTO [type] ([int_col], [char_col], [float_col], [bool_col]) VALUES (:qp0, :qp1, :qp2, :qp3)',
                 [':qp0' => 3, ':qp1' => 'a', ':qp2' => 1.2, ':qp3' => true],
             ],
+            'no return columns, table with pk' => [
+                'T_upsert',
+                ['email' => 'test@example.com', 'address' => 'test address', 'status' => 1, 'profile_id' => 1],
+                true,
+                [],
+                'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED]'
+                . ' ([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
+                . ' WHEN MATCHED THEN UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status],'
+                . ' [profile_id]=[EXCLUDED].[profile_id]'
+                . ' WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id])'
+                . ' VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+                [':qp0' => 'test@example.com', ':qp1' => 'test address', ':qp2' => 1, ':qp3' => 1],
+            ],
             'return all columns' => [
                 'T_upsert',
                 ['email' => 'test@example.com', 'address' => 'test address', 'status' => 1, 'profile_id' => 1],
