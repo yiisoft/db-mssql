@@ -32,8 +32,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function insertWithReturningPks(string $table, array|QueryInterface $columns, array &$params = []): string
     {
-        $tableSchema = $this->schema->getTableSchema($table);
-        $primaryKeys = $tableSchema?->getPrimaryKey();
+        $primaryKeys = $this->schema->getTableSchema($table)?->getPrimaryKey() ?? [];
 
         return $this->insertWithReturning($table, $columns, $primaryKeys, $params);
     }
@@ -94,7 +93,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         }
 
         $tableSchema = $this->schema->getTableSchema($table);
-        $returnColumns ??= $this->schema->getTableSchema($table)?->getColumnNames();
+        $returnColumns ??= $tableSchema?->getColumnNames();
 
         if (empty($returnColumns)) {
             return $this->upsert($table, $insertColumns, $updateColumns, $params);
