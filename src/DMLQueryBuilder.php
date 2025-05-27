@@ -79,7 +79,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         return implode('', $this->prepareUpsertParts($table, $insertColumns, $updateColumns, $params)) . ';';
     }
 
-    public function upsertWithReturning(
+    public function upsertReturning(
         string $table,
         array|QueryInterface $insertColumns,
         array|bool $updateColumns = true,
