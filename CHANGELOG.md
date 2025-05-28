@@ -43,6 +43,7 @@
 - New #358: Use `DateTimeColumn` class for datetime column types (@Tigrov)
 - New #361: Implement `DMLQueryBuilder::upsertWithReturningPks()` method (@Tigrov)
 - Enh #361: Refactor `DMLQueryBuilder::insertWithReturningPks()` method (@Tigrov)
+- Chg #363: Add alias in `DQLQueryBuilder::selectExists()` method for consistency with other DBMS (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
