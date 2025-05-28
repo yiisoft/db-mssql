@@ -413,10 +413,16 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         );
     }
 
-    #[DataProviderExternal(QueryBuilderProvider::class, 'selectExist')]
-    public function testSelectExists(string $sql, string $expected): void
+    public function testSelectExists(): void
     {
-        parent::testSelectExists($sql, $expected);
+        $db = $this->getConnection();
+        $qb = $db->getQueryBuilder();
+
+        $sql = 'SELECT 1 FROM [customer] WHERE [id] = 1';
+        // Alias is not required in MSSQL, but it is added for consistency with other DBMS.
+        $expected = 'SELECT CASE WHEN EXISTS(SELECT 1 FROM [customer] WHERE [id] = 1) THEN 1 ELSE 0 END AS [0]';
+
+        $this->assertSame($expected, $qb->selectExists($sql));
     }
 
     #[DataProviderExternal(QueryBuilderProvider::class, 'update')]
