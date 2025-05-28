@@ -301,7 +301,7 @@ INSERT INTO [dbo].[bit_values] ([val]) VALUES (0), (1);
 
 CREATE TABLE [T_constraints_1]
 (
-    [C_id] INT NOT NULL IDENTITY PRIMARY KEY,
+    [C_id] INT NOT NULL PRIMARY KEY,
     [C_not_null] INT NOT NULL,
     [C_check] VARCHAR(255) NULL CHECK ([C_check] <> ''),
     [C_unique] INT NOT NULL,
