@@ -147,7 +147,7 @@ CREATE TABLE [dbo].[type] (
     [tinyint_col] [tinyint] DEFAULT '1',
     [smallint_col] [smallint] DEFAULT '1',
     [char_col] [char](100) NOT NULL,
-    [char_col2] [varchar](100) DEFAULT 'something',
+    [char_col2] [varchar](100) COLLATE Latin1_General_CI_AS DEFAULT 'something',
     [char_col3] [text],
     [float_col] [decimal](4,3) NOT NULL,
     [float_col2] [float] DEFAULT '1.23',

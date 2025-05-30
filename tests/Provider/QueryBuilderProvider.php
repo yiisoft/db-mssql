@@ -757,6 +757,12 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values["check('value > 5')"][0] = 'int CHECK ([check_col] > 5)';
         $values["check('')"][0] = 'int';
         $values['check(null)'][0] = 'int';
+        $values["collation('collation_name')"] = [
+            'nvarchar(255) COLLATE Latin1_General_CI_AS',
+            ColumnBuilder::string()->collation('Latin1_General_CI_AS')
+        ];
+        $values["collation('')"][0] = 'nvarchar(255)';
+        $values['collation(null)'][0] = 'nvarchar(255)';
         $values["comment('comment')"][0] = 'nvarchar(255)';
         $values["comment('')"][0] = 'nvarchar(255)';
         $values['comment(null)'][0] = 'nvarchar(255)';

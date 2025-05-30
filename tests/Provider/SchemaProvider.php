@@ -55,16 +55,19 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                         dbType: 'char',
                         notNull: true,
                         size: 100,
+                        collation: 'SQL_Latin1_General_CP1_CI_AS',
                     ),
                     'char_col2' => new StringColumn(
                         dbType: 'varchar',
                         size: 100,
+                        collation: 'Latin1_General_CI_AS',
                         defaultValue: 'something',
                     ),
                     'char_col3' => new StringColumn(
                         ColumnType::TEXT,
                         dbType: 'text',
                         size: 2147483647,
+                        collation: 'SQL_Latin1_General_CP1_CI_AS',
                     ),
                     'float_col' => new DoubleColumn(
                         ColumnType::DECIMAL,
@@ -126,6 +129,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                         dbType: 'varchar',
                         notNull: true,
                         size: 255,
+                        collation: 'SQL_Latin1_General_CP1_CI_AS',
                     ),
                 ],
                 'animal',
