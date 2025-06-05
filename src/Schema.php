@@ -10,7 +10,6 @@ use Yiisoft\Db\Constraint\ForeignKeyConstraint;
 use Yiisoft\Db\Constraint\IndexConstraint;
 use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
@@ -538,7 +537,7 @@ final class Schema extends AbstractPdoSchema
      * - checks
      * - defaults
      *
-     * @return CheckConstraint[]|DefaultValueConstraint[]|ForeignKeyConstraint[]|IndexConstraint[]|IndexConstraint|null
+     * @return CheckConstraint[]|DefaultValueConstraint[]|ForeignKeyConstraint[]|IndexConstraint|IndexConstraint[]|null
      * Constraints of the specified type.
      */
     private function loadTableConstraints(string $tableName, string $returnType): array|IndexConstraint|null
