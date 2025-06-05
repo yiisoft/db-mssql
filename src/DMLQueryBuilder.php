@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use JsonException;
-use Yiisoft\Db\Constraint\Constraint;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -90,7 +89,6 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         array|bool $updateColumns = true,
         array &$params = [],
     ): string {
-        /** @psalm-var Constraint[] $constraints */
         $constraints = [];
 
         [$uniqueNames, $insertNames, $updateNames] = $this->prepareUpsertColumns(
@@ -109,9 +107,8 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
         foreach ($constraints as $constraint) {
             $constraintCondition = ['and'];
-            $columnNames = (array) $constraint->getColumnNames();
+            $columnNames = $constraint->getColumnNames();
 
-            /** @psalm-var string[] $columnNames */
             foreach ($columnNames as $name) {
                 $quotedName = $this->quoter->quoteColumnName($name);
                 $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";

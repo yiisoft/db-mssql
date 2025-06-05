@@ -362,7 +362,7 @@ final class CommandTest extends CommonCommandTest
         parent::testCreateIndex($columns, $indexColumns, $indexType, $indexMethod);
     }
 
-    public function createCreateClusteredColumnstoreIndex()
+    public function testCreateClusteredColumnstoreIndex(): void
     {
         $db = $this->getConnection();
 
@@ -385,7 +385,7 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertSame(['col1'], $index->getColumnNames());
         $this->assertFalse($index->isUnique());
-        $this->assertFalse($index->isPrimary());
+        $this->assertFalse($index->isPrimaryKey());
 
         $db->close();
     }
@@ -411,7 +411,7 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertCount(3, $schema->getTableIndexes($tableName));
 
-        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimary())[1];
+        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimaryKey())[1];
 
         $this->assertSame($indexColumns, $index->getColumnNames());
         $this->assertFalse($index->isUnique());

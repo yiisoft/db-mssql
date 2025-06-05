@@ -138,15 +138,11 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
         $constraints = parent::constraints();
 
         $constraints['1: check'][2][0]->expression('([C_check]<>\'\')');
-        $constraints['1: default'][2] = [];
-        $constraints['1: default'][2][] = (new DefaultValueConstraint())
-            ->name(AnyValue::getInstance())
-            ->columnNames(['C_default'])
-            ->value('((0))');
+        $constraints['1: default'][2] = [new DefaultValueConstraint('', ['C_default'], '((0))')];
 
         $constraints['2: default'][2] = [];
 
-        $constraints['3: foreign key'][2][0]->foreignSchemaName('dbo');
+        $constraints['3: foreign key'][2][0]->foreignTableName('dbo.T_constraints_2');
         $constraints['3: index'][2] = [];
         $constraints['3: default'][2] = [];
         $constraints['4: default'][2] = [];
