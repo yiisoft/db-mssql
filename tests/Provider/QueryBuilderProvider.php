@@ -395,17 +395,6 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         ];
     }
 
-    public static function selectExist(): array
-    {
-        $selectExist = parent::selectExist();
-
-        $selectExist[0][1] = <<<SQL
-        SELECT CASE WHEN EXISTS(SELECT 1 FROM `table` WHERE `id` = 1) THEN 1 ELSE 0 END
-        SQL;
-
-        return $selectExist;
-    }
-
     public static function upsert(): array
     {
         $concreteData = [
