@@ -353,6 +353,17 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testInsert($table, $columns, $params, $expectedSQL, $expectedParams);
     }
 
+    #[DataProviderExternal(QueryBuilderProvider::class, 'batchInsert')]
+    public function testBatchInsert(
+        string $table,
+        iterable $rows,
+        array $columns,
+        string $expected,
+        array $expectedParams = [],
+    ): void {
+        parent::testBatchInsert($table, $rows, $columns, $expected, $expectedParams);
+    }
+
     #[DataProviderExternal(QueryBuilderProvider::class, 'insertWithReturningPks')]
     public function testInsertWithReturningPks(
         string $table,
@@ -776,6 +787,12 @@ ALTER TABLE [customer] DROP COLUMN [id]";
     public function testBuildColumnDefinition(string $expected, ColumnInterface|string $column): void
     {
         parent::testBuildColumnDefinition($expected, $column);
+    }
+
+    #[DataProviderExternal(QueryBuilderProvider::class, 'buildValue')]
+    public function testBuildValue(mixed $value, string $expected, array $expectedParams): void
+    {
+        parent::testBuildValue($value, $expected, $expectedParams);
     }
 
     #[DataProviderExternal(QueryBuilderProvider::class, 'prepareParam')]
