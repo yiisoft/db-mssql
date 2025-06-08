@@ -16,8 +16,8 @@ use Yiisoft\Db\QueryBuilder\AbstractDMLQueryBuilder;
 
 use function array_fill_keys;
 use function array_intersect_key;
+use function array_map;
 use function implode;
-use function rtrim;
 
 /**
  * Implements a DML (Data Manipulation Language) SQL statements for MSSQL Server.
@@ -32,23 +32,9 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      */
     public function insertWithReturningPks(string $table, array|QueryInterface $columns, array &$params = []): string
     {
-        $tableSchema = $this->schema->getTableSchema($table);
-        $primaryKeys = $tableSchema?->getPrimaryKey();
+        $primaryKeys = $this->schema->getTableSchema($table)?->getPrimaryKey() ?? [];
 
-        if (empty($primaryKeys)) {
-            return $this->insert($table, $columns, $params);
-        }
-
-        /** @var TableSchema $tableSchema */
-        [$declareSql, $outputSql, $selectSql] = $this->prepareReturningParts($tableSchema, $primaryKeys);
-        [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
-
-        return $declareSql
-            . 'INSERT INTO ' . $this->quoter->quoteTableName($table)
-            . (!empty($names) ? ' (' . implode(', ', $names) . ')' : '')
-            . $outputSql
-            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : ' ' . $values) . ';'
-            . $selectSql;
+        return $this->insertWithReturning($table, $columns, $primaryKeys, $params);
     }
 
     /**
@@ -90,99 +76,69 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         array|bool $updateColumns = true,
         array &$params = [],
     ): string {
-        /** @psalm-var Constraint[] $constraints */
-        $constraints = [];
-
-        [$uniqueNames, $insertNames, $updateNames] = $this->prepareUpsertColumns(
-            $table,
-            $insertColumns,
-            $updateColumns,
-            $constraints
-        );
-
-        if (empty($uniqueNames)) {
-            return $this->insert($table, $insertColumns, $params);
-        }
-
-        $onCondition = ['or'];
-        $quotedTableName = $this->quoter->quoteTableName($table);
-
-        foreach ($constraints as $constraint) {
-            $constraintCondition = ['and'];
-            $columnNames = (array) $constraint->getColumnNames();
-
-            /** @psalm-var string[] $columnNames */
-            foreach ($columnNames as $name) {
-                $quotedName = $this->quoter->quoteColumnName($name);
-                $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
-            }
-
-            $onCondition[] = $constraintCondition;
-        }
-
-        $on = $this->queryBuilder->buildCondition($onCondition, $params);
-
-        [, $placeholders, $values, $params] = $this->prepareInsertValues($table, $insertColumns, $params);
-
-        $mergeSql = 'MERGE ' . $quotedTableName . ' WITH (HOLDLOCK) USING ('
-            . (!empty($placeholders) ? 'VALUES (' . implode(', ', $placeholders) . ')' : $values)
-            . ') AS [EXCLUDED] (' . implode(', ', $insertNames) . ') ' . "ON ($on)";
-
-        $insertValues = [];
-
-        foreach ($insertNames as $quotedName) {
-            $insertValues[] = '[EXCLUDED].' . $quotedName;
-        }
-
-        $insertSql = 'INSERT (' . implode(', ', $insertNames) . ') VALUES (' . implode(', ', $insertValues) . ')';
-
-        if ($updateColumns === false || $updateNames === []) {
-            /** there are no columns to update */
-            return "$mergeSql WHEN NOT MATCHED THEN $insertSql;";
-        }
-
-        if ($updateColumns === true) {
-            $updateColumns = [];
-
-            /** @psalm-var string[] $updateNames */
-            foreach ($updateNames as $quotedName) {
-                $updateColumns[$quotedName] = new Expression('[EXCLUDED].' . $quotedName);
-            }
-        }
-
-        [$updates, $params] = $this->prepareUpdateSets($table, $updateColumns, $params);
-
-        return "$mergeSql WHEN MATCHED THEN UPDATE SET " . implode(', ', $updates)
-            . " WHEN NOT MATCHED THEN $insertSql;";
+        return implode('', $this->prepareUpsertParts($table, $insertColumns, $updateColumns, $params)) . ';';
     }
 
-    public function upsertWithReturningPks(
+    public function upsertReturning(
         string $table,
         array|QueryInterface $insertColumns,
         array|bool $updateColumns = true,
+        array|null $returnColumns = null,
         array &$params = [],
     ): string {
         [$uniqueNames] = $this->prepareUpsertColumns($table, $insertColumns, $updateColumns);
 
         if (empty($uniqueNames)) {
-            return $this->insertWithReturningPks($table, $insertColumns, $params);
+            return $this->insertWithReturning($table, $insertColumns, $returnColumns, $params);
         }
 
-        $upsertSql = $this->upsert($table, $insertColumns, $updateColumns, $params);
-
         $tableSchema = $this->schema->getTableSchema($table);
-        $primaryKeys = $tableSchema?->getPrimaryKey();
+        $returnColumns ??= $tableSchema?->getColumnNames();
 
-        if (empty($primaryKeys)) {
-            return $upsertSql;
+        if (empty($returnColumns)) {
+            return $this->upsert($table, $insertColumns, $updateColumns, $params);
         }
 
         /** @var TableSchema $tableSchema */
-        [$declareSql, $outputSql, $selectSql] = $this->prepareReturningParts($tableSchema, $primaryKeys);
+        [$declareSql, $outputSql, $selectSql] = $this->prepareReturningParts($tableSchema, $returnColumns);
+        [$mergeSql, $updateSql, $insertSql] = $this->prepareUpsertParts($table, $insertColumns, $updateColumns, $params);
 
         return $declareSql
-            . rtrim($upsertSql, ';')
+            . (!empty($insertSql) && empty($updateSql) ? 'DECLARE @temp int;' : '')
+            . $mergeSql
+            . (!empty($insertSql) && empty($updateSql) ? ' WHEN MATCHED THEN UPDATE SET @temp=1' : $updateSql)
+            . $insertSql
             . $outputSql . ';'
+            . $selectSql;
+    }
+
+    /**
+     * @param string[] $returnColumns
+     */
+    private function insertWithReturning(
+        string $table,
+        array|QueryInterface $columns,
+        array|null $returnColumns = null,
+        array &$params = [],
+    ): string {
+        $tableSchema = $this->schema->getTableSchema($table);
+        $returnColumns ??= $tableSchema?->getColumnNames();
+
+        if (empty($returnColumns)) {
+            return $this->insert($table, $columns, $params);
+        }
+
+        /** @var TableSchema $tableSchema */
+        [$declareSql, $outputSql, $selectSql] = $this->prepareReturningParts($tableSchema, $returnColumns);
+        [$names, $placeholders, $values, $params] = $this->prepareInsertValues($table, $columns, $params);
+
+        $quotedNames = array_map($this->quoter->quoteColumnName(...), $names);
+
+        return $declareSql
+            . 'INSERT INTO ' . $this->quoter->quoteTableName($table)
+            . (!empty($quotedNames) ? ' (' . implode(', ', $quotedNames) . ')' : '')
+            . $outputSql
+            . (!empty($placeholders) ? ' VALUES (' . implode(', ', $placeholders) . ')' : ' ' . $values) . ';'
             . $selectSql;
     }
 
@@ -192,7 +148,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      * @param TableSchema $tableSchema The table schema.
      * @param string[] $returnColumns The columns to return.
      *
-     * @return string[] List of Declare SQL, output SQL and select SQL.
+     * @return string[] List of declare SQL, output SQL and select SQL.
      */
     private function prepareReturningParts(
         TableSchema $tableSchema,
@@ -220,6 +176,95 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE (' . implode(', ', $createdCols) . ');',
             ' OUTPUT ' . implode(',', $insertedCols) . ' INTO @temporary_inserted',
             'SELECT * FROM @temporary_inserted;',
+        ];
+    }
+
+    /**
+     * Prepares SQL parts for an upsert query.
+     *
+     * @psalm-param array<string, mixed>|QueryInterface $insertColumns
+     *
+     * @return string[] List of merge SQL, update SQL and insert SQL.
+     */
+    private function prepareUpsertParts(
+        string $table,
+        array|QueryInterface $insertColumns,
+        array|bool $updateColumns = true,
+        array &$params = [],
+    ): array {
+        /** @psalm-var Constraint[] $constraints */
+        $constraints = [];
+
+        [$uniqueNames, $insertNames, $updateNames] = $this->prepareUpsertColumns(
+            $table,
+            $insertColumns,
+            $updateColumns,
+            $constraints
+        );
+
+        if (empty($uniqueNames)) {
+            return [$this->insert($table, $insertColumns, $params), '', ''];
+        }
+
+        $onCondition = ['or'];
+        $quotedTableName = $this->quoter->quoteTableName($table);
+
+        foreach ($constraints as $constraint) {
+            $constraintCondition = ['and'];
+            $columnNames = (array) $constraint->getColumnNames();
+
+            /** @psalm-var string[] $columnNames */
+            foreach ($columnNames as $name) {
+                $quotedName = $this->quoter->quoteColumnName($name);
+                $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
+            }
+
+            $onCondition[] = $constraintCondition;
+        }
+
+        $on = $this->queryBuilder->buildCondition($onCondition, $params);
+
+        [, $placeholders, $values, $params] = $this->prepareInsertValues($table, $insertColumns, $params);
+
+        $quotedInsertNames = array_map($this->quoter->quoteColumnName(...), $insertNames);
+
+        $mergeSql = 'MERGE ' . $quotedTableName . ' WITH (HOLDLOCK) USING ('
+            . (!empty($placeholders) ? 'VALUES (' . implode(', ', $placeholders) . ')' : $values)
+            . ') AS [EXCLUDED] (' . implode(', ', $quotedInsertNames) . ') ' . "ON ($on)";
+
+        $insertValues = [];
+
+        foreach ($quotedInsertNames as $quotedName) {
+            $insertValues[] = '[EXCLUDED].' . $quotedName;
+        }
+
+        $insertSql = 'INSERT (' . implode(', ', $quotedInsertNames) . ')'
+            . ' VALUES (' . implode(', ', $insertValues) . ')';
+
+        if ($updateColumns === false || $updateNames === []) {
+            /** there are no columns to update */
+            return [
+                $mergeSql,
+                '',
+                ' WHEN NOT MATCHED THEN ' . $insertSql,
+            ];
+        }
+
+        if ($updateColumns === true) {
+            $updateColumns = [];
+
+            /** @psalm-var string[] $updateNames */
+            foreach ($updateNames as $name) {
+                $updateColumns[$name] = new Expression('[EXCLUDED].' . $this->quoter->quoteColumnName($name));
+            }
+        }
+
+        $updates = $this->prepareUpdateSets($table, $updateColumns, $params);
+
+        return [
+            $mergeSql,
+            ' WHEN MATCHED THEN UPDATE SET ' . implode(', ', $updates),
+            ' WHEN NOT MATCHED THEN ' . $insertSql,
         ];
     }
 }
