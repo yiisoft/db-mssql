@@ -15,6 +15,7 @@ use Yiisoft\Db\QueryBuilder\Condition\InCondition;
 use Yiisoft\Db\Tests\Support\TraversableObject;
 
 use function array_replace;
+use function preg_replace;
 use function rtrim;
 
 final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilderProvider
@@ -296,6 +297,17 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         SQL;
 
         return $insert;
+    }
+
+    public static function batchInsert(): array
+    {
+        $values = parent::batchInsert();
+
+        foreach ($values as &$value) {
+            $value['expected'] = preg_replace(['/\bTRUE\b/i', '/\bFALSE\b/i'], ['1', '0'], $value['expected']);
+        }
+
+        return $values;
     }
 
     public static function insertWithReturningPks(): array
@@ -765,6 +777,16 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $referenceRestrict->onUpdate(ReferentialAction::RESTRICT);
 
         $values[] = ['int REFERENCES [ref_table] ([id])', ColumnBuilder::integer()->reference($referenceRestrict)];
+
+        return $values;
+    }
+
+    public static function buildValue(): array
+    {
+        $values = parent::buildValue();
+
+        $values['true'][1] = '1';
+        $values['false'][1] = '0';
 
         return $values;
     }
