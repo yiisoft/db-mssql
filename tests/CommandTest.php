@@ -5,12 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PHPUnit\Framework\Attributes\DataProviderExternal;
-use Throwable;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\IntegrityException;
-use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidCallException;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
@@ -25,8 +20,6 @@ use function trim;
 
 /**
  * @group mssql
- *
- * @psalm-suppress PropertyNotSetInConstructor
  */
 final class CommandTest extends CommonCommandTest
 {
@@ -34,11 +27,6 @@ final class CommandTest extends CommonCommandTest
 
     protected string $upsertTestCharCast = 'CAST([[address]] AS VARCHAR(255))';
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testAlterColumn(): void
     {
         $db = $this->getConnection(true);
@@ -52,11 +40,6 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame('ntext', $columns['email']->getDbType());
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testCheckIntegrity(): void
     {
         $db = $this->getConnection();
@@ -73,11 +56,6 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame(0, $command->execute());
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testCheckIntegrityExecuteException(): void
     {
         $db = $this->getConnection(true);
@@ -95,23 +73,13 @@ final class CommandTest extends CommonCommandTest
         $command->setSql($sql)->execute();
     }
 
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::rawSql
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     */
+    #[DataProviderExternal(CommandProvider::class, 'rawSql')]
     public function testGetRawSql(string $sql, array $params, string $expectedRawSql): void
     {
         parent::testGetRawSql($sql, $params, $expectedRawSql);
     }
 
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::dataInsertVarbinary
-     *
-     * @throws Throwable
-     */
+    #[DataProviderExternal(CommandProvider::class, 'dataInsertVarbinary')]
     public function testInsertVarbinary(mixed $expectedData, mixed $testData): void
     {
         $db = $this->getConnection(true);
@@ -127,13 +95,6 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame($expectedData, $resultData['blob_col']);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidCallException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testInsertWithReturningPksWithComputedColumn(): void
     {
         $db = $this->getConnection(true);
@@ -167,12 +128,6 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame(['id' => '1'], $result);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidCallException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testInsertWithReturningPksWithRowVersionColumn(): void
     {
         $db = $this->getConnection(true);
@@ -189,12 +144,6 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame(['id' => '1'], $result);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidCallException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testInsertWithReturningPksWithRowVersionNullColumn(): void
     {
         $db = $this->getConnection(true);
@@ -214,12 +163,6 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame(['id' => '1'], $result);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidCallException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testResetSequence(): void
     {
         $db = $this->getConnection(true);
@@ -233,9 +176,7 @@ final class CommandTest extends CommonCommandTest
         $this->assertEquals($oldRow['id'], $newRow['id']);
     }
 
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::update
-     */
+    #[DataProviderExternal(CommandProvider::class, 'update')]
     public function testUpdate(
         string $table,
         array $columns,
@@ -247,21 +188,12 @@ final class CommandTest extends CommonCommandTest
         parent::testUpdate($table, $columns, $conditions, $params, $expectedValues, $expectedCount);
     }
 
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\CommandProvider::upsert
-     */
+    #[DataProviderExternal(CommandProvider::class, 'upsert')]
     public function testUpsert(array $firstData, array $secondData): void
     {
         parent::testUpsert($firstData, $secondData);
     }
 
-    /**
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Exception
-     * @throws Throwable
-     */
     public function testQueryScalarWithBlob(): void
     {
         $db = $this->getConnection(true);
@@ -273,11 +205,6 @@ final class CommandTest extends CommonCommandTest
         $this->assertEquals($value, $scalarValue);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testAddDefaultValueSql(): void
     {
         $db = $this->getConnection();
@@ -292,11 +219,6 @@ final class CommandTest extends CommonCommandTest
         );
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testDropDefaultValueSql(): void
     {
         $db = $this->getConnection();
@@ -417,5 +339,17 @@ final class CommandTest extends CommonCommandTest
         $this->assertFalse($index->isUnique());
 
         $db->close();
+    }
+
+    #[DataProviderExternal(CommandProvider::class, 'batchInsert')]
+    public function testBatchInsert(
+        string $table,
+        iterable $values,
+        array $columns,
+        string $expected,
+        array $expectedParams = [],
+        int $insertedRow = 1
+    ): void {
+        parent::testBatchInsert($table, $values, $columns, $expected, $expectedParams, $insertedRow);
     }
 }
