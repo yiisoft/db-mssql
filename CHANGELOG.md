@@ -44,6 +44,7 @@
 - Enh #361, #362: Refactor `DMLQueryBuilder::insertWithReturningPks()` method (@Tigrov)
 - New #361, #362: Implement `DMLQueryBuilder::upsertReturning()` method (@Tigrov)
 - Chg #363: Add alias in `DQLQueryBuilder::selectExists()` method for consistency with other DBMS (@Tigrov)
+- Chg #366: Rename `DMLQueryBuilder::insertWithReturningPks()` to `DMLQueryBuilder::insertReturningPks()` (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
