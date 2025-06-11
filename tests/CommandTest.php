@@ -95,7 +95,7 @@ final class CommandTest extends CommonCommandTest
         $this->assertSame($expectedData, $resultData['blob_col']);
     }
 
-    public function testInsertWithReturningPksWithComputedColumn(): void
+    public function testInsertReturningPksWithComputedColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -122,13 +122,13 @@ final class CommandTest extends CommonCommandTest
         )->execute();
         $insertedString = 'test';
         $transaction = $db->beginTransaction();
-        $result = $command->insertWithReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
+        $result = $command->insertReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
         $transaction->commit();
 
         $this->assertSame(['id' => '1'], $result);
     }
 
-    public function testInsertWithReturningPksWithRowVersionColumn(): void
+    public function testInsertReturningPksWithRowVersionColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -139,12 +139,12 @@ final class CommandTest extends CommonCommandTest
             SQL
         )->execute();
         $insertedString = 'test';
-        $result = $command->insertWithReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
+        $result = $command->insertReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
 
         $this->assertSame(['id' => '1'], $result);
     }
 
-    public function testInsertWithReturningPksWithRowVersionNullColumn(): void
+    public function testInsertReturningPksWithRowVersionNullColumn(): void
     {
         $db = $this->getConnection(true);
 
@@ -155,7 +155,7 @@ final class CommandTest extends CommonCommandTest
             SQL
         )->execute();
         $insertedString = 'test';
-        $result = $command->insertWithReturningPks(
+        $result = $command->insertReturningPks(
             '{{test_trigger}}',
             ['stringcol' => $insertedString, 'RV' => new Expression('DEFAULT')],
         );
@@ -168,10 +168,10 @@ final class CommandTest extends CommonCommandTest
         $db = $this->getConnection(true);
 
         $command = $db->createCommand();
-        $oldRow = $command->insertWithReturningPks('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+        $oldRow = $command->insertReturningPks('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
         $command->delete('{{item}}', ['id' => $oldRow['id']])->execute();
         $command->resetSequence('{{item}}')->execute();
-        $newRow = $command->insertWithReturningPks('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
+        $newRow = $command->insertReturningPks('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
 
         $this->assertEquals($oldRow['id'], $newRow['id']);
     }
