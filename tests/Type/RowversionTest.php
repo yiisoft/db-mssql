@@ -7,7 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
