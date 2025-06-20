@@ -7,7 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Exception\IntegrityException;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
@@ -364,15 +364,15 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         parent::testBatchInsert($table, $rows, $columns, $expected, $expectedParams);
     }
 
-    #[DataProviderExternal(QueryBuilderProvider::class, 'insertWithReturningPks')]
-    public function testInsertWithReturningPks(
+    #[DataProviderExternal(QueryBuilderProvider::class, 'insertReturningPks')]
+    public function testInsertReturningPks(
         string $table,
         array|QueryInterface $columns,
         array $params,
         string $expectedSQL,
         array $expectedParams
     ): void {
-        parent::testInsertWithReturningPks($table, $columns, $params, $expectedSQL, $expectedParams);
+        parent::testInsertReturningPks($table, $columns, $params, $expectedSQL, $expectedParams);
     }
 
     public function testRenameColumn(): void

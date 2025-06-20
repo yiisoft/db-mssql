@@ -6,7 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use Exception;
 use Throwable;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\QueryBuilder\AbstractDDLQueryBuilder;
 use Yiisoft\Db\Schema\Column\ColumnInterface;

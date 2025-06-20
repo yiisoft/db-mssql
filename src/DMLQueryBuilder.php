@@ -6,7 +6,7 @@ namespace Yiisoft\Db\Mssql;
 
 use JsonException;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
@@ -29,11 +29,11 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
      * @throws InvalidConfigException
      * @throws NotSupportedException
      */
-    public function insertWithReturningPks(string $table, array|QueryInterface $columns, array &$params = []): string
+    public function insertReturningPks(string $table, array|QueryInterface $columns, array &$params = []): string
     {
         $primaryKeys = $this->schema->getTableSchema($table)?->getPrimaryKey() ?? [];
 
-        return $this->insertWithReturning($table, $columns, $primaryKeys, $params);
+        return $this->insertReturning($table, $columns, $primaryKeys, $params);
     }
 
     /**
@@ -88,7 +88,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         [$uniqueNames] = $this->prepareUpsertColumns($table, $insertColumns, $updateColumns);
 
         if (empty($uniqueNames)) {
-            return $this->insertWithReturning($table, $insertColumns, $returnColumns, $params);
+            return $this->insertReturning($table, $insertColumns, $returnColumns, $params);
         }
 
         $tableSchema = $this->schema->getTableSchema($table);
@@ -114,7 +114,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     /**
      * @param string[] $returnColumns
      */
-    private function insertWithReturning(
+    private function insertReturning(
         string $table,
         array|QueryInterface $columns,
         array|null $returnColumns = null,
