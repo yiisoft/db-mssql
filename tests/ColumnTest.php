@@ -9,7 +9,7 @@ use DateTimeZone;
 use PDO;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Command\Param;
-use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
@@ -34,7 +34,7 @@ final class ColumnTest extends CommonColumnTest
 
     protected const COLUMN_BUILDER = ColumnBuilder::class;
 
-    protected function insertTypeValues(PdoConnectionInterface $db): void
+    protected function insertTypeValues(ConnectionInterface $db): void
     {
         $db->createCommand()->insert(
             'type',
