@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql;
 
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
