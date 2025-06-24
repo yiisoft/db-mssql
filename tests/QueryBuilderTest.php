@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Exception\IntegrityException;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\CaseExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
@@ -825,5 +826,15 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         }
 
         parent::testDropTable($expected, $ifExists, $cascade);
+    }
+
+    #[DataProviderExternal(QueryBuilderProvider::class, 'caseExpressionBuilder')]
+    public function testCaseExpressionBuilder(
+        CaseExpression $case,
+        string $expectedSql,
+        array $expectedParams,
+        string|int $expectedResult,
+    ): void {
+        parent::testCaseExpressionBuilder($case, $expectedSql, $expectedParams, $expectedResult);
     }
 }
