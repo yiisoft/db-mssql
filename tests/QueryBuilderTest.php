@@ -792,7 +792,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
     }
 
     #[DataProviderExternal(QueryBuilderProvider::class, 'buildValue')]
-    public function testBuildValue(mixed $value, string $expected, array $expectedParams): void
+    public function testBuildValue(mixed $value, string $expected, array $expectedParams = []): void
     {
         parent::testBuildValue($value, $expected, $expectedParams);
     }
