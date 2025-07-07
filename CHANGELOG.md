@@ -47,6 +47,7 @@
 - Chg #363: Add alias in `DQLQueryBuilder::selectExists()` method for consistency with other DBMS (@Tigrov)
 - Enh #364: Refactor constraints (@Tigrov)
 - Chg #366: Rename `DMLQueryBuilder::insertWithReturningPks()` to `DMLQueryBuilder::insertReturningPks()` (@Tigrov)
+- Enh #372: Provide `yiisoft/db-implementation` virtual package (@vjik)
 
 ## 1.2.0 March 21, 2024
 
