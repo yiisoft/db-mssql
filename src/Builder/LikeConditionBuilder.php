@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Builder;
 
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\QueryBuilder\Condition\Interface\LikeConditionInterface;
 
 /**
@@ -24,7 +25,11 @@ final class LikeConditionBuilder extends \Yiisoft\Db\QueryBuilder\Condition\Buil
         '\\' => '[\\]',
     ];
 
-    public function build(LikeConditionInterface $expression, array &$params = []): string
+    /**
+     * @inheritdoc
+     * @param LikeConditionInterface $expression
+     */
+    public function build(ExpressionInterface $expression, array &$params = []): string
     {
         if ($expression->getCaseSensitive() === true) {
             throw new NotSupportedException('MSSQL doesn\'t support case-sensitive "LIKE" conditions.');
