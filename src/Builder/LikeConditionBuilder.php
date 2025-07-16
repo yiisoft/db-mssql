@@ -6,7 +6,6 @@ namespace Yiisoft\Db\Mssql\Builder;
 
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
-use Yiisoft\Db\QueryBuilder\Condition\Interface\LikeConditionInterface;
 
 /**
  * Build an object of {@see \Yiisoft\Db\QueryBuilder\Condition\LikeCondition} into SQL expressions for MSSQL Server.
