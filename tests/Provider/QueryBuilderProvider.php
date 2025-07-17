@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
+use Yiisoft\Db\Command\Param;
+use Yiisoft\Db\Constant\DataType;
 use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Constant\ReferentialAction;
 use Yiisoft\Db\Constraint\ForeignKeyConstraint;
@@ -283,6 +285,8 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             [':qp0' => 1, ':qp1' => 'oy', ':qp2' => 2, ':qp3' => 'yo'],
         ];
 
+        $buildCondition['and-subquery']['1'] = '([[expired]]=0) AND ((SELECT count(*) > 1 FROM [[queue]]))';
+
         unset($buildCondition['inCondition-custom-2'], $buildCondition['inCondition-custom-6']);
 
         return $buildCondition;
@@ -294,6 +298,10 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
         $insert['empty columns'][3] = <<<SQL
         INSERT INTO [customer] DEFAULT VALUES
+        SQL;
+
+        $insert['carry passed params (query)'][3] = <<<SQL
+        INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=0) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar))
         SQL;
 
         return $insert;
@@ -384,14 +392,13 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                     ),
                 [':phBar' => 'bar'],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=:qp4) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=0) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':phBar' => 'bar',
-                    ':qp1' => 'test@example.com',
-                    ':qp2' => 'sergeymakinen',
-                    ':qp3' => '{{city}}',
-                    ':qp4' => false,
+                    ':qp1' => new Param('test@example.com', DataType::STRING),
+                    ':qp2' => new Param('sergeymakinen', DataType::STRING),
+                    ':qp3' => new Param('{{city}}', DataType::STRING),
                     ':phFoo' => 'foo',
                 ],
             ],
@@ -808,6 +815,13 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['true'][0] = '1';
         $values['false'][0] = '0';
 
+        return $values;
+    }
+
+    public static function delete(): array
+    {
+        $values = parent::delete();
+        $values['base'][2] = 'DELETE FROM [user] WHERE ([is_enabled]=0) AND ([power]=WRONG_POWER())';
         return $values;
     }
 }
