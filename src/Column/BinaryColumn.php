@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Column;
 
+use Yiisoft\Db\Command\Param;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Column\BinaryColumn as BaseBinaryColumn;
 
@@ -15,9 +16,8 @@ final class BinaryColumn extends BaseBinaryColumn
     public function dbTypecast(mixed $value): mixed
     {
         if ($this->getDbType() === 'varbinary') {
-            if ($value instanceof Param && is_string($value->getValue())) {
-                /** @psalm-var string */
-                $value = $value->getValue();
+            if ($value instanceof Param && is_string($value->value)) {
+                $value = $value->value;
             }
 
             if (is_string($value)) {
