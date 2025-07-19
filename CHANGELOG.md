@@ -48,6 +48,7 @@
 - Enh #364: Refactor constraints (@Tigrov)
 - Chg #366: Rename `DMLQueryBuilder::insertWithReturningPks()` to `DMLQueryBuilder::insertReturningPks()` (@Tigrov)
 - Enh #372: Provide `yiisoft/db-implementation` virtual package (@vjik)
+- Enh #375: Adapt to removing `ParamInterface` from `yiisoft/db` package (@vjik)
 
 ## 1.2.0 March 21, 2024
 
