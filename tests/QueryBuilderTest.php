@@ -837,4 +837,10 @@ ALTER TABLE [customer] DROP COLUMN [id]";
     ): void {
         parent::testCaseExpressionBuilder($case, $expectedSql, $expectedParams, $expectedResult);
     }
+
+    #[DataProviderExternal(QueryBuilderProvider::class, 'delete')]
+    public function testDelete(string $table, array|string $condition, string $expectedSQL, array $expectedParams): void
+    {
+        parent::testDelete($table, $condition, $expectedSQL, $expectedParams);
+    }
 }
