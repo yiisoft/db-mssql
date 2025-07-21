@@ -45,7 +45,7 @@
 - Enh #361, #362: Refactor `DMLQueryBuilder::insertWithReturningPks()` method (@Tigrov)
 - New #361, #362: Implement `DMLQueryBuilder::upsertReturning()` method (@Tigrov)
 - Chg #363: Add alias in `DQLQueryBuilder::selectExists()` method for consistency with other DBMS (@Tigrov)
-- Enh #364: Refactor constraints (@Tigrov)
+- Enh #364, #377: Refactor constraints (@Tigrov)
 - Chg #366: Rename `DMLQueryBuilder::insertWithReturningPks()` to `DMLQueryBuilder::insertReturningPks()` (@Tigrov)
 - Enh #372: Provide `yiisoft/db-implementation` virtual package (@vjik)
 - Enh #375: Adapt to `Param` refactoring in `yiisoft/db` package (@vjik)
