@@ -7,7 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests\Provider;
 use DateTimeImmutable;
 use DateTimeZone;
 use Yiisoft\Db\Constant\ColumnType;
-use Yiisoft\Db\Constraint\DefaultValueConstraint;
+use Yiisoft\Db\Constraint\DefaultValue;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
 use Yiisoft\Db\Mssql\Column\DateTimeColumn;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
@@ -15,6 +15,7 @@ use Yiisoft\Db\Schema\Column\DoubleColumn;
 use Yiisoft\Db\Schema\Column\IntegerColumn;
 use Yiisoft\Db\Schema\Column\JsonColumn;
 use Yiisoft\Db\Schema\Column\StringColumn;
+use Yiisoft\Db\Tests\Support\Assert;
 
 final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
 {
@@ -136,12 +137,10 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
     {
         $constraints = parent::constraints();
 
-        $constraints['1: check'][2][0]->expression('([C_check]<>\'\')');
-        $constraints['1: default'][2] = [new DefaultValueConstraint('', ['C_default'], '((0))')];
-
+        Assert::setPropertyValue($constraints['1: check'][2][0], 'expression', "([C_check]<>'')");
+        $constraints['1: default'][2] = [new DefaultValue('', ['C_default'], '((0))')];
         $constraints['2: default'][2] = [];
-
-        $constraints['3: foreign key'][2][0]->foreignTableName('dbo.T_constraints_2');
+        Assert::setPropertyValue($constraints['3: foreign key'][2][0], 'foreignSchemaName', 'dbo');
         $constraints['3: index'][2] = [];
         $constraints['3: default'][2] = [];
         $constraints['4: default'][2] = [];

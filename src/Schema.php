@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
-use Yiisoft\Db\Constraint\CheckConstraint;
-use Yiisoft\Db\Constraint\DefaultValueConstraint;
-use Yiisoft\Db\Constraint\ForeignKeyConstraint;
-use Yiisoft\Db\Constraint\IndexConstraint;
+use Yiisoft\Db\Constraint\Check;
+use Yiisoft\Db\Constraint\DefaultValue;
+use Yiisoft\Db\Constraint\ForeignKey;
+use Yiisoft\Db\Constraint\Index;
 use Yiisoft\Db\Driver\Pdo\AbstractPdoSchema;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Helper\DbArrayHelper;
@@ -197,15 +197,15 @@ final class Schema extends AbstractPdoSchema
         return null;
     }
 
-    protected function loadTablePrimaryKey(string $tableName): IndexConstraint|null
+    protected function loadTablePrimaryKey(string $tableName): Index|null
     {
-        /** @var IndexConstraint|null */
+        /** @var Index|null */
         return $this->loadTableConstraints($tableName, self::PRIMARY_KEY);
     }
 
     protected function loadTableForeignKeys(string $tableName): array
     {
-        /** @var ForeignKeyConstraint[] */
+        /** @var ForeignKey[] */
         return $this->loadTableConstraints($tableName, self::FOREIGN_KEYS);
     }
 
@@ -241,7 +241,7 @@ final class Schema extends AbstractPdoSchema
          * > $indexes
          */
         foreach ($indexes as $name => $index) {
-            $result[] = new IndexConstraint(
+            $result[] = new Index(
                 $name,
                 array_column($index, 'column_name'),
                 (bool) $index[0]['is_unique'],
@@ -254,19 +254,19 @@ final class Schema extends AbstractPdoSchema
 
     protected function loadTableUniques(string $tableName): array
     {
-        /** @var IndexConstraint[] */
+        /** @var Index[] */
         return $this->loadTableConstraints($tableName, self::UNIQUES);
     }
 
     protected function loadTableChecks(string $tableName): array
     {
-        /** @var CheckConstraint[] */
+        /** @var Check[] */
         return $this->loadTableConstraints($tableName, self::CHECKS);
     }
 
     protected function loadTableDefaultValues(string $tableName): array
     {
-        /** @var DefaultValueConstraint[] */
+        /** @var DefaultValue[] */
         return $this->loadTableConstraints($tableName, self::DEFAULTS);
     }
 
@@ -537,10 +537,10 @@ final class Schema extends AbstractPdoSchema
      * - checks
      * - defaults
      *
-     * @return CheckConstraint[]|DefaultValueConstraint[]|ForeignKeyConstraint[]|IndexConstraint|IndexConstraint[]|null
+     * @return Check[]|DefaultValue[]|ForeignKey[]|Index|Index[]|null
      * Constraints of the specified type.
      */
-    private function loadTableConstraints(string $tableName, string $returnType): array|IndexConstraint|null
+    private function loadTableConstraints(string $tableName, string $returnType): array|Index|null
     {
         $sql = <<<SQL
         SELECT
@@ -604,31 +604,32 @@ final class Schema extends AbstractPdoSchema
             foreach ($names as $name => $constraint) {
                 /** @psalm-suppress ArgumentTypeCoercion */
                 match ($type) {
-                    'PK' => $result[self::PRIMARY_KEY] = new IndexConstraint(
+                    'PK' => $result[self::PRIMARY_KEY] = new Index(
                         $name,
                         array_column($constraint, 'column_name'),
                         true,
                         true,
                     ),
-                    'F' => $result[self::FOREIGN_KEYS][] = new ForeignKeyConstraint(
+                    'F' => $result[self::FOREIGN_KEYS][] = new ForeignKey(
                         $name,
                         array_column($constraint, 'column_name'),
-                        $constraint[0]['foreign_table_schema'] . '.' . $constraint[0]['foreign_table_name'],
+                        $constraint[0]['foreign_table_schema'],
+                        $constraint[0]['foreign_table_name'],
                         array_column($constraint, 'foreign_column_name'),
-                        str_replace('_', ' ', $constraint[0]['on_update']),
                         str_replace('_', ' ', $constraint[0]['on_delete']),
+                        str_replace('_', ' ', $constraint[0]['on_update']),
                     ),
-                    'UQ' => $result[self::UNIQUES][] = new IndexConstraint(
+                    'UQ' => $result[self::UNIQUES][] = new Index(
                         $name,
                         array_column($constraint, 'column_name'),
                         true,
                     ),
-                    'C' => $result[self::CHECKS][] = new CheckConstraint(
+                    'C' => $result[self::CHECKS][] = new Check(
                         $name,
                         array_column($constraint, 'column_name'),
                         $constraint[0]['check_expr'],
                     ),
-                    'D' => $result[self::DEFAULTS][] = new DefaultValueConstraint(
+                    'D' => $result[self::DEFAULTS][] = new DefaultValue(
                         $name,
                         array_column($constraint, 'column_name'),
                         $constraint[0]['default_expr'],
