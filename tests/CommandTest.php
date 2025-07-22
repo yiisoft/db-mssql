@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PHPUnit\Framework\Attributes\DataProviderExternal;
+use Yiisoft\Db\Constraint\Index;
 use Yiisoft\Db\Exception\IntegrityException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
@@ -301,13 +302,10 @@ final class CommandTest extends CommonCommandTest
         $command->createTable($tableName, ['col1' => ColumnBuilder::integer()])->execute();
         $command->createIndex($tableName, $indexName, '', IndexType::CLUSTERED_COLUMNSTORE)->execute();
 
-        $this->assertCount(1, $schema->getTableIndexes($tableName));
-
-        $index = $schema->getTableIndexes($tableName)[0];
-
-        $this->assertSame(['col1'], $index->getColumnNames());
-        $this->assertFalse($index->isUnique());
-        $this->assertFalse($index->isPrimaryKey());
+        $this->assertEquals(
+            [new Index($indexName, ['col1'])],
+            $schema->getTableIndexes($tableName),
+        );
 
         $db->close();
     }
@@ -333,10 +331,9 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertCount(3, $schema->getTableIndexes($tableName));
 
-        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimaryKey())[1];
+        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimaryKey)[1];
 
-        $this->assertSame($indexColumns, $index->getColumnNames());
-        $this->assertFalse($index->isUnique());
+        $this->assertEquals(new Index($xmlIndexName, $indexColumns), $index);
 
         $db->close();
     }

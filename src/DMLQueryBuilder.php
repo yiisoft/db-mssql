@@ -209,7 +209,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
         foreach ($constraints as $constraint) {
             $constraintCondition = ['and'];
-            $columnNames = $constraint->getColumnNames();
+            $columnNames = $constraint->columnNames;
 
             foreach ($columnNames as $name) {
                 $quotedName = $this->quoter->quoteColumnName($name);

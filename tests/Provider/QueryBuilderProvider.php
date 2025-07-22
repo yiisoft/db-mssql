@@ -8,7 +8,7 @@ use Yiisoft\Db\Command\Param;
 use Yiisoft\Db\Constant\DataType;
 use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Constant\ReferentialAction;
-use Yiisoft\Db\Constraint\ForeignKeyConstraint;
+use Yiisoft\Db\Constraint\ForeignKey;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
@@ -774,14 +774,15 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['unique()'][0] = 'nvarchar(255) UNIQUE';
         $values['unsigned()'][0] = 'int';
         $values['integer(8)->scale(2)'][0] = 'int';
-        $values['reference($reference)'][0] = 'int REFERENCES [ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
-        $values['reference($referenceWithSchema)'][0] = 'int REFERENCES [ref_schema].[ref_table] ([id]) ON DELETE CASCADE ON UPDATE CASCADE';
+        $values['reference($reference)'][0] = 'int REFERENCES [ref_table] ([id]) ON DELETE SET NULL ON UPDATE CASCADE';
+        $values['reference($referenceWithSchema)'][0] = 'int REFERENCES [ref_schema].[ref_table] ([id]) ON DELETE SET NULL ON UPDATE CASCADE';
 
-        $referenceRestrict = new ForeignKeyConstraint();
-        $referenceRestrict->foreignColumnNames(['id']);
-        $referenceRestrict->foreignTableName('ref_table');
-        $referenceRestrict->onDelete(ReferentialAction::RESTRICT);
-        $referenceRestrict->onUpdate(ReferentialAction::RESTRICT);
+        $referenceRestrict = new ForeignKey(
+            foreignTableName: 'ref_table',
+            foreignColumnNames: ['id'],
+            onDelete: ReferentialAction::RESTRICT,
+            onUpdate: ReferentialAction::RESTRICT,
+        );
 
         $values[] = ['int REFERENCES [ref_table] ([id])', ColumnBuilder::integer()->reference($referenceRestrict)];
 
