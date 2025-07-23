@@ -14,34 +14,39 @@ use Yiisoft\Db\Mssql\Dsn;
  */
 final class DsnTest extends TestCase
 {
-    public function testAsString(): void
+    public function testConstruct(): void
     {
-        $this->assertSame(
-            'sqlsrv:Server=127.0.0.1,1433;Database=yiitest',
-            (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
-        );
+        $dsn = new Dsn('sqlsrv', 'localhost', 'yiitest', '1434', ['Encrypt' => 'no']);
+
+        $this->assertSame('sqlsrv', $dsn->driver);
+        $this->assertSame('localhost', $dsn->host);
+        $this->assertSame('yiitest', $dsn->databaseName);
+        $this->assertSame('1434', $dsn->port);
+        $this->assertSame(['Encrypt' => 'no'], $dsn->options);
+        $this->assertSame('sqlsrv:Server=localhost,1434;Database=yiitest;Encrypt=no', (string) $dsn);
     }
 
-    public function testAsStringWithDatabaseName(): void
+    public function testConstructDefaults(): void
     {
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433', (new Dsn('sqlsrv', '127.0.0.1'))->asString());
+        $dsn = new Dsn();
+
+        $this->assertSame('sqlsrv', $dsn->driver);
+        $this->assertSame('127.0.0.1', $dsn->host);
+        $this->assertSame('', $dsn->databaseName);
+        $this->assertSame('1433', $dsn->port);
+        $this->assertSame([], $dsn->options);
+        $this->assertSame('sqlsrv:Server=127.0.0.1,1433', (string) $dsn);
     }
 
-    public function testAsStringWithDatabaseNameWithEmptyString(): void
+    public function testConstructWithEmptyPort(): void
     {
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433', (new Dsn('sqlsrv', '127.0.0.1', ''))->asString());
-    }
+        $dsn = new Dsn('sqlsrv', 'localhost', port: '');
 
-    public function testAsStringWithDatabaseNameWithNull(): void
-    {
-        $this->assertSame('sqlsrv:Server=127.0.0.1,1433', (new Dsn('sqlsrv', '127.0.0.1', null))->asString());
-    }
-
-    public function testAsStringWithEmptyPort(): void
-    {
-        $this->assertSame(
-            'sqlsrv:Server=127.0.0.1;Database=yiitest',
-            (new Dsn('sqlsrv', '127.0.0.1', 'yiitest', ''))->asString(),
-        );
+        $this->assertSame('sqlsrv', $dsn->driver);
+        $this->assertSame('localhost', $dsn->host);
+        $this->assertSame('', $dsn->databaseName);
+        $this->assertSame('', $dsn->port);
+        $this->assertSame([], $dsn->options);
+        $this->assertSame('sqlsrv:Server=localhost', (string) $dsn);
     }
 }
