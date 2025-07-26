@@ -28,7 +28,6 @@ IF OBJECT_ID('[T_constraints_1]', 'U') IS NOT NULL DROP TABLE [T_constraints_1];
 IF OBJECT_ID('[T_upsert]', 'U') IS NOT NULL DROP TABLE [T_upsert];
 IF OBJECT_ID('[T_upsert_1]', 'U') IS NOT NULL DROP TABLE [T_upsert_1];
 IF OBJECT_ID('[T_upsert_varbinary]', 'U') IS NOT NULL DROP TABLE [T_upsert_varbinary];
-IF OBJECT_ID('[table.with.special.characters]', 'U') IS NOT NULL DROP TABLE [table.with.special.characters];
 IF OBJECT_ID('[foo1]', 'U') IS NOT NULL DROP TABLE [foo1];
 IF OBJECT_ID('[stranger ''table]', 'U') IS NOT NULL DROP TABLE [stranger 'table];
 
@@ -354,10 +353,6 @@ CREATE TABLE [T_upsert]
 CREATE TABLE [T_upsert_1]
 (
     [a] INT NOT NULL PRIMARY KEY
-);
-
-CREATE TABLE [dbo].[table.with.special.characters] (
-    [id] [int]
 );
 
 CREATE TABLE [T_upsert_varbinary]

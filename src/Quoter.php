@@ -8,31 +8,17 @@ use Yiisoft\Db\Schema\Quoter as BaseQuoter;
 
 use function array_map;
 use function array_slice;
-use function preg_match;
-use function preg_match_all;
+use function explode;
 
 /**
  * Implements the MSSQL Server quoting and unquoting methods.
  */
 final class Quoter extends BaseQuoter
 {
-    public function quoteColumnName(string $name): string
-    {
-        if (preg_match('/^\[.*]$/', $name)) {
-            return $name;
-        }
-
-        return parent::quoteColumnName($name);
-    }
-
     public function getTableNameParts(string $name, bool $withColumn = false): array
     {
-        if (preg_match_all('/([^.\[\]]+)|\[([^\[\]]+)]/', $name, $matches) > 0) {
-            $parts = array_slice($matches[0], -4, 4);
+        $parts = array_slice(explode('.', $name), -4, 4);
 
-            return array_map($this->unquoteSimpleTableName(...), $parts);
-        }
-
-        return [$this->unquoteSimpleTableName($name)];
+        return array_map($this->unquoteSimpleTableName(...), $parts);
     }
 }

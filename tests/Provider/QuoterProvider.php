@@ -47,8 +47,8 @@ final class QuoterProvider extends \Yiisoft\Db\Tests\Provider\QuoterProvider
             ['catalog.other.animal2', 'animal2', 'other', 'catalog'],
             ['server.catalog.other.animal2', 'animal2', 'other', 'catalog', 'server'],
             ['unknown_part.server.catalog.other.animal2', 'animal2', 'other', 'catalog', 'server'],
-            ['[[dbo]].[[animal]]', 'animal', 'dbo'],
-            ['[[other]].[[animal2]]', 'animal2', 'other'],
+            ['{{dbo}}.{{animal}}', '{{animal}}', '{{dbo}}'],
+            ['{{other}}.{{animal2}}', '{{animal2}}', '{{other}}'],
         ];
     }
 }
