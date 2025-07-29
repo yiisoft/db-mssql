@@ -7,12 +7,12 @@ namespace Yiisoft\Db\Mssql;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Expression\ExpressionInterface;
-use Yiisoft\Db\Mssql\Builder\InConditionBuilder;
-use Yiisoft\Db\Mssql\Builder\LikeConditionBuilder;
+use Yiisoft\Db\Mssql\Builder\InBuilder;
+use Yiisoft\Db\Mssql\Builder\LikeBuilder;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\AbstractDQLQueryBuilder;
-use Yiisoft\Db\QueryBuilder\Condition\InCondition;
-use Yiisoft\Db\QueryBuilder\Condition\LikeCondition;
+use Yiisoft\Db\QueryBuilder\Condition\In;
+use Yiisoft\Db\QueryBuilder\Condition\Like;
 
 use function preg_match;
 
@@ -46,8 +46,8 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
     {
         return [
             ...parent::defaultExpressionBuilders(),
-            InCondition::class => InConditionBuilder::class,
-            LikeCondition::class => LikeConditionBuilder::class,
+            In::class => InBuilder::class,
+            Like::class => LikeBuilder::class,
         ];
     }
 

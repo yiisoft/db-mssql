@@ -10,7 +10,7 @@ use Yiisoft\Db\Expression\ExpressionInterface;
 /**
  * Build an object of {@see \Yiisoft\Db\QueryBuilder\Condition\LikeCondition} into SQL expressions for MSSQL Server.
  */
-final class LikeConditionBuilder extends \Yiisoft\Db\QueryBuilder\Condition\Builder\LikeConditionBuilder
+final class LikeBuilder extends \Yiisoft\Db\QueryBuilder\Condition\Builder\LikeBuilder
 {
     /**
      * @var array Map of chars to their replacements in `LIKE` conditions. By default, it's configured to escape

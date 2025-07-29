@@ -13,7 +13,7 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\QueryBuilder\Condition\InCondition;
+use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\Tests\Support\TraversableObject;
 
 use function array_replace;
@@ -240,20 +240,20 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $buildCondition = parent::buildCondition();
 
-        $buildCondition['inCondition-custom-1'] = [new InCondition(['id', 'name'], 'in', []), '()', []];
+        $buildCondition['inCondition-custom-1'] = [new In(['id', 'name'], 'in', []), '()', []];
         $buildCondition['inCondition-custom-3'] = [
-            new InCondition(['id', 'name'], 'in', [['id' => 1]]),
+            new In(['id', 'name'], 'in', [['id' => 1]]),
             '(([id] = :qp0 AND [name] IS NULL))',
             [':qp0' => 1],
         ];
         $buildCondition['inCondition-custom-4'] = [
-            new InCondition(['id', 'name'], 'in', [['name' => 'oy']]),
+            new In(['id', 'name'], 'in', [['name' => 'oy']]),
             '(([id] IS NULL AND [name] = :qp0))',
             [':qp0' => 'oy'],
         ];
 
         $buildCondition['inCondition-custom-5'] = [
-            new InCondition(['id', 'name'], 'in', [['id' => 1, 'name' => 'oy']]),
+            new In(['id', 'name'], 'in', [['id' => 1, 'name' => 'oy']]),
             '(([id] = :qp0 AND [name] = :qp1))',
             [':qp0' => 1, ':qp1' => 'oy'],
         ];
