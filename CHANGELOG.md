@@ -50,6 +50,7 @@
 - Enh #372: Provide `yiisoft/db-implementation` virtual package (@vjik)
 - Enh #375: Adapt to `Param` refactoring in `yiisoft/db` package (@vjik)
 - Enh #376, #379: Adapt to conditions refactoring in `yiisoft/db` package (@vjik)
+- Enh #380: Remove support dots in table names (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
