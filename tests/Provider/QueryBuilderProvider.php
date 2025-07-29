@@ -285,7 +285,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             [':qp0' => 1, ':qp1' => 'oy', ':qp2' => 2, ':qp3' => 'yo'],
         ];
 
-        $buildCondition['and-subquery']['1'] = '([[expired]]=0) AND ((SELECT count(*) > 1 FROM [[queue]]))';
+        $buildCondition['and-subquery']['1'] = '([[expired]] = 0) AND ((SELECT count(*) > 1 FROM [[queue]]))';
 
         unset($buildCondition['inCondition-custom-2'], $buildCondition['inCondition-custom-6']);
 
@@ -301,7 +301,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         SQL;
 
         $insert['carry passed params (query)'][3] = <<<SQL
-        INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=0) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar))
+        INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email] = :qp1) AND ([name] = :qp2) AND ([address] = :qp3) AND ([is_active] = 0) AND ([related_id] IS NULL) AND ([col] = CONCAT(:phFoo, :phBar))
         SQL;
 
         return $insert;
@@ -392,7 +392,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                     ),
                 [':phBar' => 'bar'],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email]=:qp1) AND ([name]=:qp2) AND ([address]=:qp3) AND ([is_active]=0) AND ([related_id] IS NULL) AND ([col]=CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted SELECT [email], [name], [address], [is_active], [related_id] FROM [customer] WHERE ([email] = :qp1) AND ([name] = :qp2) AND ([address] = :qp3) AND ([is_active] = 0) AND ([related_id] IS NULL) AND ([col] = CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':phBar' => 'bar',
@@ -450,7 +450,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
             'query' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING ' .
-                    '(SELECT [email], 2 AS [status] FROM [customer] WHERE [name]=:qp0 ' .
+                    '(SELECT [email], 2 AS [status] FROM [customer] WHERE [name] = :qp0 ' .
                     'ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ' .
                     '([email], [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
                     'WHEN MATCHED THEN UPDATE SET [status]=[EXCLUDED].[status] ' .
@@ -459,7 +459,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
             'query with update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] ' .
-                    'WHERE [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ' .
+                    'WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ' .
                     '([email], [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
                     'WHEN MATCHED THEN UPDATE SET [address]=:qp1, [status]=:qp2, [orders]=T_upsert.orders + 1 ' .
                     'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
@@ -467,7 +467,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
             'query without update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] ' .
-                    'WHERE [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ' .
+                    'WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ' .
                     '([email], [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
                     'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
             ],
@@ -568,7 +568,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $upsert['query without update part'][4] = 'SET NOCOUNT ON;'
             . 'DECLARE @temporary_inserted TABLE ([id] int);'
             . 'DECLARE @temp int;MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer]'
-            . ' WHERE [name]=:qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED]'
+            . ' WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED]'
             . ' ([email], [status]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
             . ' WHEN MATCHED THEN UPDATE SET @temp=1'
             . ' WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status])'
@@ -822,7 +822,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     public static function delete(): array
     {
         $values = parent::delete();
-        $values['base'][2] = 'DELETE FROM [user] WHERE ([is_enabled]=0) AND ([power]=WRONG_POWER())';
+        $values['base'][2] = 'DELETE FROM [user] WHERE ([is_enabled] = 0) AND ([power] = WRONG_POWER())';
         return $values;
     }
 }
