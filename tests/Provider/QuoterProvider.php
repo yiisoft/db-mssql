@@ -36,19 +36,17 @@ final class QuoterProvider extends \Yiisoft\Db\Tests\Provider\QuoterProvider
     public static function tableNameParts(): array
     {
         return [
-            ['', ''],
-            ['[]', ''],
-            ['animal', 'animal'],
-            ['dbo.animal', 'animal', 'dbo'],
-            ['[dbo].[animal]', 'animal', 'dbo'],
-            ['[other].[animal2]', 'animal2', 'other'],
-            ['other.[animal2]', 'animal2', 'other'],
-            ['other.animal2', 'animal2', 'other'],
-            ['catalog.other.animal2', 'animal2', 'other', 'catalog'],
-            ['server.catalog.other.animal2', 'animal2', 'other', 'catalog', 'server'],
-            ['unknown_part.server.catalog.other.animal2', 'animal2', 'other', 'catalog', 'server'],
-            ['{{dbo}}.{{animal}}', '{{animal}}', '{{dbo}}'],
-            ['{{other}}.{{animal2}}', '{{animal2}}', '{{other}}'],
+            ['', ['name' => '']],
+            ['[]', ['name' => '']],
+            ['animal', ['name' => 'animal']],
+            ['[animal]', ['name' => 'animal']],
+            ['dbo.animal', ['schemaName' => 'dbo', 'name' => 'animal']],
+            ['[dbo].[animal]', ['schemaName' => 'dbo', 'name' => 'animal']],
+            ['[dbo].animal', ['schemaName' => 'dbo', 'name' => 'animal']],
+            ['dbo.[animal]', ['schemaName' => 'dbo', 'name' => 'animal']],
+            ['catalog.other.animal2', ['catalogName' => 'catalog', 'schemaName' => 'other', 'name' => 'animal2']],
+            ['server.catalog.other.animal2', ['serverName' => 'server', 'catalogName' => 'catalog', 'schemaName' => 'other', 'name' => 'animal2']],
+            ['unknown_part.server.catalog.other.animal2', ['serverName' => 'server', 'catalogName' => 'catalog', 'schemaName' => 'other', 'name' => 'animal2']],
         ];
     }
 }

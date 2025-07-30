@@ -65,19 +65,17 @@ final class Schema extends AbstractPdoSchema
     {
         $resolvedName = new TableSchema();
 
-        $parts = array_reverse(
-            $this->db->getQuoter()->getTableNameParts($name)
-        );
+        $parts = $this->db->getQuoter()->getTableNameParts($name);
 
-        $resolvedName->name($parts[0] ?? '');
-        $resolvedName->schemaName($parts[1] ?? $this->defaultSchema);
-        $resolvedName->catalogName($parts[2] ?? null);
-        $resolvedName->serverName($parts[3] ?? null);
+        $resolvedName->name($parts['name']);
+        $resolvedName->schemaName($parts['schemaName'] ?? $this->defaultSchema);
+        $resolvedName->catalogName($parts['catalogName'] ?? null);
+        $resolvedName->serverName($parts['serverName'] ?? null);
 
-        if (empty($parts[2]) && $resolvedName->getSchemaName() === $this->defaultSchema) {
-            $resolvedName->fullName($parts[0]);
+        if (empty($parts['catalogName']) && $resolvedName->getSchemaName() === $this->defaultSchema) {
+            $resolvedName->fullName($parts['name']);
         } else {
-            $resolvedName->fullName(implode('.', array_reverse($parts)));
+            $resolvedName->fullName(implode('.', $parts));
         }
 
         return $resolvedName;
