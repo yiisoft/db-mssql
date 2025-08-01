@@ -112,7 +112,7 @@ create table [dbo].[composite_fk]
             primary key nonclustered,
     order_id int not null,
     item_id int not null,
-    constraint FK_composite_fk_order_item
+    constraint [FK_composite_fk_order_item]
         foreign key (order_id, item_id) references order_item
             on delete cascade
 );

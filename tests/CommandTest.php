@@ -303,7 +303,7 @@ final class CommandTest extends CommonCommandTest
         $command->createIndex($tableName, $indexName, '', IndexType::CLUSTERED_COLUMNSTORE)->execute();
 
         $this->assertEquals(
-            [new Index($indexName, ['col1'])],
+            [$indexName => new Index($indexName, ['col1'])],
             $schema->getTableIndexes($tableName),
         );
 
@@ -331,7 +331,7 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertCount(3, $schema->getTableIndexes($tableName));
 
-        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimaryKey)[1];
+        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimaryKey)[$xmlIndexName];
 
         $this->assertEquals(new Index($xmlIndexName, $indexColumns), $index);
 
