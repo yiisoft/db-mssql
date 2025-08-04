@@ -3,7 +3,7 @@
 ## 2.0.0 under development
 
 - Chg #368: Use `\InvalidArgumentException` instead of `Yiisoft\Db\Exception\InvalidArgumentException` (@DikoIbragimov)
-- New #277: Implement `ColumnSchemaInterface` classes according to the data type of database table columns
+- New #277, #384: Implement `ColumnInterface` classes according to the data type of database table columns
   for type casting performance. Related with yiisoft/db#752 (@Tigrov)
 - Enh #293, #357: Implement and use `SqlParser` class (@Tigrov)
 - Chg #306: Remove parameter `$withColumn` from `Quoter::getTableNameParts()` method (@Tigrov)
