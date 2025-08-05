@@ -20,6 +20,7 @@ use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\Column\DoubleColumn;
 use Yiisoft\Db\Schema\Column\IntegerColumn;
 use Yiisoft\Db\Schema\Column\StringColumn;
+use Yiisoft\Db\Schema\Data\StringableStream;
 use Yiisoft\Db\Tests\Common\CommonColumnTest;
 
 use function iterator_to_array;
@@ -150,13 +151,19 @@ final class ColumnTest extends CommonColumnTest
         $binaryCol = new BinaryColumn();
         $binaryCol->dbType('varbinary');
 
+        $expected = new Expression('CONVERT(VARBINARY(MAX), 0x101112)');
+
         $this->assertEquals(
-            new Expression('CONVERT(VARBINARY(MAX), 0x101112)'),
+            $expected,
             $binaryCol->dbTypecast("\x10\x11\x12"),
         );
         $this->assertEquals(
-            new Expression('CONVERT(VARBINARY(MAX), 0x101112)'),
+            $expected,
             $binaryCol->dbTypecast(new Param("\x10\x11\x12", PDO::PARAM_LOB)),
+        );
+        $this->assertEquals(
+            $expected,
+            $binaryCol->dbTypecast(new StringableStream("\x10\x11\x12")),
         );
     }
 }
