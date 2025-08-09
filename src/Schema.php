@@ -25,6 +25,7 @@ use function str_replace;
  *
  * @psalm-type ColumnArray = array{
  *   check: string|null,
+ *   collation_name: string|null,
  *   column_name: string,
  *   column_default: string|null,
  *   is_nullable: string,
@@ -273,6 +274,7 @@ final class Schema extends AbstractPdoSchema
         return $this->db->getColumnFactory()->fromDbType($info['data_type'], [
             'autoIncrement' => $info['is_identity'] === '1',
             'check' => $info['check'],
+            'collation' => $info['collation_name'],
             'comment' => $info['comment'],
             'computed' => $info['is_computed'] === '1',
             'defaultValueRaw' => $info['column_default'],
@@ -322,6 +324,7 @@ final class Schema extends AbstractPdoSchema
             [t].[data_type],
             COALESCE(NULLIF([t].[character_maximum_length], -1), [t].[numeric_precision], [t].[datetime_precision]) AS [size],
             [t].[numeric_scale],
+            [t].[collation_name],
             COLUMNPROPERTY(OBJECT_ID([t].[table_schema] + '.' + [t].[table_name]), [t].[column_name], 'IsIdentity') AS [is_identity],
             COLUMNPROPERTY(OBJECT_ID([t].[table_schema] + '.' + [t].[table_name]), [t].[column_name], 'IsComputed') AS [is_computed],
             [ext].[value] as [comment],

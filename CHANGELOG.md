@@ -52,6 +52,7 @@
 - Enh #376, #379: Adapt to conditions refactoring in `yiisoft/db` package (@vjik)
 - Enh #380: Remove support dots in table names (@Tigrov)
 - Enh #383: Refactor `TableSchema` and `Schema` classes (@Tigrov)
+- Enh #386: Support column's collation (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
