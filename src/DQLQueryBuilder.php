@@ -15,6 +15,8 @@ use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\QueryBuilder\Condition\Like;
 use Yiisoft\Db\QueryBuilder\Condition\NotIn;
 
+use Yiisoft\Db\QueryBuilder\Condition\NotLike;
+
 use function preg_match;
 
 /**
@@ -50,6 +52,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
             In::class => InBuilder::class,
             NotIn::class => InBuilder::class,
             Like::class => LikeBuilder::class,
+            NotLike::class => LikeBuilder::class,
         ];
     }
 
