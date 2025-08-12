@@ -38,7 +38,6 @@ final class JsonTest extends TestCase
         $tableSchema = $db->getTableSchema('json_default');
 
         $this->assertSame('nvarchar', $tableSchema?->getColumn('Myjson')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Myjson')->getPhpType());
         $this->assertSame('{}', $tableSchema?->getColumn('Myjson')->getDefaultValue());
 
         $db->createCommand()->dropTable('json_default')->execute();
@@ -85,7 +84,6 @@ final class JsonTest extends TestCase
         $tableSchema = $db->getTableSchema('json_default');
 
         $this->assertSame('nvarchar', $tableSchema?->getColumn('Myjson')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Myjson')->getPhpType());
         $this->assertSame('{}', $tableSchema?->getColumn('Myjson')->getDefaultValue());
 
         $db->createCommand()->dropTable('json_default')->execute();

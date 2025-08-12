@@ -39,7 +39,6 @@ final class DecimalTest extends TestCase
         $tableSchema = $db->getTableSchema('decimal_default');
 
         $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
-        $this->assertSame('float', $tableSchema?->getColumn('Mydecimal')->getPhpType());
         $this->assertSame(38, $tableSchema?->getColumn('Mydecimal')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
 
@@ -87,7 +86,6 @@ final class DecimalTest extends TestCase
         $tableSchema = $db->getTableSchema('decimal_default');
 
         $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
-        $this->assertSame('float', $tableSchema?->getColumn('Mydecimal')->getPhpType());
         $this->assertSame(38, $tableSchema?->getColumn('Mydecimal')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
 

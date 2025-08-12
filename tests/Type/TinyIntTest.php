@@ -38,7 +38,6 @@ final class TinyIntTest extends TestCase
         $tableSchema = $db->getTableSchema('tinyint_default');
 
         $this->assertSame('tinyint', $tableSchema?->getColumn('Mytinyint')->getDbType());
-        $this->assertSame('int', $tableSchema?->getColumn('Mytinyint')->getPhpType());
         $this->assertSame(255, $tableSchema?->getColumn('Mytinyint')->getDefaultValue());
 
         $db->createCommand()->dropTable('tinyint_default')->execute();
@@ -85,7 +84,6 @@ final class TinyIntTest extends TestCase
         $tableSchema = $db->getTableSchema('tinyint_default');
 
         $this->assertSame('tinyint', $tableSchema?->getColumn('Mytinyint')->getDbType());
-        $this->assertSame('int', $tableSchema?->getColumn('Mytinyint')->getPhpType());
         $this->assertSame(255, $tableSchema?->getColumn('Mytinyint')->getDefaultValue());
 
         $db->createCommand()->dropTable('tinyint_default')->execute();

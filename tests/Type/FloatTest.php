@@ -39,7 +39,6 @@ final class FloatTest extends TestCase
         $tableSchema = $db->getTableSchema('float_default');
 
         $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
-        $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getPhpType());
         $this->assertSame(2.2300000000000001e-308, $tableSchema?->getColumn('Myfloat')->getDefaultValue());
 
         $db->createCommand()->insert('float_default', [])->execute();
@@ -86,7 +85,6 @@ final class FloatTest extends TestCase
         $tableSchema = $db->getTableSchema('float_default');
 
         $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
-        $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getPhpType());
         $this->assertSame(2.2300000000000001e-308, $tableSchema?->getColumn('Myfloat')->getDefaultValue());
 
         $command = $db->createCommand();

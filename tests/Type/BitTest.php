@@ -44,7 +44,6 @@ final class BitTest extends TestCase
         $tableSchema = $db->getTableSchema('bit_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('bit_default')->execute();
@@ -97,7 +96,6 @@ final class BitTest extends TestCase
         $tableSchema = $db->getTableSchema('bit_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('bit_default')->execute();

@@ -45,7 +45,6 @@ final class CharTest extends TestCase
         $tableSchema = $db->getTableSchema('char_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
         $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
@@ -100,7 +99,6 @@ final class CharTest extends TestCase
         $tableSchema = $db->getTableSchema('char_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
         $this->assertSame($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 

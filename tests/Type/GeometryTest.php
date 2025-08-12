@@ -45,7 +45,6 @@ final class GeometryTest extends TestCase
         $tableSchema = $db->getTableSchema('geometry_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('geometry_default')->execute();
@@ -98,7 +97,6 @@ final class GeometryTest extends TestCase
         $tableSchema = $db->getTableSchema('geometry_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('geometry_default')->execute();

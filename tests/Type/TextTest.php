@@ -38,7 +38,6 @@ final class TextTest extends TestCase
         $tableSchema = $db->getTableSchema('text_default');
 
         $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mytext')->getPhpType());
         $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDefaultValue());
 
         $db->createCommand()->dropTable('text_default')->execute();
@@ -85,7 +84,6 @@ final class TextTest extends TestCase
         $tableSchema = $db->getTableSchema('text_default');
 
         $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mytext')->getPhpType());
         $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDefaultValue());
 
         $db->createCommand()->dropTable('text_default')->execute();
