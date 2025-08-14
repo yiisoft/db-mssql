@@ -38,7 +38,6 @@ final class NTextTest extends TestCase
         $tableSchema = $db->getTableSchema('ntext_default');
 
         $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Myntext')->getPhpType());
         $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDefaultValue());
 
         $db->createCommand()->dropTable('ntext_default')->execute();
@@ -85,7 +84,6 @@ final class NTextTest extends TestCase
         $tableSchema = $db->getTableSchema('ntext_default');
 
         $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Myntext')->getPhpType());
         $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDefaultValue());
 
         $db->createCommand()->dropTable('ntext_default')->execute();

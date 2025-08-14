@@ -38,7 +38,6 @@ final class BigIntTest extends TestCase
         $tableSchema = $db->getTableSchema('bigint_default');
 
         $this->assertSame('bigint', $tableSchema?->getColumn('Mybigint')->getDbType());
-        $this->assertSame('int', $tableSchema?->getColumn('Mybigint')->getPhpType());
         $this->assertSame(9_223_372_036_854_775_807, $tableSchema?->getColumn('Mybigint')->getDefaultValue());
 
         $db->createCommand()->dropTable('bigint_default')->execute();
@@ -85,7 +84,6 @@ final class BigIntTest extends TestCase
         $tableSchema = $db->getTableSchema('bigint_default');
 
         $this->assertSame('bigint', $tableSchema?->getColumn('Mybigint')->getDbType());
-        $this->assertSame('int', $tableSchema?->getColumn('Mybigint')->getPhpType());
         $this->assertSame(9_223_372_036_854_775_807, $tableSchema?->getColumn('Mybigint')->getDefaultValue());
 
         $db->createCommand()->dropTable('bigint_default')->execute();

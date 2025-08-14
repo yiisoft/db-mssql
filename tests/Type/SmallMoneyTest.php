@@ -38,7 +38,6 @@ final class SmallMoneyTest extends TestCase
         $tableSchema = $db->getTableSchema('smallmoney_default');
 
         $this->assertSame('smallmoney', $tableSchema?->getColumn('Mysmallmoney')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mysmallmoney')->getPhpType());
         $this->assertSame('214748.3647', $tableSchema?->getColumn('Mysmallmoney')->getDefaultValue());
 
         $db->createCommand()->dropTable('smallmoney_default')->execute();
@@ -85,7 +84,6 @@ final class SmallMoneyTest extends TestCase
         $tableSchema = $db->getTableSchema('smallmoney_default');
 
         $this->assertSame('smallmoney', $tableSchema?->getColumn('Mysmallmoney')->getDbType());
-        $this->assertSame('string', $tableSchema?->getColumn('Mysmallmoney')->getPhpType());
         $this->assertSame('214748.3647', $tableSchema?->getColumn('Mysmallmoney')->getDefaultValue());
 
         $db->createCommand()->dropTable('smallmoney_default')->execute();

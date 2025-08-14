@@ -47,7 +47,6 @@ final class DateTest extends TestCase
         $tableSchema = $db->getTableSchema('date_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->insert('date_default', [])->execute();
@@ -100,7 +99,6 @@ final class DateTest extends TestCase
         $tableSchema = $db->getTableSchema('date_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
         $db->createCommand()->dropTable('date_default')->execute();

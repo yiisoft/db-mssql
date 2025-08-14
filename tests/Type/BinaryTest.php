@@ -46,7 +46,6 @@ final class BinaryTest extends TestCase
         $tableSchema = $db->getTableSchema('binary_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
         $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 
@@ -101,7 +100,6 @@ final class BinaryTest extends TestCase
         $tableSchema = $db->getTableSchema('binary_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
-        $this->assertSame($phpType, $tableSchema?->getColumn($column)->getPhpType());
         $this->assertSame($size, $tableSchema?->getColumn($column)->getSize());
         $this->assertEquals($defaultValue, $tableSchema?->getColumn($column)->getDefaultValue());
 

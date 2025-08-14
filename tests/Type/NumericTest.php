@@ -39,7 +39,6 @@ final class NumericTest extends TestCase
         $tableSchema = $db->getTableSchema('numeric_default');
 
         $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
-        $this->assertSame('float', $tableSchema?->getColumn('Mynumeric')->getPhpType());
         $this->assertSame(38, $tableSchema?->getColumn('Mynumeric')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mynumeric')->getDefaultValue());
 
@@ -87,7 +86,6 @@ final class NumericTest extends TestCase
         $tableSchema = $db->getTableSchema('numeric_default');
 
         $this->assertSame('numeric', $tableSchema?->getColumn('Mynumeric')->getDbType());
-        $this->assertSame('float', $tableSchema?->getColumn('Mynumeric')->getPhpType());
         $this->assertSame(38, $tableSchema?->getColumn('Mynumeric')->getSize());
         $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mynumeric')->getDefaultValue());
 
