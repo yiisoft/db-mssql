@@ -8,7 +8,9 @@ use Yiisoft\Db\Constant\DataType;
 use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Constant\ReferentialAction;
 use Yiisoft\Db\Constraint\ForeignKey;
+use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Expression\Function\ArrayMerge;
 use Yiisoft\Db\Expression\Param;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
@@ -19,6 +21,7 @@ use Yiisoft\Db\Tests\Support\TraversableObject;
 use function array_replace;
 use function preg_replace;
 use function rtrim;
+use function str_replace;
 
 final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilderProvider
 {
@@ -830,5 +833,68 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values = parent::delete();
         $values['base'][2] = 'DELETE FROM [user] WHERE ([is_enabled] = 0) AND ([power] = WRONG_POWER())';
         return $values;
+    }
+
+    public static function lengthBuilder(): array
+    {
+        $data = parent::lengthBuilder();
+
+        foreach ($data as &$value) {
+            $value[1] = str_replace('LENGTH(', 'LEN(', $value[1]);
+        }
+
+        return $data;
+    }
+
+    public static function multiOperandFunctionClasses(): array
+    {
+        return [
+            ...parent::multiOperandFunctionClasses(),
+            ArrayMerge::class => [ArrayMerge::class],
+        ];
+    }
+
+    public static function multiOperandFunctionBuilder(): array
+    {
+        $data = parent::multiOperandFunctionBuilder();
+
+        $data['Longest with 2 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) DESC)";
+        $data['Longest with 3 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT (SELECT 'longest') AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) DESC)";
+        $data['Shortest with 2 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) ASC)";
+        $data['Shortest with 3 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT (SELECT 'longest') AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) ASC)";
+
+        $stringParam = new Param('[3,4,5]', DataType::STRING);
+
+        return [
+            ...$data,
+            'ArrayMerge with 1 operand' => [
+                ArrayMerge::class,
+                ["'[1,2,3]'"],
+                "('[1,2,3]')",
+                '[1,2,3]',
+            ],
+            'ArrayMerge with 2 operands' => [
+                ArrayMerge::class,
+                ["'[1,2,3]'", $stringParam],
+                <<<SQL
+                (SELECT '[' + STRING_AGG('"' + STRING_ESCAPE(value, 'json') + '"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON('[1,2,3]') UNION SELECT value FROM OPENJSON(:qp0)) AS t)
+                SQL,
+                '["1","2","3","4","5"]',
+                [':qp0' => $stringParam],
+            ],
+            'ArrayMerge with 4 operands' => [
+                ArrayMerge::class,
+                ["'[1,2,3]'", [5, 6, 7], $stringParam, static::getDb()->select(new ArrayExpression([9, 10]))],
+                <<<SQL
+                (SELECT '[' + STRING_AGG('"' + STRING_ESCAPE(value, 'json') + '"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON('[1,2,3]') UNION SELECT value FROM OPENJSON(:qp0) UNION SELECT value FROM OPENJSON(:qp1) UNION SELECT value FROM OPENJSON((SELECT :qp2))) AS t)
+                SQL,
+                '["1","10","2","3","4","5","6","7","9"]',
+                [
+                    ':qp0' => new Param('[5,6,7]', DataType::STRING),
+                    ':qp1' => $stringParam,
+                    ':qp2' => new Param('[9,10]', DataType::STRING),
+                ],
+            ],
+        ];
     }
 }
