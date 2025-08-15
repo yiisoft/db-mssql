@@ -53,6 +53,7 @@
 - Enh #380: Remove support dots in table names (@Tigrov)
 - Enh #383: Refactor `TableSchema` and `Schema` classes (@Tigrov)
 - Enh #386: Support column's collation (@Tigrov)
+- New #391: Add `Connection::getColumnBuilderClass()` method (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
