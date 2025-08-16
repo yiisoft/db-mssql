@@ -871,7 +871,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ArrayMerge::class,
                 ["'[1,2,3]'"],
                 "('[1,2,3]')",
-                '[1,2,3]',
+                [1, 2, 3],
             ],
             'ArrayMerge with 2 operands' => [
                 ArrayMerge::class,
@@ -879,7 +879,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 <<<SQL
                 (SELECT '[' + STRING_AGG('"' + STRING_ESCAPE(value, 'json') + '"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON('[1,2,3]') UNION SELECT value FROM OPENJSON(:qp0)) AS t)
                 SQL,
-                '["1","2","3","4","5"]',
+                [1, 2, 3, 4, 5],
                 [':qp0' => $stringParam],
             ],
             'ArrayMerge with 4 operands' => [
@@ -888,7 +888,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 <<<SQL
                 (SELECT '[' + STRING_AGG('"' + STRING_ESCAPE(value, 'json') + '"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON('[1,2,3]') UNION SELECT value FROM OPENJSON(:qp0) UNION SELECT value FROM OPENJSON(:qp1) UNION SELECT value FROM OPENJSON((SELECT :qp2))) AS t)
                 SQL,
-                '["1","10","2","3","4","5","6","7","9"]',
+                [1, 2, 3, 4, 5, 6, 7, 9, 10],
                 [
                     ':qp0' => new Param('[5,6,7]', DataType::STRING),
                     ':qp1' => $stringParam,
