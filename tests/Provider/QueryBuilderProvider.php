@@ -837,7 +837,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
     public static function lengthBuilder(): array
     {
-        $data = null;
+        $data = parent::lengthBuilder();
 
         foreach ($data as &$value) {
             $value[1] = str_replace('LENGTH(', 'LEN(', $value[1]);
@@ -856,7 +856,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
     public static function multiOperandFunctionBuilder(): array
     {
-        $data = null;
+        $data = parent::multiOperandFunctionBuilder();
 
         $data['Longest with 2 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) DESC)";
         $data['Longest with 3 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT (SELECT 'longest') AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) DESC)";
