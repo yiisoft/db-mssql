@@ -12,7 +12,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\Param;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
-use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
@@ -32,8 +31,6 @@ use function str_repeat;
 final class ColumnTest extends CommonColumnTest
 {
     use TestTrait;
-
-    protected const COLUMN_BUILDER = ColumnBuilder::class;
 
     protected function insertTypeValues(ConnectionInterface $db): void
     {

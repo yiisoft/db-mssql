@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PDO;
-use Throwable;
 use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
@@ -19,19 +16,11 @@ use Yiisoft\Db\Transaction\TransactionInterface;
 
 /**
  * @group mssql
- *
- * @psalm-suppress PropertyNotSetInConstructor
  */
 final class ConnectionTest extends CommonConnectionTest
 {
     use TestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testTransactionIsolation(): void
     {
         $db = $this->getConnection(true);
@@ -52,11 +41,6 @@ final class ConnectionTest extends CommonConnectionTest
         $this->assertTrue(true);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testTransactionShortcutCustom(): void
     {
         $db = $this->getConnection();
@@ -80,15 +64,20 @@ final class ConnectionTest extends CommonConnectionTest
         $this->assertSame('1', $profilesCount, 'profile should be inserted in transaction shortcut');
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     */
     public function testSettingDefaultAttributes(): void
     {
         $db = $this->getConnection();
 
         $this->assertSame(PDO::ERRMODE_EXCEPTION, $db->getActivePDO()?->getAttribute(PDO::ATTR_ERRMODE));
+    }
+
+    public function getColumnBuilderClass(): void
+    {
+        $db = $this->getConnection();
+
+        $this->assertSame(ColumnBuilder::class, $db->getColumnBuilderClass());
+
+        $db->close();
     }
 
     public function testGetColumnFactory(): void
