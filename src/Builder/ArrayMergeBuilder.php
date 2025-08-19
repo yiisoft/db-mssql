@@ -20,6 +20,8 @@ use function implode;
  *     SELECT value FROM OPENJSON(operand2)
  * ) AS t)
  * ```
+ *
+ * @extends MultiOperandFunctionBuilder<ArrayMerge>
  */
 final class ArrayMergeBuilder extends MultiOperandFunctionBuilder
 {

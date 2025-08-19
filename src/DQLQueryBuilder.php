@@ -8,11 +8,15 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Expression\Function\ArrayMerge;
+use Yiisoft\Db\Expression\Function\Greatest;
+use Yiisoft\Db\Expression\Function\Least;
 use Yiisoft\Db\Expression\Function\Length;
 use Yiisoft\Db\Expression\Function\Longest;
 use Yiisoft\Db\Expression\Function\Shortest;
 use Yiisoft\Db\Mssql\Builder\ArrayMergeBuilder;
+use Yiisoft\Db\Mssql\Builder\GreatestBuilder;
 use Yiisoft\Db\Mssql\Builder\InBuilder;
+use Yiisoft\Db\Mssql\Builder\LeastBuilder;
 use Yiisoft\Db\Mssql\Builder\LengthBuilder;
 use Yiisoft\Db\Mssql\Builder\LikeBuilder;
 use Yiisoft\Db\Mssql\Builder\LongestBuilder;
@@ -62,6 +66,8 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
             NotLike::class => LikeBuilder::class,
             Length::class => LengthBuilder::class,
             ArrayMerge::class => ArrayMergeBuilder::class,
+            Greatest::class => GreatestBuilder::class,
+            Least::class => LeastBuilder::class,
             Longest::class => LongestBuilder::class,
             Shortest::class => ShortestBuilder::class,
         ];

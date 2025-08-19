@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Builder;
 
+use Yiisoft\Db\Expression\Builder\ExpressionBuilderInterface;
 use Yiisoft\Db\Expression\Function\Builder\MultiOperandFunctionBuilder;
 use Yiisoft\Db\Expression\Function\Greatest;
 use Yiisoft\Db\Expression\Function\Longest;
@@ -12,8 +13,6 @@ use Yiisoft\Db\Expression\Function\MultiOperandFunction;
 /**
  * Builds SQL representation of function expressions which returns the longest string from a set of operands.
  *
- * @see Longest
- *
  * ```SQL
  * (SELECT TOP 1 value FROM (
  *     SELECT operand1 AS value
@@ -21,6 +20,8 @@ use Yiisoft\Db\Expression\Function\MultiOperandFunction;
  *     SELECT operand2 AS value
  * ) AS t ORDER BY LEN(value) DESC)
  * ```
+ *
+ * @extends MultiOperandFunctionBuilder<Longest>
  */
 final class LongestBuilder extends MultiOperandFunctionBuilder
 {

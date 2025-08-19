@@ -858,6 +858,17 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $data = parent::multiOperandFunctionBuilder();
 
+        $db = self::getDb();
+        $serverVersion = $db->getServerInfo()->getVersion();
+        $db->close();
+
+        if (version_compare($serverVersion, '16', '<')) {
+            $data['Greatest with 2 operands'][2] = '(SELECT MAX(value) FROM (SELECT 1 AS value UNION SELECT 1 + 2 AS value) AS t)';
+            $data['Greatest with 4 operands'][2] = '(SELECT MAX(value) FROM (SELECT 1 AS value UNION SELECT 1.5 AS value UNION SELECT 1 + 2 AS value UNION SELECT (SELECT 10) AS value) AS t)';
+            $data['Least with 2 operands'][2] = '(SELECT MIN(value) FROM (SELECT 1 AS value UNION SELECT 1 + 2 AS value) AS t)';
+            $data['Least with 4 operands'][2] = '(SELECT MIN(value) FROM (SELECT 1 AS value UNION SELECT 1.5 AS value UNION SELECT 1 + 2 AS value UNION SELECT (SELECT 10) AS value) AS t)';
+        }
+
         $data['Longest with 2 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) DESC)";
         $data['Longest with 3 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT (SELECT 'longest') AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) DESC)";
         $data['Shortest with 2 operands'][2] = "(SELECT TOP 1 value FROM (SELECT 'short' AS value UNION SELECT :qp0 AS value) AS t ORDER BY LEN(value) ASC)";
