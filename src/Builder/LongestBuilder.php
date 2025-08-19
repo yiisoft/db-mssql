@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Builder;
 
-use Yiisoft\Db\Expression\Builder\ExpressionBuilderInterface;
 use Yiisoft\Db\Expression\Function\Builder\MultiOperandFunctionBuilder;
 use Yiisoft\Db\Expression\Function\Greatest;
 use Yiisoft\Db\Expression\Function\Longest;
