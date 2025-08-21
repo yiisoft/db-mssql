@@ -439,7 +439,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             'regular values with update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS EXCLUDED ' .
                     '([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [address]=:qp4, [status]=:qp5, [orders]=T_upsert.orders + 1 ' .
+                    'WHEN MATCHED THEN UPDATE SET [address]=:qp4, [status]=2, [orders]=T_upsert.orders + 1 ' .
                     'WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id]) ' .
                     'VALUES (EXCLUDED.[email], EXCLUDED.[address], EXCLUDED.[status], EXCLUDED.[profile_id]);',
             ],
@@ -464,7 +464,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] ' .
                     'WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS EXCLUDED ' .
                     '([email], [status]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [address]=:qp1, [status]=:qp2, [orders]=T_upsert.orders + 1 ' .
+                    'WHEN MATCHED THEN UPDATE SET [address]=:qp1, [status]=2, [orders]=T_upsert.orders + 1 ' .
                     'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES (EXCLUDED.[email], EXCLUDED.[status]);',
             ],
 
@@ -508,7 +508,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                         ),
                 3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], CONVERT(bigint, CURRENT_TIMESTAMP) AS [[ts]]) ' .
                     'AS EXCLUDED ([email], [ts]) ON ({{%T_upsert}}.[email]=EXCLUDED.[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [ts]=:qp1, [orders]=T_upsert.orders + 1 ' .
+                    'WHEN MATCHED THEN UPDATE SET [ts]=0, [orders]=T_upsert.orders + 1 ' .
                     'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES (EXCLUDED.[email], EXCLUDED.[ts]);',
             ],
 
