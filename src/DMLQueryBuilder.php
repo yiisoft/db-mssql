@@ -9,7 +9,6 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\AbstractDMLQueryBuilder;
 
@@ -213,7 +212,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
             foreach ($columnNames as $name) {
                 $quotedName = $this->quoter->quoteColumnName($name);
-                $constraintCondition[] = "$quotedTableName.$quotedName=[EXCLUDED].$quotedName";
+                $constraintCondition[] = "$quotedTableName.$quotedName=EXCLUDED.$quotedName";
             }
 
             $onCondition[] = $constraintCondition;
@@ -227,18 +226,18 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
 
         $mergeSql = 'MERGE ' . $quotedTableName . ' WITH (HOLDLOCK) USING ('
             . (!empty($placeholders) ? 'VALUES (' . implode(', ', $placeholders) . ')' : $values)
-            . ') AS [EXCLUDED] (' . implode(', ', $quotedInsertNames) . ') ' . "ON ($on)";
+            . ') AS EXCLUDED (' . implode(', ', $quotedInsertNames) . ') ' . "ON ($on)";
 
         $insertValues = [];
 
         foreach ($quotedInsertNames as $quotedName) {
-            $insertValues[] = '[EXCLUDED].' . $quotedName;
+            $insertValues[] = 'EXCLUDED.' . $quotedName;
         }
 
         $insertSql = 'INSERT (' . implode(', ', $quotedInsertNames) . ')'
             . ' VALUES (' . implode(', ', $insertValues) . ')';
 
-        if ($updateColumns === false || $updateNames === []) {
+        if (empty($updateColumns) || $updateNames === []) {
             /** there are no columns to update */
             return [
                 $mergeSql,
@@ -247,16 +246,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             ];
         }
 
-        if ($updateColumns === true) {
-            $updateColumns = [];
-
-            /** @psalm-var string[] $updateNames */
-            foreach ($updateNames as $name) {
-                $updateColumns[$name] = new Expression('[EXCLUDED].' . $this->quoter->quoteColumnName($name));
-            }
-        }
-
-        $updates = $this->prepareUpdateSets($table, $updateColumns, $params);
+        $updates = $this->prepareUpsertSets($table, $updateColumns, $updateNames, $params);
 
         return [
             $mergeSql,
