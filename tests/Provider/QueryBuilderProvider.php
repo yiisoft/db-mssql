@@ -299,7 +299,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $insert = parent::insert();
 
-        $insert['regular-values'][3] =  <<<SQL
+        $insert['regular-values'][3] = <<<SQL
         INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) VALUES (:qp0, :qp1, :qp2, 0, NULL)
         SQL;
 
