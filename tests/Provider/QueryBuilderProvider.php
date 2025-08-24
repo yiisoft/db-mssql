@@ -22,6 +22,7 @@ use function array_replace;
 use function preg_replace;
 use function rtrim;
 use function str_replace;
+use function version_compare;
 
 final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilderProvider
 {
@@ -923,18 +924,35 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $data = parent::upsertWithMultiOperandFunctions();
 
-        $data[0][3] = 'MERGE [test_upsert_with_functions] WITH (HOLDLOCK)'
-            . ' USING (VALUES (1, :qp0, 5, 5, :qp1, :qp2)) AS EXCLUDED'
-            . ' ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
-            . ' ON ([test_upsert_with_functions].[id]=EXCLUDED.[id]) WHEN MATCHED THEN UPDATE SET'
-            . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
-            . ' [greatest_col]=GREATEST([test_upsert_with_functions].[greatest_col], EXCLUDED.[greatest_col]),'
-            . ' [least_col]=LEAST([test_upsert_with_functions].[least_col], EXCLUDED.[least_col]),'
-            . ' [longest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[longest_col] AS value UNION SELECT EXCLUDED.[longest_col] AS value) AS t ORDER BY LEN(value) DESC),'
-            . ' [shortest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[shortest_col] AS value UNION SELECT EXCLUDED.[shortest_col] AS value) AS t ORDER BY LEN(value) ASC)'
-            . ' WHEN NOT MATCHED THEN INSERT ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
-            . ' VALUES (EXCLUDED.[id], EXCLUDED.[array_col], EXCLUDED.[greatest_col], EXCLUDED.[least_col], EXCLUDED.[longest_col], EXCLUDED.[shortest_col]);';
+        $db = self::getDb();
+        $serverVersion = $db->getServerInfo()->getVersion();
+        $db->close();
 
+        if (version_compare($serverVersion, '16', '<')) {
+            $data[0][3] = 'MERGE [test_upsert_with_functions] WITH (HOLDLOCK)'
+                . ' USING (VALUES (1, :qp0, 5, 5, :qp1, :qp2)) AS EXCLUDED'
+                . ' ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
+                . ' ON ([test_upsert_with_functions].[id]=EXCLUDED.[id]) WHEN MATCHED THEN UPDATE SET'
+                . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
+                . ' [greatest_col]=(SELECT MAX(value) FROM (SELECT [test_upsert_with_functions].[greatest_col] AS value UNION SELECT EXCLUDED.[greatest_col] AS value) AS t),'
+                . ' [least_col]=(SELECT MIN(value) FROM (SELECT [test_upsert_with_functions].[least_col] AS value UNION SELECT EXCLUDED.[least_col] AS value) AS t),'
+                . ' [longest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[longest_col] AS value UNION SELECT EXCLUDED.[longest_col] AS value) AS t ORDER BY LEN(value) DESC),'
+                . ' [shortest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[shortest_col] AS value UNION SELECT EXCLUDED.[shortest_col] AS value) AS t ORDER BY LEN(value) ASC)'
+                . ' WHEN NOT MATCHED THEN INSERT ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
+                . ' VALUES (EXCLUDED.[id], EXCLUDED.[array_col], EXCLUDED.[greatest_col], EXCLUDED.[least_col], EXCLUDED.[longest_col], EXCLUDED.[shortest_col]);';
+        } else {
+            $data[0][3] = 'MERGE [test_upsert_with_functions] WITH (HOLDLOCK)'
+                . ' USING (VALUES (1, :qp0, 5, 5, :qp1, :qp2)) AS EXCLUDED'
+                . ' ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
+                . ' ON ([test_upsert_with_functions].[id]=EXCLUDED.[id]) WHEN MATCHED THEN UPDATE SET'
+                . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
+                . ' [greatest_col]=GREATEST([test_upsert_with_functions].[greatest_col], EXCLUDED.[greatest_col]),'
+                . ' [least_col]=LEAST([test_upsert_with_functions].[least_col], EXCLUDED.[least_col]),'
+                . ' [longest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[longest_col] AS value UNION SELECT EXCLUDED.[longest_col] AS value) AS t ORDER BY LEN(value) DESC),'
+                . ' [shortest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[shortest_col] AS value UNION SELECT EXCLUDED.[shortest_col] AS value) AS t ORDER BY LEN(value) ASC)'
+                . ' WHEN NOT MATCHED THEN INSERT ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
+                . ' VALUES (EXCLUDED.[id], EXCLUDED.[array_col], EXCLUDED.[greatest_col], EXCLUDED.[least_col], EXCLUDED.[longest_col], EXCLUDED.[shortest_col]);';
+        }
         $data[0][4]['array_col'] = '["1","2","3","4","5"]';
 
         return $data;
