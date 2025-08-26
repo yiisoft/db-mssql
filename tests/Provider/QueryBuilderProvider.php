@@ -933,7 +933,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 . ' USING (VALUES (1, :qp0, 5, 5, :qp1, :qp2)) AS EXCLUDED'
                 . ' ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
                 . ' ON ([test_upsert_with_functions].[id]=EXCLUDED.[id]) WHEN MATCHED THEN UPDATE SET'
-                . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
+                . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') WITHIN GROUP (ORDER BY value) + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
                 . ' [greatest_col]=(SELECT MAX(value) FROM (SELECT [test_upsert_with_functions].[greatest_col] AS value UNION SELECT EXCLUDED.[greatest_col] AS value) AS t),'
                 . ' [least_col]=(SELECT MIN(value) FROM (SELECT [test_upsert_with_functions].[least_col] AS value UNION SELECT EXCLUDED.[least_col] AS value) AS t),'
                 . ' [longest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[longest_col] AS value UNION SELECT EXCLUDED.[longest_col] AS value) AS t ORDER BY LEN(value) DESC),'
@@ -945,7 +945,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 . ' USING (VALUES (1, :qp0, 5, 5, :qp1, :qp2)) AS EXCLUDED'
                 . ' ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
                 . ' ON ([test_upsert_with_functions].[id]=EXCLUDED.[id]) WHEN MATCHED THEN UPDATE SET'
-                . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
+                . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') WITHIN GROUP (ORDER BY value) + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
                 . ' [greatest_col]=GREATEST([test_upsert_with_functions].[greatest_col], EXCLUDED.[greatest_col]),'
                 . ' [least_col]=LEAST([test_upsert_with_functions].[least_col], EXCLUDED.[least_col]),'
                 . ' [longest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[longest_col] AS value UNION SELECT EXCLUDED.[longest_col] AS value) AS t ORDER BY LEN(value) DESC),'
