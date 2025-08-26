@@ -42,9 +42,10 @@ final class ArrayMergeBuilder extends MultiOperandFunctionBuilder
         }
 
         $unions = implode(' UNION ', $selects);
+        $orderBy = $expression->getOrdered() ? ' WITHIN GROUP (ORDER BY value)' : '';
 
         return <<<SQL
-            (SELECT '[' + STRING_AGG('"' + STRING_ESCAPE(value, 'json') + '"', ',') + ']' AS value FROM ($unions) AS t)
+            (SELECT '[' + STRING_AGG('"' + STRING_ESCAPE(value, 'json') + '"', ',')$orderBy + ']' AS value FROM ($unions) AS t)
             SQL;
     }
 }
