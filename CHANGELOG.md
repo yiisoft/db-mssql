@@ -54,7 +54,7 @@
 - Enh #383: Refactor `TableSchema` and `Schema` classes (@Tigrov)
 - Enh #386: Support column's collation (@Tigrov)
 - New #391: Add `Connection::getColumnBuilderClass()` method (@Tigrov)
-- New #390: Implement `ArrayMergeBuilder`, `GreatestBuilder`, `LeastBuilder`, `LengthBuilder`, `LongestBuilder`
+- New #390, #396: Implement `ArrayMergeBuilder`, `GreatestBuilder`, `LeastBuilder`, `LengthBuilder`, `LongestBuilder`
   and `ShortestBuilder` classes (@Tigrov)
 - Enh #393: Refactor `DMLQueryBuilder::upsert()` method (@Tigrov)
 
