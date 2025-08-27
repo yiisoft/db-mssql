@@ -22,6 +22,7 @@ use function array_replace;
 use function preg_replace;
 use function rtrim;
 use function str_replace;
+use function version_compare;
 
 final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilderProvider
 {
@@ -295,12 +296,32 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         return $buildCondition;
     }
 
+    public static function selectScalar(): array
+    {
+        $data = parent::selectScalar();
+
+        $data['true'][1] = 'SELECT 1';
+        $data['false'][1] = 'SELECT 0';
+        $data['array'][1] = 'SELECT 1, 1, 12.34';
+        $data['string keys'][1] = 'SELECT 1 AS [a], 1 AS [b], 12.34';
+
+        return $data;
+    }
+
     public static function insert(): array
     {
         $insert = parent::insert();
 
+        $insert['regular-values'][3] = <<<SQL
+        INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) VALUES (:qp0, :qp1, :qp2, 0, NULL)
+        SQL;
+
         $insert['empty columns'][3] = <<<SQL
         INSERT INTO [customer] DEFAULT VALUES
+        SQL;
+
+        $insert['carry passed params'][3] = <<<SQL
+        INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id], [col]) VALUES (:qp1, :qp2, :qp3, 0, NULL, CONCAT(:phFoo, :phBar))
         SQL;
 
         $insert['carry passed params (query)'][3] = <<<SQL
@@ -335,14 +356,12 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ],
                 [],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3, :qp4);SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, 0, NULL);SELECT * FROM @temporary_inserted;
                 SQL,
                 [
-                    ':qp0' => 'test@example.com',
-                    ':qp1' => 'silverfire',
-                    ':qp2' => 'Kyiv {{city}}, Ukraine',
-                    ':qp3' => false,
-                    ':qp4' => null,
+                    ':qp0' => new Param('test@example.com', DataType::STRING),
+                    ':qp1' => new Param('silverfire', DataType::STRING),
+                    ':qp2' => new Param('Kyiv {{city}}, Ukraine', DataType::STRING),
                 ],
             ],
             'params-and-expressions' => [
@@ -350,9 +369,9 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ['{{%type}}.[[related_id]]' => null, '[[time]]' => new Expression('now()')],
                 [],
                 <<<SQL
-                INSERT INTO {{%type}} ([related_id], [time]) VALUES (:qp0, now())
+                INSERT INTO {{%type}} ([related_id], [time]) VALUES (NULL, now())
                 SQL,
-                [':qp0' => null],
+                [],
             ],
             'carry passed params' => [
                 'customer',
@@ -366,15 +385,13 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ],
                 [':phBar' => 'bar'],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id], [col]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp1, :qp2, :qp3, :qp4, :qp5, CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int);INSERT INTO [customer] ([email], [name], [address], [is_active], [related_id], [col]) OUTPUT INSERTED.[id] INTO @temporary_inserted VALUES (:qp1, :qp2, :qp3, 0, NULL, CONCAT(:phFoo, :phBar));SELECT * FROM @temporary_inserted;
                 SQL,
                 [
                     ':phBar' => 'bar',
-                    ':qp1' => 'test@example.com',
-                    ':qp2' => 'sergeymakinen',
-                    ':qp3' => '{{city}}',
-                    ':qp4' => false,
-                    ':qp5' => null,
+                    ':qp1' => new Param('test@example.com', DataType::STRING),
+                    ':qp2' => new Param('sergeymakinen', DataType::STRING),
+                    ':qp3' => new Param('{{city}}', DataType::STRING),
                     ':phFoo' => 'foo',
                 ],
             ],
@@ -410,9 +427,9 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ['order_id' => 1, 'item_id' => 1, 'quantity' => 1, 'subtotal' => 1.0],
                 [],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([order_id] int, [item_id] int);INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[order_id],INSERTED.[item_id] INTO @temporary_inserted VALUES (:qp0, :qp1, :qp2, :qp3);SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([order_id] int, [item_id] int);INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[order_id],INSERTED.[item_id] INTO @temporary_inserted VALUES (1, 1, 1, 1);SELECT * FROM @temporary_inserted;
                 SQL,
-                [':qp0' => 1, ':qp1' => 1, ':qp2' => 1, ':qp3' => 1.0,],
+                [],
             ],
         ];
     }
@@ -421,81 +438,81 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $concreteData = [
             'regular values' => [
-                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ' .
-                    '([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status], [profile_id]=[EXCLUDED].[profile_id] ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id]) VALUES ([EXCLUDED].[email], ' .
-                    '[EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, 1, NULL)) AS EXCLUDED ' .
+                    '([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN MATCHED THEN UPDATE SET [address]=EXCLUDED.[address], [status]=EXCLUDED.[status], [profile_id]=EXCLUDED.[profile_id] ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id]) VALUES (EXCLUDED.[email], ' .
+                    'EXCLUDED.[address], EXCLUDED.[status], EXCLUDED.[profile_id]);',
             ],
 
             'regular values with unique at not the first position' => [
-                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ' .
-                    '([address], [email], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status], [profile_id]=[EXCLUDED].[profile_id] ' .
+                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, 1, NULL)) AS EXCLUDED ' .
+                    '([address], [email], [status], [profile_id]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN MATCHED THEN UPDATE SET [address]=EXCLUDED.[address], [status]=EXCLUDED.[status], [profile_id]=EXCLUDED.[profile_id] ' .
                     'WHEN NOT MATCHED THEN INSERT ([address], [email], [status], [profile_id]) VALUES (' .
-                    '[EXCLUDED].[address], [EXCLUDED].[email], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+                    'EXCLUDED.[address], EXCLUDED.[email], EXCLUDED.[status], EXCLUDED.[profile_id]);',
             ],
 
             'regular values with update part' => [
-                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ' .
-                    '([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [address]=:qp4, [status]=:qp5, [orders]=T_upsert.orders + 1 ' .
+                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, 1, NULL)) AS EXCLUDED ' .
+                    '([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN MATCHED THEN UPDATE SET [address]=:qp2, [status]=2, [orders]=T_upsert.orders + 1 ' .
                     'WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id]) ' .
-                    'VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+                    'VALUES (EXCLUDED.[email], EXCLUDED.[address], EXCLUDED.[status], EXCLUDED.[profile_id]);',
             ],
 
             'regular values without update part' => [
-                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED] ' .
-                    '([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
+                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, 1, NULL)) AS EXCLUDED ' .
+                    '([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
                     'WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id]) ' .
-                    'VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
+                    'VALUES (EXCLUDED.[email], EXCLUDED.[address], EXCLUDED.[status], EXCLUDED.[profile_id]);',
             ],
 
             'query' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING ' .
                     '(SELECT [email], 2 AS [status] FROM [customer] WHERE [name] = :qp0 ' .
-                    'ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ' .
-                    '([email], [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [status]=[EXCLUDED].[status] ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
+                    'ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS EXCLUDED ' .
+                    '([email], [status]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN MATCHED THEN UPDATE SET [status]=EXCLUDED.[status] ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES (EXCLUDED.[email], EXCLUDED.[status]);',
             ],
 
             'query with update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] ' .
-                    'WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ' .
-                    '([email], [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [address]=:qp1, [status]=:qp2, [orders]=T_upsert.orders + 1 ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
+                    'WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS EXCLUDED ' .
+                    '([email], [status]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN MATCHED THEN UPDATE SET [address]=:qp1, [status]=2, [orders]=T_upsert.orders + 1 ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES (EXCLUDED.[email], EXCLUDED.[status]);',
             ],
 
             'query without update part' => [
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer] ' .
-                    'WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED] ' .
-                    '([email], [status]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status]);',
+                    'WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS EXCLUDED ' .
+                    '([email], [status]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES (EXCLUDED.[email], EXCLUDED.[status]);',
             ],
 
             'values and expressions' => [
                 1 => ['{{%T_upsert}}.[[email]]' => 'dynamic@example.com', '[[ts]]' => new Expression('CONVERT(bigint, CURRENT_TIMESTAMP)')],
-                3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(bigint, CURRENT_TIMESTAMP))) AS [EXCLUDED] ' .
-                    '([email], [ts]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [ts]=[EXCLUDED].[ts] ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES ([EXCLUDED].[email], [EXCLUDED].[ts]);',
+                3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(bigint, CURRENT_TIMESTAMP))) AS EXCLUDED ' .
+                    '([email], [ts]) ON ({{%T_upsert}}.[email]=EXCLUDED.[email]) ' .
+                    'WHEN MATCHED THEN UPDATE SET [ts]=EXCLUDED.[ts] ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES (EXCLUDED.[email], EXCLUDED.[ts]);',
             ],
 
             'values and expressions with update part' => [
                 1 => ['{{%T_upsert}}.[[email]]' => 'dynamic@example.com', '[[ts]]' => new Expression('CONVERT(bigint, CURRENT_TIMESTAMP)')],
-                3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(bigint, CURRENT_TIMESTAMP))) AS [EXCLUDED] ' .
-                    '([email], [ts]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) ' .
+                3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(bigint, CURRENT_TIMESTAMP))) AS EXCLUDED ' .
+                    '([email], [ts]) ON ({{%T_upsert}}.[email]=EXCLUDED.[email]) ' .
                     'WHEN MATCHED THEN UPDATE SET [orders]=T_upsert.orders + 1 ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES ([EXCLUDED].[email], [EXCLUDED].[ts]);',
+                    'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES (EXCLUDED.[email], EXCLUDED.[ts]);',
             ],
 
             'values and expressions without update part' => [
                 1 => ['{{%T_upsert}}.[[email]]' => 'dynamic@example.com', '[[ts]]' => new Expression('CONVERT(bigint, CURRENT_TIMESTAMP)')],
-                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(bigint, CURRENT_TIMESTAMP))) AS [EXCLUDED] ' .
-                    '([email], [ts]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES ([EXCLUDED].[email], [EXCLUDED].[ts]);',
+                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(bigint, CURRENT_TIMESTAMP))) AS EXCLUDED ' .
+                    '([email], [ts]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES (EXCLUDED.[email], EXCLUDED.[ts]);',
             ],
 
             'query, values and expressions with update part' => [
@@ -507,9 +524,9 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                             ],
                         ),
                 3 => 'MERGE {{%T_upsert}} WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], CONVERT(bigint, CURRENT_TIMESTAMP) AS [[ts]]) ' .
-                    'AS [EXCLUDED] ([email], [[ts]]) ON ({{%T_upsert}}.[email]=[EXCLUDED].[email]) ' .
-                    'WHEN MATCHED THEN UPDATE SET [ts]=:qp1, [orders]=T_upsert.orders + 1 ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [[ts]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[ts]]);',
+                    'AS EXCLUDED ([email], [ts]) ON ({{%T_upsert}}.[email]=EXCLUDED.[email]) ' .
+                    'WHEN MATCHED THEN UPDATE SET [ts]=0, [orders]=T_upsert.orders + 1 ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES (EXCLUDED.[email], EXCLUDED.[ts]);',
             ],
 
             'query, values and expressions without update part' => [
@@ -521,18 +538,18 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                             ],
                         ),
                 3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT :phEmail AS [email], CONVERT(bigint, CURRENT_TIMESTAMP) AS [[ts]]) ' .
-                    'AS [EXCLUDED] ([email], [[ts]]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email], [[ts]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[ts]]);',
+                    'AS EXCLUDED ([email], [ts]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES (EXCLUDED.[email], EXCLUDED.[ts]);',
             ],
             'no columns to update' => [
-                3 => 'MERGE [T_upsert_1] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED] ' .
-                    '([a]) ON ([T_upsert_1].[a]=[EXCLUDED].[a]) ' .
-                    'WHEN NOT MATCHED THEN INSERT ([a]) VALUES ([EXCLUDED].[a]);',
+                3 => 'MERGE [T_upsert_1] WITH (HOLDLOCK) USING (VALUES (1)) AS EXCLUDED ' .
+                    '([a]) ON ([T_upsert_1].[a]=EXCLUDED.[a]) ' .
+                    'WHEN NOT MATCHED THEN INSERT ([a]) VALUES (EXCLUDED.[a]);',
             ],
             'no columns to update with unique' => [
-                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED] ' .
-                    '([email]) ON ([T_upsert].[email]=[EXCLUDED].[email]) ' .
-                    'WHEN NOT MATCHED THEN INSERT ([email]) VALUES ([EXCLUDED].[email]);',
+                3 => 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS EXCLUDED ' .
+                    '([email]) ON ([T_upsert].[email]=EXCLUDED.[email]) ' .
+                    'WHEN NOT MATCHED THEN INSERT ([email]) VALUES (EXCLUDED.[email]);',
             ],
             'no unique columns in table - simple insert' => [
                 3 => 'INSERT INTO {{%animal}} ([type]) VALUES (:qp0);',
@@ -561,39 +578,39 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
         $upsert['regular values without update part'][4] = 'SET NOCOUNT ON;'
             . 'DECLARE @temporary_inserted TABLE ([id] int);DECLARE @temp int;'
-            . 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED]'
-            . ' ([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
+            . 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, 1, NULL)) AS EXCLUDED'
+            . ' ([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=EXCLUDED.[email])'
             . ' WHEN MATCHED THEN UPDATE SET @temp=1'
             . ' WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id])'
-            . ' VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id])'
+            . ' VALUES (EXCLUDED.[email], EXCLUDED.[address], EXCLUDED.[status], EXCLUDED.[profile_id])'
             . ' OUTPUT INSERTED.[id] INTO @temporary_inserted;'
             . 'SELECT * FROM @temporary_inserted;';
         $upsert['query without update part'][4] = 'SET NOCOUNT ON;'
             . 'DECLARE @temporary_inserted TABLE ([id] int);'
             . 'DECLARE @temp int;MERGE [T_upsert] WITH (HOLDLOCK) USING (SELECT [email], 2 AS [status] FROM [customer]'
-            . ' WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS [EXCLUDED]'
-            . ' ([email], [status]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
+            . ' WHERE [name] = :qp0 ORDER BY (SELECT NULL) OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY) AS EXCLUDED'
+            . ' ([email], [status]) ON ([T_upsert].[email]=EXCLUDED.[email])'
             . ' WHEN MATCHED THEN UPDATE SET @temp=1'
-            . ' WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES ([EXCLUDED].[email], [EXCLUDED].[status])'
+            . ' WHEN NOT MATCHED THEN INSERT ([email], [status]) VALUES (EXCLUDED.[email], EXCLUDED.[status])'
             . ' OUTPUT INSERTED.[id] INTO @temporary_inserted;'
             . 'SELECT * FROM @temporary_inserted;';
         $upsert['values and expressions without update part'][4] = 'SET NOCOUNT ON;'
             . 'DECLARE @temporary_inserted TABLE ([id] int);'
             . 'DECLARE @temp int;'
-            . 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(bigint, CURRENT_TIMESTAMP))) AS [EXCLUDED]'
-            . ' ([email], [ts]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
+            . 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, CONVERT(bigint, CURRENT_TIMESTAMP))) AS EXCLUDED'
+            . ' ([email], [ts]) ON ([T_upsert].[email]=EXCLUDED.[email])'
             . ' WHEN MATCHED THEN UPDATE SET @temp=1'
-            . ' WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES ([EXCLUDED].[email], [EXCLUDED].[ts])'
+            . ' WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES (EXCLUDED.[email], EXCLUDED.[ts])'
             . ' OUTPUT INSERTED.[id] INTO @temporary_inserted;'
             . 'SELECT * FROM @temporary_inserted;';
         $upsert['query, values and expressions without update part'][4] = 'SET NOCOUNT ON;'
             . 'DECLARE @temporary_inserted TABLE ([id] int);'
             . 'DECLARE @temp int;'
             . 'MERGE [T_upsert] WITH (HOLDLOCK)'
-            . ' USING (SELECT :phEmail AS [email], CONVERT(bigint, CURRENT_TIMESTAMP) AS [[ts]]) AS [EXCLUDED]'
-            . ' ([email], [[ts]]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
+            . ' USING (SELECT :phEmail AS [email], CONVERT(bigint, CURRENT_TIMESTAMP) AS [[ts]]) AS EXCLUDED'
+            . ' ([email], [ts]) ON ([T_upsert].[email]=EXCLUDED.[email])'
             . ' WHEN MATCHED THEN UPDATE SET @temp=1'
-            . ' WHEN NOT MATCHED THEN INSERT ([email], [[ts]]) VALUES ([EXCLUDED].[email], [EXCLUDED].[[ts]])'
+            . ' WHEN NOT MATCHED THEN INSERT ([email], [ts]) VALUES (EXCLUDED.[email], EXCLUDED.[ts])'
             . ' OUTPUT INSERTED.[id] INTO @temporary_inserted;'
             . 'SELECT * FROM @temporary_inserted;';
         $upsert['no unique columns in table - simple insert'][4] = 'SET NOCOUNT ON;'
@@ -605,19 +622,19 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $upsert['no columns to update'][4] = 'SET NOCOUNT ON;'
             . 'DECLARE @temporary_inserted TABLE ([a] int);'
             . 'DECLARE @temp int;'
-            . 'MERGE [T_upsert_1] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED]'
-            . ' ([a]) ON ([T_upsert_1].[a]=[EXCLUDED].[a])'
+            . 'MERGE [T_upsert_1] WITH (HOLDLOCK) USING (VALUES (1)) AS EXCLUDED'
+            . ' ([a]) ON ([T_upsert_1].[a]=EXCLUDED.[a])'
             . ' WHEN MATCHED THEN UPDATE SET @temp=1'
-            . ' WHEN NOT MATCHED THEN INSERT ([a]) VALUES ([EXCLUDED].[a])'
+            . ' WHEN NOT MATCHED THEN INSERT ([a]) VALUES (EXCLUDED.[a])'
             . ' OUTPUT INSERTED.[a] INTO @temporary_inserted;'
             . 'SELECT * FROM @temporary_inserted;';
         $upsert['no columns to update with unique'][4] = 'SET NOCOUNT ON;'
             . 'DECLARE @temporary_inserted TABLE ([id] int);'
             . 'DECLARE @temp int;'
-            . 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS [EXCLUDED]'
-            . ' ([email]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
+            . 'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0)) AS EXCLUDED'
+            . ' ([email]) ON ([T_upsert].[email]=EXCLUDED.[email])'
             . ' WHEN MATCHED THEN UPDATE SET @temp=1'
-            . ' WHEN NOT MATCHED THEN INSERT ([email]) VALUES ([EXCLUDED].[email])'
+            . ' WHEN NOT MATCHED THEN INSERT ([email]) VALUES (EXCLUDED.[email])'
             . ' OUTPUT INSERTED.[id] INTO @temporary_inserted;'
             . 'SELECT * FROM @temporary_inserted;';
 
@@ -629,34 +646,37 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 true,
                 ['id_1', 'id_2'],
                 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id_1] int, [id_2] decimal(5,2));'
-                . 'MERGE [notauto_pk] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2)) AS [EXCLUDED]'
-                . ' ([id_1], [id_2], [type]) ON (([notauto_pk].[id_1]=[EXCLUDED].[id_1])'
-                . ' AND ([notauto_pk].[id_2]=[EXCLUDED].[id_2])) WHEN MATCHED THEN UPDATE SET [type]=[EXCLUDED].[type]'
+                . 'MERGE [notauto_pk] WITH (HOLDLOCK) USING (VALUES (1, 2.5, :qp0)) AS EXCLUDED'
+                . ' ([id_1], [id_2], [type]) ON (([notauto_pk].[id_1]=EXCLUDED.[id_1])'
+                . ' AND ([notauto_pk].[id_2]=EXCLUDED.[id_2])) WHEN MATCHED THEN UPDATE SET [type]=EXCLUDED.[type]'
                 . ' WHEN NOT MATCHED THEN INSERT ([id_1], [id_2], [type])'
-                . ' VALUES ([EXCLUDED].[id_1], [EXCLUDED].[id_2], [EXCLUDED].[type])'
+                . ' VALUES (EXCLUDED.[id_1], EXCLUDED.[id_2], EXCLUDED.[type])'
                 . ' OUTPUT INSERTED.[id_1],INSERTED.[id_2] INTO @temporary_inserted;SELECT * FROM @temporary_inserted;',
-                [':qp0' => 1, ':qp1' => 2.5, ':qp2' => 'Test'],
+                [':qp0' => new Param('Test', DataType::STRING)],
             ],
             'no return columns' => [
                 'type',
                 ['int_col' => 3, 'char_col' => 'a', 'float_col' => 1.2, 'bool_col' => true],
                 true,
                 [],
-                'INSERT INTO [type] ([int_col], [char_col], [float_col], [bool_col]) VALUES (:qp0, :qp1, :qp2, :qp3)',
-                [':qp0' => 3, ':qp1' => 'a', ':qp2' => 1.2, ':qp3' => true],
+                'INSERT INTO [type] ([int_col], [char_col], [float_col], [bool_col]) VALUES (3, :qp0, 1.2, 1)',
+                [':qp0' => new Param('a', DataType::STRING)],
             ],
             'no return columns, table with pk' => [
                 'T_upsert',
                 ['email' => 'test@example.com', 'address' => 'test address', 'status' => 1, 'profile_id' => 1],
                 true,
                 [],
-                'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3)) AS [EXCLUDED]'
-                . ' ([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
-                . ' WHEN MATCHED THEN UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status],'
-                . ' [profile_id]=[EXCLUDED].[profile_id]'
+                'MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, 1, 1)) AS EXCLUDED'
+                . ' ([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=EXCLUDED.[email])'
+                . ' WHEN MATCHED THEN UPDATE SET [address]=EXCLUDED.[address], [status]=EXCLUDED.[status],'
+                . ' [profile_id]=EXCLUDED.[profile_id]'
                 . ' WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id])'
-                . ' VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id]);',
-                [':qp0' => 'test@example.com', ':qp1' => 'test address', ':qp2' => 1, ':qp3' => 1],
+                . ' VALUES (EXCLUDED.[email], EXCLUDED.[address], EXCLUDED.[status], EXCLUDED.[profile_id]);',
+                [
+                    ':qp0' => new Param('test@example.com', DataType::STRING),
+                    ':qp1' => new Param('test address', DataType::STRING),
+                ],
             ],
             'return all columns' => [
                 'T_upsert',
@@ -665,15 +685,18 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 null,
                 'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id] int, [ts] int NULL, [email] varchar(128),'
                 . ' [recovery_email] varchar(128) NULL, [address] text NULL, [status] tinyint, [orders] int,'
-                . ' [profile_id] int NULL);MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, :qp2, :qp3))'
-                . ' AS [EXCLUDED] ([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=[EXCLUDED].[email])'
-                . ' WHEN MATCHED THEN UPDATE SET [address]=[EXCLUDED].[address], [status]=[EXCLUDED].[status],'
-                . ' [profile_id]=[EXCLUDED].[profile_id] WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id])'
-                . ' VALUES ([EXCLUDED].[email], [EXCLUDED].[address], [EXCLUDED].[status], [EXCLUDED].[profile_id])'
+                . ' [profile_id] int NULL);MERGE [T_upsert] WITH (HOLDLOCK) USING (VALUES (:qp0, :qp1, 1, 1))'
+                . ' AS EXCLUDED ([email], [address], [status], [profile_id]) ON ([T_upsert].[email]=EXCLUDED.[email])'
+                . ' WHEN MATCHED THEN UPDATE SET [address]=EXCLUDED.[address], [status]=EXCLUDED.[status],'
+                . ' [profile_id]=EXCLUDED.[profile_id] WHEN NOT MATCHED THEN INSERT ([email], [address], [status], [profile_id])'
+                . ' VALUES (EXCLUDED.[email], EXCLUDED.[address], EXCLUDED.[status], EXCLUDED.[profile_id])'
                 . ' OUTPUT INSERTED.[id],INSERTED.[ts],INSERTED.[email],INSERTED.[recovery_email],INSERTED.[address],'
                 . 'INSERTED.[status],INSERTED.[orders],INSERTED.[profile_id] INTO @temporary_inserted;'
                 . 'SELECT * FROM @temporary_inserted;',
-                [':qp0' => 'test@example.com', ':qp1' => 'test address', ':qp2' => 1, ':qp3' => 1],
+                [
+                    ':qp0' => new Param('test@example.com', DataType::STRING),
+                    ':qp1' => new Param('test address', DataType::STRING),
+                ],
             ],
         ];
     }
@@ -907,5 +930,43 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ],
             ],
         ];
+    }
+
+    public static function upsertWithMultiOperandFunctions(): array
+    {
+        $data = parent::upsertWithMultiOperandFunctions();
+
+        $db = self::getDb();
+        $serverVersion = $db->getServerInfo()->getVersion();
+        $db->close();
+
+        if (version_compare($serverVersion, '16', '<')) {
+            $data[0][3] = 'MERGE [test_upsert_with_functions] WITH (HOLDLOCK)'
+                . ' USING (VALUES (1, :qp0, 5, 5, :qp1, :qp2)) AS EXCLUDED'
+                . ' ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
+                . ' ON ([test_upsert_with_functions].[id]=EXCLUDED.[id]) WHEN MATCHED THEN UPDATE SET'
+                . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') WITHIN GROUP (ORDER BY value) + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
+                . ' [greatest_col]=(SELECT MAX(value) FROM (SELECT [test_upsert_with_functions].[greatest_col] AS value UNION SELECT EXCLUDED.[greatest_col] AS value) AS t),'
+                . ' [least_col]=(SELECT MIN(value) FROM (SELECT [test_upsert_with_functions].[least_col] AS value UNION SELECT EXCLUDED.[least_col] AS value) AS t),'
+                . ' [longest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[longest_col] AS value UNION SELECT EXCLUDED.[longest_col] AS value) AS t ORDER BY LEN(value) DESC),'
+                . ' [shortest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[shortest_col] AS value UNION SELECT EXCLUDED.[shortest_col] AS value) AS t ORDER BY LEN(value) ASC)'
+                . ' WHEN NOT MATCHED THEN INSERT ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
+                . ' VALUES (EXCLUDED.[id], EXCLUDED.[array_col], EXCLUDED.[greatest_col], EXCLUDED.[least_col], EXCLUDED.[longest_col], EXCLUDED.[shortest_col]);';
+        } else {
+            $data[0][3] = 'MERGE [test_upsert_with_functions] WITH (HOLDLOCK)'
+                . ' USING (VALUES (1, :qp0, 5, 5, :qp1, :qp2)) AS EXCLUDED'
+                . ' ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
+                . ' ON ([test_upsert_with_functions].[id]=EXCLUDED.[id]) WHEN MATCHED THEN UPDATE SET'
+                . " [array_col]=(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',') WITHIN GROUP (ORDER BY value) + ']' AS value FROM (SELECT value FROM OPENJSON([test_upsert_with_functions].[array_col]) UNION SELECT value FROM OPENJSON(EXCLUDED.[array_col])) AS t),"
+                . ' [greatest_col]=GREATEST([test_upsert_with_functions].[greatest_col], EXCLUDED.[greatest_col]),'
+                . ' [least_col]=LEAST([test_upsert_with_functions].[least_col], EXCLUDED.[least_col]),'
+                . ' [longest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[longest_col] AS value UNION SELECT EXCLUDED.[longest_col] AS value) AS t ORDER BY LEN(value) DESC),'
+                . ' [shortest_col]=(SELECT TOP 1 value FROM (SELECT [test_upsert_with_functions].[shortest_col] AS value UNION SELECT EXCLUDED.[shortest_col] AS value) AS t ORDER BY LEN(value) ASC)'
+                . ' WHEN NOT MATCHED THEN INSERT ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
+                . ' VALUES (EXCLUDED.[id], EXCLUDED.[array_col], EXCLUDED.[greatest_col], EXCLUDED.[least_col], EXCLUDED.[longest_col], EXCLUDED.[shortest_col]);';
+        }
+        $data[0][4]['array_col'] = '["1","2","3","4","5"]';
+
+        return $data;
     }
 }
