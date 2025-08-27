@@ -296,6 +296,18 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         return $buildCondition;
     }
 
+    public static function selectScalar(): array
+    {
+        $data = parent::selectScalar();
+
+        $data['true'][1] = 'SELECT 1';
+        $data['false'][1] = 'SELECT 0';
+        $data['array'][1] = 'SELECT 1, 1, 12.34';
+        $data['string keys'][1] = 'SELECT 1 AS [a], 1 AS [b], 12.34';
+
+        return $data;
+    }
+
     public static function insert(): array
     {
         $insert = parent::insert();
