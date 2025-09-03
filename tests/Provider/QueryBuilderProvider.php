@@ -8,10 +8,10 @@ use Yiisoft\Db\Constant\DataType;
 use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Constant\ReferentialAction;
 use Yiisoft\Db\Constraint\ForeignKey;
-use Yiisoft\Db\Expression\ArrayExpression;
+use Yiisoft\Db\Expression\Value\ArrayValue;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\Function\ArrayMerge;
-use Yiisoft\Db\Expression\Param;
+use Yiisoft\Db\Expression\Value\Param;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Query\Query;
@@ -918,7 +918,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
             'ArrayMerge with 4 operands' => [
                 ArrayMerge::class,
-                ["'[1,2,3]'", [5, 6, 7], $stringParam, self::getDb()->select(new ArrayExpression([9, 10]))],
+                ["'[1,2,3]'", [5, 6, 7], $stringParam, self::getDb()->select(new ArrayValue([9, 10]))],
                 <<<SQL
                 (SELECT '[' + STRING_AGG('"' + STRING_ESCAPE(value, 'json') + '"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON('[1,2,3]') UNION SELECT value FROM OPENJSON(:qp0) UNION SELECT value FROM OPENJSON(:qp1) UNION SELECT value FROM OPENJSON((SELECT :qp2))) AS t)
                 SQL,
