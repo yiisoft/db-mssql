@@ -9,6 +9,7 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\AbstractDMLQueryBuilder;
 
@@ -59,6 +60,19 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         }
 
         return "DBCC CHECKIDENT ('$tableName', RESEED, $value)";
+    }
+
+    public function update(
+        string $table,
+        array $columns,
+        array|string|ExpressionInterface $condition,
+        array|string|ExpressionInterface|null $from = null,
+        array &$params = []
+    ): string {
+        /**
+         * SQL Server does not support UPDATE ... FROM ...
+         */
+        return parent::update($table, $columns, $condition, null, $params);
     }
 
     /**
