@@ -69,9 +69,9 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         array|string|ExpressionInterface|null $from = null,
         array &$params = []
     ): string {
-        /**
-         * SQL Server does not support UPDATE ... FROM ...
-         */
+        if ($from !== null) {
+            throw new NotSupportedException(__METHOD__ . '() does not support UPDATE with FROM clause by SQL Server.');
+        }
         return parent::update($table, $columns, $condition, null, $params);
     }
 
