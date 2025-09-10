@@ -9,6 +9,7 @@ use Yiisoft\Db\Constraint\Index;
 use Yiisoft\Db\Exception\IntegrityException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\IndexType;
 use Yiisoft\Db\Mssql\Tests\Provider\CommandProvider;
@@ -181,12 +182,19 @@ final class CommandTest extends CommonCommandTest
     public function testUpdate(
         string $table,
         array $columns,
-        array|string $conditions,
+        array|ExpressionInterface|string $conditions,
+        array|ExpressionInterface|string|null $from,
         array $params,
         array $expectedValues,
         int $expectedCount,
     ): void {
-        parent::testUpdate($table, $columns, $conditions, $params, $expectedValues, $expectedCount);
+        if ($from !== null) {
+            $this->expectException(NotSupportedException::class);
+            $this->expectExceptionMessage(
+                'Yiisoft\Db\Mssql\DMLQueryBuilder::update() does not support UPDATE with FROM clause with SQL Server.',
+            );
+        }
+        parent::testUpdate($table, $columns, $conditions, $from, $params, $expectedValues, $expectedCount);
     }
 
     #[DataProviderExternal(CommandProvider::class, 'upsert')]
