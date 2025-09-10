@@ -452,6 +452,12 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         string $expectedSql,
         array $expectedParams = [],
     ): void {
+        if ($from !== null) {
+            $this->expectException(NotSupportedException::class);
+            $this->expectExceptionMessage(
+                'Yiisoft\Db\Mssql\DMLQueryBuilder::update() does not support UPDATE with FROM clause with SQL Server.',
+            );
+        }
         parent::testUpdate($table, $columns, $condition, $from, $params, $expectedSql, $expectedParams);
     }
 
