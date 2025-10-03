@@ -851,6 +851,15 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         return $values;
     }
 
+    public static function caseXBuilder(): array
+    {
+        $data = parent::caseXBuilder();
+
+        unset($data['with case condition']);
+
+        return $data;
+    }
+
     public static function delete(): array
     {
         $values = parent::delete();
