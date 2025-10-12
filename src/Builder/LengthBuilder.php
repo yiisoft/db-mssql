@@ -32,12 +32,18 @@ final class LengthBuilder implements ExpressionBuilderInterface
      */
     public function build(ExpressionInterface $expression, array &$params = []): string
     {
-        $operand = $expression->operand;
+        return 'LEN(' . $this->buildOperand($expression->operand, $params) . ')';
+    }
 
+    /**
+     * Builds an operand expression.
+     */
+    private function buildOperand(mixed $operand, array &$params): string
+    {
         if (is_string($operand)) {
-            return "LEN($operand)";
+            return $this->queryBuilder->getQuoter()->quoteColumnName($operand);
         }
 
-        return 'LEN(' . $this->queryBuilder->buildExpression($operand, $params) . ')';
+        return $this->queryBuilder->buildValue($operand, $params);
     }
 }
