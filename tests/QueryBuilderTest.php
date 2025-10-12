@@ -875,7 +875,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $length = new Length('column_name');
         $params = [];
 
-        $this->assertSame(static::replaceQuotes('LEN([[column_name]])'), $qb->buildExpression($length, $params));
+        $this->assertSame(self::replaceQuotes('LEN([[column_name]])'), $qb->buildExpression($length, $params));
         $this->assertSame([], $params);
     }
 
@@ -925,7 +925,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $this->assertSame(
             "(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',')"
             . " WITHIN GROUP (ORDER BY value) + ']' AS value FROM ("
-            . "SELECT value FROM OPENJSON(:qp0)"
+            . 'SELECT value FROM OPENJSON(:qp0)'
             . ' UNION SELECT value FROM OPENJSON(:qp1)'
             . ' UNION SELECT value FROM OPENJSON(:qp2)'
             . ' UNION SELECT value FROM OPENJSON((SELECT :qp3))'
