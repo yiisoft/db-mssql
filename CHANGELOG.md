@@ -54,8 +54,8 @@
 - Enh #383: Refactor `TableSchema` and `Schema` classes (@Tigrov)
 - Enh #386: Support column's collation (@Tigrov)
 - New #391: Add `Connection::getColumnBuilderClass()` method (@Tigrov)
-- New #390, #396: Implement `ArrayMergeBuilder`, `GreatestBuilder`, `LeastBuilder`, `LengthBuilder`, `LongestBuilder`
-  and `ShortestBuilder` classes (@Tigrov)
+- New #390, #396, #404: Implement `ArrayMergeBuilder`, `GreatestBuilder`, `LeastBuilder`, `LengthBuilder`,
+  `LongestBuilder` and `ShortestBuilder` classes (@Tigrov)
 - Enh #393: Refactor `DMLQueryBuilder::upsert()` method (@Tigrov)
 - Chg #398: Update expression namespaces according to changes in `yiisoft/db` package (@Tigrov)
 - Enh #392: Update `DMLQueryBuilder::update()` method to adapt changes in `yiisoft/db` (@rustamwin)

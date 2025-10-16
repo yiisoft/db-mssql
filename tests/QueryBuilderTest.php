@@ -10,6 +10,7 @@ use Yiisoft\Db\Constant\DataType;
 use Yiisoft\Db\Exception\IntegrityException;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\Function\Length;
 use Yiisoft\Db\Expression\Value\ArrayValue;
 use Yiisoft\Db\Expression\Statement\CaseX;
 use Yiisoft\Db\Expression\Expression;
@@ -866,6 +867,18 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         parent::testLengthBuilder($operand, $expectedSql, $expectedResult, $expectedParams);
     }
 
+    public function testLengthBuilderWithColumnName(): void
+    {
+        $db = $this->getConnection();
+        $qb = $db->getQueryBuilder();
+
+        $length = new Length('column_name');
+        $params = [];
+
+        $this->assertSame(self::replaceQuotes('LEN([[column_name]])'), $qb->buildExpression($length, $params));
+        $this->assertSame([], $params);
+    }
+
     #[DataProviderExternal(QueryBuilderProvider::class, 'multiOperandFunctionBuilder')]
     public function testMultiOperandFunctionBuilder(
         string $class,
@@ -902,8 +915,8 @@ ALTER TABLE [customer] DROP COLUMN [id]";
 
         $stringParam = new Param('[4,3,5]', DataType::STRING);
         $arrayMerge = (new ArrayMerge(
-            "'[2,1,3]'",
-            [6, 5, 7],
+            [2, 1, 3],
+            new ArrayValue([6, 5, 7]),
             $stringParam,
             self::getDb()->select(new ArrayValue([10, 9])),
         ))->ordered();
@@ -912,18 +925,19 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $this->assertSame(
             "(SELECT '[' + STRING_AGG('\"' + STRING_ESCAPE(value, 'json') + '\"', ',')"
             . " WITHIN GROUP (ORDER BY value) + ']' AS value FROM ("
-            . "SELECT value FROM OPENJSON('[2,1,3]')"
-            . ' UNION SELECT value FROM OPENJSON(:qp0)'
+            . 'SELECT value FROM OPENJSON(:qp0)'
             . ' UNION SELECT value FROM OPENJSON(:qp1)'
-            . ' UNION SELECT value FROM OPENJSON((SELECT :qp2))'
+            . ' UNION SELECT value FROM OPENJSON(:qp2)'
+            . ' UNION SELECT value FROM OPENJSON((SELECT :qp3))'
             . ') AS t)',
             $qb->buildExpression($arrayMerge, $params)
         );
         Assert::arraysEquals(
             [
-                ':qp0' => new Param('[6,5,7]', DataType::STRING),
-                ':qp1' => $stringParam,
-                ':qp2' => new Param('[10,9]', DataType::STRING),
+                ':qp0' => new Param('[2,1,3]', DataType::STRING),
+                ':qp1' => new Param('[6,5,7]', DataType::STRING),
+                ':qp2' => $stringParam,
+                ':qp3' => new Param('[10,9]', DataType::STRING),
             ],
             $params,
         );
