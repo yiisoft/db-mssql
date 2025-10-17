@@ -112,6 +112,10 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                         defaultValue: ['a' => 1],
                         check: '(isjson([json_col])>(0))',
                     ),
+                    'json_col2' => new JsonColumn(
+                        dbType: 'nvarchar',
+                        check: '(isjson([json_col2])=(1))',
+                    ),
                 ],
                 'tableName' => 'type',
             ],
