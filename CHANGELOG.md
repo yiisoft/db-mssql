@@ -28,7 +28,7 @@
 - Enh #338: Replace `DbArrayHelper::getColumn()` with `array_column()` (@Tigrov)
 - New #339: Add `IndexType` and `IndexMethod` classes (@Tigrov)
 - Bug #343: Explicitly mark nullable parameters (@vjik)
-- New #342: Support JSON type (@Tigrov)
+- New #342, #405: Support JSON type (@Tigrov)
 - Chg #344: Change supported PHP versions to `8.1 - 8.4` (@Tigrov)
 - Chg #344: Change return type of `Command::insertWithReturningPks()` method to `array|false` (@Tigrov)
 - New #345: Add parameters `$ifExists` and `$cascade` to `CommandInterface::dropTable()` and
