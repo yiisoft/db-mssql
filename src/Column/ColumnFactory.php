@@ -98,7 +98,7 @@ final class ColumnFactory extends AbstractColumnFactory
 
     protected function getType(string $dbType, array $info = []): string
     {
-        if (isset($info['check'], $info['name']) && $info['check'] === "(isjson([{$info['name']}])>(0))") {
+        if (isset($info['check'], $info['name']) && str_starts_with($info['check'], "(isjson([{$info['name']}])")) {
             return ColumnType::JSON;
         }
 
