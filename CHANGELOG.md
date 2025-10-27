@@ -59,6 +59,7 @@
 - Enh #393: Refactor `DMLQueryBuilder::upsert()` method (@Tigrov)
 - Chg #398: Update expression namespaces according to changes in `yiisoft/db` package (@Tigrov)
 - Enh #392: Update `DMLQueryBuilder::update()` method to adapt changes in `yiisoft/db` (@rustamwin)
+- Enh #406: Adapt to `DQLQueryBuilderInterface::buildWithQueries()` signature changes in `yiisoft/db` package (@vjik)
 
 ## 1.2.0 March 21, 2024
 
