@@ -22,6 +22,7 @@ use Yiisoft\Db\Mssql\Builder\LikeBuilder;
 use Yiisoft\Db\Mssql\Builder\LongestBuilder;
 use Yiisoft\Db\Mssql\Builder\ShortestBuilder;
 use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Query\WithQuery;
 use Yiisoft\Db\QueryBuilder\AbstractDQLQueryBuilder;
 use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\QueryBuilder\Condition\Like;
@@ -135,13 +136,17 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         return parent::extractAlias($table);
     }
 
-    public function buildWithQueries(array $withs, array &$params): string
+    public function buildWithQueries(array $withQueries, array &$params): string
     {
-        /** @psalm-var array{query:string|Query, alias:ExpressionInterface|string, recursive:bool}[] $withs */
-        foreach ($withs as &$with) {
-            $with['recursive'] = false;
-        }
+        $withQueries = array_map(
+            static fn(WithQuery $withQuery) => new WithQuery(
+                $withQuery->query,
+                $withQuery->alias,
+                false
+            ),
+            $withQueries,
+        );
 
-        return parent::buildWithQueries($withs, $params);
+        return parent::buildWithQueries($withQueries, $params);
     }
 }
