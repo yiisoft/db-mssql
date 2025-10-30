@@ -26,11 +26,17 @@ final class ColumnFactory extends AbstractColumnFactory
         /** Exact numbers */
         'bit' => ColumnType::BOOLEAN,
         'tinyint' => ColumnType::TINYINT,
+        'tinyint identity' => ColumnType::TINYINT,
         'smallint' => ColumnType::SMALLINT,
+        'smallint identity' => ColumnType::SMALLINT,
         'int' => ColumnType::INTEGER,
+        'int identity' => ColumnType::INTEGER,
         'bigint' => ColumnType::BIGINT,
+        'bigint identity' => ColumnType::BIGINT,
         'numeric' => ColumnType::DECIMAL,
+        'numeric identity' => ColumnType::DECIMAL,
         'decimal' => ColumnType::DECIMAL,
+        'decimal identity' => ColumnType::DECIMAL,
         'smallmoney' => ColumnType::MONEY,
         'money' => ColumnType::MONEY,
 
