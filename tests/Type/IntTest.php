@@ -16,21 +16,12 @@ use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver16
  */
 final class IntTest extends TestCase
 {
     use TestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -43,13 +34,6 @@ final class IntTest extends TestCase
         $db->createCommand()->dropTable('int_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -69,13 +53,6 @@ final class IntTest extends TestCase
         $db->createCommand()->dropTable('int_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
         $this->setFixture('Type/int.sql');
@@ -89,13 +66,6 @@ final class IntTest extends TestCase
         $db->createCommand()->dropTable('int_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
         $this->setFixture('Type/int.sql');
@@ -118,12 +88,6 @@ final class IntTest extends TestCase
 
     /**
      * Max value is `2147483647`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMaxValue(): void
     {
@@ -164,13 +128,6 @@ final class IntTest extends TestCase
         $db->createCommand()->dropTable('int')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMaxValueException(): void
     {
         $this->setFixture('Type/int.sql');
@@ -188,12 +145,6 @@ final class IntTest extends TestCase
 
     /**
      * Min value is `-2147483648`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMinValue(): void
     {
@@ -234,13 +185,6 @@ final class IntTest extends TestCase
         $db->createCommand()->dropTable('int')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMinValueException(): void
     {
         $this->setFixture('Type/int.sql');
@@ -254,6 +198,22 @@ final class IntTest extends TestCase
         );
 
         $command->insert('int', ['Myint1' => -2_147_483_649])->execute();
+    }
+
+    public function testGetIdentity(): void
+    {
+        $this->setFixture('Type/int.sql');
+        $db = $this->getConnection(true);
+        $db->createCommand()->insert('int', ['Myint1' => 1])->execute();
+
+        $result = $db
+            ->select('id')
+            ->from('int')
+            ->withTypecasting()
+//            ->where(['id' => 1])
+            ->one();
+
+        $this->assertSame(1, $result['id']);
     }
 
     private function buildTable(): ConnectionInterface
