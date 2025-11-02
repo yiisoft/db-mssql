@@ -60,8 +60,7 @@
 - Chg #398: Update expression namespaces according to changes in `yiisoft/db` package (@Tigrov)
 - Enh #392: Update `DMLQueryBuilder::update()` method to adapt changes in `yiisoft/db` (@rustamwin)
 - Enh #406: Adapt to `DQLQueryBuilderInterface::buildWithQueries()` signature changes in `yiisoft/db` package (@vjik)
-- Enh #408: Add support of `tinyint identity`, `small identity`, `int identity`, `bigint identity`, `numeric identity`
-  and `decimal identity` column types (@vjik)
+- Bug #408, #409: Add `identity` support in `Schema::loadResultColumn()` (@vjik)
 
 ## 1.2.0 March 21, 2024
 

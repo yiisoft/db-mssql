@@ -168,6 +168,11 @@ final class Schema extends AbstractPdoSchema
 
         $columnInfo = ['fromResult' => true];
 
+        if (str_ends_with($dbType, ' identity')) {
+            $columnInfo['autoIncrement'] = true;
+            $dbType = substr($dbType, 0, -9);
+        }
+
         if (!empty($metadata['table'])) {
             $columnInfo['table'] = $metadata['table'];
             $columnInfo['name'] = $metadata['name'];
