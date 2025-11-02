@@ -196,7 +196,7 @@ final class IntTest extends TestCase
         $command->insert('int', ['Myint1' => -2_147_483_649])->execute();
     }
 
-    public function testGetIdentity(): void
+    public function testIdentityTypecasting(): void
     {
         $this->setFixture('Type/int.sql');
         $db = $this->getConnection(true);
@@ -206,7 +206,7 @@ final class IntTest extends TestCase
             ->select('id')
             ->from('int')
             ->withTypecasting()
-//            ->where(['id' => 1])
+            ->where(['id' => 1])
             ->one();
 
         $this->assertSame(1, $result['id']);
