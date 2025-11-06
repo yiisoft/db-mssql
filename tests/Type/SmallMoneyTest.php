@@ -62,7 +62,7 @@ final class SmallMoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallmoney_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -109,7 +109,7 @@ final class SmallMoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallmoney_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -142,8 +142,8 @@ final class SmallMoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallmoney]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('smallmoney', ['Mysmallmoney1' => '214748.3647', 'Mysmallmoney2' => null])->execute();
@@ -157,8 +157,8 @@ final class SmallMoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallmoney]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('smallmoney')->execute();
@@ -180,7 +180,7 @@ final class SmallMoneyTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow error converting expression to data type smallmoney.'
+            '[SQL Server]Arithmetic overflow error converting expression to data type smallmoney.',
         );
 
         $command->insert('smallmoney', ['Mysmallmoney1' => '214749.3647'])->execute();
@@ -212,8 +212,8 @@ final class SmallMoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallmoney]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('smallmoney', ['Mysmallmoney1' => '-214748.3648', 'Mysmallmoney2' => null])->execute();
@@ -227,8 +227,8 @@ final class SmallMoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallmoney]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('smallmoney')->execute();
@@ -250,7 +250,7 @@ final class SmallMoneyTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow error converting expression to data type smallmoney.'
+            '[SQL Server]Arithmetic overflow error converting expression to data type smallmoney.',
         );
 
         $command->insert('smallmoney', ['Mysmallmoney1' => '-214749.3648'])->execute();

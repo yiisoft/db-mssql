@@ -110,17 +110,17 @@ final class CommandTest extends CommonCommandTest
             BEGIN
                 RETURN (SELECT TRY_CONVERT(VARCHAR(15),@Number))
             END
-            SQL
+            SQL,
         )->execute();
         $command->setSql(
             <<<SQL
             ALTER TABLE [[dbo]].[[test_trigger]] ADD [[computed_column]] AS dbo.TESTFUNC([[ID]])
-            SQL
+            SQL,
         )->execute();
         $command->setSql(
             <<<SQL
             ALTER TABLE [[dbo]].[[test_trigger]] ADD [[RV]] rowversion NULL
-            SQL
+            SQL,
         )->execute();
         $insertedString = 'test';
         $transaction = $db->beginTransaction();
@@ -138,7 +138,7 @@ final class CommandTest extends CommonCommandTest
         $command->setSql(
             <<<SQL
             ALTER TABLE [[dbo]].[[test_trigger]] ADD [[RV]] rowversion
-            SQL
+            SQL,
         )->execute();
         $insertedString = 'test';
         $result = $command->insertReturningPks('{{test_trigger}}', ['stringcol' => $insertedString]);
@@ -154,7 +154,7 @@ final class CommandTest extends CommonCommandTest
         $command->setSql(
             <<<SQL
             ALTER TABLE [[dbo]].[[test_trigger]] ADD [[RV]] rowversion NULL
-            SQL
+            SQL,
         )->execute();
         $insertedString = 'test';
         $result = $command->insertReturningPks(
@@ -224,7 +224,7 @@ final class CommandTest extends CommonCommandTest
         $command->addDefaultValue('{{test_def}}', '{{test_def_constraint}}', 'int1', 41);
         $this->assertEquals(
             'ALTER TABLE [test_def] ADD CONSTRAINT [test_def_constraint] DEFAULT 41 FOR [int1]',
-            $command->getRawSql()
+            $command->getRawSql(),
         );
     }
 
@@ -238,7 +238,7 @@ final class CommandTest extends CommonCommandTest
         $command->dropDefaultValue('{{test_def}}', '{{test_def_constraint}}');
         $this->assertEquals(
             'ALTER TABLE [test_def] DROP CONSTRAINT [test_def_constraint]',
-            $command->getRawSql()
+            $command->getRawSql(),
         );
     }
 
@@ -288,7 +288,7 @@ final class CommandTest extends CommonCommandTest
     }
 
     #[DataProviderExternal(CommandProvider::class, 'createIndex')]
-    public function testCreateIndex(array $columns, array $indexColumns, string|null $indexType, string|null $indexMethod): void
+    public function testCreateIndex(array $columns, array $indexColumns, ?string $indexType, ?string $indexMethod): void
     {
         parent::testCreateIndex($columns, $indexColumns, $indexType, $indexMethod);
     }
@@ -339,7 +339,7 @@ final class CommandTest extends CommonCommandTest
 
         $this->assertCount(3, $schema->getTableIndexes($tableName));
 
-        $index = array_filter($schema->getTableIndexes($tableName), static fn ($index) => !$index->isPrimaryKey)[$xmlIndexName];
+        $index = array_filter($schema->getTableIndexes($tableName), static fn($index) => !$index->isPrimaryKey)[$xmlIndexName];
 
         $this->assertEquals(new Index($xmlIndexName, $indexColumns), $index);
 
@@ -353,7 +353,7 @@ final class CommandTest extends CommonCommandTest
         array $columns,
         string $expected,
         array $expectedParams = [],
-        int $insertedRow = 1
+        int $insertedRow = 1,
     ): void {
         parent::testBatchInsert($table, $values, $columns, $expected, $expectedParams, $insertedRow);
     }

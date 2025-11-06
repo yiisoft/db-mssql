@@ -158,7 +158,7 @@ final class Schema extends AbstractPdoSchema
      *
      * @psalm-suppress MoreSpecificImplementedParamType
      */
-    protected function loadResultColumn(array $metadata): ColumnInterface|null
+    protected function loadResultColumn(array $metadata): ?ColumnInterface
     {
         if (empty($metadata['sqlsrv:decl_type'])) {
             return null;
@@ -195,7 +195,7 @@ final class Schema extends AbstractPdoSchema
         return $this->db->getColumnFactory()->fromDbType($dbType, $columnInfo);
     }
 
-    protected function loadTableSchema(string $name): TableSchemaInterface|null
+    protected function loadTableSchema(string $name): ?TableSchemaInterface
     {
         /** @psalm-suppress MixedArgument */
         $table = new TableSchema(...$this->db->getQuoter()->getTableNameParts($name));
@@ -268,30 +268,6 @@ final class Schema extends AbstractPdoSchema
     {
         /** @var DefaultValue[] */
         return $this->loadTableConstraints($tableName, self::DEFAULTS);
-    }
-
-    /**
-     * Loads the column information into a {@see ColumnInterface} object.
-     *
-     * @psalm-param ColumnArray $info The column information.
-     */
-    private function loadColumn(array $info): ColumnInterface
-    {
-        return $this->db->getColumnFactory()->fromDbType($info['data_type'], [
-            'autoIncrement' => $info['is_identity'] === '1',
-            'check' => $info['check'],
-            'collation' => $info['collation_name'],
-            'comment' => $info['comment'],
-            'computed' => $info['is_computed'] === '1',
-            'defaultValueRaw' => $info['column_default'],
-            'name' => $info['column_name'],
-            'notNull' => $info['is_nullable'] !== 'YES',
-            'primaryKey' => $info['primaryKey'],
-            'scale' => $info['numeric_scale'] !== null ? (int) $info['numeric_scale'] : null,
-            'schema' => $info['schema'],
-            'size' => $info['size'] !== null ? (int) $info['size'] : null,
-            'table' => $info['table'],
-        ]);
     }
 
     /**
@@ -397,6 +373,30 @@ final class Schema extends AbstractPdoSchema
 
         /** @var string[] */
         return $this->db->createCommand($sql, [':schema' => $schema])->queryColumn();
+    }
+
+    /**
+     * Loads the column information into a {@see ColumnInterface} object.
+     *
+     * @psalm-param ColumnArray $info The column information.
+     */
+    private function loadColumn(array $info): ColumnInterface
+    {
+        return $this->db->getColumnFactory()->fromDbType($info['data_type'], [
+            'autoIncrement' => $info['is_identity'] === '1',
+            'check' => $info['check'],
+            'collation' => $info['collation_name'],
+            'comment' => $info['comment'],
+            'computed' => $info['is_computed'] === '1',
+            'defaultValueRaw' => $info['column_default'],
+            'name' => $info['column_name'],
+            'notNull' => $info['is_nullable'] !== 'YES',
+            'primaryKey' => $info['primaryKey'],
+            'scale' => $info['numeric_scale'] !== null ? (int) $info['numeric_scale'] : null,
+            'schema' => $info['schema'],
+            'size' => $info['size'] !== null ? (int) $info['size'] : null,
+            'table' => $info['table'],
+        ]);
     }
 
     /**

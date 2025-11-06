@@ -62,7 +62,7 @@ final class SmallIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallint_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -109,7 +109,7 @@ final class SmallIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallint_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -142,8 +142,8 @@ final class SmallIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallint]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('smallint', ['Mysmallint1' => 32767, 'Mysmallint2' => null])->execute();
@@ -157,8 +157,8 @@ final class SmallIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallint]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('smallint')->execute();
@@ -180,7 +180,7 @@ final class SmallIntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow',
         );
 
         $command->insert('smallint', ['Mysmallint1' => 32768])->execute();
@@ -212,8 +212,8 @@ final class SmallIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallint]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('smallint', ['Mysmallint1' => -32768, 'Mysmallint2' => null])->execute();
@@ -227,8 +227,8 @@ final class SmallIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[smallint]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('smallint')->execute();
@@ -250,7 +250,7 @@ final class SmallIntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow',
         );
 
         $command->insert('smallint', ['Mysmallint1' => -32769])->execute();

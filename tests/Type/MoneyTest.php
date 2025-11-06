@@ -62,7 +62,7 @@ final class MoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[money_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -109,7 +109,7 @@ final class MoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[money_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -142,8 +142,8 @@ final class MoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM money WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('money', ['Mymoney1' => '922337203685477.5807', 'Mymoney2' => null])->execute();
@@ -157,8 +157,8 @@ final class MoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM money WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('money')->execute();
@@ -180,7 +180,7 @@ final class MoneyTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow error converting expression to data type money.'
+            '[SQL Server]Arithmetic overflow error converting expression to data type money.',
         );
 
         $command->insert('money', ['Mymoney1' => '922337203685478.5808'])->execute();
@@ -212,8 +212,8 @@ final class MoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM money WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('money', ['Mymoney1' => '-922337203685477.5808', 'Mymoney2' => null])->execute();
@@ -227,8 +227,8 @@ final class MoneyTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM money WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('money')->execute();
@@ -250,7 +250,7 @@ final class MoneyTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow error converting expression to data type money.'
+            '[SQL Server]Arithmetic overflow error converting expression to data type money.',
         );
 
         $command->insert('money', ['Mymoney1' => '-922337203685480.5808'])->execute();

@@ -64,7 +64,7 @@ final class NumericTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[numeric_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -112,7 +112,7 @@ final class NumericTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[numeric_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -136,7 +136,7 @@ final class NumericTest extends TestCase
         $command = $db->createCommand();
         $command->insert(
             'numeric',
-            ['Mynumeric1' => new Expression('99999999999999997748809823456034029568'), 'Mynumeric2' => 0]
+            ['Mynumeric1' => new Expression('99999999999999997748809823456034029568'), 'Mynumeric2' => 0],
         )->execute();
 
         $this->assertSame(
@@ -148,13 +148,13 @@ final class NumericTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[numeric]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert(
             'numeric',
-            ['Mynumeric1' => new Expression('99999999999999997748809823456034029568'), 'Mynumeric2' => null]
+            ['Mynumeric1' => new Expression('99999999999999997748809823456034029568'), 'Mynumeric2' => null],
         )->execute();
 
         $this->assertSame(
@@ -166,8 +166,8 @@ final class NumericTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[numeric]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('numeric')->execute();
@@ -202,13 +202,13 @@ final class NumericTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[numeric]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert(
             'numeric',
-            ['Mynumeric1' => new Expression('-99999999999999997748809823456034029569'), 'Mynumeric2' => null]
+            ['Mynumeric1' => new Expression('-99999999999999997748809823456034029569'), 'Mynumeric2' => null],
         )->execute();
 
         $this->assertSame(
@@ -220,8 +220,8 @@ final class NumericTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[numeric]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('numeric')->execute();
@@ -243,7 +243,7 @@ final class NumericTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
+            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38).",
         );
 
         $command->insert(

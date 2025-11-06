@@ -63,7 +63,7 @@ final class FloatTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[float_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -113,7 +113,7 @@ final class FloatTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[float_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -146,8 +146,8 @@ final class FloatTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM float WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('float', ['Myfloat1' => '1.79E+308', 'Myfloat2' => null])->execute();
@@ -161,8 +161,8 @@ final class FloatTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM float WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('float')->execute();
@@ -184,7 +184,7 @@ final class FloatTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "[SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
+            "[SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes).",
         );
 
         $command->insert('float', ['Myfloat1' => new Expression('1.80E+308')])->execute();
@@ -216,8 +216,8 @@ final class FloatTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM float WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('float', ['Myfloat1' => '-1.79E+308', 'Myfloat2' => null])->execute();
@@ -231,8 +231,8 @@ final class FloatTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM float WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('float')->execute();
@@ -254,7 +254,7 @@ final class FloatTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "[SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes)."
+            "[SQL Server]The floating point value '1.80E+308' is out of the range of computer representation (8 bytes).",
         );
 
         $command->insert('float', ['Myfloat1' => new Expression('-1.80E+308')])->execute();

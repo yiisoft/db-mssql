@@ -40,7 +40,7 @@ trait TestTrait
             host: self::getHost(),
             databaseName: self::getDatabaseName(),
             port: self::getPort(),
-            options: ['Encrypt' => 'no']
+            options: ['Encrypt' => 'no'],
         );
 
         return new Connection(
@@ -56,7 +56,7 @@ trait TestTrait
                 host: self::getHost(),
                 databaseName: self::getDatabaseName(),
                 port: self::getPort(),
-                options: ['Encrypt' => 'no']
+                options: ['Encrypt' => 'no'],
             );
         }
 

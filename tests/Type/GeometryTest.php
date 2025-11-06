@@ -38,7 +38,7 @@ final class GeometryTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        Expression|null $defaultValue
+        ?Expression $defaultValue,
     ): void {
         $db = $this->buildTable();
 
@@ -69,7 +69,7 @@ final class GeometryTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT [[id]], CAST([[Mygeometry1]] AS NVARCHAR(MAX)) AS [[Mygeometry1]], [[Mygeometry2]] FROM [[geometry_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -89,7 +89,7 @@ final class GeometryTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        Expression|null $defaultValue
+        ?Expression $defaultValue,
     ): void {
         $this->setFixture('Type/geometry.sql');
 
@@ -122,7 +122,7 @@ final class GeometryTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT [[id]], CAST([[Mygeometry1]] AS NVARCHAR(MAX)) AS [[Mygeometry1]], [[Mygeometry2]] FROM [[geometry_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -158,8 +158,8 @@ final class GeometryTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT [[id]], CAST([[Mygeometry1]] AS NVARCHAR(MAX)) AS [[Mygeometry1]], [[Mygeometry2]] FROM [[geometry]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('geometry')->execute();

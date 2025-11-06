@@ -62,7 +62,7 @@ final class TinyIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[tinyint_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -109,7 +109,7 @@ final class TinyIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[tinyint_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -142,8 +142,8 @@ final class TinyIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[tinyint]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('tinyint', ['Mytinyint1' => 255, 'Mytinyint2' => 0.5])->execute();
@@ -157,8 +157,8 @@ final class TinyIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[tinyint]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('tinyint', ['Mytinyint1' => 255, 'Mytinyint2' => null])->execute();
@@ -172,8 +172,8 @@ final class TinyIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[tinyint]] WHERE [[id]] = 3
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('tinyint')->execute();
@@ -195,7 +195,7 @@ final class TinyIntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow',
         );
 
         $command->insert('tinyint', ['Mytinyint1' => 256])->execute();
@@ -227,8 +227,8 @@ final class TinyIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[tinyint]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('tinyint', ['Mytinyint1' => 0, 'Mytinyint2' => 0.9])->execute();
@@ -242,8 +242,8 @@ final class TinyIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[tinyint]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('tinyint')->execute();
@@ -265,7 +265,7 @@ final class TinyIntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow',
         );
 
         $command->insert('tinyint', ['Mytinyint1' => -1])->execute();

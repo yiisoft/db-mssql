@@ -120,8 +120,8 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
         string $table,
         string $name,
         array|string $columns,
-        string|null $indexType = null,
-        string|null $indexMethod = null
+        ?string $indexType = null,
+        ?string $indexMethod = null,
     ): string {
         return 'CREATE ' . (!empty($indexType) ? $indexType . ' ' : '') . 'INDEX '
             . $this->quoter->quoteTableName($name) . ' ON '
@@ -176,6 +176,17 @@ final class DDLQueryBuilder extends AbstractDDLQueryBuilder
             . "'" . $this->quoter->quoteTableName($table) . '.' . $this->quoter->quoteColumnName($oldName) . "'" . ', '
             . $this->quoter->quoteColumnName($newName) . ', '
             . "'COLUMN'";
+    }
+
+    /**
+     * @throws NotSupportedException MSSQL doesn't support cascade drop table.
+     */
+    public function dropTable(string $table, bool $ifExists = false, bool $cascade = false): string
+    {
+        if ($cascade) {
+            throw new NotSupportedException('MSSQL doesn\'t support cascade drop table.');
+        }
+        return parent::dropTable($table, $ifExists, false);
     }
 
     /**
@@ -313,16 +324,5 @@ WHILE 1=1 BEGIN
     IF @constraintName IS NULL BREAK
     EXEC (N'ALTER TABLE ' + @tableName + ' DROP CONSTRAINT [' + @constraintName + ']')
 END";
-    }
-
-    /**
-     * @throws NotSupportedException MSSQL doesn't support cascade drop table.
-     */
-    public function dropTable(string $table, bool $ifExists = false, bool $cascade = false): string
-    {
-        if ($cascade) {
-            throw new NotSupportedException('MSSQL doesn\'t support cascade drop table.');
-        }
-        return parent::dropTable($table, $ifExists, false);
     }
 }

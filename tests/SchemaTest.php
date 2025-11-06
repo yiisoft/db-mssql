@@ -100,14 +100,14 @@ final class SchemaTest extends CommonSchemaTest
         $mockDb
             ->method('createCommand')
             ->with(
-                self::callback(static fn ($sql) => true),
+                self::callback(static fn($sql) => true),
                 self::callback(
                     function ($params) use ($expectedTableName) {
                         $this->assertEquals($expectedTableName, $params[':fullName']);
 
                         return true;
-                    }
-                )
+                    },
+                ),
             )
             ->willReturn($commandMock);
         $schema = new Schema($mockDb, DbHelper::getSchemaCache());
@@ -145,7 +145,7 @@ final class SchemaTest extends CommonSchemaTest
     }
 
     #[DataProviderExternal(SchemaProvider::class, 'resultColumns')]
-    public function testGetResultColumn(ColumnInterface|null $expected, array $metadata): void
+    public function testGetResultColumn(?ColumnInterface $expected, array $metadata): void
     {
         parent::testGetResultColumn($expected, $metadata);
     }

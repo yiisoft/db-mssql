@@ -49,23 +49,23 @@ final class PdoConnectionTest extends CommonPdoConnectionTest
         $command->setSql(
             <<<SQL
             IF OBJECT_ID('$sequenceName', 'SO') IS NOT NULL DROP SEQUENCE $sequenceName
-            SQL
+            SQL,
         )->execute();
 
         $command->setSql(
             <<<SQL
             CREATE TABLE $tableName1 (seqnum INTEGER NOT NULL PRIMARY KEY, SomeNumber INT)
-            SQL
+            SQL,
         )->execute();
         $command->setSql(
             <<<SQL
             CREATE TABLE $tableName2 (ID INT IDENTITY(1, 2), SomeValue char(10))
-            SQL
+            SQL,
         )->execute();
         $command->setSql(
             <<<SQL
             CREATE SEQUENCE $sequenceName AS INTEGER START WITH 1 INCREMENT BY 1 MINVALUE 1 MAXVALUE 100 CYCLE
-            SQL
+            SQL,
         )->execute();
         $command->insert(
             $tableName1,

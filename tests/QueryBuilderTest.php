@@ -115,8 +115,8 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     #[DataProviderExternal(QueryBuilderProvider::class, 'buildCondition')]
     public function testBuildCondition(
         array|ExpressionInterface|string $condition,
-        string|null $expected,
-        array $expectedParams
+        ?string $expected,
+        array $expectedParams,
     ): void {
         parent::testBuildCondition($condition, $expected, $expectedParams);
     }
@@ -150,7 +150,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
     public function testBuildLikeCondition(
         array|ExpressionInterface $condition,
         string $expected,
-        array $expectedParams
+        array $expectedParams,
     ): void {
         parent::testBuildLikeCondition($condition, $expected, $expectedParams);
     }
@@ -355,7 +355,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         array|QueryInterface $columns,
         array $params,
         string $expectedSQL,
-        array $expectedParams
+        array $expectedParams,
     ): void {
         parent::testInsert($table, $columns, $params, $expectedSQL, $expectedParams);
     }
@@ -377,7 +377,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         array|QueryInterface $columns,
         array $params,
         string $expectedSQL,
-        array $expectedParams
+        array $expectedParams,
     ): void {
         parent::testInsertReturningPks($table, $columns, $params, $expectedSQL, $expectedParams);
     }
@@ -468,7 +468,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         array|QueryInterface $insertColumns,
         array|bool $updateColumns,
         string $expectedSql,
-        array $expectedParams
+        array $expectedParams,
     ): void {
         parent::testUpsert($table, $insertColumns, $updateColumns, $expectedSql, $expectedParams);
     }
@@ -504,9 +504,9 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         string $table,
         array|QueryInterface $insertColumns,
         array|bool $updateColumns,
-        array|null $returnColumns,
+        ?array $returnColumns,
         string $expectedSql,
-        array $expectedParams
+        array $expectedParams,
     ): void {
         parent::testUpsertReturning($table, $insertColumns, $updateColumns, $returnColumns, $expectedSql, $expectedParams);
     }
@@ -532,7 +532,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            ColumnBuilder::string(128)->notNull()
+            ColumnBuilder::string(128)->notNull(),
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
@@ -544,7 +544,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            ColumnBuilder::timestamp()->defaultValue(new Expression('CURRENT_TIMESTAMP'))
+            ColumnBuilder::timestamp()->defaultValue(new Expression('CURRENT_TIMESTAMP')),
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
@@ -559,7 +559,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            ColumnBuilder::string(128)->null()->check('LEN(bar) > 5')
+            ColumnBuilder::string(128)->null()->check('LEN(bar) > 5'),
         );
         $db->createCommand($sql)->execute();
         $schema = $db->getTableSchema('[foo1]', true);
@@ -578,7 +578,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            ColumnBuilder::string(64)->check('LEN(bar) > 5')
+            ColumnBuilder::string(64)->check('LEN(bar) > 5'),
         );
         $db->createCommand($sql)->execute();
 
@@ -594,7 +594,7 @@ final class QueryBuilderTest extends CommonQueryBuilderTest
         $sql = $db->getQueryBuilder()->alterColumn(
             'foo1',
             'bar',
-            ColumnBuilder::string(64)->unique()
+            ColumnBuilder::string(64)->unique(),
         );
         $db->createCommand($sql)->execute();
 
@@ -672,7 +672,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
             ColumnBuilder::string(64)
                 ->defaultValue('')
                 ->check('LEN(bar) < 5')
-                ->unique()
+                ->unique(),
         );
         $db->createCommand($sql)->execute();
 
@@ -715,7 +715,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            ColumnBuilder::integer()->null()->defaultValue(null)
+            ColumnBuilder::integer()->null()->defaultValue(null),
         );
         $this->assertEquals($expected, $sql);
 
@@ -747,7 +747,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $sql = $qb->alterColumn(
             'foo1',
             'bar',
-            ColumnBuilder::integer()->defaultValue(null)
+            ColumnBuilder::integer()->defaultValue(null),
         );
         $this->assertEquals($expected, $sql);
     }
@@ -786,7 +786,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
             'bar',
             ColumnBuilder::integer()
                 ->null()
-                ->defaultValue(new Expression('CAST(GETDATE() AS INT)'))
+                ->defaultValue(new Expression('CAST(GETDATE() AS INT)')),
         );
 
         $this->assertEquals($expected, $sql);
@@ -930,7 +930,7 @@ ALTER TABLE [customer] DROP COLUMN [id]";
             . ' UNION SELECT value FROM OPENJSON(:qp2)'
             . ' UNION SELECT value FROM OPENJSON((SELECT :qp3))'
             . ') AS t)',
-            $qb->buildExpression($arrayMerge, $params)
+            $qb->buildExpression($arrayMerge, $params),
         );
         Assert::arraysEquals(
             [
