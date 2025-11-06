@@ -67,7 +67,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         array $columns,
         array|string|ExpressionInterface $condition,
         array|string|ExpressionInterface|null $from = null,
-        array &$params = []
+        array &$params = [],
     ): string {
         if ($from !== null) {
             throw new NotSupportedException(__METHOD__ . '() does not support UPDATE with FROM clause with SQL Server.');
@@ -95,7 +95,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
         string $table,
         array|QueryInterface $insertColumns,
         array|bool $updateColumns = true,
-        array|null $returnColumns = null,
+        ?array $returnColumns = null,
         array &$params = [],
     ): string {
         [$uniqueNames] = $this->prepareUpsertColumns($table, $insertColumns, $updateColumns);
@@ -130,7 +130,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
     private function insertReturning(
         string $table,
         array|QueryInterface $columns,
-        array|null $returnColumns = null,
+        ?array $returnColumns = null,
         array &$params = [],
     ): string {
         $tableSchema = $this->schema->getTableSchema($table);
@@ -210,7 +210,7 @@ final class DMLQueryBuilder extends AbstractDMLQueryBuilder
             $table,
             $insertColumns,
             $updateColumns,
-            $constraints
+            $constraints,
         );
 
         if (empty($uniqueNames)) {

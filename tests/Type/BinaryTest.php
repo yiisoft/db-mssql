@@ -39,7 +39,7 @@ final class BinaryTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        Expression $defaultValue
+        Expression $defaultValue,
     ): void {
         $db = $this->buildTable();
 
@@ -71,7 +71,7 @@ final class BinaryTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT [[id]], CONVERT(VARCHAR(100), [[Mybinary1]], 1) AS [[Mybinary1]], [[Mybinary2]] FROM [[binary_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -92,7 +92,7 @@ final class BinaryTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        Expression $defaultValue
+        Expression $defaultValue,
     ): void {
         $this->setFixture('Type/binary.sql');
 
@@ -126,7 +126,7 @@ final class BinaryTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT [[id]], CONVERT(VARCHAR(100), [[Mybinary1]], 1) AS [[Mybinary1]], [[Mybinary2]] FROM [[binary_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -164,8 +164,8 @@ final class BinaryTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT [[id]], CONVERT(VARCHAR(100), [[Mybinary1]], 1) AS [[Mybinary1]], [[Mybinary2]], [[Mybinary3]], [[Mybinary4]] FROM [[binary]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('binary')->execute();
@@ -202,8 +202,8 @@ final class BinaryTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT [[id]], CONVERT(VARCHAR(100), [[Mybinary1]], 1) AS [[Mybinary1]], [[Mybinary2]], [[Mybinary3]], [[Mybinary4]] FROM [[binary]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('binary')->execute();

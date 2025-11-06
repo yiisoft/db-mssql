@@ -64,7 +64,7 @@ final class DecimalTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[decimal_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -112,7 +112,7 @@ final class DecimalTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[decimal_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -136,7 +136,7 @@ final class DecimalTest extends TestCase
         $command = $db->createCommand();
         $command->insert(
             'decimal',
-            ['Mydecimal1' => new Expression('99999999999999997748809823456034029568'), 'Mydecimal2' => '0']
+            ['Mydecimal1' => new Expression('99999999999999997748809823456034029568'), 'Mydecimal2' => '0'],
         )->execute();
 
         $this->assertSame(
@@ -148,13 +148,13 @@ final class DecimalTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[decimal]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert(
             'decimal',
-            ['Mydecimal1' => new Expression('99999999999999997748809823456034029568'), 'Mydecimal2' => null]
+            ['Mydecimal1' => new Expression('99999999999999997748809823456034029568'), 'Mydecimal2' => null],
         )->execute();
 
         $this->assertSame(
@@ -166,8 +166,8 @@ final class DecimalTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[decimal]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
     }
 
@@ -187,7 +187,7 @@ final class DecimalTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
+            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38).",
         );
 
         $command->insert(
@@ -225,13 +225,13 @@ final class DecimalTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[decimal]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert(
             'decimal',
-            ['Mydecimal1' => new Expression('-99999999999999997748809823456034029569'), 'Mydecimal2' => null]
+            ['Mydecimal1' => new Expression('-99999999999999997748809823456034029569'), 'Mydecimal2' => null],
         )->execute();
 
         $this->assertSame(
@@ -243,8 +243,8 @@ final class DecimalTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[decimal]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
     }
 
@@ -264,7 +264,7 @@ final class DecimalTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38)."
+            "[SQL Server]The number '199999999999999997748809823456034029570' is out of the range for numeric representation (maximum precision 38).",
         );
 
         $command->insert(

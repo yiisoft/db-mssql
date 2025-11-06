@@ -65,7 +65,7 @@ final class UniqueidentifierTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[uniqueidentifier_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -115,7 +115,7 @@ final class UniqueidentifierTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[uniqueidentifier_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -151,8 +151,8 @@ final class UniqueidentifierTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[uniqueidentifier]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('uniqueidentifier')->execute();
@@ -173,7 +173,7 @@ final class UniqueidentifierTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Conversion failed when converting from a character string to uniqueidentifier.'
+            '[SQL Server]Conversion failed when converting from a character string to uniqueidentifier.',
         );
 
         $command = $db->createCommand();
@@ -209,8 +209,8 @@ final class UniqueidentifierTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[uniqueidentifier]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('uniqueidentifier')->execute();

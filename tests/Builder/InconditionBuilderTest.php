@@ -30,7 +30,7 @@ final class InconditionBuilderTest extends TestCase
 
         $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\Db\Mssql\Builder\InBuilder::buildSubqueryInCondition is not supported by MSSQL.'
+            'Yiisoft\Db\Mssql\Builder\InBuilder::buildSubqueryInCondition is not supported by MSSQL.',
         );
 
         (new InBuilder($db->getQueryBuilder()))->build($inCondition);

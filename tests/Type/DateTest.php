@@ -40,7 +40,7 @@ final class DateTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        DateTimeImmutable $defaultValue
+        DateTimeImmutable $defaultValue,
     ): void {
         $db = $this->buildTable();
 
@@ -71,7 +71,7 @@ final class DateTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[date_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -91,7 +91,7 @@ final class DateTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        DateTimeImmutable $defaultValue
+        DateTimeImmutable $defaultValue,
     ): void {
         $this->setFixture('Type/date.sql');
 
@@ -124,7 +124,7 @@ final class DateTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[date_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -170,8 +170,8 @@ final class DateTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[date]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('date')->execute();
@@ -192,7 +192,7 @@ final class DateTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Conversion failed when converting date and/or time from character string.'
+            '[SQL Server]Conversion failed when converting date and/or time from character string.',
         );
 
         $db->createCommand()->insert('date', ['Mydate1' => '0000-00-00'])->execute();

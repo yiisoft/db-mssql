@@ -42,7 +42,7 @@ final class IntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[int_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -75,7 +75,7 @@ final class IntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[int_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -102,8 +102,8 @@ final class IntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[int]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('int', ['Myint1' => 2_147_483_647, 'Myint2' => null])->execute();
@@ -117,8 +117,8 @@ final class IntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[int]] WHERE [[id]]= 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('int')->execute();
@@ -133,7 +133,7 @@ final class IntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow',
         );
 
         $command->insert('int', ['Myint1' => 2_147_483_648])->execute();
@@ -159,8 +159,8 @@ final class IntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[int]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('int', ['Myint1' => -2_147_483_648, 'Myint2' => null])->execute();
@@ -174,8 +174,8 @@ final class IntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[int]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('int')->execute();
@@ -190,7 +190,7 @@ final class IntTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow'
+            '[SQL Server]Arithmetic overflow',
         );
 
         $command->insert('int', ['Myint1' => -2_147_483_649])->execute();

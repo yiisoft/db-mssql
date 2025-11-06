@@ -39,7 +39,7 @@ final class VarCharTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        string|Expression $defaultValue
+        string|Expression $defaultValue,
     ): void {
         $db = $this->buildTable();
 
@@ -71,7 +71,7 @@ final class VarCharTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[varchar_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -92,7 +92,7 @@ final class VarCharTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        string|Expression $defaultValue
+        string|Expression $defaultValue,
     ): void {
         $this->setFixture('Type/varchar.sql');
 
@@ -126,7 +126,7 @@ final class VarCharTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[varchar_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -167,8 +167,8 @@ final class VarCharTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[varchar]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('varchar')->execute();
@@ -190,7 +190,7 @@ final class VarCharTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]String or binary data would be truncated'
+            '[SQL Server]String or binary data would be truncated',
         );
 
         $command->insert('varchar', ['Myvarchar1' => '01234567891'])->execute();

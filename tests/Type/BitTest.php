@@ -37,7 +37,7 @@ final class BitTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        bool $defaultValue
+        bool $defaultValue,
     ): void {
         $db = $this->buildTable();
 
@@ -68,7 +68,7 @@ final class BitTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[bit_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -88,7 +88,7 @@ final class BitTest extends TestCase
         string $column,
         string $dbType,
         string $phpType,
-        bool $defaultValue
+        bool $defaultValue,
     ): void {
         $this->setFixture('Type/bit.sql');
 
@@ -121,7 +121,7 @@ final class BitTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[bit_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -153,8 +153,8 @@ final class BitTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bit WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('bit')->execute();
@@ -187,8 +187,8 @@ final class BitTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bit WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('bit', ['Mybit1' => 0.5, 'Mybit2' => 3, 'Mybit3' => 4])->execute();
@@ -203,8 +203,8 @@ final class BitTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bit WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('bit')->execute();
@@ -239,8 +239,8 @@ final class BitTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bit WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('bit', ['Mybit1' => null, 'Mybit2' => 0.8, 'Mybit3' => -3])->execute();
@@ -255,8 +255,8 @@ final class BitTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bit WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('bit')->execute();

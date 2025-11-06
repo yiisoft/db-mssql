@@ -63,7 +63,7 @@ final class ImageTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[image_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -110,7 +110,7 @@ final class ImageTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[image_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -132,7 +132,7 @@ final class ImageTest extends TestCase
         $command = $db->createCommand();
         $command->insert(
             'image',
-            ['Myimage1' => new Expression('CONVERT(image, 0x30313233343536373839)'), 'Myimage2' => null]
+            ['Myimage1' => new Expression('CONVERT(image, 0x30313233343536373839)'), 'Myimage2' => null],
         )->execute();
 
         $this->assertSame(
@@ -144,8 +144,8 @@ final class ImageTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[image]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('image')->execute();

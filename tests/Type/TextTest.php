@@ -62,7 +62,7 @@ final class TextTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[text_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -109,7 +109,7 @@ final class TextTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[text_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -140,8 +140,8 @@ final class TextTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[text]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('text')->execute();

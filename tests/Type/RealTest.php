@@ -63,7 +63,7 @@ final class RealTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[real_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -110,7 +110,7 @@ final class RealTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[real_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -143,8 +143,8 @@ final class RealTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM real WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('real', ['Myreal1' => '3.4E+38', 'Myreal2' => null])->execute();
@@ -158,8 +158,8 @@ final class RealTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM real WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('real')->execute();
@@ -181,7 +181,7 @@ final class RealTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow error for type real'
+            '[SQL Server]Arithmetic overflow error for type real',
         );
 
         $command->insert('real', ['Myreal1' => new Expression('4.4E+38')])->execute();
@@ -213,8 +213,8 @@ final class RealTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM real WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('real', ['Myreal1' => '-3.4E+38', 'Myreal2' => null])->execute();
@@ -228,8 +228,8 @@ final class RealTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM real WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('real')->execute();
@@ -251,7 +251,7 @@ final class RealTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]Arithmetic overflow error for type real'
+            '[SQL Server]Arithmetic overflow error for type real',
         );
 
         $command->insert('real', ['Myreal1' => new Expression('-4.4E+38')])->execute();
