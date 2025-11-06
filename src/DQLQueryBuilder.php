@@ -41,7 +41,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         array $orderBy,
         ExpressionInterface|int|null $limit,
         ExpressionInterface|int|null $offset,
-        array &$params = []
+        array &$params = [],
     ): string {
         if (empty($offset) && $limit === null) {
             $orderByString = $this->buildOrderBy($orderBy, $params);
@@ -55,6 +55,20 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
     public function selectExists(string $rawSql): string
     {
         return 'SELECT CASE WHEN EXISTS(' . $rawSql . ') THEN 1 ELSE 0 END AS [0]';
+    }
+
+    public function buildWithQueries(array $withQueries, array &$params): string
+    {
+        $withQueries = array_map(
+            static fn(WithQuery $withQuery) => new WithQuery(
+                $withQuery->query,
+                $withQuery->alias,
+                false,
+            ),
+            $withQueries,
+        );
+
+        return parent::buildWithQueries($withQueries, $params);
     }
 
     protected function defaultExpressionBuilders(): array
@@ -94,7 +108,7 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         array $orderBy,
         ExpressionInterface|int|null $limit,
         ExpressionInterface|int|null $offset,
-        array &$params = []
+        array &$params = [],
     ): string {
         $orderByString = $this->buildOrderBy($orderBy, $params);
 
@@ -134,19 +148,5 @@ final class DQLQueryBuilder extends AbstractDQLQueryBuilder
         }
 
         return parent::extractAlias($table);
-    }
-
-    public function buildWithQueries(array $withQueries, array &$params): string
-    {
-        $withQueries = array_map(
-            static fn(WithQuery $withQuery) => new WithQuery(
-                $withQuery->query,
-                $withQuery->alias,
-                false
-            ),
-            $withQueries,
-        );
-
-        return parent::buildWithQueries($withQueries, $params);
     }
 }

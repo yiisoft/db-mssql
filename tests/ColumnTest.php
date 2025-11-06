@@ -32,40 +32,6 @@ final class ColumnTest extends CommonColumnTest
 {
     use TestTrait;
 
-    protected function insertTypeValues(ConnectionInterface $db): void
-    {
-        $db->createCommand()->insert(
-            'type',
-            [
-                'int_col' => 1,
-                'char_col' => str_repeat('x', 100),
-                'char_col3' => null,
-                'float_col' => 1.234,
-                'blob_col' => "\x10\x11\x12",
-                'datetime_col' => '2023-07-11 14:50:00.123',
-                'bool_col' => false,
-                'json_col' => [['a' => 1, 'b' => null, 'c' => [1, 3, 5]]],
-            ]
-        )->execute();
-    }
-
-    protected function assertTypecastedValues(array $result, bool $allTypecasted = false): void
-    {
-        $this->assertSame(1, $result['int_col']);
-        $this->assertSame(str_repeat('x', 100), $result['char_col']);
-        $this->assertNull($result['char_col3']);
-        $this->assertSame(1.234, $result['float_col']);
-        $this->assertSame("\x10\x11\x12", $result['blob_col']);
-        $this->assertEquals(new DateTimeImmutable('2023-07-11 14:50:00.123', new DateTimeZone('UTC')), $result['datetime_col']);
-        $this->assertFalse($result['bool_col']);
-
-        if ($allTypecasted) {
-            $this->assertSame([['a' => 1, 'b' => null, 'c' => [1, 3, 5]]], $result['json_col']);
-        } else {
-            $this->assertSame('[{"a":1,"b":null,"c":[1,3,5]}]', $result['json_col']);
-        }
-    }
-
     public function testSelectWithPhpTypecasting(): void
     {
         $db = $this->getConnection();
@@ -162,5 +128,39 @@ final class ColumnTest extends CommonColumnTest
             $expected,
             $binaryCol->dbTypecast(new StringableStream("\x10\x11\x12")),
         );
+    }
+
+    protected function insertTypeValues(ConnectionInterface $db): void
+    {
+        $db->createCommand()->insert(
+            'type',
+            [
+                'int_col' => 1,
+                'char_col' => str_repeat('x', 100),
+                'char_col3' => null,
+                'float_col' => 1.234,
+                'blob_col' => "\x10\x11\x12",
+                'datetime_col' => '2023-07-11 14:50:00.123',
+                'bool_col' => false,
+                'json_col' => [['a' => 1, 'b' => null, 'c' => [1, 3, 5]]],
+            ],
+        )->execute();
+    }
+
+    protected function assertTypecastedValues(array $result, bool $allTypecasted = false): void
+    {
+        $this->assertSame(1, $result['int_col']);
+        $this->assertSame(str_repeat('x', 100), $result['char_col']);
+        $this->assertNull($result['char_col3']);
+        $this->assertSame(1.234, $result['float_col']);
+        $this->assertSame("\x10\x11\x12", $result['blob_col']);
+        $this->assertEquals(new DateTimeImmutable('2023-07-11 14:50:00.123', new DateTimeZone('UTC')), $result['datetime_col']);
+        $this->assertFalse($result['bool_col']);
+
+        if ($allTypecasted) {
+            $this->assertSame([['a' => 1, 'b' => null, 'c' => [1, 3, 5]]], $result['json_col']);
+        } else {
+            $this->assertSame('[{"a":1,"b":null,"c":[1,3,5]}]', $result['json_col']);
+        }
     }
 }

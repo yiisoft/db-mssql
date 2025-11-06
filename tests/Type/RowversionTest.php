@@ -47,8 +47,8 @@ final class RowversionTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT CONVERT(BIGINT, [[Myrowversion]], 1) as [[Myrowversion]] FROM [[rowversion]] WHERE [[id]] = 1
-                SQL
-            )->queryScalar()
+                SQL,
+            )->queryScalar(),
         );
     }
 }

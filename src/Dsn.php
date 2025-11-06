@@ -30,8 +30,7 @@ final class Dsn implements Stringable
         public readonly string $databaseName = '',
         public readonly string $port = '1433',
         public readonly array $options = [],
-    ) {
-    }
+    ) {}
 
     /**
      * @return string the Data Source Name, or DSN, has the information required to connect to the database.

@@ -62,7 +62,7 @@ final class JsonTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[json_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -109,7 +109,7 @@ final class JsonTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[json_default]]
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -136,7 +136,7 @@ final class JsonTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT ISJSON([[Myjson]]) AS [[Myjson]] FROM [[json]] WHERE id = 1
-                SQL
+                SQL,
             )->queryScalar(),
         );
     }
@@ -161,7 +161,7 @@ final class JsonTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT ISJSON([[Myjson]]) AS [[Myjson]] FROM [[json]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryScalar(),
         );
     }
@@ -189,8 +189,8 @@ final class JsonTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[json]] WHERE [[id]] = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('json', ['Myjson' => null])->execute();
@@ -203,8 +203,8 @@ final class JsonTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[json]] WHERE [[id]] = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
         $this->assertSame(
             [
@@ -217,7 +217,7 @@ final class JsonTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT JSON_VALUE([[Myjson]], '$.a') AS [[a]], JSON_VALUE([[Myjson]], '$.b') AS [[b]], JSON_VALUE([[Myjson]], '$.c') AS [[c]], JSON_VALUE([[Myjson]], '$.d') AS [[d]], JSON_VALUE([[Myjson]], '$.e') AS [[e]] FROM [[json]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -225,7 +225,7 @@ final class JsonTest extends TestCase
             'json',
             [
                 'Myjson' => '{"info": {"type": 1,"address": {"town": "Cheltenham","country": "England"},"tags": ["Sport", "Water polo"]},"type": "Basic"}',
-            ]
+            ],
         )->execute();
 
         $this->assertSame(
@@ -235,7 +235,7 @@ final class JsonTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT JSON_QUERY([[Myjson]], '$.info.address') AS address FROM [[json]] WHERE [[id]] = 3
-                SQL
+                SQL,
             )->queryOne(),
         );
     }

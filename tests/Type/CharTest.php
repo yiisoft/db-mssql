@@ -38,7 +38,7 @@ final class CharTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        string $defaultValue
+        string $defaultValue,
     ): void {
         $db = $this->buildTable();
 
@@ -70,7 +70,7 @@ final class CharTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[char_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -91,7 +91,7 @@ final class CharTest extends TestCase
         string $dbType,
         string $phpType,
         int $size,
-        string $defaultValue
+        string $defaultValue,
     ): void {
         $this->setFixture('Type/char.sql');
 
@@ -125,7 +125,7 @@ final class CharTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[char_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -166,8 +166,8 @@ final class CharTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM char WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('char')->execute();
@@ -189,7 +189,7 @@ final class CharTest extends TestCase
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
-            '[SQL Server]String or binary data would be truncated'
+            '[SQL Server]String or binary data would be truncated',
         );
 
         $command->insert('char', ['Mychar1' => '01234567891'])->execute();

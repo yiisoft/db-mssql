@@ -62,7 +62,7 @@ final class BigIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[bigint_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -109,7 +109,7 @@ final class BigIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM [[bigint_default]] WHERE [[id]] = 1
-                SQL
+                SQL,
             )->queryOne(),
         );
 
@@ -143,8 +143,8 @@ final class BigIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bigint WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('bigint', ['Mybigint1' => '9223372036854775808', 'Mybigint2' => null])->execute();
@@ -158,8 +158,8 @@ final class BigIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bigint WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('bigint')->execute();
@@ -192,8 +192,8 @@ final class BigIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bigint WHERE id = 1
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $command->insert('bigint', ['Mybigint1' => '-9223372036854775809', 'Mybigint2' => null])->execute();
@@ -207,8 +207,8 @@ final class BigIntTest extends TestCase
             $command->setSql(
                 <<<SQL
                 SELECT * FROM bigint WHERE id = 2
-                SQL
-            )->queryOne()
+                SQL,
+            )->queryOne(),
         );
 
         $db->createCommand()->dropTable('bigint')->execute();
