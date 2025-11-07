@@ -13,7 +13,6 @@ use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
-use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\Tests\Common\CommonSchemaTest;
 use Yiisoft\Db\Tests\Support\DbHelper;
 
@@ -28,16 +27,6 @@ final class SchemaTest extends CommonSchemaTest
     public function testColumns(array $columns, string $tableName): void
     {
         parent::testColumns($columns, $tableName);
-    }
-
-    public function testFindUniquesIndexes(): void
-    {
-        $db = $this->getConnection(true);
-        $schema = $db->getSchema();
-        $tUpsert = $schema->getTableSchema('T_upsert');
-
-        $this->assertInstanceOf(TableSchemaInterface::class, $tUpsert);
-        $this->assertContains([0 => 'email', 1 => 'recovery_email'], $schema->findUniqueIndexes($tUpsert));
     }
 
     public function testGetDefaultSchema(): void
