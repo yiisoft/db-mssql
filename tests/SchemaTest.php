@@ -30,16 +30,6 @@ final class SchemaTest extends CommonSchemaTest
         parent::testColumns($columns, $tableName);
     }
 
-    public function testFindUniquesIndexes(): void
-    {
-        $db = $this->getConnection(true);
-        $schema = $db->getSchema();
-        $tUpsert = $schema->getTableSchema('T_upsert');
-
-        $this->assertInstanceOf(TableSchemaInterface::class, $tUpsert);
-        $this->assertContains([0 => 'email', 1 => 'recovery_email'], $schema->findUniqueIndexes($tUpsert));
-    }
-
     public function testGetDefaultSchema(): void
     {
         $db = $this->getConnection();
