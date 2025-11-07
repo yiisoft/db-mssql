@@ -13,7 +13,6 @@ use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider;
 use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
-use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Db\Tests\Common\CommonSchemaTest;
 use Yiisoft\Db\Tests\Support\DbHelper;
 
