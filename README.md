@@ -5,35 +5,29 @@
     <a href="https://www.microsoft.com/sql-server" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/6154722" height="100px" alt="MSSQL">
     </a>
-    <h1 align="center">Yii Database MSSQL Server driver</h1>
+    <h1 align="center">Yii Database Microsoft SQL Server Driver</h1>
     <br>
 </p>
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/db-mssql/v)](https://packagist.org/packages/yiisoft/db-mssql)
 [![Total Downloads](https://poser.pugx.org/yiisoft/db-mssql/downloads)](https://packagist.org/packages/yiisoft/db-mssql)
+[![Build status](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml/badge.svg)](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml)
 [![Code Coverage](https://codecov.io/gh/yiisoft/db-mssql/branch/master/graph/badge.svg?token=UF9VERNMYU)](https://codecov.io/gh/yiisoft/db-mssql)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdb-mssql%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/db-mssql/master)
 [![static analysis](https://github.com/yiisoft/db-mssql/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/db-mssql/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/db-mssql/coverage.svg)](https://shepherd.dev/github/yiisoft/db-mssql)
 [![psalm-level](https://shepherd.dev/github/yiisoft/db-mssql/level.svg)](https://shepherd.dev/github/yiisoft/db-mssql)
 
-MSSQL Server driver for [Yii Database](https://github.com/yiisoft/db) is a package for working with [MSSQL] databases in PHP.
+Microsoft SQL Server driver for [Yii Database](https://github.com/yiisoft/db) is a package for working with
+[MSSQL](https://www.microsoft.com/sql-server) databases in PHP. It includes a database connection class, a command
+builder class, and a set of classes for representing database tables and rows as PHP objects.
 
-The package provides a set of classes for connecting to a [MSSQL] database, creating and executing commands, and working with data.
-It also includes a set of tools for building and executing queries, including support for parameter binding, as well
-as tools for working with transactions.
+Driver supports Microsoft SQL Server 2017 or higher.
 
-To use it, you will need to have the PHP [MSSQL extension] installed and enabled on your server. You will also need to
-have access to a SQL Server database and the necessary credentials to connect to it.
+## Requirements
 
-[MSSQL]: https://www.microsoft.com/sql-server
-[MSSQL extension]: https://pecl.php.net/package/sqlsrv
-
-## Support version
-
-| PHP           | MSSQL Version | CI-Actions |
-|---------------|---------------|------------|
-| **8.1 - 8.4** | **2017 - 2022**| [![Build status](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml/badge.svg)](https://github.com/yiisoft/db-mssql/actions/workflows/build.yml)
+- PHP 8.1 - 8.4.
+- `pdo_sqlsrv` PHP extension.
 
 ## Installation
 
@@ -44,15 +38,15 @@ composer require yiisoft/db-mssql
 ```
 
 > [!IMPORTANT]
-> It also depends on [PSR-16: Common Interface for Caching Libraries](https://www.php-fig.org/psr/psr-16/) and requires
-> the installation of [PSR-16 implementation](https://packagist.org/providers/psr/simple-cache-implementation).
-> For example, [yiisoft/cache](https://github.com/yiisoft/cache) or one of the other [cache handlers](https://github.com/yiisoft/cache#cache-handlers).
+> See also [installation notes](https://github.com/yiisoft/db/?tab=readme-ov-file#documentation) for `yiisoft/db`
+> package.
 
 ## Documentation
 
-To configure connection to MSSQL database check [Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/guide/en/connection/mssql.md).
+For config connection to MSSQL database check
+[Connecting MSSQL](https://github.com/yiisoft/db/blob/master/docs/guide/en/connection/mssql.md).
 
-[Check the documentation docs](https://github.com/yiisoft/db/blob/master/docs/guide/en/README.md) to learn about usage.
+Check the `yiisoft/db` [docs](https://github.com/yiisoft/db/blob/master/docs/guide/en/README.md) to learn about usage.
 
 - [Internals](docs/internals.md)
 
@@ -61,7 +55,7 @@ You may also check out other [Yii Community Resources](https://www.yiiframework.
 
 ## License
 
-The Yii Database MSSQL Server driver is free software. It is released under the terms of the BSD License.
+The Yii Database Microsoft SQL Server Driver is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).
