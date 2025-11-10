@@ -1,6 +1,6 @@
 {
     "name": "yiisoft/db-mssql",
-    "description": "MSSQL Server driver for Yii Database",
+    "description": "Microsoft SQL Server driver for Yii Database",
     "keywords": [
         "yii",
         "mssql",
