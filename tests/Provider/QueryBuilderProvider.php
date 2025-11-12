@@ -705,7 +705,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $values = parent::buildColumnDefinition();
 
-        // SQLite does not support unsigned types
+        // MSSQL does not support unsigned types
         unset(
             $values['bigint(15) unsigned'],
             $values['unsigned()'],
