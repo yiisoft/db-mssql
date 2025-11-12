@@ -22,6 +22,10 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
 
         $values['uuid_pk_seq'][1] = new StringColumn(ColumnType::UUID, primaryKey: true, autoIncrement: true, defaultValue: new Expression('newsequentialid()'));
 
+        // SQLite doesn't support unsigned types
+        $types['upk'][1] = new IntegerColumn(primaryKey: true, autoIncrement: true, unsigned: false);
+        $types['ubigpk'][1] = new BigIntColumn(primaryKey: true, autoIncrement: true, unsigned: false);
+
         return $values;
     }
 
