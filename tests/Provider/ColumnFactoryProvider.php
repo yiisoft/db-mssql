@@ -9,6 +9,7 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
 use Yiisoft\Db\Mssql\Column\DateTimeColumn;
 use Yiisoft\Db\Schema\Column\ArrayColumn;
+use Yiisoft\Db\Schema\Column\BigIntColumn;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
 use Yiisoft\Db\Schema\Column\DoubleColumn;
 use Yiisoft\Db\Schema\Column\IntegerColumn;
@@ -21,6 +22,10 @@ final class ColumnFactoryProvider extends \Yiisoft\Db\Tests\Provider\ColumnFacto
         $values = parent::pseudoTypes();
 
         $values['uuid_pk_seq'][1] = new StringColumn(ColumnType::UUID, primaryKey: true, autoIncrement: true, defaultValue: new Expression('newsequentialid()'));
+
+        // MSSQL doesn't support unsigned types
+        $values['upk'][1] = new IntegerColumn(primaryKey: true, autoIncrement: true, unsigned: false);
+        $values['ubigpk'][1] = new BigIntColumn(primaryKey: true, autoIncrement: true, unsigned: false);
 
         return $values;
     }

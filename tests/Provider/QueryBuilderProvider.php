@@ -705,6 +705,12 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $values = parent::buildColumnDefinition();
 
+        // MSSQL does not support unsigned types
+        unset(
+            $values['bigint(15) unsigned'],
+            $values['unsigned()'],
+        );
+
         $values[PseudoType::PK][0] = 'int IDENTITY PRIMARY KEY';
         $values[PseudoType::UPK][0] = 'int IDENTITY PRIMARY KEY';
         $values[PseudoType::BIGPK][0] = 'bigint IDENTITY PRIMARY KEY';
@@ -804,7 +810,6 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
         $values['string()->primaryKey()'][0] = 'nvarchar(255) PRIMARY KEY';
         $values['size(10)'][0] = 'nvarchar(10)';
         $values['unique()'][0] = 'nvarchar(255) UNIQUE';
-        $values['unsigned()'][0] = 'int';
         $values['integer(8)->scale(2)'][0] = 'int';
         $values['reference($reference)'][0] = 'int REFERENCES [ref_table] ([id]) ON DELETE SET NULL ON UPDATE CASCADE';
         $values['reference($referenceWithSchema)'][0] = 'int REFERENCES [ref_schema].[ref_table] ([id]) ON DELETE SET NULL ON UPDATE CASCADE';

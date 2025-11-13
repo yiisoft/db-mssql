@@ -79,7 +79,7 @@ final class ColumnFactory extends AbstractColumnFactory
             $info['defaultValue'] = new Expression('newsequentialid()');
         }
 
-        return parent::fromPseudoType($pseudoType, $info);
+        return parent::fromPseudoType($pseudoType, $info)->unsigned(false);
     }
 
     protected function getColumnClass(string $type, array $info = []): string
