@@ -866,9 +866,8 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         string $table,
         array|string $condition,
         Closure|string $expectedSql,
-        array $expectedParams
-    ): void
-    {
+        array $expectedParams,
+    ): void {
         parent::testDelete($table, $condition, $expectedSql, $expectedParams);
     }
 

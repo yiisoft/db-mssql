@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use Throwable;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Query\Query;
