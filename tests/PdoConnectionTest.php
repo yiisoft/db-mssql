@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
-use Throwable;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidCallException;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Common\CommonPdoConnectionTest;
