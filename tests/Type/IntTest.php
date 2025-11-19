@@ -7,16 +7,19 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
+
+use function dirname;
 
 /**
  * @group mssql
  *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver16
  */
-final class IntTest extends TestCase
+final class IntTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     public function testCreateTableWithDefaultValue(): void
     {
@@ -51,9 +54,9 @@ final class IntTest extends TestCase
 
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/int.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('int_default');
 
         $this->assertSame('int', $tableSchema?->getColumn('Myint')->getDbType());
@@ -64,9 +67,9 @@ final class IntTest extends TestCase
 
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/int.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('int_default', [])->execute();
 
@@ -87,9 +90,9 @@ final class IntTest extends TestCase
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('Type/int.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('int', ['Myint1' => 2_147_483_647, 'Myint2' => 0])->execute();
 
@@ -126,9 +129,9 @@ final class IntTest extends TestCase
 
     public function testMaxValueException(): void
     {
-        $this->setFixture('Type/int.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -144,9 +147,9 @@ final class IntTest extends TestCase
      */
     public function testMinValue(): void
     {
-        $this->setFixture('Type/int.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('int', ['Myint1' => -2_147_483_648, 'Myint2' => 0])->execute();
 
@@ -183,9 +186,9 @@ final class IntTest extends TestCase
 
     public function testMinValueException(): void
     {
-        $this->setFixture('Type/int.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -198,8 +201,9 @@ final class IntTest extends TestCase
 
     public function testIdentityTypecasting(): void
     {
-        $this->setFixture('Type/int.sql');
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
+
         $db->createCommand()->insert('int', ['Myint1' => 1])->execute();
 
         $result = $db
@@ -214,7 +218,7 @@ final class IntTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

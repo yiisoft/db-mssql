@@ -12,27 +12,20 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/binary-and-varbinary-transact-sql?view=sql-server-ver16
  */
-final class BinaryTest extends TestCase
+final class BinaryTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\BinaryProvider::columns
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testCreateTableWithDefaultValue(
         string $column,
@@ -52,13 +45,6 @@ final class BinaryTest extends TestCase
         $db->createCommand()->dropTable('binary_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -80,12 +66,6 @@ final class BinaryTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\BinaryProvider::columns
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testDefaultValue(
         string $column,
@@ -94,9 +74,9 @@ final class BinaryTest extends TestCase
         int $size,
         Expression $defaultValue,
     ): void {
-        $this->setFixture('Type/binary.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/binary.sql');
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('binary_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
@@ -106,18 +86,11 @@ final class BinaryTest extends TestCase
         $db->createCommand()->dropTable('binary_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/binary.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/binary.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('binary_default', [])->execute();
 
@@ -135,18 +108,12 @@ final class BinaryTest extends TestCase
 
     /**
      * When the value is greater than the maximum value, the value is truncated.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('Type/binary.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/binary.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('binary', [
             'Mybinary1' => new Expression('CONVERT(binary(10), \'binary_default_value\')'),
@@ -171,18 +138,11 @@ final class BinaryTest extends TestCase
         $db->createCommand()->dropTable('binary')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValue(): void
     {
-        $this->setFixture('Type/binary.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/binary.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('binary', [
             'Mybinary1' => new Expression('CONVERT(binary(10), \'binary\')'),
@@ -211,7 +171,7 @@ final class BinaryTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

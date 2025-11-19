@@ -6,17 +6,12 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Db\Mssql\TableSchema;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 /**
  * @group mssql
- *
- * @psalm-suppress PropertyNotSetInConstructor
  */
 final class TableSchemaTest extends TestCase
 {
-    use TestTrait;
-
     public function testConstructorWithTableSchemaCatalogServer(): void
     {
         $tableSchema = new TableSchema('test', 'dbo', 'catalog', 'server');

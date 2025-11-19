@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Provider;
 
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constant\DataType;
 use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Constant\ReferentialAction;
@@ -13,7 +14,7 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\Function\ArrayMerge;
 use Yiisoft\Db\Expression\Value\Param;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\TestConnection;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\Tests\Support\TraversableObject;
@@ -26,10 +27,6 @@ use function version_compare;
 
 final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilderProvider
 {
-    use TestTrait;
-
-    protected static string $driverName = 'sqlsrv';
-
     /**
      * @var string ` ESCAPE 'char'` part of a LIKE condition SQL.
      */
@@ -397,7 +394,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
             'carry passed params (query)' => [
                 'customer',
-                (new Query(self::getDb()))
+                static fn(ConnectionInterface $db) => $db
                     ->select(['email', 'name', 'address', 'is_active', 'related_id'])
                     ->from('customer')
                     ->where(
@@ -516,7 +513,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
 
             'query, values and expressions with update part' => [
-                1 => (new Query(self::getDb()))
+                1 => static fn(ConnectionInterface $db) => $db
                         ->select(
                             [
                                 'email' => new Expression(':phEmail', [':phEmail' => 'dynamic@example.com']),
@@ -530,7 +527,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
 
             'query, values and expressions without update part' => [
-                1 => (new Query(self::getDb()))
+                1 => static fn(ConnectionInterface $db) => $db
                         ->select(
                             [
                                 'email' => new Expression(':phEmail', [':phEmail' => 'dynamic@example.com']),
@@ -858,7 +855,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
     public static function caseXBuilder(): array
     {
-        $data = parent::caseXBuilder();
+        $data = iterator_to_array(parent::caseXBuilder());
 
         unset($data['with case condition']);
 
@@ -893,11 +890,9 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
 
     public static function multiOperandFunctionBuilder(): array
     {
-        $data = parent::multiOperandFunctionBuilder();
+        $data = iterator_to_array(parent::multiOperandFunctionBuilder());
 
-        $db = self::getDb();
-        $serverVersion = $db->getServerInfo()->getVersion();
-        $db->close();
+        $serverVersion = TestConnection::getShared()->getServerInfo()->getVersion();
 
         if (version_compare($serverVersion, '16', '<')) {
             $data['Greatest with 2 operands'][2] = '(SELECT MAX(value) FROM (SELECT 1 AS value UNION SELECT (1 + 2) AS value) AS t)';
@@ -936,7 +931,12 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
             ],
             'ArrayMerge with 4 operands' => [
                 ArrayMerge::class,
-                [[1, 2, 3], new ArrayValue([5, 6, 7]), $stringParam, self::getDb()->select(new ArrayValue([9, 10]))],
+                static fn(ConnectionInterface $db) => [
+                    [1, 2, 3],
+                    new ArrayValue([5, 6, 7]),
+                    $stringParam,
+                    $db->select(new ArrayValue([9, 10])),
+                ],
                 <<<SQL
                 (SELECT '[' + STRING_AGG('"' + STRING_ESCAPE(value, 'json') + '"', ',') + ']' AS value FROM (SELECT value FROM OPENJSON(:qp0) UNION SELECT value FROM OPENJSON(:qp1) UNION SELECT value FROM OPENJSON(:qp2) UNION SELECT value FROM OPENJSON((SELECT :qp3))) AS t)
                 SQL,
@@ -955,9 +955,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $data = parent::upsertWithMultiOperandFunctions();
 
-        $db = self::getDb();
-        $serverVersion = $db->getServerInfo()->getVersion();
-        $db->close();
+        $serverVersion = TestConnection::getShared()->getServerInfo()->getVersion();
 
         if (version_compare($serverVersion, '16', '<')) {
             $data[0][3] = 'MERGE [test_upsert_with_functions] WITH (HOLDLOCK)'

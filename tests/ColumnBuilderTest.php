@@ -6,16 +6,13 @@ namespace Yiisoft\Db\Mssql\Tests;
 
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Mssql\Tests\Provider\ColumnBuilderProvider;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
-use Yiisoft\Db\Tests\AbstractColumnBuilderTest;
+use Yiisoft\Db\Tests\Common\CommonColumnBuilderTest;
 
 /**
  * @group mssql
  */
-class ColumnBuilderTest extends AbstractColumnBuilderTest
+class ColumnBuilderTest extends CommonColumnBuilderTest
 {
-    use TestTrait;
-
     #[DataProviderExternal(ColumnBuilderProvider::class, 'buildingMethods')]
     public function testBuildingMethods(
         string $buildingMethod,

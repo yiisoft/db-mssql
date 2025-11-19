@@ -11,7 +11,8 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
@@ -20,17 +21,10 @@ use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
  *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/ntext-text-and-image-transact-sql?view=sql-server-ver16
  */
-final class NTextTest extends TestCase
+final class NTextTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -43,13 +37,6 @@ final class NTextTest extends TestCase
         $db->createCommand()->dropTable('ntext_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -69,18 +56,11 @@ final class NTextTest extends TestCase
         $db->createCommand()->dropTable('ntext_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/ntext.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/ntext.sql');
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('ntext_default');
 
         $this->assertSame('ntext', $tableSchema?->getColumn('Myntext')->getDbType());
@@ -89,18 +69,11 @@ final class NTextTest extends TestCase
         $db->createCommand()->dropTable('ntext_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/ntext.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/ntext.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('ntext_default', [])->execute();
 
@@ -116,18 +89,11 @@ final class NTextTest extends TestCase
         $db->createCommand()->dropTable('ntext_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValue(): void
     {
-        $this->setFixture('Type/ntext.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/ntext.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('ntext', ['Myntext1' => '0123456789', 'Myntext2' => null])->execute();
 
@@ -149,7 +115,7 @@ final class NTextTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

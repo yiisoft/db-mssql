@@ -12,27 +12,20 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/spatial-geometry/spatial-types-geometry-transact-sql?view=sql-server-ver16
  */
-final class GeometryTest extends TestCase
+final class GeometryTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\GeometryProvider::columns
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testCreateTableWithDefaultValue(
         string $column,
@@ -50,13 +43,6 @@ final class GeometryTest extends TestCase
         $db->createCommand()->dropTable('geometry_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -78,12 +64,6 @@ final class GeometryTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\GeometryProvider::columns
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testDefaultValue(
         string $column,
@@ -91,9 +71,9 @@ final class GeometryTest extends TestCase
         string $phpType,
         ?Expression $defaultValue,
     ): void {
-        $this->setFixture('Type/geometry.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/geometry.sql');
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('geometry_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
@@ -102,18 +82,11 @@ final class GeometryTest extends TestCase
         $db->createCommand()->dropTable('geometry_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/geometry.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/geometry.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('geometry_default', [])->execute();
 
@@ -129,18 +102,11 @@ final class GeometryTest extends TestCase
         $db->createCommand()->dropTable('geometry_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValue(): void
     {
-        $this->setFixture('Type/geometry.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/geometry.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert(
             'geometry',
@@ -167,7 +133,7 @@ final class GeometryTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

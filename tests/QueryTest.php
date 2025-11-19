@@ -9,18 +9,16 @@ use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonQueryTest;
 
 /**
  * @group mssql
- *
- * @psalm-suppress PropertyNotSetInConstructor
  */
 final class QueryTest extends CommonQueryTest
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     /**
      * Ensure no ambiguous column error occurs on indexBy with JOIN.
@@ -29,7 +27,8 @@ final class QueryTest extends CommonQueryTest
      */
     public function testAmbiguousColumnIndexBy(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $selectExpression = 'CONCAT(customer.name, \' in \', p.description) name';
 
@@ -43,14 +42,9 @@ final class QueryTest extends CommonQueryTest
         $this->assertSame([1 => 'user1 in profile customer 1', 3 => 'user3 in profile customer 3'], $result);
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
     public function testUnion(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $subQueryFromItem = (new Query($db))->select(['id', 'name'])->from('item')->limit(2);
         $subQueryFromCategory = (new Query($db))->select(['id', 'name'])->from(['category'])->limit(2);
@@ -65,7 +59,8 @@ final class QueryTest extends CommonQueryTest
     #[DataProvider('dataLikeCaseSensitive')]
     public function testLikeCaseSensitive(mixed $expected, string $value): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $query = (new Query($db))
             ->select('name')

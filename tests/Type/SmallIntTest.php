@@ -11,26 +11,18 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver16
  */
-final class SmallIntTest extends TestCase
+final class SmallIntTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -43,13 +35,6 @@ final class SmallIntTest extends TestCase
         $db->createCommand()->dropTable('smallint_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -69,18 +54,11 @@ final class SmallIntTest extends TestCase
         $db->createCommand()->dropTable('smallint_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/smallint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallint.sql');
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('smallint_default');
 
         $this->assertSame('smallint', $tableSchema?->getColumn('Mysmallint')->getDbType());
@@ -89,18 +67,11 @@ final class SmallIntTest extends TestCase
         $db->createCommand()->dropTable('smallint_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/smallint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallint.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('smallint_default', [])->execute();
 
@@ -118,18 +89,12 @@ final class SmallIntTest extends TestCase
 
     /**
      * Max value is `32767`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('Type/smallint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallint.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('smallint', ['Mysmallint1' => 32767, 'Mysmallint2' => 0])->execute();
 
@@ -164,18 +129,11 @@ final class SmallIntTest extends TestCase
         $db->createCommand()->dropTable('smallint')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMaxValueException(): void
     {
-        $this->setFixture('Type/smallint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallint.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -188,18 +146,12 @@ final class SmallIntTest extends TestCase
 
     /**
      * Min value is `-32768`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMinValue(): void
     {
-        $this->setFixture('Type/smallint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallint.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('smallint', ['Mysmallint1' => -32768, 'Mysmallint2' => 0])->execute();
 
@@ -234,18 +186,11 @@ final class SmallIntTest extends TestCase
         $db->createCommand()->dropTable('smallint')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMinValueException(): void
     {
-        $this->setFixture('Type/smallint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallint.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -258,7 +203,7 @@ final class SmallIntTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

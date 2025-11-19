@@ -12,26 +12,18 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/ntext-text-and-image-transact-sql?view=sql-server-ver16
  */
-final class ImageTest extends TestCase
+final class ImageTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -44,13 +36,6 @@ final class ImageTest extends TestCase
         $db->createCommand()->dropTable('image_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -70,18 +55,11 @@ final class ImageTest extends TestCase
         $db->createCommand()->dropTable('image_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/image.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/image.sql');
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('image_default');
 
         $this->assertSame('image', $tableSchema?->getColumn('Myimage')->getDbType());
@@ -90,18 +68,11 @@ final class ImageTest extends TestCase
         $db->createCommand()->dropTable('image_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/image.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/image.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('image_default', [])->execute();
 
@@ -117,18 +88,11 @@ final class ImageTest extends TestCase
         $db->createCommand()->dropTable('image_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValue(): void
     {
-        $this->setFixture('Type/image.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/image.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert(
             'image',
@@ -153,7 +117,7 @@ final class ImageTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

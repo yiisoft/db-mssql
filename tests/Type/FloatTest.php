@@ -12,26 +12,18 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/float-and-real-transact-sql?view=sql-server-ver16
  */
-final class FloatTest extends TestCase
+final class FloatTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -44,13 +36,6 @@ final class FloatTest extends TestCase
         $db->createCommand()->insert('float_default', [])->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -70,18 +55,11 @@ final class FloatTest extends TestCase
         $db->createCommand()->dropTable('float_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/float.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('float_default');
 
         $this->assertSame('float', $tableSchema?->getColumn('Myfloat')->getDbType());
@@ -93,18 +71,11 @@ final class FloatTest extends TestCase
         $db->createCommand()->insert('float_default', [])->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/float.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('float_default', [])->execute();
 
@@ -122,18 +93,12 @@ final class FloatTest extends TestCase
 
     /**
      * Max value is `1.79E+308`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('Type/float.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('float', ['Myfloat1' => '1.79E+308', 'Myfloat2' => '0'])->execute();
 
@@ -168,18 +133,11 @@ final class FloatTest extends TestCase
         $db->createCommand()->dropTable('float')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMaxValueException(): void
     {
-        $this->setFixture('Type/float.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -192,18 +150,12 @@ final class FloatTest extends TestCase
 
     /**
      * Min value is `-1.79E+308`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMinValue(): void
     {
-        $this->setFixture('Type/float.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('float', ['Myfloat1' => '-1.79E+308', 'Myfloat2' => '0'])->execute();
 
@@ -238,18 +190,11 @@ final class FloatTest extends TestCase
         $db->createCommand()->dropTable('float')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMinValueException(): void
     {
-        $this->setFixture('Type/float.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -262,7 +207,7 @@ final class FloatTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 
