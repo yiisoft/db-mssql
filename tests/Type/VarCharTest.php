@@ -4,36 +4,25 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
-use PHPUnit\Framework\TestCase;
-use Throwable;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
-use InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Provider\Type\VarCharProvider;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-ver16
  */
-final class VarCharTest extends TestCase
+final class VarCharTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\VarCharProvider::columns
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
+    #[DataProviderExternal(VarCharProvider::class, 'columns')]
     public function testCreateTableWithDefaultValue(
         string $column,
         string $dbType,
@@ -52,13 +41,6 @@ final class VarCharTest extends TestCase
         $db->createCommand()->dropTable('varchar_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -80,12 +62,6 @@ final class VarCharTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\VarCharProvider::columns
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testDefaultValue(
         string $column,
@@ -94,9 +70,9 @@ final class VarCharTest extends TestCase
         int $size,
         string|Expression $defaultValue,
     ): void {
-        $this->setFixture('Type/varchar.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_VARCHAR);
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('varchar_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
@@ -106,18 +82,11 @@ final class VarCharTest extends TestCase
         $db->createCommand()->dropTable('varchar_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/varchar.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_VARCHAR);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('varchar_default', [])->execute();
 
@@ -133,18 +102,11 @@ final class VarCharTest extends TestCase
         $db->createCommand()->dropTable('varchar_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValue(): void
     {
-        $this->setFixture('Type/varchar.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_VARCHAR);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert(
             'varchar',
@@ -174,18 +136,11 @@ final class VarCharTest extends TestCase
         $db->createCommand()->dropTable('varchar')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValueException(): void
     {
-        $this->setFixture('Type/varchar.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_VARCHAR);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -198,7 +153,7 @@ final class VarCharTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

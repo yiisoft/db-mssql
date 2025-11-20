@@ -11,27 +11,27 @@ use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Schema;
 use Yiisoft\Db\Mssql\Tests\Provider\SchemaProvider;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Tests\Common\CommonSchemaTest;
-use Yiisoft\Db\Tests\Support\DbHelper;
+use Yiisoft\Db\Tests\Support\TestHelper;
 
 /**
  * @group mssql
  */
 final class SchemaTest extends CommonSchemaTest
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     #[DataProviderExternal(SchemaProvider::class, 'columns')]
-    public function testColumns(array $columns, string $tableName): void
+    public function testColumns(array $columns, string $tableName, ?string $dump = null): void
     {
-        parent::testColumns($columns, $tableName);
+        parent::testColumns($columns, $tableName, $dump);
     }
 
     public function testGetDefaultSchema(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $schema = $db->getSchema();
 
@@ -40,7 +40,8 @@ final class SchemaTest extends CommonSchemaTest
 
     public function testGetSchemaNames(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $schema = $db->getSchema();
         $schemas = $schema->getSchemaNames();
@@ -50,7 +51,8 @@ final class SchemaTest extends CommonSchemaTest
 
     public function testGetViewNames(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $schema = $db->getSchema();
 
@@ -80,7 +82,7 @@ final class SchemaTest extends CommonSchemaTest
     #[DataProviderExternal(SchemaProvider::class, 'tableSchemaWithDbSchemes')]
     public function testTableSchemaWithDbSchemes(string $tableName, string $expectedTableName): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $commandMock = $this->createMock(CommandInterface::class);
         $commandMock->method('queryAll')->willReturn([]);
@@ -99,7 +101,7 @@ final class SchemaTest extends CommonSchemaTest
                 ),
             )
             ->willReturn($commandMock);
-        $schema = new Schema($mockDb, DbHelper::getSchemaCache());
+        $schema = new Schema($mockDb, TestHelper::createMemorySchemaCache());
         $schema->getTablePrimaryKey($tableName, true);
 
         $db->close();
@@ -108,7 +110,7 @@ final class SchemaTest extends CommonSchemaTest
     public function testNotConnectionPDO(): void
     {
         $db = $this->createMock(ConnectionInterface::class);
-        $schema = new Schema($db, DbHelper::getSchemaCache());
+        $schema = new Schema($db, TestHelper::createMemorySchemaCache());
 
         $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage('Only PDO connections are supported.');
@@ -118,7 +120,8 @@ final class SchemaTest extends CommonSchemaTest
 
     public function testNegativeDefaultValues(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $schema = $db->getSchema();
         $table = $schema->getTableSchema('negative_default_values');

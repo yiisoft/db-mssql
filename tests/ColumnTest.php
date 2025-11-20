@@ -13,7 +13,7 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\Value\Param;
 use Yiisoft\Db\Mssql\Column\BinaryColumn;
 use Yiisoft\Db\Mssql\Tests\Provider\ColumnProvider;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Schema\Column\BooleanColumn;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\Column\DoubleColumn;
@@ -30,11 +30,11 @@ use function str_repeat;
  */
 final class ColumnTest extends CommonColumnTest
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     public function testSelectWithPhpTypecasting(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $sql = "SELECT null AS [null], 1 AS [1], 2.5 AS [2.5], 'string' AS [string]";
 
@@ -80,7 +80,9 @@ final class ColumnTest extends CommonColumnTest
 
     public function testColumnInstance()
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
+
         $schema = $db->getSchema();
         $tableSchema = $schema->getTableSchema('type');
 
@@ -162,5 +164,10 @@ final class ColumnTest extends CommonColumnTest
         } else {
             $this->assertSame('[{"a":1,"b":null,"c":[1,3,5]}]', $result['json_col']);
         }
+    }
+
+    protected function createTimestampDefaultValue(): mixed
+    {
+        return new Expression('getdate()');
     }
 }

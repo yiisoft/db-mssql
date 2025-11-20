@@ -4,33 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
-use PHPUnit\Framework\TestCase;
-use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Exception\Exception;
-use InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/ntext-text-and-image-transact-sql?view=sql-server-ver16
  */
-final class TextTest extends TestCase
+final class TextTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -43,13 +30,6 @@ final class TextTest extends TestCase
         $db->createCommand()->dropTable('text_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -69,18 +49,11 @@ final class TextTest extends TestCase
         $db->createCommand()->dropTable('text_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/text.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TEXT);
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('text_default');
 
         $this->assertSame('text', $tableSchema?->getColumn('Mytext')->getDbType());
@@ -89,18 +62,11 @@ final class TextTest extends TestCase
         $db->createCommand()->dropTable('text_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/text.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TEXT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('text_default', [])->execute();
 
@@ -116,18 +82,11 @@ final class TextTest extends TestCase
         $db->createCommand()->dropTable('text_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValue(): void
     {
-        $this->setFixture('Type/text.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TEXT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('text', ['Mytext1' => '0123456789', 'Mytext2' => null])->execute();
 
@@ -149,7 +108,7 @@ final class TextTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

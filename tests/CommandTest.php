@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests;
 
+use Closure;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Constraint\Index;
 use Yiisoft\Db\Exception\IntegrityException;
@@ -13,7 +14,8 @@ use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\IndexType;
 use Yiisoft\Db\Mssql\Tests\Provider\CommandProvider;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\TestConnection;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\Common\CommonCommandTest;
 
@@ -25,13 +27,12 @@ use function trim;
  */
 final class CommandTest extends CommonCommandTest
 {
-    use TestTrait;
-
-    protected string $upsertTestCharCast = 'CAST([[address]] AS VARCHAR(255))';
+    use IntegrationTestTrait;
 
     public function testAlterColumn(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $command = $db->createCommand();
         $command->alterColumn('{{customer}}', 'email', 'ntext')->execute();
@@ -44,7 +45,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testCheckIntegrity(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
         $command->checkIntegrity('{{dbo}}', '{{customer}}');
@@ -60,7 +61,8 @@ final class CommandTest extends CommonCommandTest
 
     public function testCheckIntegrityExecuteException(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $command = $db->createCommand();
         $command->checkIntegrity('{{dbo}}', '{{T_constraints_3}}', false)->execute();
@@ -84,7 +86,8 @@ final class CommandTest extends CommonCommandTest
     #[DataProviderExternal(CommandProvider::class, 'dataInsertVarbinary')]
     public function testInsertVarbinary(mixed $expectedData, mixed $testData): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $command = $db->createCommand();
 
@@ -99,7 +102,8 @@ final class CommandTest extends CommonCommandTest
 
     public function testInsertReturningPksWithComputedColumn(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $command = $db->createCommand();
         $command->setSql(
@@ -132,7 +136,8 @@ final class CommandTest extends CommonCommandTest
 
     public function testInsertReturningPksWithRowVersionColumn(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $command = $db->createCommand();
         $command->setSql(
@@ -148,7 +153,8 @@ final class CommandTest extends CommonCommandTest
 
     public function testInsertReturningPksWithRowVersionNullColumn(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $command = $db->createCommand();
         $command->setSql(
@@ -167,7 +173,8 @@ final class CommandTest extends CommonCommandTest
 
     public function testResetSequence(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $command = $db->createCommand();
         $oldRow = $command->insertReturningPks('{{item}}', ['name' => 'insert_value_for_sequence', 'category_id' => 1]);
@@ -183,7 +190,7 @@ final class CommandTest extends CommonCommandTest
         string $table,
         array $columns,
         array|ExpressionInterface|string $conditions,
-        array|ExpressionInterface|string|null $from,
+        Closure|array|ExpressionInterface|string|null $from,
         array $params,
         array $expectedValues,
         int $expectedCount,
@@ -198,14 +205,15 @@ final class CommandTest extends CommonCommandTest
     }
 
     #[DataProviderExternal(CommandProvider::class, 'upsert')]
-    public function testUpsert(array $firstData, array $secondData): void
+    public function testUpsert(Closure|array $firstData, Closure|array $secondData): void
     {
         parent::testUpsert($firstData, $secondData);
     }
 
     public function testQueryScalarWithBlob(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture();
 
         $value = json_encode(['test'], JSON_THROW_ON_ERROR);
         $db->createCommand()->insert('{{%T_upsert_varbinary}}', ['id' => 1, 'blob_col' => $value])->execute();
@@ -216,7 +224,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testAddDefaultValueSql(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 
@@ -230,7 +238,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testDropDefaultValueSql(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 
@@ -244,7 +252,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testDropTableCascade(): void
     {
-        $command = $this->getConnection()->createCommand();
+        $command = $this->getSharedConnection()->createCommand();
 
         $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage('MSSQL doesn\'t support cascade drop table.');
@@ -254,19 +262,21 @@ final class CommandTest extends CommonCommandTest
     public function testShowDatabases(): void
     {
         $expectedDatabases = [];
-        if (self::getDatabaseName() !== 'tempdb') {
-            $expectedDatabases[] = self::getDatabaseName();
+        if (TestConnection::databaseName() !== 'tempdb') {
+            $expectedDatabases[] = TestConnection::databaseName();
         }
 
-        $actualDatabases = self::getDb()->createCommand()->showDatabases();
+        $actualDatabases = $this->getSharedConnection()->createCommand()->showDatabases();
 
         $this->assertSame($expectedDatabases, $actualDatabases);
     }
 
-    /** @link https://github.com/yiisoft/db-migration/issues/11 */
+    /**
+     * @link https://github.com/yiisoft/db-migration/issues/11
+     */
     public function testAlterColumnWithDefaultNull()
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
         $command = $db->createCommand();
 
         if ($db->getTableSchema('column_with_constraint', true) !== null) {
@@ -295,7 +305,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testCreateClusteredColumnstoreIndex(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
         $schema = $db->getSchema();
@@ -320,7 +330,7 @@ final class CommandTest extends CommonCommandTest
 
     public function testCreateXmlIndex(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
         $command = $db->createCommand();
         $schema = $db->getSchema();
 
@@ -356,5 +366,10 @@ final class CommandTest extends CommonCommandTest
         int $insertedRow = 1,
     ): void {
         parent::testBatchInsert($table, $values, $columns, $expected, $expectedParams, $insertedRow);
+    }
+
+    protected function getUpsertTestCharCast(): string
+    {
+        return 'CAST([[address]] AS VARCHAR(255))';
     }
 }

@@ -4,33 +4,21 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
-use PHPUnit\Framework\TestCase;
-use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
-use InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/int-bigint-smallint-and-tinyint-transact-sql?view=sql-server-ver16
  */
-final class TinyIntTest extends TestCase
+final class TinyIntTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -43,13 +31,6 @@ final class TinyIntTest extends TestCase
         $db->createCommand()->dropTable('tinyint_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -69,18 +50,11 @@ final class TinyIntTest extends TestCase
         $db->createCommand()->dropTable('tinyint_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/tinyint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TINYINT);
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('tinyint_default');
 
         $this->assertSame('tinyint', $tableSchema?->getColumn('Mytinyint')->getDbType());
@@ -89,18 +63,11 @@ final class TinyIntTest extends TestCase
         $db->createCommand()->dropTable('tinyint_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/tinyint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TINYINT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('tinyint_default', [])->execute();
 
@@ -118,18 +85,12 @@ final class TinyIntTest extends TestCase
 
     /**
      * Max value is `255`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('Type/tinyint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TINYINT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('tinyint', ['Mytinyint1' => 255, 'Mytinyint2' => 0])->execute();
 
@@ -179,18 +140,11 @@ final class TinyIntTest extends TestCase
         $db->createCommand()->dropTable('tinyint')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMaxValueException(): void
     {
-        $this->setFixture('Type/tinyint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TINYINT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -203,18 +157,12 @@ final class TinyIntTest extends TestCase
 
     /**
      * Min value is `0`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMinValue(): void
     {
-        $this->setFixture('Type/tinyint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TINYINT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('tinyint', ['Mytinyint1' => 0, 'Mytinyint2' => null])->execute();
 
@@ -249,18 +197,11 @@ final class TinyIntTest extends TestCase
         $db->createCommand()->dropTable('tinyint')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMinValueException(): void
     {
-        $this->setFixture('Type/tinyint.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_TINYINT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -273,7 +214,7 @@ final class TinyIntTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

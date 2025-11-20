@@ -4,33 +4,21 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
-use PHPUnit\Framework\TestCase;
-use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
-use InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/money-and-smallmoney-transact-sql?view=sql-server-ver16
  */
-final class SmallMoneyTest extends TestCase
+final class SmallMoneyTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -43,13 +31,6 @@ final class SmallMoneyTest extends TestCase
         $db->createCommand()->dropTable('smallmoney_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -69,18 +50,11 @@ final class SmallMoneyTest extends TestCase
         $db->createCommand()->dropTable('smallmoney_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/smallmoney.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('smallmoney_default');
 
         $this->assertSame('smallmoney', $tableSchema?->getColumn('Mysmallmoney')->getDbType());
@@ -89,18 +63,11 @@ final class SmallMoneyTest extends TestCase
         $db->createCommand()->dropTable('smallmoney_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/smallmoney.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('smallmoney_default', [])->execute();
 
@@ -118,18 +85,12 @@ final class SmallMoneyTest extends TestCase
 
     /**
      * Max value is `214748.3647`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('Type/smallmoney.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('smallmoney', ['Mysmallmoney1' => '214748.3647', 'Mysmallmoney2' => '0'])->execute();
 
@@ -164,18 +125,11 @@ final class SmallMoneyTest extends TestCase
         $db->createCommand()->dropTable('smallmoney')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMaxValueException(): void
     {
-        $this->setFixture('Type/smallmoney.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -188,18 +142,12 @@ final class SmallMoneyTest extends TestCase
 
     /**
      * Min value is `-214748.3648`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMinValue(): void
     {
-        $this->setFixture('Type/smallmoney.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('smallmoney', ['Mysmallmoney1' => '-214748.3648', 'Mysmallmoney2' => 0])->execute();
 
@@ -234,18 +182,11 @@ final class SmallMoneyTest extends TestCase
         $db->createCommand()->dropTable('smallmoney')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testMinValueException(): void
     {
-        $this->setFixture('Type/smallmoney.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
 
         $this->expectException(Exception::class);
@@ -258,7 +199,7 @@ final class SmallMoneyTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

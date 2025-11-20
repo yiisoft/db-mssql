@@ -4,34 +4,22 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
-use PHPUnit\Framework\TestCase;
-use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Exception\Exception;
-use InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
  * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/bit-transact-sql?view=sql-server-ver16
  */
-final class BitTest extends TestCase
+final class BitTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\BitProvider::columns
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testCreateTableWithDefaultValue(
         string $column,
@@ -49,13 +37,6 @@ final class BitTest extends TestCase
         $db->createCommand()->dropTable('bit_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -77,12 +58,6 @@ final class BitTest extends TestCase
 
     /**
      * @dataProvider \Yiisoft\Db\Mssql\Tests\Provider\Type\BitProvider::columns
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testDefaultValue(
         string $column,
@@ -90,9 +65,9 @@ final class BitTest extends TestCase
         string $phpType,
         bool $defaultValue,
     ): void {
-        $this->setFixture('Type/bit.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('bit_default');
 
         $this->assertSame($dbType, $tableSchema?->getColumn($column)->getDbType());
@@ -101,18 +76,11 @@ final class BitTest extends TestCase
         $db->createCommand()->dropTable('bit_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/bit.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('bit_default', [])->execute();
 
@@ -128,18 +96,11 @@ final class BitTest extends TestCase
         $db->createCommand()->dropTable('bit_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testBoolean(): void
     {
-        $this->setFixture('Type/bit.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('bit', ['Mybit1' => true, 'Mybit2' => false, 'Mybit3' => true])->execute();
 
@@ -162,18 +123,12 @@ final class BitTest extends TestCase
 
     /**
      * Max value is `1`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testMaxValue(): void
     {
-        $this->setFixture('Type/bit.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('bit', ['Mybit1' => 1, 'Mybit2' => 1, 'Mybit3' => 1])->execute();
 
@@ -213,19 +168,13 @@ final class BitTest extends TestCase
     /**
      * Min value is `0`.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     *
-     * @https://learn.microsoft.com/en-us/sql/t-sql/data-types/bit-transact-sql?view=sql-server-ver16#remarks
+     * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/bit-transact-sql?view=sql-server-ver16#remarks
      */
     public function testMinValue(): void
     {
-        $this->setFixture('Type/bit.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('bit', ['Mybit1' => 0, 'Mybit2' => 0, 'Mybit3' => 0])->execute();
 
@@ -264,7 +213,7 @@ final class BitTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

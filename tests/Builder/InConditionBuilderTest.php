@@ -4,25 +4,24 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Builder;
 
-use PHPUnit\Framework\TestCase;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Mssql\Builder\InBuilder;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\QueryBuilder\Condition\In;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
- *
- * @psalm-suppress PropertyNotSetInConstructor
  */
-final class InconditionBuilderTest extends TestCase
+final class InConditionBuilderTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     public function testBuildSubqueryInCondition(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
+
         $inCondition = new In(
             ['id'],
             (new Query($db))->select('id')->from('users')->where(['active' => 1]),

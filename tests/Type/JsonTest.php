@@ -4,33 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
-use PHPUnit\Framework\TestCase;
-use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Exception\Exception;
-use InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
 * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/date-transact-sql?view=sql-server-ver16
  */
-final class JsonTest extends TestCase
+final class JsonTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -43,13 +30,6 @@ final class JsonTest extends TestCase
         $db->createCommand()->dropTable('json_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -69,18 +49,11 @@ final class JsonTest extends TestCase
         $db->createCommand()->dropTable('json_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/json.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('json_default');
 
         $this->assertSame('nvarchar', $tableSchema?->getColumn('Myjson')->getDbType());
@@ -89,18 +62,11 @@ final class JsonTest extends TestCase
         $db->createCommand()->dropTable('json_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/json.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('json_default', [])->execute();
 
@@ -116,18 +82,11 @@ final class JsonTest extends TestCase
         $db->createCommand()->dropTable('json_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testInvalidValue(): void
     {
-        $this->setFixture('Type/json.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => 'invalid'])->execute();
 
@@ -141,18 +100,11 @@ final class JsonTest extends TestCase
         );
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValidValue(): void
     {
-        $this->setFixture('Type/json.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => '{"a":1,"b":2,"c":3,"d":4,"e":5}'])->execute();
 
@@ -166,18 +118,11 @@ final class JsonTest extends TestCase
         );
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValue(): void
     {
-        $this->setFixture('Type/json.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => '{"a":1,"b":2,"c":3,"d":4,"e":5}'])->execute();
 
@@ -242,7 +187,7 @@ final class JsonTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

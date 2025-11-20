@@ -9,7 +9,6 @@ use Yiisoft\Db\Expression\Value\Param;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\IndexMethod;
 use Yiisoft\Db\Mssql\IndexType;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
 
 use function json_encode;
 use function preg_replace;
@@ -18,10 +17,6 @@ use function strtr;
 
 final class CommandProvider extends \Yiisoft\Db\Tests\Provider\CommandProvider
 {
-    use TestTrait;
-
-    protected static string $driverName = 'sqlsrv';
-
     public static function batchInsert(): array
     {
         $batchInsert = parent::batchInsert();

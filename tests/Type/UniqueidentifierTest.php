@@ -4,33 +4,21 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
-use PHPUnit\Framework\TestCase;
-use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
-use InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
 /**
  * @group mssql
  *
- * @psalm-suppress PropertyNotSetInConstructor
- *
 * @link https://learn.microsoft.com/en-us/sql/t-sql/data-types/uniqueidentifier-transact-sql?view=sql-server-ver16
  */
-final class UniqueidentifierTest extends TestCase
+final class UniqueidentifierTest extends IntegrationTestCase
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithDefaultValue(): void
     {
         $db = $this->buildTable();
@@ -46,13 +34,6 @@ final class UniqueidentifierTest extends TestCase
         $db->createCommand()->dropTable('uniqueidentifier_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testCreateTableWithInsert(): void
     {
         $db = $this->buildTable();
@@ -72,18 +53,11 @@ final class UniqueidentifierTest extends TestCase
         $db->createCommand()->dropTable('uniqueidentifier_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValue(): void
     {
-        $this->setFixture('Type/uniqueidentifier.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
-        $db = $this->getConnection(true);
         $tableSchema = $db->getTableSchema('uniqueidentifier_default');
 
         $this->assertSame('uniqueidentifier', $tableSchema?->getColumn('Myuniqueidentifier')->getDbType());
@@ -95,18 +69,11 @@ final class UniqueidentifierTest extends TestCase
         $db->createCommand()->dropTable('uniqueidentifier_default')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testDefaultValueWithInsert(): void
     {
-        $this->setFixture('Type/uniqueidentifier.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert('uniqueidentifier_default', [])->execute();
 
@@ -124,18 +91,12 @@ final class UniqueidentifierTest extends TestCase
 
     /**
      * Max value is 36 characters.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testValue(): void
     {
-        $this->setFixture('Type/uniqueidentifier.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert(
             'uniqueidentifier',
@@ -158,18 +119,10 @@ final class UniqueidentifierTest extends TestCase
         $db->createCommand()->dropTable('uniqueidentifier')->execute();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
     public function testValueException(): void
     {
-        $this->setFixture('Type/uniqueidentifier.sql');
-
-        $db = $this->getConnection(true);
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
@@ -182,18 +135,12 @@ final class UniqueidentifierTest extends TestCase
 
     /**
      * When you insert a value that is longer than 36 characters, the value is truncated to 36 characters.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws InvalidArgumentException
-     * @throws NotSupportedException
-     * @throws Throwable
      */
     public function testValueLength(): void
     {
-        $this->setFixture('Type/uniqueidentifier.sql');
+        $db = $this->getSharedConnection();
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
-        $db = $this->getConnection(true);
         $command = $db->createCommand();
         $command->insert(
             'uniqueidentifier',
@@ -218,7 +165,7 @@ final class UniqueidentifierTest extends TestCase
 
     private function buildTable(): ConnectionInterface
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $command = $db->createCommand();
 

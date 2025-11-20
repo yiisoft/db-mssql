@@ -9,9 +9,10 @@ use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
 use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Mssql\Connection;
-use Yiisoft\Db\Mssql\Tests\Support\TestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
+use Yiisoft\Db\Mssql\Tests\Support\TestConnection;
 use Yiisoft\Db\Tests\Common\CommonConnectionTest;
-use Yiisoft\Db\Tests\Support\DbHelper;
+use Yiisoft\Db\Tests\Support\TestHelper;
 use Yiisoft\Db\Transaction\TransactionInterface;
 
 /**
@@ -19,11 +20,11 @@ use Yiisoft\Db\Transaction\TransactionInterface;
  */
 final class ConnectionTest extends CommonConnectionTest
 {
-    use TestTrait;
+    use IntegrationTestTrait;
 
     public function testTransactionIsolation(): void
     {
-        $db = $this->getConnection(true);
+        $db = $this->createConnection();
 
         $transaction = $db->beginTransaction(TransactionInterface::READ_UNCOMMITTED);
         $transaction->commit();
@@ -39,11 +40,13 @@ final class ConnectionTest extends CommonConnectionTest
 
         /* should not be any exception so far */
         $this->assertTrue(true);
+
+        $db->close();
     }
 
     public function testTransactionShortcutCustom(): void
     {
-        $db = $this->getConnection();
+        $db = $this->createConnection();
 
         $result = $db->transaction(
             static function (PdoConnectionInterface $db): bool {
@@ -62,18 +65,20 @@ final class ConnectionTest extends CommonConnectionTest
         )->queryScalar();
 
         $this->assertSame('1', $profilesCount, 'profile should be inserted in transaction shortcut');
+
+        $db->close();
     }
 
     public function testSettingDefaultAttributes(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $this->assertSame(PDO::ERRMODE_EXCEPTION, $db->getActivePDO()?->getAttribute(PDO::ATTR_ERRMODE));
     }
 
     public function getColumnBuilderClass(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $this->assertSame(ColumnBuilder::class, $db->getColumnBuilderClass());
 
@@ -82,7 +87,7 @@ final class ConnectionTest extends CommonConnectionTest
 
     public function testGetColumnFactory(): void
     {
-        $db = $this->getConnection();
+        $db = $this->getSharedConnection();
 
         $this->assertInstanceOf(ColumnFactory::class, $db->getColumnFactory());
 
@@ -93,7 +98,11 @@ final class ConnectionTest extends CommonConnectionTest
     {
         $columnFactory = new ColumnFactory();
 
-        $db = new Connection($this->getDriver(), DbHelper::getSchemaCache(), $columnFactory);
+        $db = new Connection(
+            TestConnection::createDriver(),
+            TestHelper::createMemorySchemaCache(),
+            $columnFactory,
+        );
 
         $this->assertSame($columnFactory, $db->getColumnFactory());
 
