@@ -892,9 +892,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $data = iterator_to_array(parent::multiOperandFunctionBuilder());
 
-        $serverVersion = TestConnection::getShared()->getServerInfo()->getVersion();
-
-        if (version_compare($serverVersion, '16', '<')) {
+        if (version_compare(TestConnection::getServerVersion(), '16', '<')) {
             $data['Greatest with 2 operands'][2] = '(SELECT MAX(value) FROM (SELECT 1 AS value UNION SELECT (1 + 2) AS value) AS t)';
             $data['Greatest with 4 operands'][2] = '(SELECT MAX(value) FROM (SELECT 1 AS value UNION SELECT 1.5 AS value UNION SELECT (1 + 2) AS value UNION SELECT (SELECT 10) AS value) AS t)';
             $data['Least with 2 operands'][2] = '(SELECT MIN(value) FROM (SELECT 1 AS value UNION SELECT (1 + 2) AS value) AS t)';
@@ -955,9 +953,7 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
     {
         $data = parent::upsertWithMultiOperandFunctions();
 
-        $serverVersion = TestConnection::getShared()->getServerInfo()->getVersion();
-
-        if (version_compare($serverVersion, '16', '<')) {
+        if (version_compare(TestConnection::getServerVersion(), '16', '<')) {
             $data[0][3] = 'MERGE [test_upsert_with_functions] WITH (HOLDLOCK)'
                 . ' USING (VALUES (1, :qp0, 5, 5, :qp1, :qp2)) AS EXCLUDED'
                 . ' ([id], [array_col], [greatest_col], [least_col], [longest_col], [shortest_col])'
