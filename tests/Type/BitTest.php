@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -65,7 +66,7 @@ final class BitTest extends IntegrationTestCase
         bool $defaultValue,
     ): void {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bit.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
         $tableSchema = $db->getTableSchema('bit_default');
 
@@ -78,7 +79,7 @@ final class BitTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bit.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
         $command = $db->createCommand();
         $command->insert('bit_default', [])->execute();
@@ -98,7 +99,7 @@ final class BitTest extends IntegrationTestCase
     public function testBoolean(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bit.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
         $command = $db->createCommand();
         $command->insert('bit', ['Mybit1' => true, 'Mybit2' => false, 'Mybit3' => true])->execute();
@@ -126,7 +127,7 @@ final class BitTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bit.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
         $command = $db->createCommand();
         $command->insert('bit', ['Mybit1' => 1, 'Mybit2' => 1, 'Mybit3' => 1])->execute();
@@ -172,7 +173,7 @@ final class BitTest extends IntegrationTestCase
     public function testMinValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bit.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIT);
 
         $command = $db->createCommand();
         $command->insert('bit', ['Mybit1' => 0, 'Mybit2' => 0, 'Mybit3' => 0])->execute();

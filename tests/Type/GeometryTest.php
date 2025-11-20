@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -66,7 +67,7 @@ final class GeometryTest extends IntegrationTestCase
         ?Expression $defaultValue,
     ): void {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/geometry.sql');
+        $this->loadFixture(FixtureDump::TYPE_GEOMETRY);
 
         $tableSchema = $db->getTableSchema('geometry_default');
 
@@ -79,7 +80,7 @@ final class GeometryTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/geometry.sql');
+        $this->loadFixture(FixtureDump::TYPE_GEOMETRY);
 
         $command = $db->createCommand();
         $command->insert('geometry_default', [])->execute();
@@ -99,7 +100,7 @@ final class GeometryTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/geometry.sql');
+        $this->loadFixture(FixtureDump::TYPE_GEOMETRY);
 
         $command = $db->createCommand();
         $command->insert(

@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -52,7 +53,7 @@ final class SmallMoneyTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallmoney.sql');
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
         $tableSchema = $db->getTableSchema('smallmoney_default');
 
@@ -65,7 +66,7 @@ final class SmallMoneyTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallmoney.sql');
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
         $command = $db->createCommand();
         $command->insert('smallmoney_default', [])->execute();
@@ -88,7 +89,7 @@ final class SmallMoneyTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallmoney.sql');
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
         $command = $db->createCommand();
         $command->insert('smallmoney', ['Mysmallmoney1' => '214748.3647', 'Mysmallmoney2' => '0'])->execute();
@@ -127,7 +128,7 @@ final class SmallMoneyTest extends IntegrationTestCase
     public function testMaxValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallmoney.sql');
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
         $command = $db->createCommand();
 
@@ -145,7 +146,7 @@ final class SmallMoneyTest extends IntegrationTestCase
     public function testMinValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallmoney.sql');
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
         $command = $db->createCommand();
         $command->insert('smallmoney', ['Mysmallmoney1' => '-214748.3648', 'Mysmallmoney2' => 0])->execute();
@@ -184,7 +185,7 @@ final class SmallMoneyTest extends IntegrationTestCase
     public function testMinValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/smallmoney.sql');
+        $this->loadFixture(FixtureDump::TYPE_SMALLMONEY);
 
         $command = $db->createCommand();
 

@@ -9,6 +9,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Column\ColumnBuilder;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -69,7 +70,7 @@ final class DateTest extends IntegrationTestCase
         DateTimeImmutable $defaultValue,
     ): void {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/date.sql');
+        $this->loadFixture(FixtureDump::TYPE_DATE);
 
         $tableSchema = $db->getTableSchema('date_default');
 
@@ -82,7 +83,7 @@ final class DateTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/date.sql');
+        $this->loadFixture(FixtureDump::TYPE_DATE);
 
         $command = $db->createCommand();
         $command->insert('date_default', [])->execute();
@@ -102,7 +103,7 @@ final class DateTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/date.sql');
+        $this->loadFixture(FixtureDump::TYPE_DATE);
 
         $command = $db->createCommand()->withDbTypecasting(false);
         $command->insert('date', [
@@ -141,7 +142,7 @@ final class DateTest extends IntegrationTestCase
     public function testValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/date.sql');
+        $this->loadFixture(FixtureDump::TYPE_DATE);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(

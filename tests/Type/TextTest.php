@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -53,7 +54,7 @@ final class TextTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/text.sql');
+        $this->loadFixture(FixtureDump::TYPE_TEXT);
 
         $tableSchema = $db->getTableSchema('text_default');
 
@@ -66,7 +67,7 @@ final class TextTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/text.sql');
+        $this->loadFixture(FixtureDump::TYPE_TEXT);
 
         $command = $db->createCommand();
         $command->insert('text_default', [])->execute();
@@ -86,7 +87,7 @@ final class TextTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/text.sql');
+        $this->loadFixture(FixtureDump::TYPE_TEXT);
 
         $command = $db->createCommand();
         $command->insert('text', ['Mytext1' => '0123456789', 'Mytext2' => null])->execute();

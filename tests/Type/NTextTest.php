@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -53,7 +54,7 @@ final class NTextTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/ntext.sql');
+        $this->loadFixture(FixtureDump::TYPE_NTEXT);
 
         $tableSchema = $db->getTableSchema('ntext_default');
 
@@ -66,7 +67,7 @@ final class NTextTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/ntext.sql');
+        $this->loadFixture(FixtureDump::TYPE_NTEXT);
 
         $command = $db->createCommand();
         $command->insert('ntext_default', [])->execute();
@@ -86,7 +87,7 @@ final class NTextTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/ntext.sql');
+        $this->loadFixture(FixtureDump::TYPE_NTEXT);
 
         $command = $db->createCommand();
         $command->insert('ntext', ['Myntext1' => '0123456789', 'Myntext2' => null])->execute();

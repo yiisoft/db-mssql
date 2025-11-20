@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -69,7 +70,7 @@ final class BinaryTest extends IntegrationTestCase
         Expression $defaultValue,
     ): void {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/binary.sql');
+        $this->loadFixture(FixtureDump::TYPE_BINARY);
 
         $tableSchema = $db->getTableSchema('binary_default');
 
@@ -83,7 +84,7 @@ final class BinaryTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/binary.sql');
+        $this->loadFixture(FixtureDump::TYPE_BINARY);
 
         $command = $db->createCommand();
         $command->insert('binary_default', [])->execute();
@@ -106,7 +107,7 @@ final class BinaryTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/binary.sql');
+        $this->loadFixture(FixtureDump::TYPE_BINARY);
 
         $command = $db->createCommand();
         $command->insert('binary', [
@@ -135,7 +136,7 @@ final class BinaryTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/binary.sql');
+        $this->loadFixture(FixtureDump::TYPE_BINARY);
 
         $command = $db->createCommand();
         $command->insert('binary', [

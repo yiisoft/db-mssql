@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -51,7 +52,7 @@ final class JsonTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/json.sql');
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
         $tableSchema = $db->getTableSchema('json_default');
 
@@ -64,7 +65,7 @@ final class JsonTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/json.sql');
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
         $command = $db->createCommand();
         $command->insert('json_default', [])->execute();
@@ -84,7 +85,7 @@ final class JsonTest extends IntegrationTestCase
     public function testInvalidValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/json.sql');
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => 'invalid'])->execute();
@@ -102,7 +103,7 @@ final class JsonTest extends IntegrationTestCase
     public function testValidValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/json.sql');
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => '{"a":1,"b":2,"c":3,"d":4,"e":5}'])->execute();
@@ -120,7 +121,7 @@ final class JsonTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/json.sql');
+        $this->loadFixture(FixtureDump::TYPE_JSON);
 
         $command = $db->createCommand();
         $command->insert('json', ['Myjson' => '{"a":1,"b":2,"c":3,"d":4,"e":5}'])->execute();

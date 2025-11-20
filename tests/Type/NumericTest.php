@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -54,7 +55,7 @@ final class NumericTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/numeric.sql');
+        $this->loadFixture(FixtureDump::TYPE_NUMERIC);
 
         $tableSchema = $db->getTableSchema('numeric_default');
 
@@ -68,7 +69,7 @@ final class NumericTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/numeric.sql');
+        $this->loadFixture(FixtureDump::TYPE_NUMERIC);
 
         $command = $db->createCommand();
         $command->insert('numeric_default', [])->execute();
@@ -91,7 +92,7 @@ final class NumericTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/numeric.sql');
+        $this->loadFixture(FixtureDump::TYPE_NUMERIC);
 
         $command = $db->createCommand();
         $command->insert(
@@ -139,7 +140,7 @@ final class NumericTest extends IntegrationTestCase
     public function testMinValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/numeric.sql');
+        $this->loadFixture(FixtureDump::TYPE_NUMERIC);
 
         $command = $db->createCommand();
         $command->insert(
@@ -184,7 +185,7 @@ final class NumericTest extends IntegrationTestCase
     public function testMinValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/numeric.sql');
+        $this->loadFixture(FixtureDump::TYPE_NUMERIC);
 
         $command = $db->createCommand();
 

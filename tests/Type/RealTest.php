@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -53,7 +54,7 @@ final class RealTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/real.sql');
+        $this->loadFixture(FixtureDump::TYPE_REAL);
 
         $tableSchema = $db->getTableSchema('real_default');
 
@@ -66,7 +67,7 @@ final class RealTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/real.sql');
+        $this->loadFixture(FixtureDump::TYPE_REAL);
 
         $command = $db->createCommand();
         $command->insert('real_default', [])->execute();
@@ -89,7 +90,7 @@ final class RealTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/real.sql');
+        $this->loadFixture(FixtureDump::TYPE_REAL);
 
         $command = $db->createCommand();
         $command->insert('real', ['Myreal1' => '3.4E+38', 'Myreal2' => '0'])->execute();
@@ -128,7 +129,7 @@ final class RealTest extends IntegrationTestCase
     public function testMaxValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/real.sql');
+        $this->loadFixture(FixtureDump::TYPE_REAL);
 
         $command = $db->createCommand();
 
@@ -146,7 +147,7 @@ final class RealTest extends IntegrationTestCase
     public function testMinValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/real.sql');
+        $this->loadFixture(FixtureDump::TYPE_REAL);
 
         $command = $db->createCommand();
         $command->insert('real', ['Myreal1' => '-3.4E+38', 'Myreal2' => '0'])->execute();
@@ -185,7 +186,7 @@ final class RealTest extends IntegrationTestCase
     public function testMinValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/real.sql');
+        $this->loadFixture(FixtureDump::TYPE_REAL);
 
         $command = $db->createCommand();
 

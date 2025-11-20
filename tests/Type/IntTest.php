@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -54,7 +55,7 @@ final class IntTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
+        $this->loadFixture(FixtureDump::TYPE_INT);
 
         $tableSchema = $db->getTableSchema('int_default');
 
@@ -67,7 +68,7 @@ final class IntTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
+        $this->loadFixture(FixtureDump::TYPE_INT);
 
         $command = $db->createCommand();
         $command->insert('int_default', [])->execute();
@@ -90,7 +91,7 @@ final class IntTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
+        $this->loadFixture(FixtureDump::TYPE_INT);
 
         $command = $db->createCommand();
         $command->insert('int', ['Myint1' => 2_147_483_647, 'Myint2' => 0])->execute();
@@ -129,7 +130,7 @@ final class IntTest extends IntegrationTestCase
     public function testMaxValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
+        $this->loadFixture(FixtureDump::TYPE_INT);
 
         $command = $db->createCommand();
 
@@ -147,7 +148,7 @@ final class IntTest extends IntegrationTestCase
     public function testMinValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
+        $this->loadFixture(FixtureDump::TYPE_INT);
 
         $command = $db->createCommand();
         $command->insert('int', ['Myint1' => -2_147_483_648, 'Myint2' => 0])->execute();
@@ -186,7 +187,7 @@ final class IntTest extends IntegrationTestCase
     public function testMinValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
+        $this->loadFixture(FixtureDump::TYPE_INT);
 
         $command = $db->createCommand();
 
@@ -201,7 +202,7 @@ final class IntTest extends IntegrationTestCase
     public function testIdentityTypecasting(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/int.sql');
+        $this->loadFixture(FixtureDump::TYPE_INT);
 
         $db->createCommand()->insert('int', ['Myint1' => 1])->execute();
 

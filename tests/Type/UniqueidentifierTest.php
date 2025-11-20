@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -55,7 +56,7 @@ final class UniqueidentifierTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/uniqueidentifier.sql');
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
         $tableSchema = $db->getTableSchema('uniqueidentifier_default');
 
@@ -71,7 +72,7 @@ final class UniqueidentifierTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/uniqueidentifier.sql');
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
         $command = $db->createCommand();
         $command->insert('uniqueidentifier_default', [])->execute();
@@ -94,7 +95,7 @@ final class UniqueidentifierTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/uniqueidentifier.sql');
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
         $command = $db->createCommand();
         $command->insert(
@@ -121,7 +122,7 @@ final class UniqueidentifierTest extends IntegrationTestCase
     public function testValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/uniqueidentifier.sql');
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(
@@ -138,7 +139,7 @@ final class UniqueidentifierTest extends IntegrationTestCase
     public function testValueLength(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/uniqueidentifier.sql');
+        $this->loadFixture(FixtureDump::TYPE_UNIQUEIDENTIFIER);
 
         $command = $db->createCommand();
         $command->insert(

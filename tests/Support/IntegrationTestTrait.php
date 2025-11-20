@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Support;
 
 use Yiisoft\Db\Mssql\Connection;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Tests\Support\TestHelper;
 
 trait IntegrationTestTrait
@@ -19,7 +20,7 @@ trait IntegrationTestTrait
 
     protected function getDefaultFixture(): string
     {
-        return __DIR__ . '/Fixture/mssql.sql';
+        return FixtureDump::DEFAULT;
     }
 
     protected function replaceQuotes(string $sql): string

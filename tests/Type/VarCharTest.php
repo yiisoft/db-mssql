@@ -9,6 +9,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Mssql\Tests\Provider\Type\VarCharProvider;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -72,7 +73,7 @@ final class VarCharTest extends IntegrationTestCase
         string|Expression $defaultValue,
     ): void {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/varchar.sql');
+        $this->loadFixture(FixtureDump::TYPE_VARCHAR);
 
         $tableSchema = $db->getTableSchema('varchar_default');
 
@@ -86,7 +87,7 @@ final class VarCharTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/varchar.sql');
+        $this->loadFixture(FixtureDump::TYPE_VARCHAR);
 
         $command = $db->createCommand();
         $command->insert('varchar_default', [])->execute();
@@ -106,7 +107,7 @@ final class VarCharTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/varchar.sql');
+        $this->loadFixture(FixtureDump::TYPE_VARCHAR);
 
         $command = $db->createCommand();
         $command->insert(
@@ -140,7 +141,7 @@ final class VarCharTest extends IntegrationTestCase
     public function testValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/varchar.sql');
+        $this->loadFixture(FixtureDump::TYPE_VARCHAR);
 
         $command = $db->createCommand();
 

@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -53,7 +54,7 @@ final class FloatTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
+        $this->loadFixture(FixtureDump::TYPE_FLOAT);
 
         $tableSchema = $db->getTableSchema('float_default');
 
@@ -69,7 +70,7 @@ final class FloatTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
+        $this->loadFixture(FixtureDump::TYPE_FLOAT);
 
         $command = $db->createCommand();
         $command->insert('float_default', [])->execute();
@@ -92,7 +93,7 @@ final class FloatTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
+        $this->loadFixture(FixtureDump::TYPE_FLOAT);
 
         $command = $db->createCommand();
         $command->insert('float', ['Myfloat1' => '1.79E+308', 'Myfloat2' => '0'])->execute();
@@ -131,7 +132,7 @@ final class FloatTest extends IntegrationTestCase
     public function testMaxValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
+        $this->loadFixture(FixtureDump::TYPE_FLOAT);
 
         $command = $db->createCommand();
 
@@ -149,7 +150,7 @@ final class FloatTest extends IntegrationTestCase
     public function testMinValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
+        $this->loadFixture(FixtureDump::TYPE_FLOAT);
 
         $command = $db->createCommand();
         $command->insert('float', ['Myfloat1' => '-1.79E+308', 'Myfloat2' => '0'])->execute();
@@ -188,7 +189,7 @@ final class FloatTest extends IntegrationTestCase
     public function testMinValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/float.sql');
+        $this->loadFixture(FixtureDump::TYPE_FLOAT);
 
         $command = $db->createCommand();
 

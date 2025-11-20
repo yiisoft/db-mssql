@@ -6,6 +6,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -52,7 +53,7 @@ final class ImageTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/image.sql');
+        $this->loadFixture(FixtureDump::TYPE_IMAGE);
 
         $tableSchema = $db->getTableSchema('image_default');
 
@@ -65,7 +66,7 @@ final class ImageTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/image.sql');
+        $this->loadFixture(FixtureDump::TYPE_IMAGE);
 
         $command = $db->createCommand();
         $command->insert('image_default', [])->execute();
@@ -85,7 +86,7 @@ final class ImageTest extends IntegrationTestCase
     public function testValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/image.sql');
+        $this->loadFixture(FixtureDump::TYPE_IMAGE);
 
         $command = $db->createCommand();
         $command->insert(

@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests\Type;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Expression\Expression;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -54,7 +55,7 @@ final class DecimalTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/decimal.sql');
+        $this->loadFixture(FixtureDump::TYPE_DECIMAL);
 
         $tableSchema = $db->getTableSchema('decimal_default');
 
@@ -68,7 +69,7 @@ final class DecimalTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/decimal.sql');
+        $this->loadFixture(FixtureDump::TYPE_DECIMAL);
 
         $command = $db->createCommand();
         $command->insert('decimal_default', [])->execute();
@@ -91,7 +92,7 @@ final class DecimalTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/decimal.sql');
+        $this->loadFixture(FixtureDump::TYPE_DECIMAL);
 
         $command = $db->createCommand();
         $command->insert(
@@ -134,7 +135,7 @@ final class DecimalTest extends IntegrationTestCase
     public function testMaxValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/decimal.sql');
+        $this->loadFixture(FixtureDump::TYPE_DECIMAL);
 
         $command = $db->createCommand();
 
@@ -155,7 +156,7 @@ final class DecimalTest extends IntegrationTestCase
     public function testMinValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/decimal.sql');
+        $this->loadFixture(FixtureDump::TYPE_DECIMAL);
 
         $command = $db->createCommand();
         $command->insert(
@@ -198,7 +199,7 @@ final class DecimalTest extends IntegrationTestCase
     public function testMinValueException(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/decimal.sql');
+        $this->loadFixture(FixtureDump::TYPE_DECIMAL);
 
         $command = $db->createCommand();
 

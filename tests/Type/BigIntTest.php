@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Db\Mssql\Tests\Type;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
@@ -53,7 +54,7 @@ final class BigIntTest extends IntegrationTestCase
     public function testDefaultValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bigint.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIGINT);
 
         $tableSchema = $db->getTableSchema('bigint_default');
 
@@ -66,7 +67,7 @@ final class BigIntTest extends IntegrationTestCase
     public function testDefaultValueWithInsert(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bigint.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIGINT);
 
         $command = $db->createCommand();
         $command->insert('bigint_default', [])->execute();
@@ -90,7 +91,7 @@ final class BigIntTest extends IntegrationTestCase
     public function testMaxValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bigint.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIGINT);
 
         $command = $db->createCommand();
         $command->insert('bigint', ['Mybigint1' => '9223372036854775807', 'Mybigint2' => '0'])->execute();
@@ -133,7 +134,7 @@ final class BigIntTest extends IntegrationTestCase
     public function testMinValue(): void
     {
         $db = $this->getSharedConnection();
-        $this->loadFixture(dirname(__DIR__) . '/Support/Fixture/Type/bigint.sql');
+        $this->loadFixture(FixtureDump::TYPE_BIGINT);
 
         $command = $db->createCommand();
         $command->insert('bigint', ['Mybigint1' => '-9223372036854775808', 'Mybigint2' => '0'])->execute();
