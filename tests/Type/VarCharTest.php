@@ -13,8 +13,6 @@ use Yiisoft\Db\Mssql\Tests\Support\Fixture\FixtureDump;
 use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Tests\Support\IntegrationTestCase;
 
-use function dirname;
-
 /**
  * @group mssql
  *
