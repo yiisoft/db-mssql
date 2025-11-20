@@ -165,4 +165,9 @@ final class ColumnTest extends CommonColumnTest
             $this->assertSame('[{"a":1,"b":null,"c":[1,3,5]}]', $result['json_col']);
         }
     }
+
+    protected function createTimestampDefaultValue(): mixed
+    {
+        return new Expression('getdate()');
+    }
 }
