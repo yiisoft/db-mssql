@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace Yiisoft\Db\Mssql\Tests;
+
 use Yiisoft\Db\Mssql\Column\ColumnDefinitionParser;
 use Yiisoft\Db\Syntax\ColumnDefinitionParserInterface;
 use Yiisoft\Db\Tests\Common\CommonColumnDefinitionParserTest;
