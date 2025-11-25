@@ -11,6 +11,7 @@ final class ColumnDefinitionParser extends AbstractColumnDefinitionParser
     protected function parseTypeParams(string $type, string $params): array
     {
         return match ($type) {
+            'bigint',
             'binary',
             'char',
             'datetime2',
@@ -21,8 +22,10 @@ final class ColumnDefinitionParser extends AbstractColumnDefinitionParser
             'nchar',
             'numeric',
             'nvarchar',
+            'smallint',
             'string',
             'time',
+            'tinyint',
             'varbinary',
             'varchar' => $this->parseSizeInfo($params),
             default => [],
