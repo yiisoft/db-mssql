@@ -11,6 +11,7 @@ use Yiisoft\Db\QueryBuilder\AbstractColumnDefinitionBuilder;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 use function ceil;
+use function in_array;
 use function strtoupper;
 
 final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
@@ -68,19 +69,14 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
 
         if (empty($check)) {
             $name = $column->getName();
-
-            if (empty($name)) {
-                return '';
+            if (!empty($name)
+                && in_array($column->getType(), [ColumnType::ARRAY, ColumnType::STRUCTURED, ColumnType::JSON], true)
+            ) {
+                return ' CHECK (isjson(' . $this->queryBuilder->getQuoter()->quoteSimpleColumnName($name) . ') > 0)';
             }
-
-            return match ($column->getType()) {
-                ColumnType::ARRAY, ColumnType::STRUCTURED, ColumnType::JSON
-                    => ' CHECK (isjson(' . $this->queryBuilder->getQuoter()->quoteSimpleColumnName($name) . ') > 0)',
-                default => '',
-            };
         }
 
-        return " CHECK ($check)";
+        return parent::buildCheck($column);
     }
 
     protected function buildOnDelete(string $onDelete): string
@@ -139,6 +135,7 @@ final class ColumnDefinitionBuilder extends AbstractColumnDefinitionBuilder
             ColumnType::ARRAY => 'nvarchar(max)',
             ColumnType::STRUCTURED => 'nvarchar(max)',
             ColumnType::JSON => 'nvarchar(max)',
+            ColumnType::ENUM => 'nvarchar',
             default => 'nvarchar',
         };
 
