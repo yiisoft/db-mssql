@@ -9,6 +9,7 @@ use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Schema\Column\AbstractColumnFactory;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
+use Yiisoft\Db\Syntax\ColumnDefinitionParserInterface;
 
 use function hex2bin;
 use function str_starts_with;
@@ -116,5 +117,10 @@ final class ColumnFactory extends AbstractColumnFactory
         }
 
         return parent::normalizeNotNullDefaultValue($defaultValue, $column);
+    }
+
+    protected function columnDefinitionParser(): ColumnDefinitionParserInterface
+    {
+        return new ColumnDefinitionParser();
     }
 }
