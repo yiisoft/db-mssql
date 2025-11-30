@@ -396,6 +396,7 @@ final class Schema extends AbstractPdoSchema
             'schema' => $info['schema'],
             'size' => $info['size'] !== null ? (int) $info['size'] : null,
             'table' => $info['table'],
+            'values' => $this->tryGetEnumValuesFromCheck($info['column_name'], $info['check']),
         ]);
     }
 
@@ -501,5 +502,33 @@ final class Schema extends AbstractPdoSchema
         }
 
         return $result[$returnType];
+    }
+
+    /**
+     * @psalm-return list<string>|null
+     */
+    private function tryGetEnumValuesFromCheck(string $columnName, ?string $check): ?array
+    {
+        if ($check === null) {
+            return null;
+        }
+
+        $quotedColumnName = preg_quote($columnName, '~');
+        preg_match_all(
+            "~^\((?:\[$quotedColumnName\]='(?:''|[^'])*'(?:| OR ))+\)$~i",
+            $check,
+            $block,
+        );
+
+        if (empty($block[0][0])) {
+            return null;
+        }
+
+        preg_match_all("~'((?:''|[^'])*)'~", $block[0][0], $matches);
+
+        return array_map(
+            static fn($v) => str_replace("''", "'", $v),
+            $matches[1],
+        );
     }
 }

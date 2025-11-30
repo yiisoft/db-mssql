@@ -62,6 +62,7 @@
 - Enh #406: Adapt to `DQLQueryBuilderInterface::buildWithQueries()` signature changes in `yiisoft/db` package (@vjik)
 - Bug #408, #409: Add `identity` support in `Schema::loadResultColumn()` (@vjik)
 - Chg #413: Throw exception on "unsigned" column usage (@vjik)
+- New #415: Add enumeration column type support (@vjik)
 
 ## 1.2.0 March 21, 2024
 
