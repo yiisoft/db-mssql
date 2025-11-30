@@ -26,7 +26,7 @@ Driver supports Microsoft SQL Server 2017 or higher.
 
 ## Requirements
 
-- PHP 8.1 - 8.4.
+- PHP 8.1 - 8.5.
 - `pdo_sqlsrv` PHP extension.
 
 ## Installation
