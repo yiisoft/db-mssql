@@ -116,7 +116,7 @@ final class ColumnFactory extends AbstractColumnFactory
         }
 
         if (is_numeric($defaultValue)) {
-            $defaultValue = rtrim('.', $defaultValue);
+            $defaultValue = rtrim($defaultValue, '.');
         }
 
         return parent::normalizeNotNullDefaultValue($defaultValue, $column);
