@@ -115,9 +115,7 @@ final class ColumnFactory extends AbstractColumnFactory
             return hex2bin(substr($defaultValue, 2));
         }
 
-        if (is_numeric($defaultValue)) {
-            $defaultValue = rtrim($defaultValue, '.');
-        }
+        $defaultValue = preg_replace('~^\((\d+)\.\)$~', '(${1})', $defaultValue);
 
         return parent::normalizeNotNullDefaultValue($defaultValue, $column);
     }
