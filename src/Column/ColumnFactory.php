@@ -115,6 +115,9 @@ final class ColumnFactory extends AbstractColumnFactory
             return hex2bin(substr($defaultValue, 2));
         }
 
+        /**
+         * @var string $defaultValue We use correct regex, so it always will be a string.
+         */
         $defaultValue = preg_replace('~^\((\d+)\.\)$~', '(${1})', $defaultValue);
 
         return parent::normalizeNotNullDefaultValue($defaultValue, $column);
