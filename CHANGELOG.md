@@ -29,7 +29,7 @@
 - New #339: Add `IndexType` and `IndexMethod` classes (@Tigrov)
 - Bug #343: Explicitly mark nullable parameters (@vjik)
 - New #342, #405: Support JSON type (@Tigrov)
-- Chg #344: Change supported PHP versions to `8.1 - 8.4` (@Tigrov)
+- Chg #344, #418: Change supported PHP versions to `8.1 - 8.5` (@Tigrov, @vjik)
 - Chg #344: Change return type of `Command::insertWithReturningPks()` method to `array|false` (@Tigrov)
 - New #345: Add parameters `$ifExists` and `$cascade` to `CommandInterface::dropTable()` and
   `DDLQueryBuilderInterface::dropTable()` methods (@vjik)
@@ -63,6 +63,7 @@
 - Bug #408, #409: Add `identity` support in `Schema::loadResultColumn()` (@vjik)
 - Chg #413: Throw exception on "unsigned" column usage (@vjik)
 - New #415: Add enumeration column type support (@vjik)
+- New #418: Trim dot in column default value normalization to prevent PHP 8.5+ warnings on large values (@vjik)
 
 ## 1.2.0 March 21, 2024
 

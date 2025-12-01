@@ -115,6 +115,10 @@ final class ColumnFactory extends AbstractColumnFactory
             return hex2bin(substr($defaultValue, 2));
         }
 
+        if (preg_match('~^\((\d+)\.\)$~', $defaultValue, $matches) === 1) {
+            return $column->phpTypecast($matches[1]);
+        }
+
         return parent::normalizeNotNullDefaultValue($defaultValue, $column);
     }
 }

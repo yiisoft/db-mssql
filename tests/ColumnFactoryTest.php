@@ -7,6 +7,7 @@ namespace Yiisoft\Db\Mssql\Tests;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Mssql\Tests\Provider\ColumnFactoryProvider;
+use Yiisoft\Db\Mssql\Tests\Support\IntegrationTestTrait;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Tests\Common\CommonColumnFactoryTest;
 
@@ -15,6 +16,8 @@ use Yiisoft\Db\Tests\Common\CommonColumnFactoryTest;
  */
 final class ColumnFactoryTest extends CommonColumnFactoryTest
 {
+    use IntegrationTestTrait;
+
     #[DataProviderExternal(ColumnFactoryProvider::class, 'dbTypes')]
     public function testFromDbType(string $dbType, string $expectedType, string $expectedInstanceOf): void
     {

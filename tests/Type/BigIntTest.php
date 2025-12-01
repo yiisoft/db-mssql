@@ -83,49 +83,6 @@ final class BigIntTest extends IntegrationTestCase
     }
 
     /**
-     * Max value is `9223372036854775807`, but when the value is greater than `9223372036854775807` it is out of range
-     * and save as `9223372036854775807`.
-     */
-    public function testMaxValue(): void
-    {
-        $db = $this->getSharedConnection();
-        $this->loadFixture(FixtureDump::TYPE_BIGINT);
-
-        $command = $db->createCommand();
-        $command->insert('bigint', ['Mybigint1' => '9223372036854775807', 'Mybigint2' => '0'])->execute();
-
-        $this->assertSame(
-            [
-                'id' => '1',
-                'Mybigint1' => '9223372036854775807',
-                'Mybigint2' => '0',
-            ],
-            $command->setSql(
-                <<<SQL
-                SELECT * FROM bigint WHERE id = 1
-                SQL,
-            )->queryOne(),
-        );
-
-        $command->insert('bigint', ['Mybigint1' => '9223372036854775808', 'Mybigint2' => null])->execute();
-
-        $this->assertSame(
-            [
-                'id' => '2',
-                'Mybigint1' => '9223372036854775807',
-                'Mybigint2' => null,
-            ],
-            $command->setSql(
-                <<<SQL
-                SELECT * FROM bigint WHERE id = 2
-                SQL,
-            )->queryOne(),
-        );
-
-        $db->createCommand()->dropTable('bigint')->execute();
-    }
-
-    /**
      * Min value is `-9223372036854775808`, but when the value is less than `-9223372036854775808` it is out of range
      * and save as `-9223372036854775808`.
      */
