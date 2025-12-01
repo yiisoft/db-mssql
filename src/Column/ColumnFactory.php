@@ -118,7 +118,9 @@ final class ColumnFactory extends AbstractColumnFactory
         /**
          * @var string $defaultValue We use correct regex, so it always will be a string.
          */
-        $defaultValue = preg_replace('~^\((\d+)\.\)$~', '(${1})', $defaultValue);
+        if (preg_match('~^\((\d+)\.\)$~', $defaultValue, $matches) === 1) {
+            return $column->phpTypecast($matches[1]);
+        }
 
         return parent::normalizeNotNullDefaultValue($defaultValue, $column);
     }
