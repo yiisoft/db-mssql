@@ -115,9 +115,6 @@ final class ColumnFactory extends AbstractColumnFactory
             return hex2bin(substr($defaultValue, 2));
         }
 
-        /**
-         * @var string $defaultValue We use correct regex, so it always will be a string.
-         */
         if (preg_match('~^\((\d+)\.\)$~', $defaultValue, $matches) === 1) {
             return $column->phpTypecast($matches[1]);
         }
