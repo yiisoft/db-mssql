@@ -70,11 +70,10 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                         collation: 'SQL_Latin1_General_CP1_CI_AS',
                     ),
                     'float_col' => new DoubleColumn(
-                        ColumnType::DECIMAL,
-                        dbType: 'decimal',
+                        ColumnType::FLOAT,
+                        dbType: 'float',
                         notNull: true,
-                        size: 4,
-                        scale: 3,
+                        size: 53,
                     ),
                     'float_col2' => new DoubleColumn(
                         ColumnType::FLOAT,
@@ -85,12 +84,12 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                     'blob_col' => new BinaryColumn(
                         dbType: 'varbinary',
                     ),
-                    'numeric_col' => new DoubleColumn(
+                    'numeric_col' => new StringColumn(
                         ColumnType::DECIMAL,
                         dbType: 'decimal',
-                        size: 5,
                         scale: 2,
-                        defaultValue: 33.22,
+                        size: 5,
+                        defaultValue: '33.22',
                     ),
                     'datetime_col' => new DateTimeColumn(
                         dbType: 'datetime',
@@ -221,7 +220,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                 'len' => 2147483647,
                 'precision' => 0,
             ]],
-            [new DoubleColumn(ColumnType::DECIMAL, dbType: 'decimal', name: 'float_col', size: 4, scale: 3), [
+            [new StringColumn(ColumnType::DECIMAL, dbType: 'decimal', name: 'float_col', scale: 3, size: 4), [
                 'flags' => 0,
                 'sqlsrv:decl_type' => 'decimal',
                 'native_type' => 'string',
@@ -291,7 +290,7 @@ final class SchemaProvider extends \Yiisoft\Db\Tests\Provider\SchemaProvider
                 'len' => 0,
                 'precision' => 0,
             ]],
-            [new DoubleColumn(ColumnType::DECIMAL, dbType: 'numeric', name: '2.5', size: 2, scale: 1), [
+            [new StringColumn(ColumnType::DECIMAL, dbType: 'numeric', name: '2.5', scale: 1, size: 2), [
                 'flags' => 0,
                 'sqlsrv:decl_type' => 'numeric',
                 'native_type' => 'string',

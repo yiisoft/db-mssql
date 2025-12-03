@@ -424,9 +424,9 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ['order_id' => 1, 'item_id' => 1, 'quantity' => 1, 'subtotal' => 1.0],
                 [],
                 <<<SQL
-                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([order_id] int, [item_id] int);INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[order_id],INSERTED.[item_id] INTO @temporary_inserted VALUES (1, 1, 1, 1);SELECT * FROM @temporary_inserted;
+                SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([order_id] int, [item_id] int);INSERT INTO {{%order_item}} ([order_id], [item_id], [quantity], [subtotal]) OUTPUT INSERTED.[order_id],INSERTED.[item_id] INTO @temporary_inserted VALUES (1, 1, 1, :qp0);SELECT * FROM @temporary_inserted;
                 SQL,
-                [],
+                [':qp0' => new Param('1', DataType::STRING)],
             ],
         ];
     }
@@ -642,14 +642,14 @@ final class QueryBuilderProvider extends \Yiisoft\Db\Tests\Provider\QueryBuilder
                 ['id_1' => 1, 'id_2' => 2.5, 'type' => 'Test'],
                 true,
                 ['id_1', 'id_2'],
-                'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id_1] int, [id_2] decimal(5,2));'
-                . 'MERGE [notauto_pk] WITH (HOLDLOCK) USING (VALUES (1, 2.5, :qp0)) AS EXCLUDED'
+                'SET NOCOUNT ON;DECLARE @temporary_inserted TABLE ([id_1] int, [id_2] decimal(5,1));'
+                . 'MERGE [notauto_pk] WITH (HOLDLOCK) USING (VALUES (1, :qp0, :qp1)) AS EXCLUDED'
                 . ' ([id_1], [id_2], [type]) ON (([notauto_pk].[id_1]=EXCLUDED.[id_1])'
                 . ' AND ([notauto_pk].[id_2]=EXCLUDED.[id_2])) WHEN MATCHED THEN UPDATE SET [type]=EXCLUDED.[type]'
                 . ' WHEN NOT MATCHED THEN INSERT ([id_1], [id_2], [type])'
                 . ' VALUES (EXCLUDED.[id_1], EXCLUDED.[id_2], EXCLUDED.[type])'
                 . ' OUTPUT INSERTED.[id_1],INSERTED.[id_2] INTO @temporary_inserted;SELECT * FROM @temporary_inserted;',
-                [':qp0' => new Param('Test', DataType::STRING)],
+                [':qp0' => new Param('2.5', DataType::STRING), ':qp1' => new Param('Test', DataType::STRING)],
             ],
             'no return columns' => [
                 'type',

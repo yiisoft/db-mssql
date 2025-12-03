@@ -41,7 +41,7 @@ final class ColumnTest extends CommonColumnTest
         $expected = [
             'null' => null,
             1 => 1,
-            '2.5' => 2.5,
+            '2.5' => '2.5',
             'string' => 'string',
         ];
 
@@ -67,13 +67,13 @@ final class ColumnTest extends CommonColumnTest
             ->withPhpTypecasting()
             ->queryScalar();
 
-        $this->assertSame(2.5, $result);
+        $this->assertSame('2.5', $result);
 
         $result = $db->createCommand('SELECT 2.5 UNION SELECT 3.3')
             ->withPhpTypecasting()
             ->queryColumn();
 
-        $this->assertSame([2.5, 3.3], $result);
+        $this->assertSame(['2.5', '3.3'], $result);
 
         $db->close();
     }
