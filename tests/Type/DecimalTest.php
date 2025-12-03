@@ -28,7 +28,10 @@ final class DecimalTest extends IntegrationTestCase
 
         $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
         $this->assertSame(38, $tableSchema?->getColumn('Mydecimal')->getSize());
-        $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
+        $this->assertSame(
+            '99999999999999997748809823456034029568',
+            $tableSchema?->getColumn('Mydecimal')->getDefaultValue(),
+        );
 
         $db->createCommand()->insert('decimal_default', [])->execute();
     }
@@ -61,7 +64,7 @@ final class DecimalTest extends IntegrationTestCase
 
         $this->assertSame('decimal', $tableSchema?->getColumn('Mydecimal')->getDbType());
         $this->assertSame(38, $tableSchema?->getColumn('Mydecimal')->getSize());
-        $this->assertSame(9.9999999999999998e+037, $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
+        $this->assertSame('9.9999999999999998e+037', $tableSchema?->getColumn('Mydecimal')->getDefaultValue());
 
         $db->createCommand()->dropTable('decimal_default')->execute();
     }

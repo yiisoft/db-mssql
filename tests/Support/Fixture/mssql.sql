@@ -149,7 +149,7 @@ CREATE TABLE [dbo].[type] (
     [char_col] [char](100) NOT NULL,
     [char_col2] [varchar](100) COLLATE Latin1_General_CI_AS DEFAULT 'something',
     [char_col3] [text],
-    [float_col] [decimal](4,3) NOT NULL,
+    [float_col] [float] NOT NULL,
     [float_col2] [float] DEFAULT '1.23',
     [blob_col] [varbinary](MAX),
     [numeric_col] [decimal](5,2) DEFAULT '33.22',
@@ -178,7 +178,7 @@ CREATE TABLE [dbo].[default_pk] (
 
 CREATE TABLE [dbo].[notauto_pk] (
     [id_1] [INT],
-    [id_2] [DECIMAL](5,2),
+    [id_2] [DECIMAL](5,1),
     [type] [VARCHAR](255) NOT NULL,
     CONSTRAINT [PK_notauto_pk] PRIMARY KEY CLUSTERED (
         [id_1] ASC,
