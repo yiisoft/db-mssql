@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Db\Mssql;
 
+use Yiisoft\Db\Constant\ColumnInfoSource;
 use Yiisoft\Db\Constraint\Check;
 use Yiisoft\Db\Constraint\DefaultValue;
 use Yiisoft\Db\Constraint\ForeignKey;
@@ -166,7 +167,7 @@ final class Schema extends AbstractPdoSchema
 
         $dbType = $metadata['sqlsrv:decl_type'];
 
-        $columnInfo = ['fromResult' => true];
+        $columnInfo = ['source' => ColumnInfoSource::QUERY_RESULT];
 
         if (str_ends_with($dbType, ' identity')) {
             $columnInfo['autoIncrement'] = true;
@@ -395,6 +396,7 @@ final class Schema extends AbstractPdoSchema
             'scale' => $info['numeric_scale'] !== null ? (int) $info['numeric_scale'] : null,
             'schema' => $info['schema'],
             'size' => $info['size'] !== null ? (int) $info['size'] : null,
+            'source' => ColumnInfoSource::TABLE_SCHEMA,
             'table' => $info['table'],
             'values' => $this->tryGetEnumValuesFromCheck($info['column_name'], $info['check']),
         ]);

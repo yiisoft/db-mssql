@@ -64,6 +64,7 @@
 - Chg #413: Throw exception on "unsigned" column usage (@vjik)
 - New #415: Add enumeration column type support (@vjik)
 - New #418: Trim dot in column default value normalization to prevent PHP 8.5+ warnings on large values (@vjik)
+- New #420: Add source of column information (@Tigrov)
 
 ## 1.2.0 March 21, 2024
 
