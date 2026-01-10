@@ -22,6 +22,8 @@ use Yiisoft\Db\Tests\Common\CommonCommandTest;
 use function array_filter;
 use function trim;
 
+use const JSON_THROW_ON_ERROR;
+
 /**
  * @group mssql
  */

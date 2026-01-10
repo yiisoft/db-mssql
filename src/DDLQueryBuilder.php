@@ -14,6 +14,7 @@ use Yiisoft\Db\Schema\Column\ColumnInterface;
 use function array_diff;
 use function implode;
 use function preg_replace;
+use function is_string;
 
 /**
  * Implements a (Data Definition Language) SQL statements for MSSQL Server.

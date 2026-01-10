@@ -20,6 +20,7 @@ use function array_column;
 use function array_fill_keys;
 use function array_map;
 use function str_replace;
+use function is_string;
 
 /**
  * Implements the MSSQL Server specific schema, supporting MSSQL Server 2017 and above.

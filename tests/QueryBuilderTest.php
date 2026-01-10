@@ -29,6 +29,10 @@ use Yiisoft\Db\Tests\Support\Assert;
 
 use function json_encode;
 
+use const JSON_THROW_ON_ERROR;
+use const SORT_ASC;
+use const SORT_DESC;
+
 /**
  * @group mssql
  */
