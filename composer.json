@@ -33,6 +33,7 @@
     "require": {
         "php": "8.1 - 8.5",
         "ext-pdo": "*",
+        "ext-pdo_sqlsrv": "*",
         "yiisoft/db": "^2.0"
     },
     "require-dev": {
