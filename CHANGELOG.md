@@ -4,6 +4,7 @@
 
 - Enh #425: Explicitly import classes, functions, and constants in "use" section (@mspirkov)
 - Enh #426: Remove unnecessary files from Composer package (@mspirkov)
+- Enh #427: Add `ext-pdo_sqlsrv` to `require` section of `composer.json` (@Tigrov)
 
 ## 2.0.0 December 05, 2025
 
