@@ -1,3 +1,5 @@
+name: Static analysis
+
 on:
   pull_request:
     paths:
@@ -13,8 +15,6 @@ on:
       - '.github/workflows/static.yml'
       - 'psalm*.xml'
       - 'composer.json'
-
-name: Static analysis
 
 permissions:
   contents: read
