@@ -1,3 +1,5 @@
+name: Static analysis
+
 on:
   pull_request:
     paths:
@@ -14,7 +16,8 @@ on:
       - 'psalm*.xml'
       - 'composer.json'
 
-name: Static analysis
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -1,17 +1,17 @@
+name: backwards compatibility
+
 on:
   pull_request:
-    paths:
+    paths: &paths
       - 'src/**'
       - '.github/workflows/bc.yml'
       - 'composer.json'
   push:
     branches: ['master']
-    paths:
-      - 'src/**'
-      - '.github/workflows/bc.yml'
-      - 'composer.json'
+    paths: *paths
 
-name: backwards compatibility
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
