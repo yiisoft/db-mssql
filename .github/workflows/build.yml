@@ -47,7 +47,7 @@ jobs:
 
     services:
       mssql:
-        image: mcr.microsoft.com/mssql/server:${{ matrix.mssql }}
+        image: mcr.microsoft.com/mssql/server:${{ matrix.mssql }} # zizmor: ignore[unpinned-images]
         env:
           SA_PASSWORD: YourStrong!Passw0rd
           ACCEPT_EULA: Y
