@@ -68,4 +68,11 @@ final class QueryTest extends CommonQueryTest
         $this->expectExceptionMessage('MSSQL doesn\'t support case-sensitive "LIKE" conditions.');
         $query->scalar();
     }
+
+    public static function dataIdentifierColumnName(): iterable
+    {
+        yield from parent::dataIdentifierColumnName();
+        yield 'quote: a]b' => ['a]b'];
+        yield 'quote: a[b' => ['a[b'];
+    }
 }
