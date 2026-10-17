@@ -973,12 +973,10 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         yield ['s.t.name', '[s].[t].[name]'];
         yield [['t', 'na.me'], '[t].[na.me]'];
         yield ['LOWER(name)', '[LOWER(name)]'];
-        yield ['[[name]]', '[[[name]]]]]'];
-        yield ['{{%t}}.name', '[{{%t}}].[name]'];
         yield ['*', '[*]'];
         yield ['arr[1]', '[arr[1]]]'];
         yield ['a]b', '[a]]b]'];
-        yield ['[a] DESC; DROP TABLE t; --', '[[a]] DESC; DROP TABLE t; --]'];
+        yield ['a] DESC; DROP TABLE t; --', '[a]] DESC; DROP TABLE t; --]'];
     }
 
     #[DataProvider('dataBuildIdentifier')]
@@ -987,5 +985,25 @@ ALTER TABLE [customer] DROP COLUMN [id]";
         $qb = $this->getSharedConnection()->getQueryBuilder();
 
         $this->assertSame($expected, $qb->buildExpression(new Identifier($name)));
+    }
+
+    public static function dataBuildIdentifierWithQuoteSqlSequences(): iterable
+    {
+        yield ['[[name]]', '[[[name]]]]]'];
+        yield ['{{%t}}.name', '[{{%t}}].[name]'];
+        yield ['[a] DESC; DROP TABLE t; --', '[[a]] DESC; DROP TABLE t; --]'];
+    }
+
+    #[DataProvider('dataBuildIdentifierWithQuoteSqlSequences')]
+    public function testBuildIdentifierWithQuoteSqlSequences(string|array $name, string $expected): void
+    {
+        $qb = $this->getSharedConnection()->getQueryBuilder();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Identifier ' . $expected . ' must not contain sequences processed by '
+            . '"Yiisoft\\Db\\Schema\\QuoterInterface::quoteSql()", such as "[[...]]" or "{{...}}".',
+        );
+        $qb->buildExpression(new Identifier($name));
     }
 }
